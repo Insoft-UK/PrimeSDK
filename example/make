@@ -8,6 +8,19 @@ export SOURCES=src
 
 make -j$(sysctl -n hw.ncpu) all
 
+if [ -f "build/$NAME.hpprgm" ]; then
+    # Ask the user a question
+    result=$(osascript -e 'display dialog "Do you want to minimize this code?" buttons {"Yes", "No"} default button "Yes"')
+
+    # Process the result
+    if [[ "$result" == *"Yes"* ]]; then
+        # Code Signing...
+        echo "Minimizing... Please wait!"
+
+        pplmin build/$NAME.hpprgm
+    fi
+fi
+
 read -p "Press Enter to exit!"
 
 # Close the Terminal window
