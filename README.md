@@ -1,4 +1,4 @@
-# PrimeSDK
+# PrimeSDK for macOS
 
  ## P+ for HP Prime
 
