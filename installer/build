@@ -1,0 +1,28 @@
+#!/bin/bash
+DIR=$(dirname "$0")
+clear
+cd $DIR
+
+#!/bin/bash
+
+pkgbuild --root package-root \
+         --identifier uk.insoft.primesdk \
+         --version 1.0 --install-location / \
+         --scripts scripts \
+         primesdk.pkg
+
+#IDENTITY="Developer ID Installer"
+#productsign --sign "$IDENTITY" primesdk.pkg signed-primesdk.pkg
+
+./update_distribution.sh
+productbuild --distribution distribution.xml \
+             --resources resources \
+             --package-path primesdk.pkg \
+             PrimeSDK-installer.pkg
+ 
+
+
+read -p "Press Enter to exit!"
+
+# Close the Terminal window
+osascript -e 'tell application "Terminal" to close window 1' & exit

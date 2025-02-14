@@ -1,0 +1,9 @@
+Welcome to P+
+
+P+ is a proprietary programming language designed to improve code maintenance and readability in the HP Programming Language (PPL). Acting as an intermediary language, P+ introduces support for substitutions and better code organization, making development more efficient.
+
+The final output is a compact and optimized PPL program file, minimizing storage usage on the HP Prime calculator.
+
+P+ extends PPL by adding powerful features like substitution capabilities while enforcing lowercase keywords for consistency.
+
+This version keeps the technical details while making it more engaging for users installing the software. Let me know if you’d like any further refinements!
