@@ -9,5 +9,5 @@ P+ is a proprietary programming language designed to mitigate the challenges ass
 P+ is essentially the PPL language with additional features, such as substitution capabilities, and requires all keywords to be in lowercase.
 <br/><br/>
 
->[NOTE!]
+>[!NOTE]
 **p+**, **pplmin**, **pplref**, and **grob** are installed in **/usr/local/bin**. To uninstall them manually, just drag these four files to the trash.
