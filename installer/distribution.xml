@@ -10,5 +10,5 @@
     <choice id="default" title="Install PrimeSDK">
         <pkg-ref id="uk.insoft.primesdk"/>
     </choice>
-    <pkg-ref id="uk.insoft.primesdk" installKBytes="2680" version="1.0" onConclusion="none">primesdk.pkg</pkg-ref>
+    <pkg-ref id="uk.insoft.primesdk" installKBytes="2712" version="1.0" onConclusion="none">primesdk.pkg</pkg-ref>
 </installer-gui-script>
