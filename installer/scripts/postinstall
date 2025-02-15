@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 grep -qxF 'export PATH=/Applications/HP/PrimeSDK/bin:$PATH' ~/.zshrc || echo 'export PATH=/Applications/HP/PrimeSDK/bin:$PATH' >> ~/.zshrc
+grep -qxF 'export PRIMESDK=/Applications/HP/PrimeSDK' ~/.zshrc || echo 'export PRIMESDK=/Applications/HP/PrimeSDK' >> ~/.zshrc
 source ~/.zshrc
 
 # Detect the currently logged-in user (excluding root)
