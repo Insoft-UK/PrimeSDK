@@ -35,6 +35,7 @@
 #define var     LOCAL
 #define pi      π
 #define FROM    :=
+#define emptylist {0}
 
 @global regex `\b([a-zA-Z_]\w*) *([*\/+-])\= *` $1 := $1 $2
 
@@ -42,7 +43,7 @@
 @global regex `\bfor ([^;]+);([^;]+); *([^;]+)do` $1; WHILE $2 DO__PUSH__`__INDENT__$3;`
 @global regex `\b(next|end)\b` __POP__END
 @global regex `\bloop\b` WHILE 1 DO
-@global regex `\bswitch +([a-zA-Z_]\w*)` LOCAL sw__SCOPE__ := $1;CASE
+@global regex `\bswitch +([a-zA-Z_][\w.:(),]*)` LOCAL sw__SCOPE__ := $1;CASE
 @global regex `\bcase +(\-?\d+) +do *$` IF sw\`__SCOPE__-1` == $1 THEN
 @global regex `\(([^?]+)\?(.+):(.+)\)` IFTE($1, $2, $3)
 @global regex `\.{3}|…` TO

@@ -40,14 +40,14 @@ echo "Installing files to $USER_HOME"
 if [ ! -d "$USER_HOME/Documents/HP Prime" ]; then
     mkdir -p "$USER_HOME/Documents/HP Prime"
 fi
-if [ ! -d "$USER_HOME/Documents/HP Prime/Projects" ]; then
-    mv /Users/Shared/Projects "$USER_HOME/Documents/HP Prime"
-    # Set correct ownership (important!)
-    chown -R "$CURRENT_USER" "$USER_HOME/Documents/HP Prime/Projects"
-    chgrp -R staff "$USER_HOME/Documents/HP Prime/Projects"
-    echo "Installation to $USER_HOME completed successfully."
-else
-    rm -r /Users/Shared/Project
-fi
+
+rsync -a --remove-source-files /Users/Shared/Projects/ "$USER_HOME/Documents/HP Prime/"
+rm -r /Users/Shared/Projects
+
+# Set correct ownership (important!)
+chown -R "$CURRENT_USER" "$USER_HOME/Documents/HP Prime/Projects"
+chgrp -R staff "$USER_HOME/Documents/HP Prime/Projects"
+
+echo "Installation to $USER_HOME completed successfully."
 
 exit 0

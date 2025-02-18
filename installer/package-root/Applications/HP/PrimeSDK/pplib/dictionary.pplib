@@ -25,7 +25,7 @@
 #ifndef DICTIONARY_PPLIB
 #define DICTIONARY_PPLIB
 
-#define Event key, type[1], x[2]; y[3], dx[4]; dy[5]
+#define Event key, type[1], x[2], y[3], dx[4], dy[5]
 #define TouchEvent fngr1.x[1,1], fngr1.y[1,2], fngr1.originalX[1,3], fngr1.originalY[1,4], fngr1.mouseType[1,5], fngr1[1], fngr2.x[2,1], fngr2.y[2,2], fngr2.originalX[2,3], fngr2.originalY[2,4], fngr2.mouseType[2,5], fngr1[2]
 #define Point x[1], y[2]
 #define Size width[1], height[2]
