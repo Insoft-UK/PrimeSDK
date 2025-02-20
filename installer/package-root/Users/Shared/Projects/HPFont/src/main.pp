@@ -1,77 +1,105 @@
+@disregard
+ Copyright © 2024 Insoft. All rights reserved.
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+@end
 #pragma mode( separator(.,;) integer(h64) )
 
-def BITAND    bit::and;
-def BITSR     bit::shift::right;
+def BITAND bitwise::and;
+def BITSR  bitwise::shift_right;
 
-regex `\bfont.bitmap\b` font[1]
-regex `\bfont.glyphs\[([\w\d.:]+)\]` font[2,$1+1]
-regex `\bfont.first\b` font[3]
-regex `\bfont.last\b` font[4]
-regex `\bfont.yAdvance\b` font[5]
-regex `\bglyph.xAdvance\b` BITAND(BITSR(glyph, 32), 255)
-regex `\bglyph.width\b` BITAND(BITSR(glyph, 16), 255)
-regex `\bglyph.height\b` BITAND(BITSR(glyph, 24), 255)
-regex `\bglyph.dX\b` BITAND(BITSR(glyph, 40), 255)
-regex `\bglyph.dY\b` BITAND(BITSR(glyph, 48), 255) - 256
-regex `\bglyph.bitmapOffset\b` BITAND(glyph, 65535)
+regex `\.{3}` to
 
-GLYPH_P:drawGlyph(trgt, g:glyph, x, y, font, color, sX:sizeX, sY:sizeY)
-begin
-    auto bitmapOffset;
-    local auto:glyph = font.glyphs[glyph];
-    
-    local h = glyph.height;
-    local w = glyph.width;
-    
-    x = x + glyph.dX;
-    y = y + (glyph.dY + font.yAdvance) * sizeY;
-    
-    local bitmap = font.bitmap;
-    local bitmapOffset = bit::shift::right(glyph.bitmapOffset, 3) + 1
-    
-    local bits = bitmap[bitmapOffset];
-    local bitPosition = glyph.bitmapOffset & 7 * 8;
-    
-    bits = bit::shift::right(bits, (64 - bitPosition));
-    while h do
-        auto xx;
-        for xx = 0; xx < w; xx += 1 do
-            if bitPosition & 63 == 0 then
-                bits = bitmap[bitmapOffset];
-                bitmapOffset = bitmapOffset + 1;
-            end;
-
-            if bits & 1 == 1 then
-                if sizeX == 1 and sizeY == 1 then
-                    PIXON_P(trgt, x + xx, y, color);
-                else
-                    RECT_P(trgt, x + xx * sizeX, y, x + xx * sizeX + sizeX, y + sizeY, color);
-                end;
-            end;
-
-            bits = bit::shift::right(bits, 1);
-        end;
-
-        y = y + sizeY;
-        h = h - 1;
-    end;
+GLYPH_P(trgt, ascii, x, y, fnt, color, sizeX, sizeY)
+BEGIN
+ local g:glyph := fnt[2, ascii];
+ def bitwise::and(glyph, 65535) glyph.bitmapOffset;
+ def bitwise::and(bitwise::shift_right(glyph, 16), 255) glyph.width;
+ def bitwise::and(bitwise::shift_right(glyph, 24), 255) glyph.height;
+ def bitwise::and(bitwise::shift_right(glyph, 32), 255) glyph.xAdvance;
+ def bitwise::and(bitwise::shift_right(glyph, 40), 255) glyph.dX;
+ def bitwise::and(bitwise::shift_right(glyph, 48), 255) glyph.dY;
+ 
+ local xAdvance := glyph.xAdvance;
+ 
+  if bitwise::and(glyph, #FFFFFFFF) == 0 then
+    return xAdvance * sizeX;
+  end;
   
-    return glyph.xAdvance;
+  local w, h, dX, dY, xx;
+  
+  local yAdvance := fnt[5];
+
+  w := glyph.width;
+  h := glyph.height;
+ 
+  dX := glyph.dX;
+  dY := glyph.dY;
+ 
+  x := x + dX * sizeX;
+  y := y + (yAdvance + dY * sizeY);
+  
+  local bitmap := fnt[1];
+
+  local offset := glyph.bitmapOffset;
+  local bitPosition := bitwise::and(offset, 7) * 8;
+  offset := bitwise::shift_right(offset, 3) + 1;
+  local bits := bitwise::shift_right(bitmap[offset], bitPosition);
+  
+  repeat
+    for xx := 1 ... w do
+      if bitPosition == 64 then
+        bitPosition := 0;
+        offset := offset + 1;
+        bits := bitmap[offset];
+      end;
+     
+      if bitwise::and(bits, 1) == 1 then
+        if sizeX == 1 AND sizeY == 1 then
+          PIXON_P(trgt, x + xx,y, color);
+        ELSE
+          RECT_P(trgt, x + xx * sizeX, y, x + xx * sizeX + sizeX - 1, y + sizeY - 1, color);
+        end;
+      end;
+      
+      bitPosition := bitPosition + 1;
+      bits := bitwise::shift_right(bits, 1);
+    end;
+   
+    y + sizeY ▶ y;
+    h - 1 ▶ h;
+  until h == 0;
+  
+  return xAdvance * sizeX;
 end;
 
-export FONT_P(trgt, text, x, y, auto:font, color)
-begin
-    local i, auto:asciiList := ASC(text);
+export FONT_P(trgt, text, x, y, fnt, color, sizeX, sizeY)
+BEGIN
+  local i, l := ASC(text);
  
-    for i := 1 ... SIZE(l) do
-        if x >= 320 then
-            break;
-        end;
-        
-        if asciiList[i] < font.first or asciiList[i] > font.last then
-            continue;
-        end;
-        
-        x := x + drawGlyph(trgt, l[i] - font.first + 1, x, y, font, color, 1, 1);
+  for i := 1 ... SIZE(l) do
+    if x >= 320 then
+      break;
     end;
+    if l[i] < fnt[3] OR l[i] > fnt[4] then
+      continue;
+    end;
+    x := x + GLYPH_P(trgt, l[i] - fnt[3] + 1, x, y, fnt, color, sizeX, sizeY);
+  end;
 end;

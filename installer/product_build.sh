@@ -1,16 +1,26 @@
 #!/bin/bash
-IDENTITY=$(security find-identity -v -p basic | grep "Developer ID Installer" | awk '{print $2}')
+IDENTITY=security find-identity -v -p basic | awk -F'"' '/Developer ID Installer:/ {print $2}'
+
+# Your AppleID, TeamID and Password
+APPLE_ID="apple_id@icloud.com"
+TEAM_ID="0AB11C3DEF"
+PASSWORD="aaaa-bbbb-cccc-dddd"
+
+PACKAGEROOT=package-root
+NAME=PrimeSDK
+IDENTIFIER=your.domain.$NAME
 
 pkgbuild --root package-root \
-         --identifier uk.insoft.primesdk \
+         --identifier $IDENTIFIER \
          --version 1.0 --install-location / \
          --scripts scripts \
-         primesdk.pkg
+         $NAME.pkg
          
-productsign --sign "$IDENTITY" primesdk.pkg primesdk-signed.pkg
-
-rm -rf primesdk.pkg
-mv primesdk-signed.pkg primesdk.pkg
+productsign --sign "$IDENTITY" $NAME.pkg $NAME-signed.pkg
+#xcrun notarytool submit --apple-id $APPLE_ID \
+#                        --password $PASSWORD \
+#                        --team-id $TEAM_ID \
+#                        --wait $NAME-signed.pkg
 
 ./update_distribution.sh
 productbuild --distribution distribution.xml \
@@ -18,8 +28,14 @@ productbuild --distribution distribution.xml \
              --package-path primesdk.pkg \
              PrimeSDK-installer.pkg
              
-productsign --sign "$IDENTITY" PrimeSDK-installer.pkg PrimeSDK-installer-signed.pkg
+productsign --sign "$IDENTITY" $NAME-installer.pkg $NAME-installer-signed.pkg
+#productbuild --distribution distribution.xml \
+#             --resources resources \
+#             --package-path $NAME-signed.pkg \
+#             $NAME-installer.pkg
+             
+rm -rf $NAME.pkg
+rm -rf $NAME-signed.pkg
+rm -rf $NAME-installer.pkg
 
-rm -rf primesdk.pkg
-rm -rf PrimeSDK-installer.pkg
-mv PrimeSDK-installer-signed.pkg PrimeSDK-installer.pkg
+spctl -a -v $NAME-installer-signed.pkg

@@ -26,7 +26,7 @@
 #include <dictionary>
 
 #include "defines.pp"
-local Colors.channel = 0;
+local channel:Colors.channel = 0;
 
 local colorsH:Colors.h = 0, colorsS:Colors.s = 100, colorsV:Colors.v = 100;
 local colorsR:Colors.r = 255, colorsG:Colors.g = 0, colorsB:Colors.b = 0;
@@ -176,8 +176,8 @@ begin
         ts = TEXTSIZE(info[n],3);
         TEXTOUT_P(info[n],G9,X+15-ts[1],Y+3,3,Color.White);
         RECT_P(G9,X+16,Y,X+55,Y+20,#333333:32h);
-        switch Colors.colorSpace
-            case ColorSpace.HSV do
+        case
+            if Colors.colorSpace == ColorSpace.HSV then
                 if n == 1 then
                     TEXTOUT_P(IP(Colors.h)+"°",G9,X+20,Y+5,2,Color.White);
                 end;
@@ -188,7 +188,7 @@ begin
                     TEXTOUT_P(IP(Colors.v)+"%",G9,X+20,Y+5,2,Color.White);
                 end;
             end;
-            case ColorSpace.HSL do
+            if Colors.colorSpace == ColorSpace.HSL then
                 if n == 1 then
                     TEXTOUT_P(IP(hsl[n])+"°",G9,X+20,Y+5,2,Color.White);
                 else
@@ -261,17 +261,17 @@ Colors::AdjRGB(delta)
 begin
     case
         if Colors.channel == 1 then
-            Colors.r += delta;
+            Colors.r = Colors.r + delta;
             Colors.r = IP(MIN(MAX(Colors.r, 0), 255));
         end;
         
         if Colors.channel == 2 then
-            Colors.g += delta;
+            Colors.g = Colors.g + delta;
             Colors.g = IP(MIN(MAX(Colors.g, 0), 255));
         end;
         
         if Colors.channel == 3 then
-            Colors.b += delta;
+            Colors.b = Colors.b + delta;
             Colors.b = IP(MIN(MAX(Colors.b, 0), 255));
         end;
     end;
@@ -286,7 +286,7 @@ end;
 
 Colors::AdjHue(d:delta)
 begin
-    Colors.h += delta;
+    Colors.h = Colors.h + delta;
     Colors.h = IP(MIN(MAX(Colors.h, 0), 360));
     
     Colors::UpdateRGB;
@@ -294,7 +294,7 @@ end;
 
 Colors::AdjSaturation(d:delta)
 begin
-    Colors.s += delta;
+    Colors.s = Colors.s + delta;
     Colors.s = IP(MIN(MAX(Colors.s, 0), 100));
     
     Colors::UpdateRGB;
@@ -302,7 +302,7 @@ end;
 
 Colors::AdjBrightness(d:delta)
 begin
-    Colors.v += delta;
+    Colors.v = Colors.v + delta;
     Colors.v = IP(MIN(MAX(Colors.v, 0), 100));
     
     Colors::UpdateRGB;
@@ -319,7 +319,7 @@ begin
         dict Event event;
         if hp::isKeyPressed(event) then
             focus = "";
-            try
+            iferr
                 if event.key == KeyCode.Esc then
                     return;
                 end;
@@ -367,7 +367,7 @@ begin
                 if event.key == KeyCode.Right && Colors.channel == 0 then
                     Colors::AdjSaturation(1);
                 end;
-            catch
+            then
             end;
             
         end;

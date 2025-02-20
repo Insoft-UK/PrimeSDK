@@ -41,12 +41,19 @@ if [ ! -d "$USER_HOME/Documents/HP Prime" ]; then
     mkdir -p "$USER_HOME/Documents/HP Prime"
 fi
 
-rsync -a --remove-source-files /Users/Shared/Projects/ "$USER_HOME/Documents/HP Prime/"
-rm -r /Users/Shared/Projects
+if [ ! -d "$USER_HOME/Documents/HP Prime/Projects" ]; then
+    mv /Users/Shared/Projects "$USER_HOME/Documents/HP Prime/Projects"
+else
+    rm -rf /Users/Shared/Projects
+fi
 
 # Set correct ownership (important!)
 chown -R "$CURRENT_USER" "$USER_HOME/Documents/HP Prime/Projects"
 chgrp -R staff "$USER_HOME/Documents/HP Prime/Projects"
+
+if [ ! -d "$USER_HOME/Documents/HP Prime/Libraries" ]; then
+    ln -s /Applications/HP/PrimeSDK/hpprgm "$USER_HOME/Documents/HP Prime/Libraries"
+fi
 
 echo "Installation to $USER_HOME completed successfully."
 
