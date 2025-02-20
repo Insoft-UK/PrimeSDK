@@ -1,0 +1,76 @@
+{
+    "name": "PrimePlus",
+    "type": "dark", // or "light"
+    "colors": {
+        "editor.background": "#1E1E1E",
+        "editor.foreground": "#FFFFFF",
+        "editorCursor.foreground": "#c",
+        "editor.lineHighlightBackground": "#2A2A2A"
+    },
+    "tokenColors": [
+        {
+            "scope": ["comment"],
+            "settings": {
+                "foreground": "#FF0000"
+            }
+        },
+        {
+            "scope": ["keyword"],
+            "settings": {
+                "foreground": "#66BBFF"
+            }
+        },
+        {
+            "scope": ["strings"],
+            "settings": {
+                "foreground": "#FF6600"
+            }
+        },
+        {
+            "scope": [
+                "punctuation.definition.bracket",
+                "punctuation.definition.parameters",
+                "punctuation.definition.block",
+                "punctuation.bracket"
+            ],
+            "settings": {
+                "foreground": "#66BBFF"
+            }
+        },
+        {
+            "scope": ["markup"],
+            "settings": {
+                "foreground": "#FF6600"
+            }
+        },{
+            "scope": ["punctuation.definition.parameters.hp-prime"],
+            "settings": {
+                "foreground": "#FF6600"
+            }
+        },
+        {
+            "scope": ["constant.numeric.hp-prime"],
+            "settings": {
+                "foreground": "#EBEBEB"
+            }
+        },
+        {
+            "scope": ["punctuation.definition.block.hp-prime"],
+            "settings": {
+                "foreground": "#FF6600"
+            }
+        },
+        {
+            "scope": ["meta.brace", "meta.brace.hp-prime"],
+            "settings": {
+                "foreground": "#FF6600"
+            }
+        },
+        {
+            "scope": ["meta.block.hp-prime", "meta.function.hp-prime"],
+            "settings": {
+                "foreground": "#FF6600"
+            }
+        }
+    ]
+}

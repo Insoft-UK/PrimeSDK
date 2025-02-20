@@ -1,0 +1,46 @@
+{
+    "for Loop": {
+        "prefix": "for",
+        "body": [
+            "local i;",
+            "for i:= 1 to count do",
+            "\t/* code */",
+            "end;"
+        ],
+        "description": "For loop with size_t"
+    },
+
+    "if Loop": {
+        "prefix": "if",
+        "body": [
+            "if /* condition */ then",
+            "\t/* code */",
+            "end;"
+        ],
+        "description": "Evaluates the test. If condition is true (not equal to 0), execute commands. Otherwise, nothing happens."
+    },
+
+    "EXPORT FunctionName(Parameters)": {
+        "prefix": "EXPORT",
+        "body": [
+            "EXPORT FunctionName(Parameters)",
+            "begin",
+            "\t//Change Name to any name you want, e.g., FunctionVIGAS()",
+            "\t/* code */",
+            "end;"
+        ],
+        "description": "EXPORT declaration of the main function"
+    },
+
+    "FunctionName(Parameters)": {
+        "prefix": "Function",
+        "body": [
+            "FunctionName(Parameters)",
+            "begin",
+            "\t//Change Name to any name you want, e.g., FunctionVIGAS()",
+            "\t/* code */",
+            "end;"
+        ],
+        "description": "Declaration of secondary functions"
+    }
+}
