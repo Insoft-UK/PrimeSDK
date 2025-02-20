@@ -12,6 +12,3 @@ P+ is essentially the PPL language with additional features, such as substitutio
 >[!NOTE]
 **p+**, **pplmin**, **pplref**, and **grob** are no longer installed in **/usr/local/bin**. To uninstall them manually, just drag these four files to the trash.
 The folder in your home folder `~/primeplus-toolchain` that is created during the old installing of **PrimeSDK** can be removed.
-
->[!WARNING]
-The new installer will automatically remove **p+**, **pplmin**, **pplref**, and **grob** if installed in **/usr/local/bin**
