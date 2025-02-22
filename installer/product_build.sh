@@ -1,7 +1,7 @@
 #!/bin/bash
 IDENTITY=security find-identity -v -p basic | awk -F'"' '/Developer ID Installer:/ {print $2}'
 
-# Your AppleID, TeamID and Password
+# Your AppleID, TeamID and Password (An app-specific password NOT! AppleID password)
 APPLE_ID="apple_id@icloud.com"
 TEAM_ID="0AB11C3DEF"
 PASSWORD="aaaa-bbbb-cccc-dddd"

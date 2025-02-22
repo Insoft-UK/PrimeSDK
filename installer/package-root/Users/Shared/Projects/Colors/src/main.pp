@@ -43,7 +43,7 @@ begin
     BLIT_P(G9, __SCREEN);
     
     data = emptylist;
-    for n from 0 to 255 step 2 do
+    for n from 0 to 359 step 2 do
         data[n / 2 + 1] = R→B(HSV(n, 100, 100), 64, Base.Hex) + BITSL(R→B(HSV(n + 1, 100, 100), 64, Base.Hex), 32);
     end;
     DIMGROB_P(HUE, 360, 1, data);
