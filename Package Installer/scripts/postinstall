@@ -41,20 +41,19 @@ if [ ! -d "$USER_HOME/Documents/HP Prime" ]; then
     mkdir -p "$USER_HOME/Documents/HP Prime"
 fi
 
-if [ ! -d "$USER_HOME/Documents/HP Prime/Projects" ]; then
-    mv /Users/Shared/Projects "$USER_HOME/Documents/HP Prime/Projects"
-else
-    rm -rf /Users/Shared/Projects
+if [ -d "$USER_HOME/Documents/HP Prime" ]; then
+    if [ ! -d "$USER_HOME/Documents/HP Prime/Projects" ]; then
+        ln -s /Applications/HP/PrimeSDK/projects "$USER_HOME/Documents/HP Prime/Projects"
+    fi
+
+    if [ ! -d "$USER_HOME/Documents/HP Prime/Libraries" ]; then
+        ln -s /Applications/HP/PrimeSDK/hpprgm "$USER_HOME/Documents/HP Prime/Libraries"
+    fi
 fi
 
 # Set correct ownership (important!)
-chown -R "$CURRENT_USER" "$USER_HOME/Documents/HP Prime/Projects"
-chgrp -R staff "$USER_HOME/Documents/HP Prime/Projects"
+#chown -R "$CURRENT_USER" "$USER_HOME/Documents/HP Prime/Projects"
+#chgrp -R staff "$USER_HOME/Documents/HP Prime/Projects"
 
-if [ ! -d "$USER_HOME/Documents/HP Prime/Libraries" ]; then
-    ln -s /Applications/HP/PrimeSDK/hpprgm "$USER_HOME/Documents/HP Prime/Libraries"
-fi
-
-echo "Installation to $USER_HOME completed successfully."
 
 exit 0

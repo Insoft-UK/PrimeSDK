@@ -22,12 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-if [ -d "/usr/local/bin" ]; then
-    rm -p /usr/local/bin/p+
-    rm -p /usr/local/bin/grob
-    rm -p /usr/local/bin/pplmin
-    rm -p /usr/local/bin/pplref
-fi
+rm -r /Applications/HP/PrimeSDK
 
 exit 0
 
