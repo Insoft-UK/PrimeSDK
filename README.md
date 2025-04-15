@@ -8,7 +8,3 @@ P+ is a proprietary programming language designed to mitigate the challenges ass
 <br/><br/>
 P+ is essentially the PPL language with additional features, such as substitution capabilities, and requires all keywords to be in lowercase.
 <br/><br/>
-
->[!NOTE]
-**p+**, **pplmin**, **pplref**, and **grob** are no longer installed in **/usr/local/bin**. To uninstall them manually, just drag these four files to the trash.
-The folder in your home folder `~/primeplus-toolchain` that is created during the old installing of **PrimeSDK** can be removed.
