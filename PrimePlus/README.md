@@ -7,7 +7,7 @@ P+ is a proprietary programming language designed to mitigate the challenges ass
 P+ is essentially the PPL language with additional features, such as substitution capabilities, and requires all keywords to be in lowercase.
 <br/><br/>
 
-<b><a href="https://github.com/Insoft-UK/GROB">GROB</a> to be intergrated in the future.</b>
+<b><a href="https://github.com/Insoft-UK/PrimeSDK/GROB">GROB</a> to be intergrated in the future.</b>
 
 ```
 #pragma mode( separator(.,;) integer(h64) )
