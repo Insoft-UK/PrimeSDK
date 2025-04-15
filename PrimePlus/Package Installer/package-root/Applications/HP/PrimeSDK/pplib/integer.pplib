@@ -1,0 +1,53 @@
+@disregard
+// The MIT License (MIT)
+//
+// Copyright (c) 2023-2025 Insoft. All rights reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+@end
+
+#ifndef INTEGER_PPLIB
+#define INTEGER_PPLIB
+
+@global regex `integer::toReal` B→R
+namespace integer::getBase := GETBASE;
+namespace integer::getBits := GETBITS;
+@global regex `integer::toBase` R→B
+namespace integer::setBits := SETBITS;
+namespace integer::setBase := SETBASE;
+
+@global dict System = 0, Binary = 1, Octal = 2, Decimal = 3, Hexadecimal = 4 integer::Base;
+
+#define Int8(integer)     integer::setBits($1, -7)
+#define Int16(integer)    integer::setBits($1, -15)
+#define Int32(integer)    integer::setBits($1, -31)
+#define Int64(integer)    integer::setBits($1, -63)
+
+#define UInt8(integer)    integer::setBits($1, 8)
+#define UInt16(integer)   integer::setBits($1, 16)
+#define UInt32(integer)   integer::setBits($1, 32)
+#define UInt64(integer)   integer::setBits($1, 64)
+
+#define Bin(integer)      integer::setBase($1, integer::Base.Binary)
+#define Oct(integer)      integer::setBase($1, integer::Base.Octal)
+#define Dec(integer)      integer::setBase($1, integer::Base.Decimal)
+#define Hex(integer)      integer::setBase($1, integer::Base.Hexadecimal)
+
+
+#endif /// INTEGER_PPLIB

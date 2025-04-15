@@ -1,0 +1,29 @@
+#!/bin/bash
+DIR=$(dirname "$0")
+clear
+cd "$DIR"
+
+PRIMESDK=Applications/HP/PrimeSDK
+NAME=PrimeSDK
+IDENTIFIER=uk.insoft.$NAME
+
+cp -p -rf "../piXfont/Package Installer/package-root/$PRIMESDK/hpprgm/*.hpprgm" package-root/$PRIMESDK/hpprgm
+cp -p -rf "../piXfont/Package\ Installer/package-root/$PRIMESDK/bin/*" package-root/$PRIMESDK/bin
+
+cp -p -rf "../GROB/Package\ Installer/package-root/$PRIMESDK/hpprgm/*.hpprgm" $PACKAGEROOT/$PRIMESDK/hpprgm
+cp -p "../GROB/Package\ Installer/package-root/$PRIMESDK/bin/grob" $PACKAGEROOT/$PRIMESDK/bin
+
+cp -p -rf "../PPL_Reformat/Package\ Installer/package-root/$PRIMESDK/hpprgm/*.hpprgm" $PACKAGEROOT/$PRIMESDK/hpprgm
+cp -p "../PPL_Reformat/Package\ Installer/package-root/$PRIMESDK/bin/pplref" $PACKAGEROOT/$PRIMESDK/bin
+
+cp -p -rf "../PPL_Minifier/Package\ Installer/package-root/$PRIMESDK/hpprgm/*.hpprgm" $PACKAGEROOT/$PRIMESDK/hpprgm
+cp -p "../PPL_Minifier/Package\ Installer/package-root/$PRIMESDK/bin/pplmin" $PACKAGEROOT/$PRIMESDK/bin
+
+cp -p -rf "../PrimePlus/Package\ Installer/package-root/$PRIMESDK/hpprgm/*.hpprgm" $PACKAGEROOT/$PRIMESDK/hpprgm
+cp -p -rf "../PrimePlus/Package\ Installer/package-root/$PRIMESDK/pplib/*.pplib" $PACKAGEROOT/$PRIMESDK/pplib
+cp -p "../PrimePlus/Package\ Installer/package-root/$PRIMESDK/bin/p+" $PACKAGEROOT/$PRIMESDK/bin/p+
+
+read -p "Press Enter to exit!"
+
+# Close the Terminal window
+osascript -e 'tell application "Terminal" to close window 1' & exit
