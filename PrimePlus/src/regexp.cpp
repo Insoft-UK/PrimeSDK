@@ -34,7 +34,7 @@ bool Regexp::parse(std::string &str) {
     re = R"(^ *(?:@(global|local) )?\bregex +`([^`]*)` *(.*)$)";
     if (regex_search(str, match, re)) {
         TRegexp regexp = {
-            .regularExpression = match[2].str(),
+            .pattern = match[2].str(),
             .replacement = match[3].str(),
             .scopeLevel = static_cast<size_t>(Singleton::shared()->scopeDepth),
             .line = Singleton::shared()->currentLineNumber(),
@@ -45,7 +45,7 @@ bool Regexp::parse(std::string &str) {
             regexp.scopeLevel = match[1].str() == "global" ? 0 : 1;
         }
     
-        if (regularExpressionExists(regexp.regularExpression)) return true;
+        if (regularExpressionExists(regexp.pattern)) return true;
         
         _regexps.push_back(regexp);
         str = std::string("");
@@ -54,7 +54,7 @@ bool Regexp::parse(std::string &str) {
             << MessageType::Verbose
             << "scope-level " << regexp.scopeLevel << ": "
             << "regex"
-            << " '" << ANSI::Green << regexp.regularExpression << ANSI::Default << "' for '" << ANSI::Green << regexp.replacement << ANSI::Default << "' defined\n";
+            << " '" << ANSI::Green << regexp.pattern << ANSI::Default << "' for '" << ANSI::Green << regexp.replacement << ANSI::Default << "' defined\n";
         return true;
     }
     
@@ -67,7 +67,7 @@ void Regexp::removeAllOutOfScopeRegexps() {
             if (verbose) std::cout
                 << MessageType::Verbose
                 << "regex"
-                << " '" << ANSI::Green << it->regularExpression << ANSI::Default << "' removed❗\n";
+                << " '" << ANSI::Green << it->pattern << ANSI::Default << "' removed❗\n";
             
             _regexps.erase(it);
             removeAllOutOfScopeRegexps();
@@ -80,8 +80,8 @@ void Regexp::resolveAllRegularExpression(std::string &str) {
     std::smatch match;
     
     for (auto it = _regexps.begin(); it != _regexps.end(); ++it) {
-        if (std::regex_search(str, match, std::regex(it->regularExpression))) {
-            str = regex_replace(str, std::regex(it->regularExpression), it->replacement);
+        if (std::regex_search(str, match, std::regex(it->pattern))) {
+            str = regex_replace(str, std::regex(it->pattern), it->replacement);
             str = std::regex_replace(str, std::regex("__SCOPE__"), std::to_string(Singleton::shared()->scopeDepth));
             Calc::evaluateMathExpression(str);
             resolveAllRegularExpression(str);
@@ -89,12 +89,12 @@ void Regexp::resolveAllRegularExpression(std::string &str) {
     }
 }
 
-bool Regexp::regularExpressionExists(const std::string &regularExpression) {
+bool Regexp::regularExpressionExists(const std::string &pattern) {
     for (auto it = _regexps.begin(); it != _regexps.end(); ++it) {
-        if (it->regularExpression == regularExpression) {
+        if (it->pattern == pattern) {
             std::cout
             << MessageType::Warning
-            << "redefinition of: " << ANSI::Bold << regularExpression << ANSI::Default << ", ";
+            << "redefinition of: " << ANSI::Bold << pattern << ANSI::Default << ", ";
             if (basename(Singleton::shared()->currentPath()) == basename(it->pathname)) {
                 std::cout << "previous definition on line " << it->line << "\n";
             }

@@ -72,7 +72,6 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		1308429E2DAD6BE900CD8EC4 /* pplib */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = pplib; path = "Package Installer/package-root/Applications/HP/PrimeSDK/pplib"; sourceTree = "<group>"; };
-		13CDCDDF2D499BE30005D2EA /* python */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = python; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,7 +93,6 @@
 				136E64472D2877660054E0CC /* version.txt */,
 				137FB2942A046E8E00AEFDF2 /* p+.entitlements */,
 				1308429E2DAD6BE900CD8EC4 /* pplib */,
-				13CDCDDF2D499BE30005D2EA /* python */,
 				13166E852BA12E5E00D1E6F0 /* examples */,
 				137FB2872A03B06500AEFDF2 /* src */,
 				137FB2862A03B06500AEFDF2 /* Products */,
@@ -137,7 +135,6 @@
 				13B13C2F2B66C2F000F9BCBB /* strings.cpp */,
 				136E64532D35B0980054E0CC /* regexp.cpp */,
 				136E645A2D3964A90054E0CC /* dictionary.cpp */,
-				13CD08232D60D9880005D2EA /* code_stack.hpp */,
 				13CD08242D60D9880005D2EA /* code_stack.cpp */,
 			);
 			name = Classes;
@@ -155,6 +152,7 @@
 				13B13C302B66C2F000F9BCBB /* strings.hpp */,
 				136E64522D35B0980054E0CC /* regexp.hpp */,
 				136E64592D3964A90054E0CC /* dictionary.hpp */,
+				13CD08232D60D9880005D2EA /* code_stack.hpp */,
 			);
 			name = include;
 			sourceTree = "<group>";
@@ -216,7 +214,7 @@
 		1352EC5D2B40B72B003130E4 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
-			buildActionMask = 12;
+			buildActionMask = 8;
 			files = (
 			);
 			inputFileListPaths = (
@@ -227,7 +225,7 @@
 			);
 			outputPaths = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
+			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
 			shellScript = "./version_code\nmv version_code.h src/version_code.h\n";
 		};

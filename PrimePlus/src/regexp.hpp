@@ -33,7 +33,7 @@ namespace pp {
         bool verbose = false;
         
         typedef struct TRegexp {
-            std::string regularExpression;
+            std::string pattern;
             std::string replacement;
             size_t scopeLevel;
             long line;              // line that definition accoured;
@@ -44,10 +44,11 @@ namespace pp {
         void removeAllOutOfScopeRegexps(void);
         void resolveAllRegularExpression(std::string &str);
         
+        
     private:
         std::vector<TRegexp> _regexps;
         
-        bool regularExpressionExists(const std::string &regularExpression);
+        bool regularExpressionExists(const std::string &pattern);
     };
 }
 

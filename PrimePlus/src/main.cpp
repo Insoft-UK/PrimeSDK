@@ -501,17 +501,22 @@ void writePythonBlock(std::ifstream &infile, std::ofstream &outfile) {
 }
 
 void translatePPlusToPPL(const std::string &path, std::ofstream &outfile) {
+    using namespace std;
+    
     Singleton &singleton = *Singleton::shared();
-    std::ifstream infile;
-    std::regex re;
-    std::string utf8;
-    std::string str;
-    std::smatch match;
+    ifstream infile;
+    regex re;
+    string utf8;
+    string str;
+    smatch match;
     
     singleton.pushPath(path);
     
-    infile.open(path,std::ios::in);
-    if (!infile.is_open()) exit(2);
+    infile.open(path,ios::in);
+    if (!infile.is_open()) {
+        cout << "File not found.\n";
+        exit(0);
+    }
     
     while (getline(infile, utf8)) {
         /*
@@ -521,7 +526,7 @@ void translatePPlusToPPL(const std::string &path, std::ofstream &outfile) {
         if (!utf8.empty()) {
             while (utf8.at(utf8.length() - 1) == '\\' && !utf8.empty()) {
                 utf8.resize(utf8.length() - 1);
-                std::string s;
+                string s;
                 getline(infile, s);
                 utf8.append(s);
                 Singleton::shared()->incrementLineNumber();
@@ -548,7 +553,7 @@ void translatePPlusToPPL(const std::string &path, std::ofstream &outfile) {
         }
         
         re = R"(\#pragma mode *\(.*\)$)";
-        if (std::regex_match(utf8, re)) {
+        if (regex_match(utf8, re)) {
             writeUTF16Line(utf8 + "\n", outfile);
             Singleton::shared()->incrementLineNumber();
             continue;
@@ -577,16 +582,19 @@ void translatePPlusToPPL(const std::string &path, std::ofstream &outfile) {
          But we must ignore the line if it's a def, undef or regex and all @
         */
         
-        if (!std::regex_search(utf8, std::regex(R"(^ *(@[a-z]+ )? *(def|undef|regex) )"))) {
-            re = std::regex(R"(\b(THEN|ELSE)\b)", std::regex_constants::icase);
-            utf8 = std::regex_replace(utf8, re, "$1\n");
+        if (!regex_search(utf8, regex(R"(^ *(@[a-z]+ )? *(def|undef|regex) )"))) {
+            re = regex(R"(\b(THEN)\b)", regex_constants::icase);
+            utf8 = regex_replace(utf8, re, "$1\n");
             
-            re = std::regex(R"(; *(END|ENDIF|UNTIL|ELSE|LOCAL|CONST|var|auto)?;)", std::regex_constants::icase);
-            utf8 = std::regex_replace(utf8, re, ";\n$1;");
+            re = regex(R"(; *\b(ELSE)\b)", regex_constants::icase);
+            utf8 = regex_replace(utf8, re, ";\n$1\n");
+            
+            re = regex(R"(; *(END|UNTIL|ELSE|LOCAL|CONST)?;)", regex_constants::icase);
+            utf8 = regex_replace(utf8, re, ";\n$1;");
         }
         
         
-        std::istringstream iss;
+        istringstream iss;
         iss.str(utf8);
         
         while(getline(iss, str)) {
@@ -606,11 +614,13 @@ void translatePPlusToPPL(const std::string &path, std::ofstream &outfile) {
 
 // MARK: - Command Line
 void version(void) {
-    std::cout << "Copyright (C) 2023-" << YEAR << " Insoft. All rights reserved.\n";
-    std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n";
-    std::cout << "Built on: " << DATE << "\n";
-    std::cout << "Licence: MIT License\n\n";
-    std::cout << "For more information, visit: http://www.insoft.uk\n";
+    using namespace std;
+    cout
+    << "Copyright (C) 2023-" << YEAR << " Insoft. All rights reserved.\n"
+    << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n"
+    << "Built on: " << DATE << "\n"
+    << "Licence: MIT License\n\n"
+    << "For more information, visit: http://www.insoft.uk\n";
 }
 
 void error(void) {
@@ -619,29 +629,33 @@ void error(void) {
 }
 
 void info(void) {
-    std::cout << "Copyright (C) 2023-" << YEAR << " Insoft. All rights reserved.\n";
-    std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << "\n\n";
+    using namespace std;
+    cout
+    << "Copyright (C) 2023-" << YEAR << " Insoft. All rights reserved.\n"
+    << "Insoft "<< NAME << " version, " << VERSION_NUMBER << "\n\n";
 }
 
 void help(void) {
-    std::cout << "Copyright (C) 2023-" << YEAR << " Insoft. All rights reserved.\n";
-    std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n";
-    std::cout << "\n";
-    std::cout << "Usage: " << _basename << " <input-file> [-o <output-file>] [-b <flags>] [-l <pathname>]\n";
-    std::cout << "\n";
-    std::cout << "Options:\n";
-    std::cout << "  -o <output-file>        Specify the filename for generated PPL code.\n";
-    std::cout << "  -v                      Display detailed processing information.\n";
-    std::cout << "\n";
-    std::cout << "  Verbose Flags:\n";
-    std::cout << "     a                    Aliases\n";
-    std::cout << "     p                    Preprocessor\n";
-    std::cout << "     r                    Regular Expression\n";
-    std::cout << "\n";
-    std::cout << "Additional Commands:\n";
-    std::cout << "  ansiart {--version | --help}\n";
-    std::cout << "    --version              Display the version information.\n";
-    std::cout << "    --help                 Show this help message.\n";
+    using namespace std;
+    cout
+    << "Copyright (C) 2023-" << YEAR << " Insoft. All rights reserved.\n"
+    << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n"
+    << "\n"
+    << "Usage: " << _basename << " <input-file> [-o <output-file>] [-b <flags>] [-l <pathname>]\n"
+    << "\n"
+    << "Options:\n"
+    << "  -o <output-file>        Specify the filename for generated PPL code.\n"
+    << "  -v                      Display detailed processing information.\n"
+    << "\n"
+    << "  Verbose Flags:\n"
+    << "     a                    Aliases\n"
+    << "     p                    Preprocessor\n"
+    << "     r                    Regular Expression\n"
+    << "\n"
+    << "Additional Commands:\n"
+    << "  ansiart {--version | --help}\n"
+    << "    --version              Display the version information.\n"
+    << "    --help                 Show this help message.\n";
 }
 
 
@@ -740,13 +754,17 @@ int main(int argc, char **argv) {
     Timer timer;
     
     std::string str;
+    
     str = "#define __pplus";
     preprocessor.parse(str);
-    str = "#define __SCREEN G0";
-    preprocessor.parse(str);
+    
     str = R"(#define __LIST_LIMIT 10000)";
     preprocessor.parse(str);
+    
     str = R"(#define __VERSION )" + std::to_string(NUMERIC_BUILD / 100);
+    preprocessor.parse(str);
+    
+    str = R"(#define __NUMERIC_BUILD )" + std::to_string(NUMERIC_BUILD);
     preprocessor.parse(str);
     
     translatePPlusToPPL(in_filename, outfile);

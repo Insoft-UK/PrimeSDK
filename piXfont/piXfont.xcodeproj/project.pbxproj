@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 70;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -73,16 +73,11 @@
 		13D0DCBF2D753F7300595D10 /* HD44780.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HD44780.h; sourceTree = "<group>"; };
 		13D0DCC02D75438C00595D10 /* graphics.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = graphics.cpp; sourceTree = "<group>"; };
 		13D0DCC32D754A3D00595D10 /* font.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = font.cpp; sourceTree = "<group>"; };
-		13D0DCC52D78E54E00595D10 /* result.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; name = result.bmp; path = assets/result.bmp; sourceTree = "<group>"; };
 		13D0DCC62D7903E600595D10 /* sub-pixel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "sub-pixel.hpp"; sourceTree = "<group>"; };
 		13D0DCC72D7903E600595D10 /* sub-pixel.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "sub-pixel.cpp"; sourceTree = "<group>"; };
 		84764225189579CD00AFBE9C /* piXfont */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = piXfont; sourceTree = BUILT_PRODUCTS_DIR; };
 		84764228189579CD00AFBE9C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		13CDF24E2D53B70B0005D2EA /* fonts */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = fonts; path = assets/fonts; sourceTree = "<group>"; };
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		84764222189579CD00AFBE9C /* Frameworks */ = {
@@ -200,8 +195,6 @@
 				1328C2962BCB4908003C4B3A /* README.md */,
 				13148B602D42B5E800849C73 /* version.txt */,
 				1328C2972BCB4910003C4B3A /* Makefile */,
-				13D0DCC52D78E54E00595D10 /* result.bmp */,
-				13CDF24E2D53B70B0005D2EA /* fonts */,
 				84764227189579CD00AFBE9C /* src */,
 				13CDF1AF2D4C2FD10005D2EA /* Frameworks */,
 				84764226189579CD00AFBE9C /* Products */,

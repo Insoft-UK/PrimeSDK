@@ -33,7 +33,7 @@ bool CodeStack::parse(std::string &str)
     std::smatch match;
     std::string::const_iterator it;
     
-    re = R"(__PUSH__`([^`]+)`|__POP__|__TOP__)";
+    re = R"(__PUSH__`([^`]+)`|__POP__|__TOP__|__INC__|__DEC__|__CNT__)";
     it = str.cbegin();
     while (std::regex_search(it, str.cend(), match, re)) {
         if (match.str() == "__POP__") {
@@ -52,6 +52,12 @@ bool CodeStack::parse(std::string &str)
             if (!_stack.empty()) {
                 it = str.insert(it, _stack.top().begin(), _stack.top().end());
             }
+            continue;
+        }
+        
+        if (match.str() == "__SIZE__") {
+            str.erase(match.position(), match.length());
+            str.insert(match.position(), std::to_string(_stack.size()));
             continue;
         }
         

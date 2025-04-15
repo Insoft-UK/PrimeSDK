@@ -29,7 +29,7 @@
 namespace pp {
     class Preprocessor {
     public:
-        std::string path;       // path for #include <‘filename‘>
+        std::string path = "/Applications/HP/PrimeSDK/pplib";       // path for #include <‘filename‘>
         std::string filename;
         
         bool verbose = false;

@@ -3,7 +3,7 @@ DIR=$(dirname "$0")
 clear
 cd "$DIR"
 
-source ../../notarization
+. ../../../notarization
 
 NAME=pplmin
 IDENTIFIER=uk.insoft.$NAME

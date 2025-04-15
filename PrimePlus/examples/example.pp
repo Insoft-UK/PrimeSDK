@@ -33,7 +33,7 @@
 #include <pixel>
 #include <prime>
 #include <string>
-#include <clang>
+#include <cplang>
 #include <pplang>
 
 @disregard
@@ -49,9 +49,6 @@
 
 #PYTHON
 #END
-
-// Namespace
-namespace std::cartesian::rect:=RECT;
 
 Example:AVeryLongName(p:first, q:second)
 begin
@@ -85,8 +82,9 @@ begin
   LOCAL a; LOCAL b;
 #END
 
-    using std::cartesian;
-    std::cartesian::rect();
+    using cartesian;
+    using color;
+    convertHSVtoRGB();
     rect();
 end;
 
@@ -99,13 +97,38 @@ myFunction();
 
 void clang()
 {
-    for (local A:=0; A <= 10; A := A + 1) {
-        B := B + A;
+    var i;
+    
+    for (var A=0; A <= 10; A = A + 1) {
+        B = B + A;
     }
     
     while (A > 0) {
-        A := 0;
+        A = 0;
+    }
+    
+    if ((A == B && B != 0) || A <= -1) {
+    } else {
+    }
+    
+    do {
+        A = A + 1;
+    } while (A != 0);
+    
+    switch (A) {
+    case 1:
+        switch (B) {
+        case 2:
+            end;
+        }
+        end;
     }
 }
+
+pplang()
+begin
+    var v:variableName = 0;
+    KC.On;
+end;
 
 

@@ -26,9 +26,6 @@
 #ifndef PPLIB
 #define PPLIB
 
-namespace start := STARTAPP.app;
-namespace start := STARTVIEW.view;
-
 #define view    VIEW
 #define freeze  FREEZE
 #define kill    KILL
@@ -38,7 +35,7 @@ namespace start := STARTVIEW.view;
 #define floor   FLOOR
 #define round   ROUND
 
-
+#define SCREEN G0
 
 #define SCREEN_WIDTH        320
 #define SCREEN_HEIGHT       240

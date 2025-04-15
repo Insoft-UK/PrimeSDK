@@ -330,7 +330,7 @@ bool Calc::parse(std::string &str)
     
     
     
-    re = R"(\\( *\d{1,2})?(?:\[|`)(.*)(?:\]|`))";
+    re = R"(\\( *\d{1,2}|F|C|R)?(?:\[|`)(.*)(?:\]|`))";
     while (regex_search(str, match, re)) {
         
         std::string matched = match.str();
@@ -345,12 +345,20 @@ bool Calc::parse(std::string &str)
         
         strip(matched);
         
+        char output = 0;
+        
         auto it = std::sregex_token_iterator {
             matched.begin(), matched.end(), re, {1, 2}
         };
         if (it != std::sregex_token_iterator()) {
             if (it->matched) {
-                scale = atoi(it->str().c_str());
+                if (isdigit(it->str().c_str()[0])) {
+                    scale = atoi(it->str().c_str());
+                } else {
+                    output = it->str().c_str()[0];
+                }
+                
+//                scale = atoi(it->str().c_str());
             }
             else {
                 scale = -1; // -1 means auto scale
@@ -364,6 +372,23 @@ bool Calc::parse(std::string &str)
         
         expression = separateExpression(expression);
         double result = evaluateExpression(expression);
+        
+        switch (output) {
+            case 'F':
+                result = floor(result);
+                break;
+                
+            case 'C':
+                result = ceil(result);
+                break;
+                
+            case 'R':
+                result = round(result);
+                break;
+                
+            default:
+                break;
+        }
         
         std::stringstream ss;
         ss << std::fixed << std::setprecision(scale > -1 ? scale : 10) << result;
