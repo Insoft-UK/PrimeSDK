@@ -3,43 +3,6 @@ This is a handy utility that goes well with the original [fontconvert](https://g
 
 This utility tool provides the ability to generate an Adafruit_GFX `.h` format from an image file.
 
-## Fonts
-
-### HD44780
-<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/HD44780.bmp" >
-
-[HD44780.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/HD44780.h)
-[HD44780.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/HD44780.hpprgm)
-
-### BBC
-<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.bmp" >
-
-[BBC.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.h)
-[BBC.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/BBC.hpprgm)
-
-### IBM CGA CP437 8x8
-<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CGA.bmp" >
-
-[CGA.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CGA.h)
-[CGA.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/CGA.hpprgm)
-
-### IBM EGA CP437 8x14
-<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/EGA.bmp" >
-
-[EGA.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/EGA.h)
-[EGA.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/EGA.hpprgm)
-
-### IBM VGA CP437 9x16
-<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/VGA.bmp" >
-
-[VGA.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/VGA.h)
-[VGA.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/VGA.hpprgm)
-
-### ARCADE
-<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.bmp" >
-
-[ARCADE.h](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.h)
-[ARCADE.hpprgm](https://github.com/Insoft-UK/piXfont/blob/main/assets/fonts/ARCADE.hpprgm)
 
 e.g.
 ### HD44780.h
