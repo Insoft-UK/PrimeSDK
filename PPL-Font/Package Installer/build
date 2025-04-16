@@ -1,0 +1,36 @@
+#!/bin/bash
+DIR=$(dirname "$0")
+clear
+cd "$DIR"
+
+. ../../../notarization
+
+NAME=pplfont
+IDENTIFIER=uk.insoft.$NAME
+BIN=Applications/HP/PrimeSDK/bin
+
+find "package-root/$BIN" -type f -exec codesign --remove-signature {} \;
+find "package-root/$BIN" -type f -exec codesign --sign "Developer ID Application: $YOUR_NAME ($TEAM_ID)" --options runtime --timestamp {} \;
+         
+pkgbuild --root package-root \
+         --identifier $IDENTIFIER \
+         --version 1.0 --install-location / \
+         --scripts scripts \
+         $NAME.pkg
+ 
+productsign --sign "Developer ID Installer: $YOUR_NAME ($TEAM_ID)" $NAME.pkg $NAME-signed.pkg
+
+xcrun notarytool submit --apple-id $APPLE_ID \
+                        --password $PASSWORD \
+                        --team-id $TEAM_ID \
+                        --wait $NAME-signed.pkg
+                        
+read -p "Press Enter to continue."
+
+rm -r $NAME.pkg
+mv $NAME-signed.pkg $NAME.pkg
+
+read -p "Press Enter to exit!"
+
+# Close the Terminal window
+osascript -e 'tell application "Terminal" to close window 1' & exit
