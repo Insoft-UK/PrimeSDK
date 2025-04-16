@@ -60,6 +60,54 @@ BEGIN
 END;
 ```
 
+## Regular Expressions
+P+ v3.1 and lator added support for regular expressions.
+
+**switch**
+eg.
+```
+regex `\bswitch +([a-zA-Z_]\w*)` LOCAL sw__SCOPE__ := $1;CASE
+regex `\bcase +(\-?\d+) +do *$` IF sw\`__SCOPE__-1` == $1 THEN
+```
+
+P+
+```
+switch X
+    case 0 do
+    end;
+end;
+```
+
+PPL
+```
+LOCAL sw0 := X;
+CASE
+  IF sw0 == 0 THEN
+  END;
+END;
+```
+
+## Code Stack
+
+A code stack provides a convenient way to store code snippets that can be retrieved and used later.
+**P+**
+```
+__PUSH__`i := i + 1;`
+local i := 8;
+__POP__
+```
+**PPL**
+```
+LOCAL i := 8;
+i := i + 1;
+```
+
+Intended for `regex`
+
+## Substitution
+`down ...` for `DOWNTO` included.
+`…` for `...` supported, `...` and `…` can now be used instead of `to`
+
 >[!IMPORTANT]
 In P+ `=` is treated as `:=` were in PPL `=` is treated as `==`
 
