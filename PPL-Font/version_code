@@ -70,7 +70,7 @@ patch_letter=${patches[$patch]}
 year=$(date "+%Y" | tail -c 3)  # Last two digits of the year
 # Numeric month
 month=$((10#$(date "+%m")))     # Outputs 1, 2, ... 12 (no leading zeros)
-day=$((10#$(date "+%d")))  # Outputs 1, 2, ... 31 (no leading zeros)
+day=$(date "+%e")               # Numeric day
 
 # Map month to letters (A = Jan, B = Feb, ..., L = Dec)
 declare -a months=("A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L")

@@ -1,24 +1,21 @@
 #!/bin/bash
 DIR=$(dirname "$0")
-printf "\e[48;5;160m"
 clear
 ANSI_ART=$(cat <<EOF
-\e[48;5;160m                            \e[0;m
-\e[48;5;160m            \e[0;107m            \e[48;5;160m    \e[0;m
-\e[48;5;160m          \e[0;107m            \e[48;5;160m      \e[0;m
-\e[48;5;160m        \e[0;107m            \e[48;5;160m        \e[0;m
-\e[48;5;160m      \e[0;107m            \e[48;5;160m  \e[0;107m  \e[48;5;160m      \e[0;m
-\e[48;5;160m    \e[0;107m            \e[48;5;160m  \e[0;107m      \e[48;5;160m    \e[0;m
-\e[48;5;160m  \e[0;107m            \e[48;5;160m  \e[0;107m          \e[48;5;160m  \e[0;m
-\e[48;5;160m  \e[0;107m          \e[48;5;160m    \e[0;107m            \e[0;m
-\e[48;5;160m  \e[0;107m            \e[48;5;160m    \e[0;107m          \e[0;m
-\e[48;5;160m    \e[0;107m          \e[48;5;160m  \e[0;107m            \e[0;m
-\e[48;5;160m      \e[0;107m      \e[48;5;160m  \e[0;107m            \e[48;5;160m  \e[0;m
-\e[48;5;160m        \e[0;107m  \e[48;5;160m  \e[0;107m            \e[48;5;160m    \e[0;m
-\e[48;5;160m          \e[0;107m            \e[48;5;160m      \e[0;m
-\e[48;5;160m        \e[0;107m            \e[48;5;160m        \e[0;m
-\e[48;5;160m      \e[0;107m            \e[48;5;160m          \e[0;m
-\e[48;5;160m
+\e[0;m          \e[48;5;160m            \e[0;m    \e[0;m
+\e[0;m        \e[48;5;160m            \e[0;m      \e[0;m
+\e[0;m      \e[48;5;160m            \e[0;m        \e[0;m
+\e[0;m    \e[48;5;160m            \e[0;m  \e[48;5;160m  \e[0;m      \e[0;m
+\e[0;m  \e[48;5;160m            \e[0;m  \e[48;5;160m      \e[0;m    \e[0;m
+\e[48;5;160m            \e[0;m  \e[48;5;160m          \e[0;m  \e[0;m
+\e[48;5;160m          \e[0;m    \e[48;5;160m            \e[0;m
+\e[48;5;160m            \e[0;m    \e[48;5;160m          \e[0;m
+\e[0;m  \e[48;5;160m          \e[0;m  \e[48;5;160m            \e[0;m
+\e[0;m    \e[48;5;160m      \e[0;m  \e[48;5;160m            \e[0;m  \e[0;m
+\e[0;m      \e[48;5;160m  \e[0;m  \e[48;5;160m            \e[0;m    \e[0;m
+\e[0;m        \e[48;5;160m            \e[0;m      \e[0;m
+\e[0;m      \e[48;5;160m            \e[0;m        \e[0;m
+\e[0;m    \e[48;5;160m            \e[0;m          \e[0;m
 EOF
 )
 
@@ -71,8 +68,9 @@ patch_letter=${patches[$patch]}
 
 # Get the current date
 year=$(date "+%Y" | tail -c 3)  # Last two digits of the year
-month=$(date "+%m")             # Numeric month
-day=$(date "+%d")               # Numeric day
+# Numeric month
+month=$((10#$(date "+%m")))     # Outputs 1, 2, ... 12 (no leading zeros)
+day=$(date "+%e")               # Numeric day
 
 # Map month to letters (A = Jan, B = Feb, ..., L = Dec)
 declare -a months=("A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L")
@@ -92,10 +90,9 @@ echo "Numeric Build Number: $version"
 echo "Internal Build Code: ${major_letter}${minor}${patch_letter}${build}"
 
 # Output the generated version code to file.
-cd src
 echo "// The MIT License (MIT)" > version_code.h
 echo "// " >> version_code.h
-echo "// Copyright (c) 2024 Insoft. All rights reserved." >> version_code.h
+echo "// Copyright (c) 2023 Insoft. All rights reserved." >> version_code.h
 echo "// " >> version_code.h
 echo "// Permission is hereby granted, free of charge, to any person obtaining a copy" >> version_code.h
 echo "// of this software and associated documentation files (the "Software"), to deal" >> version_code.h

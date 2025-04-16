@@ -27,7 +27,7 @@
 #include <regex>
 
 #include "common.hpp"
-#include "version_code.h"
+#include "../version_code.h"
 
 using namespace cmn;
 

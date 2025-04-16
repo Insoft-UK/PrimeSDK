@@ -28,16 +28,16 @@
 
 #define __STORAGE_SCREEN G9
 
-@global def L8[1,1]                     hp::mouse.x;
-@global def L8[1,2]                     hp::mouse.y;
-@global def L8[1,5]                     hp::mouse.type;
+@global regex `hp::mouse\.x` L8[1,1]
+@global regex `hp::mouse\.y` L8[1,2]
+@global regex `hp::mouse\.type` L8[1,5]
 
 @global regex `\bhp::storeScreen *\( *(G\d) *\)` DIMGROB_P($1, 320, 240, 0); BLIT_P($1, G0)
 @global regex `\bhp::restoreScreen *\( *(G\d) *\)` BLIT_P($1)
 
 @global regex `\bhp::clear(?:GROB|Screen) *\((.*)?\)` RECT($1)
 
-@global def WAIT(-1)            hp::waitEvent;
+@global regex `hp::waitEvent\(\)` WAIT(-1)
 
 @global regex `\bhp::isKeyPressed *\(([\w.:]+)\)` IFTE(SIZE($1)==1,1,0)
 @global regex `\bhp::isMouseEvent *\(([\w.:]+)\)` IFTE(SIZE($1)>1,1,0)

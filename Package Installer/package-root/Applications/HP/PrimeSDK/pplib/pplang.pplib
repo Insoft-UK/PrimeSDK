@@ -37,6 +37,8 @@
 #define FROM    :=
 #define emptylist {0}
 
+#define __SCREEN G0
+
 @global regex `\b([a-zA-Z_]\w*) *([*\/+-])\= *` $1 := $1 $2
 
 

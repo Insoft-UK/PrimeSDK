@@ -25,6 +25,8 @@
 #ifndef CLANG_PPLIB
 #define CLANG_PPLIB
 
+#define var     LOCAL
+
 @global regex `0x([\dA-F]+)` #$1:h
 @global regex `0b([0-1]+)` #$1:b
 
@@ -34,12 +36,16 @@
 
 @global regex `%{1}` MOD
 
+@global regex `void `
+
 @global regex `\bif *\((.*)\) *\{ *$` IF $1 THEN
 @global regex `\} *else *\{` ELSE
 @global regex `\bwhile *\((.*)\) *\{ *$` WHILE $1 DO
 @global regex `\bdo *\{` REPEAT
 @global regex `\} *while *\((.*)\) *; *$` UNTIL NOT($1);
-@global regex `\bfor *\(([^;]+);([^;]+);([^;]+)\) *\{ *$` $1; WHILE $2 DO__PUSH__`$3;`
+@global regex `\bfor *\(([^;]+);([^;]+);([^;]+)\) *\{ *$` $1; WHILE$2 DO__PUSH__`__SPACE__$3;`
+@global regex `\bswitch *\(([a-zA-Z_][\w.:(),]*)\) *\{ *$` LOCAL sw\C`__SCOPE__/2` := $1;CASE
+@global regex `\bcase +(\-?\d+) *: *$` IF sw\C`__SCOPE__/2` == $1 THEN
 
   
 @global regex `^ *\} *$` __POP__END;

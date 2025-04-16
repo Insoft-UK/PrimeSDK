@@ -25,17 +25,17 @@
 #ifndef MATRIX_PPLIB
 #define MATRIX_PPLIB
 
-@global def EDITMAT    matrix::edit;
-@global def ADDCOL     matrix::addCol;
-@global def ADDROW     matrix::addRow;
-@global def DELCOL     matrix::delCol;
-@global def REDIM      matrix::redim;
-@global def REPLACE    matrix::replace;
-@global def SCALE      matrix::scale;
-@global def SCALEADD   matrix::scaleAdd;
-@global def Sub        matrix::sub;
-@global def SAWAPCOL   matrix::swapCol;
-@global def SWAPROW    matrix::swapRow;
+namespace matrix::edit := EDITMAT;
+namespace matrix::addCol := ADDCOL;
+namespace matrix::addRow := ADDROW;
+namespace matrix::delCol := DELCOL;
+namespace matrix::redim := REDIM;
+namespace matrix::replace := REPLACE;
+namespace matrix::scale := SCALE;
+namespace matrix::scaleAdd := SCALEADD;
+namespace matrix::sub := Sub;
+namespace matrix::swapCol := SAWAPCOL;
+namespace matrix::swapRow := SWAPROW;
 
 
 #endif /// MATRIX_PPLIB

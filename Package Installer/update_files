@@ -7,21 +7,21 @@ PRIMESDK=Applications/HP/PrimeSDK
 NAME=PrimeSDK
 IDENTIFIER=uk.insoft.$NAME
 
-cp -p -rf "../piXfont/Package Installer/package-root/$PRIMESDK/hpprgm/*.hpprgm" package-root/$PRIMESDK/hpprgm
-cp -p -rf "../piXfont/Package\ Installer/package-root/$PRIMESDK/bin/*" package-root/$PRIMESDK/bin
+#hpprgm
+cp -p -rf ../PrimePlus/Package\ Installer/package-root/$PRIMESDK/hpprgm/*.hpprgm package-root/$PRIMESDK/hpprgm
+cp -p -rf ../PPL-Font/Package\ Installer/package-root/$PRIMESDK/hpprgm/*.hpprgm package-root/$PRIMESDK/hpprgm
+cp -p -rf ../GROB/Package\ Installer/package-root/$PRIMESDK/hpprgm/*.hpprgm package-root/$PRIMESDK/hpprgm
 
-cp -p -rf "../GROB/Package\ Installer/package-root/$PRIMESDK/hpprgm/*.hpprgm" $PACKAGEROOT/$PRIMESDK/hpprgm
-cp -p "../GROB/Package\ Installer/package-root/$PRIMESDK/bin/grob" $PACKAGEROOT/$PRIMESDK/bin
+#bin
+cp -p ../PrimePlus/Package\ Installer/package-root/$PRIMESDK/bin/p+ package-root/$PRIMESDK/bin
+cp -p ../GROB/Package\ Installer/package-root/$PRIMESDK/bin/grob package-root/$PRIMESDK/bin
+cp -p ../PPL-Reformat/Package\ Installer/package-root/$PRIMESDK/bin/pplref package-root/$PRIMESDK/bin
+cp -p ../PPL-Minifier/Package\ Installer/package-root/$PRIMESDK/bin/pplmin package-root/$PRIMESDK/bin
+cp -p -rf ../PPL-Font/Package\ Installer/package-root/$PRIMESDK/bin/* package-root/$PRIMESDK/bin
 
-cp -p -rf "../PPL_Reformat/Package\ Installer/package-root/$PRIMESDK/hpprgm/*.hpprgm" $PACKAGEROOT/$PRIMESDK/hpprgm
-cp -p "../PPL_Reformat/Package\ Installer/package-root/$PRIMESDK/bin/pplref" $PACKAGEROOT/$PRIMESDK/bin
+#pplib
+cp -p -rf ../PrimePlus/Package\ Installer/package-root/$PRIMESDK/pplib/*.pplib package-root/$PRIMESDK/pplib
 
-cp -p -rf "../PPL_Minifier/Package\ Installer/package-root/$PRIMESDK/hpprgm/*.hpprgm" $PACKAGEROOT/$PRIMESDK/hpprgm
-cp -p "../PPL_Minifier/Package\ Installer/package-root/$PRIMESDK/bin/pplmin" $PACKAGEROOT/$PRIMESDK/bin
-
-cp -p -rf "../PrimePlus/Package\ Installer/package-root/$PRIMESDK/hpprgm/*.hpprgm" $PACKAGEROOT/$PRIMESDK/hpprgm
-cp -p -rf "../PrimePlus/Package\ Installer/package-root/$PRIMESDK/pplib/*.pplib" $PACKAGEROOT/$PRIMESDK/pplib
-cp -p "../PrimePlus/Package\ Installer/package-root/$PRIMESDK/bin/p+" $PACKAGEROOT/$PRIMESDK/bin/p+
 
 read -p "Press Enter to exit!"
 

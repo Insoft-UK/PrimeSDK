@@ -25,19 +25,19 @@
 #ifndef PIXEL_PPLIB
 #define PIXEL_PPLIB
 
-@global def ARC_P       arc;
-@global def BLIT_P      blit;
-@global def DIMGROB_P   dimGROB;
-@global def GETPIX_P    getPixel;
-@global def INVERT_P    invert;
-@global def LINE_P      line;
-@global def PIXOFF_P    pixelOff;
-@global def PIXON_P     pixelOn;
-@global def RECT_P      rect;
-@global def FILLPOLY_P  fillPoly;
-@global def SUBGROB_P   subGROB;
-@global def TEXTOUT_P   textOut;
-@global def TEXTSIZE    textSize;
+namespace arc := ARC_P;
+namespace blit := BLIT_P;
+namespace dimGROB := DIMGROB_P;
+namespace getPixel := GETPIX_P;
+namespace invert := INVERT_P;
+namespace line := LINE_P;
+namespace pixelOff := PIXOFF_P;
+namespace pixelOn := PIXON_P;
+namespace rect := RECT_P;
+namespace fillPoly := FILLPOLY_P;
+namespace subGROB := SUBGROB_P;
+namespace textOut := TEXTOUT_P;
+namespace textSize := TEXTSIZE;
 
 @global regex `\b(G\d)\.width\b` GROBW_P($1)
 @global regex `\b(G\d)\.height\b` GROBH_P($1)

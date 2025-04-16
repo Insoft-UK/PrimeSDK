@@ -26,8 +26,6 @@ grep -qxF 'export PATH=/Applications/HP/PrimeSDK/bin:$PATH' ~/.zshrc || echo 'ex
 grep -qxF 'export PRIMESDK=/Applications/HP/PrimeSDK' ~/.zshrc || echo 'export PRIMESDK=/Applications/HP/PrimeSDK' >> ~/.zshrc
 source ~/.zshrc
 
-ln -s /Applications/HP/PrimeSDK/bin/$(arch)/pxfnt /Applications/HP/PrimeSDK/bin/pxfnt
-
 # Detect the currently logged-in user (excluding root)
 CURRENT_USER=$(stat -f%Su /dev/console)
 
@@ -43,17 +41,16 @@ fi
 
 if [ -d "$USER_HOME/Documents/HP Prime" ]; then
     if [ ! -d "$USER_HOME/Documents/HP Prime/Projects" ]; then
-        ln -s /Applications/HP/PrimeSDK/projects "$USER_HOME/Documents/HP Prime/Projects"
+        mv /Applications/HP/PrimeSDK/projects "$USER_HOME/Documents/HP Prime/Projects"
+        
+        # Set correct ownership (important!)
+        chown -R "$CURRENT_USER" "$USER_HOME/Documents/HP Prime/Projects"
+        chgrp -R staff "$USER_HOME/Documents/HP Prime/Projects"
     fi
 
     if [ ! -d "$USER_HOME/Documents/HP Prime/Libraries" ]; then
         ln -s /Applications/HP/PrimeSDK/hpprgm "$USER_HOME/Documents/HP Prime/Libraries"
     fi
 fi
-
-# Set correct ownership (important!)
-#chown -R "$CURRENT_USER" "$USER_HOME/Documents/HP Prime/Projects"
-#chgrp -R staff "$USER_HOME/Documents/HP Prime/Projects"
-
 
 exit 0

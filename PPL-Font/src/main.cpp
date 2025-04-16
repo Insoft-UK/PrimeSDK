@@ -29,7 +29,6 @@
 
 #include "common.hpp"
 #include "hpprgm.hpp"
-#include "HD44780.h"
 
 #include "font.hpp"
 
@@ -39,7 +38,7 @@ static bool verbose = false;
 
 // TODO: Impliment "Indices of glyphs"
 
-#include "version_code.h"
+#include "../version_code.h"
 #define NAME "Adafruit GFX Font Converter"
 #define COMMAND_NAME "pplfont"
 
@@ -490,7 +489,7 @@ int main(int argc, const char * argv[])
     if (in_extension == ".h") {
         if (out_extension == ".hpprgm") {
             convertAdafruitFontToHpprgm(in_filename, out_filename, name);
-            std::cout << "Adafruit GFX Pixel Font for HP Prime " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
+            std::cout << "Adafruit GFX Font for HP Prime " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
             return 0;
         }
         
