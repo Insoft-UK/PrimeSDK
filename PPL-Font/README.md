@@ -5,7 +5,7 @@ This utility tool provides the ability to generate an Adafruit_GFX `.hpprgm` for
 
 e.g.
 ### HD44780.h
-<img src="https://github.com/Insoft-UK/piXfont/blob/main/assets/HD44780.png" width="20%" >
+<img src="https://github.com/Insoft-UK/PrimeSDK/blob/main/assets/HD44780.png" width="20%" >
 
 ```
 pplfont HD44780.h
