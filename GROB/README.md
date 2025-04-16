@@ -1,9 +1,9 @@
-<img src="../../../Insoft-UK/blob/main/assets/logo.svg" width="80" height="80" />
+<img src="https://github.com/Insoft-UK/Insoft-UK/blob/main/assets/logo.svg" width="80" height="80" />
 
 # GROB
 A utility for generating PPL code from an image file for use with the BLIT and BLIT_P functions on the HP Prime.
 
-<img width="64" height="64" src="https://github.com/Insoft-UK/GROB/blob/main/assets/spectrum-8bit.png" >
+<img width="64" height="64" src="https://github.com/Insoft-UK/PrimeSDK/blob/main/assets/spectrum-8bit.png" >
 
 ```
 grob spectrum-8bit.bmp -g 1
