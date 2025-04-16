@@ -28,7 +28,7 @@
 #include <iomanip>
 #include <cstdint>
 
-#include "version_code.h"
+#include "../version_code.h"
 #include "bmp.hpp"
 
 #define NAME "GROB"

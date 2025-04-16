@@ -37,8 +37,11 @@
 #include "preprocessor.hpp"
 #include "strings.hpp"
 
-#include "build.h"
+#include "../version_code.h"
 #include "timer.hpp"
+
+#define NAME "PPL Reformat"
+#define COMMAND_NAME "pplref"
 
 using namespace ppl;
 
@@ -420,82 +423,36 @@ void convertAndFormatFile(std::ifstream& infile, std::ofstream& outfile)
 
 // MARK: - Command Line
 
-/*
- The decimalToBase24 function converts a given
- base 10 integer into its base 24 representation using a
- specific set of characters. The character set is
- comprised of the following 24 symbols:
-
-     •    Numbers: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
-     •    Letters: C, D, F, H, J, K, M, N, R, U, V, W, X, Y
-     
- Character Selection:
- The choice of characters was made to avoid confusion
- with common alphanumeric representations, ensuring
- that each character is visually distinct and easily
- recognizable. This set excludes characters that closely
- resemble each other or numerical digits, promoting
- clarity in representation.
- */
-static std::string decimalToBase24(int num) {
-    if (num == 0) {
-        return "C";
-    }
-
-    const std::string base24Chars = "0123456789CDFHJKMNRUVWXY";
-    std::string base24;
-
-    while (num > 0) {
-        int remainder = num % 24;
-        base24 = base24Chars[remainder] + base24; // Prepend character
-        num /= 24; // Integer division
-    }
-
-    return base24;
-}
-
-static std::string getBuildCode(void) {
-    std::string str;
-    int majorVersionNumber = BUILD_NUMBER / 100000;
-    str = std::to_string(majorVersionNumber) + decimalToBase24(BUILD_NUMBER - majorVersionNumber * 100000);
-    return str;
-}
-
 void help(void)
 {
-    int rev = BUILD_NUMBER / 1000 % 10;
-    
-    std::cout << "Copyright (C) 2024 Insoft. All rights reserved.\n";
-    std::cout << "Insoft PPL Reformat version, " << BUILD_NUMBER / 100000 << "." << BUILD_NUMBER / 10000 % 10 << (rev ? "." + std::to_string(rev) : "")
-    << " (BUILD " << getBuildCode() << "-" << decimalToBase24(BUILD_DATE) << ")\n\n";
-    std::cout << "Usage: pplref <input-file> \n\n";
+    std::cout << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n";
+    std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n";
+    std::cout << "\n";
+    std::cout << "Usage: " << COMMAND_NAME << " <input-file>\n\n";
     std::cout << "Additional Commands:\n";
-    std::cout << "  pplref {-version | -help}\n";
+    std::cout << "  " << COMMAND_NAME << " {-version | -help}\n";
     std::cout << "    -version                 Display the version information.\n";
     std::cout << "    -help                    Show this help message.\n";
 }
 
 void version(void) {
     std::cout << "Copyright (C) 2024 Insoft. All rights reserved.\n";
-    std::cout << "Insoft PPL Reformat version, " << BUILD_NUMBER / 100000 << "." << BUILD_NUMBER / 10000 % 10 << "." << BUILD_NUMBER / 1000 % 10
-    << " (BUILD " << getBuildCode() << ")\n";
-    std::cout << "Built on: " << CURRENT_DATE << "\n";
+    std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n";
+    std::cout << "Built on: " << DATE << "\n";
     std::cout << "Licence: MIT License\n\n";
     std::cout << "For more information, visit: http://www.insoft.uk\n";
 }
 
-void error(void)
-{
-    std::cout << "pplref: try 'pplref -help' for more information\n";
+void error(void) {
+    std::cout << COMMAND_NAME << ": try '" << COMMAND_NAME << " --help' for more information\n";
     exit(0);
 }
 
 void info(void) {
     std::cout << "Copyright (c) 2024 Insoft. All rights reserved.\n";
-    int rev = BUILD_NUMBER / 1000 % 10;
-    std::cout << "Insoft PPL Reformat version, " << BUILD_NUMBER / 100000 << "." << BUILD_NUMBER / 10000 % 10 << (rev ? "." + std::to_string(rev) : "")
-    << " (BUILD " << getBuildCode() << "-" << decimalToBase24(BUILD_DATE) << ")\n\n";
+    std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n\n";
 }
+
 
 // Custom facet to use comma as the thousands separator
 struct comma_numpunct : std::numpunct<char> {

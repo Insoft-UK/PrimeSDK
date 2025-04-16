@@ -38,7 +38,7 @@
 #include "preprocessor.hpp"
 #include "strings.hpp"
 
-#include "version_code.h"
+#include "../version_code.h"
 #include "timer.hpp"
 
 #define NAME "PPL Minifier"
@@ -502,7 +502,7 @@ void help(void) {
     std::cout << "\n";
     std::cout << "Usage: " << COMMAND_NAME << " <input-file>\n\n";
     std::cout << "Additional Commands:\n";
-    std::cout << "  pplmin {-version | -help}\n";
+    std::cout << "  " << COMMAND_NAME << " {-version | -help}\n";
     std::cout << "    -version              Display the version information.\n";
     std::cout << "    -help                 Show this help message.\n";
 }

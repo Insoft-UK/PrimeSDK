@@ -23,6 +23,8 @@ cp -p -rf ../PPL-Font/Package\ Installer/package-root/$PRIMESDK/bin/* package-ro
 cp -p -rf ../PrimePlus/Package\ Installer/package-root/$PRIMESDK/pplib/*.pplib package-root/$PRIMESDK/pplib
 
 
+find . -name '*.DS_Store' -type f -delete
+
 read -p "Press Enter to exit!"
 
 # Close the Terminal window

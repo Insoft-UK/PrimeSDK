@@ -33,8 +33,7 @@
 		13166E852BA12E5E00D1E6F0 /* examples */ = {isa = PBXFileReference; lastKnownFileType = folder; path = examples; sourceTree = "<group>"; };
 		1351CC552BFC0E180073FEDF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		136E644E2D35A99C0054E0CC /* version.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = version.txt; sourceTree = "<group>"; };
-		136E644F2D35A9CD0054E0CC /* version_code.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = version_code.h; sourceTree = "<group>"; };
-		136E64502D35AB410054E0CC /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		136E64502D35AB410054E0CC /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		137FB2852A03B06500AEFDF2 /* pplmin */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = pplmin; sourceTree = BUILT_PRODUCTS_DIR; };
 		137FB2882A03B06500AEFDF2 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		137FB2942A046E8E00AEFDF2 /* pplmin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = pplmin.entitlements; sourceTree = "<group>"; };
@@ -64,7 +63,7 @@
 			isa = PBXGroup;
 			children = (
 				136E644E2D35A99C0054E0CC /* version.txt */,
-				136E64502D35AB410054E0CC /* LICENSE */,
+				136E64502D35AB410054E0CC /* LICENSE.md */,
 				1351CC552BFC0E180073FEDF /* README.md */,
 				137FB2942A046E8E00AEFDF2 /* pplmin.entitlements */,
 				13166E852BA12E5E00D1E6F0 /* examples */,
@@ -84,7 +83,6 @@
 		137FB2872A03B06500AEFDF2 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				136E644F2D35A9CD0054E0CC /* version_code.h */,
 				137FB2882A03B06500AEFDF2 /* main.cpp */,
 				13C21F9E2A783E820067CE22 /* Classes */,
 				13C21F9C2A783D8D0067CE22 /* common.hpp */,

@@ -28,13 +28,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		130342CC2A7DDBB900142B74 /* build.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = build.txt; sourceTree = "<group>"; };
+		130842B22DAFD89600CD8EC4 /* version.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = version.txt; sourceTree = "<group>"; };
+		130842B32DAFD8A600CD8EC4 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		1308E8F42AC48F20001EEC82 /* singleton.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = singleton.cpp; sourceTree = "<group>"; };
 		1308E8F52AC48F20001EEC82 /* singleton.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = singleton.hpp; sourceTree = "<group>"; };
 		131C87722C936CE800063389 /* comments.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = comments.cpp; sourceTree = "<group>"; };
 		131C87732C936CE800063389 /* comments.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = comments.hpp; sourceTree = "<group>"; };
 		1351CC552BFC0E180073FEDF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		1352EC512B350ECC003130E4 /* build.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = build.h; sourceTree = "<group>"; };
 		137FB2852A03B06500AEFDF2 /* pplref */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = pplref; sourceTree = BUILT_PRODUCTS_DIR; };
 		137FB2882A03B06500AEFDF2 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		137FB2942A046E8E00AEFDF2 /* pplref.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = pplref.entitlements; sourceTree = "<group>"; };
@@ -61,6 +61,8 @@
 		137FB27C2A03B06500AEFDF2 = {
 			isa = PBXGroup;
 			children = (
+				130842B22DAFD89600CD8EC4 /* version.txt */,
+				130842B32DAFD8A600CD8EC4 /* LICENSE.md */,
 				1351CC552BFC0E180073FEDF /* README.md */,
 				137FB2942A046E8E00AEFDF2 /* pplref.entitlements */,
 				137FB2872A03B06500AEFDF2 /* src */,
@@ -79,8 +81,6 @@
 		137FB2872A03B06500AEFDF2 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				130342CC2A7DDBB900142B74 /* build.txt */,
-				1352EC512B350ECC003130E4 /* build.h */,
 				137FB2882A03B06500AEFDF2 /* main.cpp */,
 				13C21F9E2A783E820067CE22 /* Classes */,
 				13C21F9C2A783D8D0067CE22 /* common.hpp */,
@@ -141,7 +141,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1600;
+				LastUpgradeCheck = 1630;
 				TargetAttributes = {
 					137FB2842A03B06500AEFDF2 = {
 						CreatedOnToolsVersion = 14.3;
@@ -183,7 +183,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Increment version number by 0.001, allowing 1000 builds before version number is increased.\nbuild=( $(cat src/build.txt) )\nbuild=$(($build+1))\ncurrent_date=$(date +\"%Y %B %d\")\nbuild_date=$(date +\"%Y%m%d\")\necho $build > src/build.txt\necho \"#define BUILD_NUMBER $build\" > src/build.h\necho \"#define CURRENT_DATE \\\"$current_date\\\"\" >> src/build.h\necho \"#define BUILD_DATE $build_date\" >> src/build.h\n";
+			shellScript = "./version_code\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
