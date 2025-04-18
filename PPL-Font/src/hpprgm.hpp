@@ -28,14 +28,8 @@
 
 namespace hpprgm {
 
-    /**
-     @brief    Parse an Adafruit .hpprgm file.
-     @param    utf8 The utf8 string of the .hpprgm file.
-     @return   Return true if succeful else faile.
-     */
-    bool parseAdafruitFontFile(const std::string &filename, font::TAdafruitFont &font);
-    
-    std::string buildHpprgmAdafruitFont(font::TAdafruitFont &adafruitFont, std::string &name);
+ 
+    std::string createHpprgmAdafruitFont(font::TAdafruitFont &adafruitFont, std::string &name);
 }
 
 #endif /* hpprgm_hpp */

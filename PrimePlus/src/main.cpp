@@ -42,7 +42,7 @@
 #include "strings.hpp"
 #include "calc.hpp"
 
-#include "version_code.h"
+#include "../version_code.h"
 
 #define NAME "P+ Pre-Processor"
 #define COMMAND_NAME "p+"

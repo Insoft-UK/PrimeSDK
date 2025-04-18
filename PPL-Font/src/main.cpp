@@ -68,7 +68,7 @@ void help(void) {
     std::cout << "Usage: " << COMMAND_NAME << " <input-file> [-o <output-file>] [-n <name>] [-v flags]\n";
     std::cout << "\n";
     std::cout << "Options:\n";
-    std::cout << "  -o <output-file>   Specify the filename for generated .h or .hpprgm file.\n";
+    std::cout << "  -o <output-file>   Specify the filename for generated .hpprgm file.\n";
     std::cout << "  -n <name>          Font name.\n";
     std::cout << "  -v                 Enable verbose output for detailed processing information.\n";
     std::cout << "\n";
@@ -89,16 +89,6 @@ void help(void) {
 
 // MARK: - File IO
 
-void createUTF8File(const std::string &filename, const std::string &str)
-{
-    std::ofstream outfile;
-    
-    outfile.open(filename, std::ios::out | std::ios::binary);
-    if (outfile.is_open()) {
-        outfile.write(str.c_str(), str.length());
-        outfile.close();
-    }
-}
 
 void createUTF16LEFile(const std::string& filename, const std::string str) {
     std::ofstream outfile;
@@ -163,70 +153,14 @@ std::string loadTextFile(const std::string &filename)
         return str;
     }
     
-    if (is_utf16le(infile)) {
-        char c;
-        while (!infile.eof()) {
-            infile.get(c);
-            str += c;
-            infile.peek();
-        }
-        
-        uint16_t *utf16_str = (uint16_t *)str.c_str();
-        str = utf16_to_utf8(utf16_str, str.size() / 2);
-    } else {
-        // Use a stringstream to read the file's content into the string
-        std::stringstream buffer;
-        buffer << infile.rdbuf();
-        str = buffer.str();
-    }
+    std::stringstream buffer;
+    buffer << infile.rdbuf();
+    str = buffer.str();
 
     infile.close();
     
     return str;
 }
-
-// MARK: - Deleaing with Glyphs
-
-void removeLeadingBlankGlyphs(font::TAdafruitFont &adafruitFont)
-{
-    /*
-     Remove unnecessary blank glyph entries one by one from the beginning until
-     a non-blank entry is found or the [space] (ASCII 32) glyph is reached, ensuring
-     not to go past the last glyph, then stop.
-    */
-    for (int i = adafruitFont.first; i < adafruitFont.last && i < 32; i++) {
-        // If width or height is zero, it's a blank entry.
-        if (adafruitFont.glyphs.front().width) break;
-        
-        std::reverse(adafruitFont.glyphs.begin(), adafruitFont.glyphs.end());
-        adafruitFont.glyphs.pop_back();
-        std::reverse(adafruitFont.glyphs.begin(), adafruitFont.glyphs.end());
-        adafruitFont.first++;
-    }
-}
-
-void removeTrailingBlankGlyphs(font::TAdafruitFont &adafruitFont)
-{
-    /*
-     Remove blank glyph entries from the end one by one until a non-blank entry
-     is found or the first glyph is reached, then stop.
-     */
-    for (int i = adafruitFont.last; i > adafruitFont.first; i--) {
-        // If width or height is zero, it's a blank entry.
-        if (adafruitFont.glyphs.back().width) break;
-        
-        adafruitFont.glyphs.pop_back();
-        adafruitFont.last--;
-    }
-}
-
-void trimBlankGlyphs(font::TAdafruitFont &adafruitFont)
-{
-    removeLeadingBlankGlyphs(adafruitFont);
-    removeTrailingBlankGlyphs(adafruitFont);
-}
-
-
 
 
 // MARK: - Decoding
@@ -299,7 +233,7 @@ void convertAdafruitFontToHpprgm(std::string &in_filename, std::string &out_file
         exit(2);
     }
 
-    str = hpprgm::buildHpprgmAdafruitFont(adafruitFont, name);
+    str = hpprgm::createHpprgmAdafruitFont(adafruitFont, name);
     createUTF16LEFile(out_filename, str);
 }
 
@@ -320,17 +254,9 @@ int main(int argc, const char * argv[])
 
     
     std::string in_filename, out_filename, name, prefix, sufix;
-    int columns = 16;
+
     
     
-    bool fixed = false;
-    bool leftAlign = false;
-    
-    font::TAdafruitFont adafruitFont = {
-        .first = 0,
-        .last = 255,
-        .yAdvance = 8
-    };
     
     for( int n = 1; n < argc; n++ ) {
         if (*argv[n] == '-') {
@@ -341,58 +267,13 @@ int main(int argc, const char * argv[])
                 out_filename = argv[n];
                 continue;
             }
-            
-            
-            
+
             if (args == "-n") {
                 if (++n > argc) error();
                 name = argv[n];
                 continue;
             }
-            
-            
-            
-            
-            if (args == "-c") {
-                if (++n > argc) error();
-                columns = parse_number(argv[n]);
-                if (columns < 1) columns = 1;
-                continue;
-            }
-            
-            if (args == "-f") {
-                if (++n > argc) error();
-                adafruitFont.first = parse_number(argv[n]);
-                if (adafruitFont.first < 0 || adafruitFont.first > 255) adafruitFont.first = 0;
-                continue;
-            }
-            
-            if (args == "-l") {
-                if (++n > argc) error();
-                adafruitFont.last = parse_number(argv[n]);
-                if (adafruitFont.last < 0 || adafruitFont.last > 255) adafruitFont.last = 255;
-                continue;
-            }
-            
-            
-            
-            if (args == "-F") {
-                fixed = true;
-                continue;
-            }
-            
-            
-            
-            if (args == "-a") {
-                leftAlign = true;
-                continue;
-            }
-            
-         
-            
-            
-           
-            
+
             if (args == "--help") {
                 help();
                 return 0;
@@ -423,14 +304,7 @@ int main(int argc, const char * argv[])
         name = std::filesystem::path(in_filename).stem().string();
     }
     
-    /*
-     We ensure that if an invalid ‘last’ or ‘first’ entry is provided, we
-     revert to the default values for ‘last’ and ‘first’.
-     */
-    if (adafruitFont.last < adafruitFont.first) {
-        adafruitFont.first = 0;
-        adafruitFont.last = 255;
-    }
+    
     
     /*
      Initially, we display the command-line application’s basic information,
@@ -458,8 +332,7 @@ int main(int argc, const char * argv[])
      • For an input file with a .hpprgm extension, the default output extension is .h.
      */
     if (std::filesystem::path(out_filename).extension().empty()) {
-        if (in_extension == ".h") out_filename.append(".hpprgm");
-        if (in_extension == ".hpprgm") out_filename.append(".h");
+        out_filename.append(".hpprgm");
     }
     
     std::string out_extension = std::filesystem::path(out_filename).extension();

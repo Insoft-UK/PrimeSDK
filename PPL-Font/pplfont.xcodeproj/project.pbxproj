@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		13CDF1CF2D4EA5EF0005D2EA /* delta.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13CDF1CE2D4EA5EF0005D2EA /* delta.cpp */; };
 		13CDF2582D56502E0005D2EA /* hpprgm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13CDF2572D56502E0005D2EA /* hpprgm.cpp */; };
 		13CDF25B2D5657360005D2EA /* common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13CDF25A2D5657360005D2EA /* common.cpp */; };
 		84764229189579CD00AFBE9C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84764228189579CD00AFBE9C /* main.cpp */; };
@@ -32,8 +31,6 @@
 		1328C2962BCB4908003C4B3A /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		1328C2972BCB4910003C4B3A /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		138F54D32C977594009357F9 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
-		13CDF1CD2D4EA5EF0005D2EA /* delta.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = delta.hpp; sourceTree = "<group>"; };
-		13CDF1CE2D4EA5EF0005D2EA /* delta.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = delta.cpp; sourceTree = "<group>"; };
 		13CDF2562D56502E0005D2EA /* hpprgm.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = hpprgm.hpp; sourceTree = "<group>"; };
 		13CDF2572D56502E0005D2EA /* hpprgm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = hpprgm.cpp; sourceTree = "<group>"; };
 		13CDF2592D5657360005D2EA /* common.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = common.hpp; sourceTree = "<group>"; };
@@ -91,8 +88,6 @@
 			isa = PBXGroup;
 			children = (
 				84764228189579CD00AFBE9C /* main.cpp */,
-				13CDF1CD2D4EA5EF0005D2EA /* delta.hpp */,
-				13CDF1CE2D4EA5EF0005D2EA /* delta.cpp */,
 				13CDF2562D56502E0005D2EA /* hpprgm.hpp */,
 				13CDF2572D56502E0005D2EA /* hpprgm.cpp */,
 				130842AB2DAFC32100CD8EC4 /* font.hpp */,
@@ -179,7 +174,6 @@
 			files = (
 				84764229189579CD00AFBE9C /* main.cpp in Sources */,
 				13CDF25B2D5657360005D2EA /* common.cpp in Sources */,
-				13CDF1CF2D4EA5EF0005D2EA /* delta.cpp in Sources */,
 				13CDF2582D56502E0005D2EA /* hpprgm.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

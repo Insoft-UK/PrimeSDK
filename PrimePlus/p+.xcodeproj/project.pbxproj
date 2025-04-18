@@ -46,7 +46,6 @@
 		1351CC522BF530CE0073FEDF /* calc.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = calc.hpp; sourceTree = "<group>"; };
 		1351CC552BFC0E180073FEDF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		136E64472D2877660054E0CC /* version.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = version.txt; sourceTree = "<group>"; };
-		136E64482D28783C0054E0CC /* version_code.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = version_code.h; sourceTree = "<group>"; };
 		136E64522D35B0980054E0CC /* regexp.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = regexp.hpp; sourceTree = "<group>"; };
 		136E64532D35B0980054E0CC /* regexp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = regexp.cpp; sourceTree = "<group>"; };
 		136E64592D3964A90054E0CC /* dictionary.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = dictionary.hpp; sourceTree = "<group>"; };
@@ -55,7 +54,7 @@
 		137FB2882A03B06500AEFDF2 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		137FB2942A046E8E00AEFDF2 /* p+.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "p+.entitlements"; sourceTree = "<group>"; };
 		1389CFEA2CA73BA6008FDBEB /* timer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = timer.hpp; sourceTree = "<group>"; };
-		138F54D22C976F10009357F9 /* LICENSE.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
+		138F54D22C976F10009357F9 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		13B13C2F2B66C2F000F9BCBB /* strings.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = strings.cpp; sourceTree = "<group>"; };
 		13B13C302B66C2F000F9BCBB /* strings.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = strings.hpp; sourceTree = "<group>"; };
 		13C21F982A7829C80067CE22 /* preprocessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = preprocessor.cpp; sourceTree = "<group>"; };
@@ -88,7 +87,7 @@
 		137FB27C2A03B06500AEFDF2 = {
 			isa = PBXGroup;
 			children = (
-				138F54D22C976F10009357F9 /* LICENSE.txt */,
+				138F54D22C976F10009357F9 /* LICENSE.md */,
 				1351CC552BFC0E180073FEDF /* README.md */,
 				136E64472D2877660054E0CC /* version.txt */,
 				137FB2942A046E8E00AEFDF2 /* p+.entitlements */,
@@ -110,7 +109,6 @@
 		137FB2872A03B06500AEFDF2 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				136E64482D28783C0054E0CC /* version_code.h */,
 				137FB2882A03B06500AEFDF2 /* main.cpp */,
 				13C21F9E2A783E820067CE22 /* Classes */,
 				13C21F9C2A783D8D0067CE22 /* common.hpp */,

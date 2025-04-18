@@ -22,38 +22,8 @@
 // SOFTWARE.
 
 #include "common.hpp"
-
 #include <regex>
 
-std::string cmn::utf16_to_utf8(const uint16_t* utf16_str, size_t utf16_size) {
-    std::string utf8_str;
-    
-    for (size_t i = 0; i < utf16_size; ++i) {
-        uint16_t utf16_char = utf16_str[i];
-        
-#ifndef __LITTLE_ENDIAN__
-        utf16_char = utf16_char >> 8 | utf16_char << 8;
-#endif
-
-        if (utf16_char < 0x0080) {
-            // 1-byte UTF-8
-            utf8_str += static_cast<char>(utf16_char);
-        }
-        else if (utf16_char < 0x0800) {
-            // 2-byte UTF-8
-            utf8_str += static_cast<char>(0xC0 | ((utf16_char >> 6) & 0x1F));
-            utf8_str += static_cast<char>(0x80 | (utf16_char & 0x3F));
-        }
-        else {
-            // 3-byte UTF-8
-            utf8_str += static_cast<char>(0xE0 | ((utf16_char >> 12) & 0x0F));
-            utf8_str += static_cast<char>(0x80 | ((utf16_char >> 6) & 0x3F));
-            utf8_str += static_cast<char>(0x80 | (utf16_char & 0x3F));
-        }
-    }
-    
-    return utf8_str;
-}
 
 std::ifstream::pos_type cmn::filesize(const char* filename)
 {
@@ -63,23 +33,6 @@ std::ifstream::pos_type cmn::filesize(const char* filename)
     return pos;
 }
 
-bool cmn::is_utf16le(std::ifstream &infile)
-{
-    uint16_t byte_order_mark;
-    
-    std::ifstream::pos_type pos = infile.tellg();
-    
-    infile.seekg(0);
-    infile.read((char *)&byte_order_mark, sizeof(uint16_t));
-    
-#ifndef __LITTLE_ENDIAN__
-    byte_order_mark = byte_order_mark >> 8 | byte_order_mark << 8;
-#endif
-    if (byte_order_mark == 0xFEFF) return true;
-    
-    infile.seekg(pos);
-    return false;
-}
 
 uint8_t cmn::mirror_byte(uint8_t b) {
     b = ((b & 0xF0) >> 4) | ((b & 0x0F) << 4);  // Swap upper and lower 4 bits

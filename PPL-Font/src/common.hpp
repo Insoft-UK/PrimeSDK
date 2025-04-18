@@ -50,9 +50,7 @@ namespace cmn {
         return dest.u;
     }
     
-    std::string utf16_to_utf8(const uint16_t* utf16_str, size_t utf16_size);
     std::ifstream::pos_type filesize(const char* filename);
-    bool is_utf16le(std::ifstream &infile);
     uint8_t mirror_byte(uint8_t b);
     int parse_number(const std::string &str);
 }
