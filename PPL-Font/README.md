@@ -32,5 +32,5 @@ e.g.
 `#--YYXXAAHHWWOOOO:64h = #--:8h #00:8h #00:8h #00:8h #00:8h #00:8h #0000:16h`
 
 > [!NOTE]
-pplfont is a streamlined version of the piXfont tool. While both can perform the same core font-related tasks, piXfont offers additional features, including creating fonts from images, converting .hpprgm files back into .h files, and generating texture atlases.
+pplfont is a streamlined version of the [pxfnt](https://github.com/Insoft-UK/piXfont) tool. While both can perform the same core font-related tasks, piXfont offers additional features, including creating fonts from images, converting .hpprgm files back into .h files, and generating texture atlases.
 
