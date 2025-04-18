@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		13CDF2582D56502E0005D2EA /* hpprgm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13CDF2572D56502E0005D2EA /* hpprgm.cpp */; };
-		13CDF25B2D5657360005D2EA /* common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13CDF25A2D5657360005D2EA /* common.cpp */; };
 		84764229189579CD00AFBE9C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84764228189579CD00AFBE9C /* main.cpp */; };
 /* End PBXBuildFile section */
 
@@ -25,16 +23,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		130842AB2DAFC32100CD8EC4 /* font.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = font.hpp; sourceTree = "<group>"; };
 		130842B12DAFCB7000CD8EC4 /* version_code.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = version_code.h; sourceTree = "<group>"; };
 		13148B602D42B5E800849C73 /* version.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = version.txt; sourceTree = "<group>"; };
 		1328C2962BCB4908003C4B3A /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		1328C2972BCB4910003C4B3A /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		138F54D32C977594009357F9 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
-		13CDF2562D56502E0005D2EA /* hpprgm.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = hpprgm.hpp; sourceTree = "<group>"; };
-		13CDF2572D56502E0005D2EA /* hpprgm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = hpprgm.cpp; sourceTree = "<group>"; };
-		13CDF2592D5657360005D2EA /* common.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = common.hpp; sourceTree = "<group>"; };
-		13CDF25A2D5657360005D2EA /* common.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = common.cpp; sourceTree = "<group>"; };
 		84764225189579CD00AFBE9C /* pplfont */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = pplfont; sourceTree = BUILT_PRODUCTS_DIR; };
 		84764228189579CD00AFBE9C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -88,11 +81,6 @@
 			isa = PBXGroup;
 			children = (
 				84764228189579CD00AFBE9C /* main.cpp */,
-				13CDF2562D56502E0005D2EA /* hpprgm.hpp */,
-				13CDF2572D56502E0005D2EA /* hpprgm.cpp */,
-				130842AB2DAFC32100CD8EC4 /* font.hpp */,
-				13CDF2592D5657360005D2EA /* common.hpp */,
-				13CDF25A2D5657360005D2EA /* common.cpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -173,8 +161,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				84764229189579CD00AFBE9C /* main.cpp in Sources */,
-				13CDF25B2D5657360005D2EA /* common.cpp in Sources */,
-				13CDF2582D56502E0005D2EA /* hpprgm.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
