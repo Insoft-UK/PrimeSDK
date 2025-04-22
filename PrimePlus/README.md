@@ -37,7 +37,7 @@ END;
 
 >PPL and P+ code can co-exist as P+ is just an extension of PPL.
 
-`p+ project.pp -l pplib`
+`p+ project.pp`
 
 ```
 #pragma mode( separator(.,;) integer(h64) )
