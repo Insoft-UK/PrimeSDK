@@ -12,13 +12,6 @@ cp -p -rf ../PrimePlus/Package\ Installer/package-root/$PRIMESDK/hpprgm/*.hpprgm
 cp -p -rf ../PPL-Font/Package\ Installer/package-root/$PRIMESDK/hpprgm/*.hpprgm package-root/$PRIMESDK/hpprgm
 cp -p -rf ../GROB/Package\ Installer/package-root/$PRIMESDK/hpprgm/*.hpprgm package-root/$PRIMESDK/hpprgm
 
-#bin
-cp -p ../PrimePlus/Package\ Installer/package-root/$PRIMESDK/bin/p+ package-root/$PRIMESDK/bin
-cp -p ../GROB/Package\ Installer/package-root/$PRIMESDK/bin/grob package-root/$PRIMESDK/bin
-cp -p ../PPL-Reformat/Package\ Installer/package-root/$PRIMESDK/bin/pplref package-root/$PRIMESDK/bin
-cp -p ../PPL-Minifier/Package\ Installer/package-root/$PRIMESDK/bin/pplmin package-root/$PRIMESDK/bin
-cp -p -rf ../PPL-Font/Package\ Installer/package-root/$PRIMESDK/bin/* package-root/$PRIMESDK/bin
-
 #pplib
 cp -p -rf ../PrimePlus/Package\ Installer/package-root/$PRIMESDK/pplib/*.pplib package-root/$PRIMESDK/pplib
 

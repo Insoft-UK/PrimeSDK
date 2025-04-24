@@ -1,3 +1,10 @@
 .DS_Store
 *.pkg
 ignore
+update_files
+build
+PPL-Font/Package\ Installer
+PPL-Minifier/Package\ Installer
+PPL-Reformat/Package\ Installer
+PrimePlus/Package\ Installer
+GROB/Package\ Installer
