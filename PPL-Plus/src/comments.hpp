@@ -26,7 +26,7 @@
 
 #include <iostream>
 
-namespace pp {
+namespace ppl_plus {
     class Comments {
     public:
         bool verbose = false;

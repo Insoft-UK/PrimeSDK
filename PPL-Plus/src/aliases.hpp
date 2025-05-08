@@ -29,7 +29,7 @@
 #include <vector>
 #include <stdint.h>
 
-namespace pp {
+namespace ppl_plus {
     class Aliases {
     public:
         enum class Type {

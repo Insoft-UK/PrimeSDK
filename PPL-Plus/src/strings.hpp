@@ -27,7 +27,7 @@
 #include <iostream>
 #include <list>
 
-namespace pp {
+namespace ppl_plus {
     class Strings {
     public:
         void preserveStrings(const std::string &str);

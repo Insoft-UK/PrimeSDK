@@ -22,6 +22,8 @@
 
 #include "dictionary.hpp"
 
+using namespace ppl_plus;
+
 static void removeUnnecessaryWhitespace(std::string &str) {
     // Regular expression pattern to match spaces around the specified operators
     // Operators: {}[]()≤≥≠<>=*/+-▶.,;:!^

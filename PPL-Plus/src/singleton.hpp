@@ -33,57 +33,57 @@
 #include "regexp.hpp"
 #include "code_stack.hpp"
 
-using namespace pp;
-
-class Singleton {
-
-public:
-    Aliases aliases;
-    Auto autoname;
-    Comments comments;
-    Regexp regexp;
-    CodeStack codeStack;
-
-    const int &scopeDepth;
+namespace ppl_plus {
     
-    static Singleton *shared();
-    
-    void incrementLineNumber(void);
-    long currentLineNumber(void);
-    std::string currentPath(void);
-    std::string getProjectDir(void);
-    void pushPath(const std::string &path);
-    void popPath(void);
-    
-    void increaseScopeDepth(const std::string &endCode = "") {
-        _scopeDepth++;
-    }
-    
-    void decreaseScopeDepth() {
-        if (_scopeDepth == 0) {
-            std::cout << "Error: Unexpected '" << "END;" << "'\n";
-            return;
+    class Singleton {
+        
+    public:
+        Aliases aliases;
+        Auto autoname;
+        Comments comments;
+        Regexp regexp;
+        CodeStack codeStack;
+        
+        const int &scopeDepth;
+        
+        static Singleton *shared();
+        
+        void incrementLineNumber(void);
+        long currentLineNumber(void);
+        std::string currentPath(void);
+        std::string getProjectDir(void);
+        void pushPath(const std::string &path);
+        void popPath(void);
+        
+        void increaseScopeDepth(const std::string &endCode = "") {
+            _scopeDepth++;
         }
-        _scopeDepth--;
-    }
-    
-private:
-    std::vector<std::string> _paths;
-    std::vector<long> _lines;
-    static Singleton *_shared;
-    
-    int _scopeDepth;
-    
-    Singleton() : scopeDepth(_scopeDepth) {
-        _currentline = 1;
-        _scopeDepth = 0;
-    }
-    Singleton(const Singleton &);
-    Singleton &operator=(const Singleton &);
-    
-protected:
-    long _currentline;
-};
-
+        
+        void decreaseScopeDepth() {
+            if (_scopeDepth == 0) {
+                std::cout << "Error: Unexpected '" << "END;" << "'\n";
+                return;
+            }
+            _scopeDepth--;
+        }
+        
+    private:
+        std::vector<std::string> _paths;
+        std::vector<long> _lines;
+        static Singleton *_shared;
+        
+        int _scopeDepth;
+        
+        Singleton() : scopeDepth(_scopeDepth) {
+            _currentline = 1;
+            _scopeDepth = 0;
+        }
+        Singleton(const Singleton &);
+        Singleton &operator=(const Singleton &);
+        
+    protected:
+        long _currentline;
+    };
+}
 
 #endif /* SINGLETON_HPP */

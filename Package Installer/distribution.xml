@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <installer-gui-script minSpecVersion="1">
     <title>PrimeSDK</title>
-    <background file="background.png" file-2x="background@2x.png" alignment="center" scaling="proportional"/>
+    <background file="resources/background.png" file-2x="resources/background@2x.png" alignment="center" scaling="proportional"/>
     <welcome file="welcome.txt"/>
     <license file="license.txt"/>
     <choices-outline>
         <line choice="default"/>
     </choices-outline>
     <choice id="default" title="Install PrimeSDK">
-        <pkg-ref id="uk.insoft.PrimeSDK"/>
+        <pkg-ref id="uk.insoft.primesdk"/>
     </choice>
-    <pkg-ref id="uk.insoft.PrimeSDK" installKBytes="3220" version="1.1" onConclusion="none">PrimeSDK-signed.pkg</pkg-ref>
+    <pkg-ref id="uk.insoft.primesdk" installKBytes="3196" version="1.1" onConclusion="none">primesdk.pkg</pkg-ref>
 </installer-gui-script>

@@ -27,7 +27,7 @@
 #include <sstream>
 #include <regex>
 
-using namespace pp;
+using namespace ppl_plus;
 
 static Singleton *singleton = Singleton::shared();
 

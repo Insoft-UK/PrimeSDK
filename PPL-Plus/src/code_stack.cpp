@@ -25,7 +25,7 @@
 
 #include <regex>
 
-using namespace pp;
+using namespace ppl_plus;
 
 bool CodeStack::parse(std::string &str)
 {

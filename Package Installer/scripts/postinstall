@@ -40,17 +40,23 @@ if [ ! -d "$USER_HOME/Documents/HP Prime" ]; then
 fi
 
 if [ -d "$USER_HOME/Documents/HP Prime" ]; then
-    if [ ! -d "$USER_HOME/Documents/HP Prime/Projects" ]; then
-        mv /Applications/HP/PrimeSDK/projects "$USER_HOME/Documents/HP Prime/Projects"
+    if [ ! -d "$USER_HOME/Documents/HP Prime/Examples" ]; then
+        mv /Applications/HP/PrimeSDK/examples "$USER_HOME/Documents/HP Prime/Examples"
         
         # Set correct ownership (important!)
-        chown -R "$CURRENT_USER" "$USER_HOME/Documents/HP Prime/Projects"
-        chgrp -R staff "$USER_HOME/Documents/HP Prime/Projects"
+        chown -R "$CURRENT_USER" "$USER_HOME/Documents/HP Prime/Examples"
+        chgrp -R staff "$USER_HOME/Documents/HP Prime/Examples"
+    fi
+    
+    if [ ! -d "$USER_HOME/Documents/HP Prime/Projects" ]; then
+        mkdir Projects
     fi
 
     if [ ! -d "$USER_HOME/Documents/HP Prime/Libraries" ]; then
         ln -s /Applications/HP/PrimeSDK/hpprgm "$USER_HOME/Documents/HP Prime/Libraries"
     fi
 fi
+
+rm -r /Applications/HP/PrimeSDK/examples
 
 exit 0

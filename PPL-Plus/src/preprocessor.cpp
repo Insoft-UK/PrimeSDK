@@ -31,7 +31,7 @@
 #include <fstream>
 #include <cctype>
 
-using namespace pp;
+using namespace ppl_plus;
 
 static Singleton *_singleton  = Singleton::shared();
 

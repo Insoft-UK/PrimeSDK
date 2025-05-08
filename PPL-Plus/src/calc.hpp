@@ -31,7 +31,7 @@
 #include <deque>
 #include <stdint.h>
 
-namespace pp {
+namespace ppl_plus {
     class Calc {
     public:
         static bool evaluateMathExpression(std::string &str);

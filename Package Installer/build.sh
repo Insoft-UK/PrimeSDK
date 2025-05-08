@@ -6,11 +6,14 @@ TEAM_ID="0AB11C3DEF"
 PASSWORD="aaaa-bbbb-cccc-dddd"
 
 PACKAGEROOT=package-root
-NAME=PrimeSDK
+PRIMESDK=Applications/HP/PrimeSDK
+NAME=primesdk
 IDENTIFIER=your.domain.$NAME
 YOUR_NAME="Your Name"
 
 find . -name '*.DS_Store' -type f -delete
+
+chmod 644 resources/background.png resources/background@2x.png
 
 # re-sign all binarys
 find "$PACKAGEROOT/$PRIMESDK/bin" -type f -exec codesign --remove-signature {} \;
@@ -19,7 +22,7 @@ find "$PACKAGEROOT/$PRIMESDK/bin" -type f -exec codesign --sign "Developer ID Ap
 
 pkgbuild --root package-root \
          --identifier $IDENTIFIER \
-         --version 1.0 --install-location / \
+         --version 1.4 --install-location / \
          --scripts scripts \
          $NAME.pkg
          
@@ -33,7 +36,7 @@ xcrun notarytool submit --apple-id $APPLE_ID \
 ./update_distribution.sh
 productbuild --distribution distribution.xml \
              --resources resources \
-             --package-path $NAME.pkg \
+             --package-path $NAME-signed.pkg \
              $NAME-installer.pkg
              
 productsign --sign "Developer ID Installer: $YOUR_NAME ($TEAM_ID)" $NAME-installer.pkg $NAME-installer-signed.pkg

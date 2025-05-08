@@ -47,7 +47,7 @@
 #define NAME "PPL+ Pre-Processor for PPL"
 #define COMMAND_NAME "ppl+"
 
-using namespace pp;
+using namespace ppl_plus;
 
 static Preprocessor preprocessor = Preprocessor();
 static Strings strings = Strings();

@@ -26,7 +26,7 @@
 #include "aliases.hpp"
 #include "singleton.hpp"
 
-namespace pp {
+namespace ppl_plus {
     class Alias {
     public:
         static bool parse(std::string &str);

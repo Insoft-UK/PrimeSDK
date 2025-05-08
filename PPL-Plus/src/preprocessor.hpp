@@ -26,7 +26,7 @@
 
 #include "aliases.hpp"
 
-namespace pp {
+namespace ppl_plus {
     class Preprocessor {
     public:
         std::string path = "/Applications/HP/PrimeSDK/pplib";       // default path for #include <‘filename‘>
