@@ -1,4 +1,4 @@
-NAME := p+
+NAME := ppl+
 PRIMESDK := /Applications/HP/PrimeSDK
 BUILD := ../Package\ Installer/package-root/Applications/HP/PrimeSDK/bin
 

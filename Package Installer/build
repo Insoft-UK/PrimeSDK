@@ -3,6 +3,8 @@ DIR=$(dirname "$0")
 clear
 cd "$DIR"
 
+find . -name '*.DS_Store' -type f -delete
+
 source ../../notarization
 
 PACKAGEROOT=package-root

@@ -10,6 +10,8 @@ NAME=PrimeSDK
 IDENTIFIER=your.domain.$NAME
 YOUR_NAME="Your Name"
 
+find . -name '*.DS_Store' -type f -delete
+
 # re-sign all binarys
 find "$PACKAGEROOT/$PRIMESDK/bin" -type f -exec codesign --remove-signature {} \;
 find "$PACKAGEROOT/$PRIMESDK/bin" -type f -exec codesign --sign "Developer ID Application: $YOUR_NAME ($TEAM_ID)" --options runtime --timestamp {} \;
