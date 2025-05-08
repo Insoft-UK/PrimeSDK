@@ -90,10 +90,8 @@ bool Aliases::append(const TIdentity &idty) {
         << MessageType::Verbose
         << (Scope::Local == identity.scope && Type::Macro != identity.type ? ANSI::Default + ANSI::Bold + "local" + ANSI::Default + ":" : "")
         << (Scope::Global == identity.scope && Type::Macro != identity.type ? ANSI::Yellow + "global" + ANSI::Default + ":" : "")
-        << (Type::Eenum == identity.type ? " enumerator" : "")
-        << (Type::Struct == identity.type ? " structure" : "")
         << (Type::Macro == identity.type ? "macro" : "")
-        << (Type::Def == identity.type ? " def" : "")
+        << (Type::Alias == identity.type ? " alias" : "")
         << (Type::Unknown == identity.type ? " identifier" : "")
         << " '" << ANSI::Green << identity.identifier << ANSI::Default << "' for '" << ANSI::Green << identity.real << ANSI::Default << "' defined\n";
     return true;
@@ -105,10 +103,7 @@ void Aliases::removeAllLocalAliases() {
             if (verbose) std::cout
                 << MessageType::Verbose
                 << ANSI::Default << ANSI::Bold << "local" << ANSI::Default << ":"
-                << (Type::Eenum == it->type ? " enumerator" : "")
-                << (Type::Struct == it->type ? " structure" : "")
-                << (Type::Def == it->type ? " def" : "")
-                << (Type::Member == it->type ? " identifier" : "")
+                << (Type::Alias == it->type ? " alias" : "")
                 << (Type::Unknown == it->type ? " identifier" : "")
                 << " '" << ANSI::Green << it->identifier << ANSI::Default << "' removed❗\n";
             _identities.erase(it);
@@ -128,10 +123,7 @@ void Aliases::removeAllAliasesOfType(const Type type) {
                 << (Scope::Local == it->scope && Type::Macro != it->type ? ANSI::Default + ANSI::Bold + "local" + ANSI::Default + ": " : "")
                 << (Scope::Global == it->scope && Type::Macro != it->type ? ANSI::Yellow + "global" + ANSI::Default + ": " : "")
                 << (Type::Macro == it->type ? "macro" : "")
-                << (Type::Eenum == it->type ? "enumerator" : "")
-                << (Type::Struct == it->type ? "structure" : "")
-                << (Type::Def == it->type ? " def" : "")
-                << (Type::Member == it->type ? "identifier" : "")
+                << (Type::Alias == it->type ? " alias" : "")
                 << (Type::Unknown == it->type ? "identifier" : "")
                 << " '" << ANSI::Green << it->identifier << ANSI::Default << "' removed❗\n";
             _identities.erase(it);
@@ -246,10 +238,7 @@ void Aliases::remove(const std::string &identifier) {
                 << (Scope::Local == it->scope && Type::Macro != it->type ? ANSI::Default + ANSI::Bold + "local" + ANSI::Default + ": " : "")
                 << (Scope::Global == it->scope && Type::Macro != it->type ? ANSI::Yellow + "global" + ANSI::Default + ": " : "")
                 << (Type::Macro == it->type ? "macro" : "")
-                << (Type::Eenum == it->type ? "enumerator" : "")
-                << (Type::Struct == it->type ? "structure" : "")
-                << (Type::Def == it->type ? "def" : "")
-                << (Type::Member == it->type ? "identifier" : "")
+                << (Type::Alias == it->type ? "alias" : "")
                 << (Type::Unknown == it->type ? "identifier" : "")
                 << " '" << ANSI::Green << it->identifier << ANSI::Default << "' removed❗\n";
             

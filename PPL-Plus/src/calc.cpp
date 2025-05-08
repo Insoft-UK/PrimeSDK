@@ -357,8 +357,6 @@ bool Calc::parse(std::string &str)
                 } else {
                     output = it->str().c_str()[0];
                 }
-                
-//                scale = atoi(it->str().c_str());
             }
             else {
                 scale = -1; // -1 means auto scale

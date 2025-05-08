@@ -23,6 +23,8 @@
 @end
 #pragma mode( separator(.,,) integer(h64) )
 
+
+
 #include <cartesian>
 #include <cspace>
 #include <dictionary>
@@ -50,10 +52,24 @@
 #PYTHON
 #END
 
+
 Example:AVeryLongName(p:first, q:second)
 begin
     // Local Variables with aliases
-    local a:alpha, b:beta;
+    local a: alpha, b: beta;
+    
+    
+    local e: myEvt;
+    dict Event myEvt;
+    
+    
+    myEvt.type;
+    
+    for a in 0...7 do
+    end;
+    
+    for a:=0; a < 7; a:=a+1 do
+    next;
     
     // Macro
     alpha := MacroList(1);

@@ -1,4 +1,29 @@
 # Auto detect text files and perform LF normalization
 * text=auto
-*.pp linguist-language=P+
+
+# Mark custom languages
+*.pp linguist-language=PPL+
 *.hpprgm linguist-language=PPL
+
+# Explicitly define expected languages to avoid misclassification
+*.sh linguist-language=Shell
+*.c linguist-language=C
+*.cpp linguist-language=C++
+*.h linguist-language=C
+*.hpp linguist-language=C++
+*.hh linguist-language=Objective-C++
+*.m linguist-language=Objective-C
+*.mm linguist-language=Objective-C++
+*.swift linguist-language=Swift
+*.py linguist-language=Python
+
+# Treat any man pages or docs as documentation to exclude from language stats
+man/** linguist-documentation
+docs/** linguist-documentation
+*.1 linguist-documentation
+*.3 linguist-documentation
+*.ms linguist-documentation
+*.roff linguist-documentation
+
+# Optional: ignore auto-generated files
+generated/** linguist-generated

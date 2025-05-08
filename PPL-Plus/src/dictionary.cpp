@@ -56,7 +56,7 @@ bool Dictionary::proccessDictionary(const std::string &str) {
     
     Aliases::TIdentity identity;
     identity.scope = Aliases::Scope::Auto;
-    identity.type = Aliases::Type::Def;
+    identity.type = Aliases::Type::Alias;
     
     
     re = R"(^(@global )?dict +(.+) ((?:`[\w.:]+`)|[\w.:]+)(?:\(([A-Za-z_ ,]+)\))?;$)";

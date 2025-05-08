@@ -50,9 +50,9 @@
 		136E64532D35B0980054E0CC /* regexp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = regexp.cpp; sourceTree = "<group>"; };
 		136E64592D3964A90054E0CC /* dictionary.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = dictionary.hpp; sourceTree = "<group>"; };
 		136E645A2D3964A90054E0CC /* dictionary.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = dictionary.cpp; sourceTree = "<group>"; };
-		137FB2852A03B06500AEFDF2 /* p+ */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "p+"; sourceTree = BUILT_PRODUCTS_DIR; };
+		137FB2852A03B06500AEFDF2 /* ppl+ */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "ppl+"; sourceTree = BUILT_PRODUCTS_DIR; };
 		137FB2882A03B06500AEFDF2 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		137FB2942A046E8E00AEFDF2 /* p+.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "p+.entitlements"; sourceTree = "<group>"; };
+		137FB2942A046E8E00AEFDF2 /* ppl+.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "ppl+.entitlements"; sourceTree = "<group>"; };
 		1389CFEA2CA73BA6008FDBEB /* timer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = timer.hpp; sourceTree = "<group>"; };
 		138F54D22C976F10009357F9 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		13B13C2F2B66C2F000F9BCBB /* strings.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = strings.cpp; sourceTree = "<group>"; };
@@ -70,7 +70,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		1308429E2DAD6BE900CD8EC4 /* pplib */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = pplib; path = "Package Installer/package-root/Applications/HP/PrimeSDK/pplib"; sourceTree = "<group>"; };
+		1308443E2DCC2C7400CD8EC4 /* pplib */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = pplib; path = "../Package Installer/package-root/Applications/HP/PrimeSDK/pplib"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,8 +90,8 @@
 				138F54D22C976F10009357F9 /* LICENSE.md */,
 				1351CC552BFC0E180073FEDF /* README.md */,
 				136E64472D2877660054E0CC /* version.txt */,
-				137FB2942A046E8E00AEFDF2 /* p+.entitlements */,
-				1308429E2DAD6BE900CD8EC4 /* pplib */,
+				137FB2942A046E8E00AEFDF2 /* ppl+.entitlements */,
+				1308443E2DCC2C7400CD8EC4 /* pplib */,
 				13166E852BA12E5E00D1E6F0 /* examples */,
 				137FB2872A03B06500AEFDF2 /* src */,
 				137FB2862A03B06500AEFDF2 /* Products */,
@@ -101,7 +101,7 @@
 		137FB2862A03B06500AEFDF2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				137FB2852A03B06500AEFDF2 /* p+ */,
+				137FB2852A03B06500AEFDF2 /* ppl+ */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -158,9 +158,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		137FB2842A03B06500AEFDF2 /* p+ */ = {
+		137FB2842A03B06500AEFDF2 /* ppl+ */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 137FB28C2A03B06500AEFDF2 /* Build configuration list for PBXNativeTarget "p+" */;
+			buildConfigurationList = 137FB28C2A03B06500AEFDF2 /* Build configuration list for PBXNativeTarget "ppl+" */;
 			buildPhases = (
 				1352EC5D2B40B72B003130E4 /* ShellScript */,
 				137FB2812A03B06500AEFDF2 /* Sources */,
@@ -171,9 +171,9 @@
 			);
 			dependencies = (
 			);
-			name = "p+";
+			name = "ppl+";
 			productName = "ppl+";
-			productReference = 137FB2852A03B06500AEFDF2 /* p+ */;
+			productReference = 137FB2852A03B06500AEFDF2 /* ppl+ */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -190,7 +190,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 137FB2802A03B06500AEFDF2 /* Build configuration list for PBXProject "p+" */;
+			buildConfigurationList = 137FB2802A03B06500AEFDF2 /* Build configuration list for PBXProject "ppl+" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -203,7 +203,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				137FB2842A03B06500AEFDF2 /* p+ */,
+				137FB2842A03B06500AEFDF2 /* ppl+ */,
 			);
 		};
 /* End PBXProject section */
@@ -212,7 +212,7 @@
 		1352EC5D2B40B72B003130E4 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
-			buildActionMask = 8;
+			buildActionMask = 12;
 			files = (
 			);
 			inputFileListPaths = (
@@ -223,9 +223,9 @@
 			);
 			outputPaths = (
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "./version_code\nmv version_code.h src/version_code.h\n";
+			shellScript = "./version_code\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -369,7 +369,7 @@
 		137FB28D2A03B06500AEFDF2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "p+.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "ppl+.entitlements";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEAD_CODE_STRIPPING = YES;
@@ -384,7 +384,7 @@
 		137FB28E2A03B06500AEFDF2 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "p+.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "ppl+.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
@@ -401,7 +401,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		137FB2802A03B06500AEFDF2 /* Build configuration list for PBXProject "p+" */ = {
+		137FB2802A03B06500AEFDF2 /* Build configuration list for PBXProject "ppl+" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				137FB28A2A03B06500AEFDF2 /* Debug */,
@@ -410,7 +410,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		137FB28C2A03B06500AEFDF2 /* Build configuration list for PBXNativeTarget "p+" */ = {
+		137FB28C2A03B06500AEFDF2 /* Build configuration list for PBXNativeTarget "ppl+" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				137FB28D2A03B06500AEFDF2 /* Debug */,

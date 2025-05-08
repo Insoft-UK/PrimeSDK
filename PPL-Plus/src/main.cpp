@@ -44,15 +44,13 @@
 
 #include "../version_code.h"
 
-#define NAME "P+ Pre-Processor"
-#define COMMAND_NAME "p+"
+#define NAME "PPL+ Pre-Processor for PPL"
+#define COMMAND_NAME "ppl+"
 
 using namespace pp;
 
 static Preprocessor preprocessor = Preprocessor();
 static Strings strings = Strings();
-
-static std::string _basename;
 
 
 void terminator() {
@@ -334,7 +332,7 @@ void translatePPlusLine(std::string &ln, std::ofstream &outfile) {
         Aliases::TIdentity identity;
         identity.identifier = match[1].str();
         identity.real = match[2].str();
-        identity.type = Aliases::Type::Def;
+        identity.type = Aliases::Type::Alias;
         identity.scope = Aliases::Scope::Auto;
         
         singleton->aliases.append(identity);
@@ -358,7 +356,7 @@ void translatePPlusLine(std::string &ln, std::ofstream &outfile) {
         ln = ln.replace(it->position(), it->length(), result);
     }
     
-    re = R"(\b(BEGIN|IF|FOR|CASE|REPEAT|WHILE|IFERR|switch)\b)";
+    re = R"(\b(BEGIN|IF|FOR|CASE|REPEAT|WHILE|IFERR)\b)";
     for(auto it = std::sregex_iterator(ln.begin(), ln.end(), re); it != std::sregex_iterator(); ++it) {
         singleton->increaseScopeDepth();
     }
@@ -641,7 +639,7 @@ void help(void) {
     << "Copyright (C) 2023-" << YEAR << " Insoft. All rights reserved.\n"
     << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n"
     << "\n"
-    << "Usage: " << _basename << " <input-file> [-o <output-file>] [-b <flags>] [-l <pathname>]\n"
+    << "Usage: " << COMMAND_NAME << " <input-file> [-o <output-file>] [-b <flags>] [-l <pathname>]\n"
     << "\n"
     << "Options:\n"
     << "  -o <output-file>        Specify the filename for generated PPL code.\n"
@@ -669,7 +667,6 @@ int main(int argc, char **argv) {
     }
     
     std::string args(argv[0]);
-    _basename = basename(args);
     
     for (int n = 1; n < argc; n++) {
         args = argv[n];

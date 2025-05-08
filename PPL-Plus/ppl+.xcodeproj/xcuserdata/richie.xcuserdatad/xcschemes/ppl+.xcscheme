@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "137FB2842A03B06500AEFDF2"
-               BuildableName = "p+"
-               BlueprintName = "p+"
-               ReferencedContainer = "container:p+.xcodeproj">
+               BuildableName = "ppl+"
+               BlueprintName = "ppl+"
+               ReferencedContainer = "container:ppl+.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,9 +45,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "137FB2842A03B06500AEFDF2"
-            BuildableName = "p+"
-            BlueprintName = "p+"
-            ReferencedContainer = "container:p+.xcodeproj">
+            BuildableName = "ppl+"
+            BlueprintName = "ppl+"
+            ReferencedContainer = "container:ppl+.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -92,7 +92,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-l $(PROJECT_DIR)/Package\ Installer/package-root/Applications/HP/PrimeSDK/pplib"
+            argument = "-l $(PROJECT_DIR)/../Package\ Installer/package-root/Applications/HP/PrimeSDK/pplib"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
@@ -108,9 +108,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "137FB2842A03B06500AEFDF2"
-            BuildableName = "p+"
-            BlueprintName = "p+"
-            ReferencedContainer = "container:p+.xcodeproj">
+            BuildableName = "ppl+"
+            BlueprintName = "ppl+"
+            ReferencedContainer = "container:ppl+.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

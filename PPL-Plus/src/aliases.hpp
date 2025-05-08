@@ -34,15 +34,10 @@ namespace pp {
     public:
         enum class Type {
             Unknown,
-            Eenum,
-            Struct,
-            Member,
             Variable,
             Macro,
-            Def,
-            Function,
-            Property,
-            Method
+            Alias,
+            Function
         };
         
         enum class Scope {
