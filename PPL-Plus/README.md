@@ -1,4 +1,4 @@
-# P+ for HP Prime
+# PPL+ for HP Prime
 
 <br />
 <img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/P+_Logo.svg" style="width: 128px" />
