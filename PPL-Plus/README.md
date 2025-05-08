@@ -66,7 +66,7 @@ regex `\bswitch +([a-zA-Z_]\w*)` LOCAL sw__SCOPE__ := $1;CASE
 regex `\bcase +(\-?\d+) +do *$` IF sw\`__SCOPE__-1` == $1 THEN
 ```
 
-PPL+
+**PPL+**
 ```
 switch X
     case 0 do
@@ -74,7 +74,7 @@ switch X
 end;
 ```
 
-PPL
+**PPL**
 ```
 LOCAL sw0 := X;
 CASE
@@ -86,6 +86,7 @@ END;
 ## Code Stack
 
 A code stack provides a convenient way to store code snippets that can be retrieved and used later.
+
 **PPL+**
 ```
 __PUSH__`i := i + 1;`
