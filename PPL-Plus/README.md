@@ -1,10 +1,8 @@
-# P+ for HP Prime
+# PPL+ for HP Prime
 
 <br />
 <img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/P+_Logo.svg" style="width: 128px" />
-P+ is a proprietary programming language designed to mitigate the challenges associated with code maintenance and comprehensibility in the HP Programming Language (PPL). P+ serves as an intermediary language that addresses these issues by introducing support for substitutions and facilitating code organization. The final output is a PPL program file with a minimal footprint, optimized to conserve the limited storage space available on the HP Prime.
-<br/><br/>
-P+ is essentially the PPL language with additional features, such as substitution capabilities, and requires all keywords to be in lowercase.
+<b>PPL+</b> is a pre-processor utility designed to improve code maintainability and readability in the HP Programming Language (PPL). PPL+ also allows one to define regular expressions to assist in the preprocessing workflow. The final output is a compact, optimized PPL program file tailored to the HP Prime’s limited storage capacity.
 <br/><br/>
 
 <b><a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/GROB">GROB</a> to be intergrated in the future.</b>
@@ -25,7 +23,7 @@ EXPORT START()
 BEGIN
   displayCopyright();
 #PPL
-  // In P+ `=` is treated as `:=` were in PPL `=` is treated as `==`
+  // In PPL+ `=` is treated as `:=` were in PPL `=` is treated as `==`
   // So only PPL code in this section.
 #END
   WAIT;
@@ -35,9 +33,8 @@ BEGIN
 END;
 ```
 
->PPL and P+ code can co-exist as P+ is just an extension of PPL.
 
-`p+ project.pp`
+`ppl+ project.pp`
 
 ```
 #pragma mode( separator(.,;) integer(h64) )
@@ -51,7 +48,7 @@ END;
 EXPORT START()
 BEGIN
   fn1;
-  // In P+ `=` is treated as `:=` were in PPL `=` is treated as `==`
+  // In PPL+ `=` is treated as `:=` were in PPL `=` is treated as `==`
   // So only PPL code in this section.
   WAIT;
   LOCAL a := 0;
@@ -61,7 +58,6 @@ END;
 ```
 
 ## Regular Expressions
-P+ v3.1 and lator added support for regular expressions.
 
 **switch**
 eg.
@@ -70,7 +66,7 @@ regex `\bswitch +([a-zA-Z_]\w*)` LOCAL sw__SCOPE__ := $1;CASE
 regex `\bcase +(\-?\d+) +do *$` IF sw\`__SCOPE__-1` == $1 THEN
 ```
 
-P+
+**PPL+**
 ```
 switch X
     case 0 do
@@ -78,7 +74,7 @@ switch X
 end;
 ```
 
-PPL
+**PPL**
 ```
 LOCAL sw0 := X;
 CASE
@@ -90,7 +86,8 @@ END;
 ## Code Stack
 
 A code stack provides a convenient way to store code snippets that can be retrieved and used later.
-**P+**
+
+**PPL+**
 ```
 __PUSH__`i := i + 1;`
 local i := 8;
@@ -109,7 +106,7 @@ Intended for `regex`
 `…` for `...` supported, `...` and `…` can now be used instead of `to`
 
 >[!IMPORTANT]
-In P+ `=` is treated as `:=` were in PPL `=` is treated as `==`
+In PPL+ `=` is treated as `:=` were in PPL `=` is treated as `==`
 
 >[!NOTE]
-The P+ proprietary programming language is susceptible to change, while also maintaining some compatibility with previous versions.
+The PPL+ proprietary programming language is susceptible to change, while also maintaining some compatibility with previous versions.
