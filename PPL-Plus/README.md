@@ -2,9 +2,7 @@
 
 <br />
 <img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/P+_Logo.svg" style="width: 128px" />
-P+ is a proprietary programming language designed to mitigate the challenges associated with code maintenance and comprehensibility in the HP Programming Language (PPL). P+ serves as an intermediary language that addresses these issues by introducing support for substitutions and facilitating code organization. The final output is a PPL program file with a minimal footprint, optimized to conserve the limited storage space available on the HP Prime.
-<br/><br/>
-P+ is essentially the PPL language with additional features, such as substitution capabilities, and requires all keywords to be in lowercase.
+<b>PPL+</b> is a pre-processor utility designed to improve code maintainability and readability in the HP Programming Language (PPL). P+ also allows one to define regular expressions to assist in the preprocessing workflow. The final output is a compact, optimized PPL program file tailored to the HP Prime’s limited storage capacity.
 <br/><br/>
 
 <b><a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/GROB">GROB</a> to be intergrated in the future.</b>
