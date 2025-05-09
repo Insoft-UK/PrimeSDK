@@ -57,14 +57,10 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "$(PROJECT_DIR)/examples/example.pp"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-help"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/HPFont.pp"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -73,22 +69,10 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/Applications/HP/PrimeSDK/examples/MAD/src/main.pp -o $(PROJECT_DIR)/examples/MAD"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/Applications/HP/PrimeSDK/examples/Periodic/src/main.pp -o $(PROJECT_DIR)/examples/Periodic"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/hsv.pp"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/Kelvin.pp"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/Celsius.pp"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument

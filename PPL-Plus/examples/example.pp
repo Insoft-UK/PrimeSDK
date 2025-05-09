@@ -24,19 +24,8 @@
 #pragma mode( separator(.,,) integer(h64) )
 
 
-
-#include <cartesian>
-#include <cspace>
-#include <dictionary>
-#include <hp>
-#include <integer>
-#include <io>
-#include <matrix>
-#include <pixel>
-#include <prime>
-#include <string>
-#include <cplang>
 #include <pplang>
+#include <cplang>
 
 @disregard
  When defining a macro with parameters, issues can arise if an argument
@@ -65,11 +54,7 @@ begin
     
     myEvt.type;
     
-    for a in 0...7 do
-    end;
     
-    for a:=0; a < 7; a:=a+1 do
-    next;
     
     // Macro
     alpha := MacroList(1);
@@ -86,22 +71,15 @@ begin
     // Pre-Calculate
     #define VALUE 5
     local pre_calculated := \2`10.0 + VALUE + #Ah`;
-    local hex := \`#A:2h`;
-    local bin := \`#1111:3b`;
-    local oct := \`#1111:3o`;
-    local dec := \`#15:3d`;
+    local hex := \`#A:2h * 2`;
+    local bin := \`#1111:3b * 2`;
+    local oct := \`#1111:3o * 2`;
+    local dec := \`#15:3d * 2`;
     
     // LOCAL auto variable name
     auto iAmVerryLong;
 
-#PPL
-  LOCAL a; LOCAL b;
-#END
-
-    using cartesian;
-    using color;
-    convertHSVtoRGB();
-    rect();
+#
 end;
 
 auto:myFunction()
@@ -117,6 +95,9 @@ void clang()
     
     for (var A=0; A <= 10; A = A + 1) {
         B = B + A;
+        if (a == 9) {
+            break;
+        }
     }
     
     while (A > 0) {
@@ -128,8 +109,8 @@ void clang()
     }
     
     do {
-        A = A + 1;
-    } while (A != 0);
+        A = A - 1;
+    } while (A == 1);
     
     switch (A) {
     case 1:
@@ -143,8 +124,15 @@ void clang()
 
 pplang()
 begin
-    var v:variableName = 0;
-    KC.On;
+    var v: variableName = 0;
+    
+    for variableName in 0...7
+    end;
+    
+    switch variableName
+    case 1 do
+        end;
+    end;
 end;
 
 
