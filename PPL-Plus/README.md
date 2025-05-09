@@ -25,9 +25,10 @@ BEGIN
 #PPL
   // In PPL+ `=` is treated as `:=` were in PPL `=` is treated as `==`
   // So only PPL code in this section.
+  A := B;
 #END
   WAIT;
-  var a:alpha = 0;
+  var a: alpha = 0;
   alpha += 10;
   RETURN a;
 END;
@@ -102,7 +103,7 @@ i := i + 1;
 Intended for `regex`
 
 ## Substitution
-`down ...` for `DOWNTO` included.
+`...` for `TO` included.
 `…` for `...` supported, `...` and `…` can now be used instead of `to`
 
 >[!IMPORTANT]
