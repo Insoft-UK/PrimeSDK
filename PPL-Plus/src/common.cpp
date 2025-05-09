@@ -28,6 +28,8 @@
 #include <algorithm>
 #include <regex>
 
+using namespace ppl_plus;
+
 static bool _failed = false;
 
 bool hasErrors(void) {

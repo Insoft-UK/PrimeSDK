@@ -10,14 +10,18 @@
 
 #include "data.txt"
 
-def DATA MAD.data;
-local LnD:MAD.line;
-local Scl:MAD.scale = 1.0;
 
-Setup:MAD::Init()
+namespace MAD::init := MADInit;
+namespace MAD::read := MADRead;
+namespace MAD::draw := MADDraw;
+
+local LnD:line;
+local Scl:scale = 1.0;
+
+Setup:MADInit()
 begin
-    MAD.line = {0, 0, 0, 0};
-    MAD.scale = 1.0;
+    line = {0, 0, 0, 0};
+    scale = 1.0;
     
     RECT(Color.White);
     #include "mad.txt";
@@ -26,32 +30,32 @@ begin
     TEXTOUT_P(COPYRIGHT, 76, 224, 1);
 end;
 
-Read:MAD::Read()
+Read:MADRead()
 begin
-    MAD.line[1] = MAD.data[I];
-    MAD.line[2] = MAD.data[I+1];
-    MAD.line[3] = MAD.data[I+2];
-    MAD.line[4] = MAD.data[I+3];
+    line[1] = DATA[I];
+    line[2] = DATA[I+1];
+    line[3] = DATA[I+2];
+    line[4] = DATA[I+3];
     I = I + 4;
 end;
 
-Draw:MAD::Draw()
+Draw:MADDraw()
 begin
     RECT(#00FF00h);
     local C:color = Color.White;
     local FX:x1, FY:y1, LX:x2, LY:y2;
 
     I:=1;
-    while MAD.data[I] != END_OF_DATA do
+    while DATA[I] != END_OF_DATA do
         if I==1561 then
             color := #006600h;
         end;
-        MAD::Read();
+        MAD::read();
     
-        x1 = SCREEN_CENTRE + MAD.scale * MAD.line[1];
-        y1 = SCREEN_MIDDLE - MAD.scale * MAD.line[2];
-        x2 = SCREEN_CENTRE + MAD.scale * MAD.line[3];
-        y2 = SCREEN_MIDDLE - MAD.scale * MAD.line[4];
+        x1 = SCREEN_CENTRE + scale * line[1];
+        y1 = SCREEN_MIDDLE - scale * line[2];
+        x2 = SCREEN_CENTRE + scale * line[3];
+        y2 = SCREEN_MIDDLE - scale * line[4];
     
         LINE_P(x1, y1, x2, y2, color);
         LINE_P(x1+1, y1, x2+1, y2, color);
@@ -62,8 +66,8 @@ end;
 
 export RUN()
 begin
-    MAD::Init;
+    MAD::init;
     WAIT;
-    MAD::Draw;
+    MAD::draw;
     WAIT;
 end;

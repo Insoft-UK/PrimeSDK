@@ -6,7 +6,7 @@
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ furnished to DO so, subject to the following conditions:
  
  The above copyright notice and this permission notice shall be included in
  all copies or substantial portions of the Software.
@@ -20,11 +20,13 @@
  THE SOFTWARE.
 @end;
 
-#include <pplang>
-#include <pixel>
 #include <dictionary>
 
-local Periodic.table := {
+#define CELL_SIZE 17
+#define Colors paper[1], ink[2]
+#define Cell column[1], row[2], actinideElementName[3], colorIndex[4], elementAtomicNumber[5], chemicalElementName[6]
+
+LOCAL auto: periodicTable := {
 #PPL
     {1,1,"H",1,1,"Hydrogen",1.00794,0.0899_g/1_cm^3,13.81_K,20.28_K,2.08_Å,14.304_J/(1_g*1_K),"1","1s1",2.1,14.1_cm^3/1_mol,13.598,0.1815_W/(1_m*1_K)},
     {18,1,"He",5,2,"Helium",4.0026,0.1785_g/1_cm^3,0.95_K,4.216_K,"n/a",5.193_J/(1_g*1_K),"n/a","1s2",0,31.8_cm^3/1_mol,24.587,0.152_W/(1_m*1_K)},
@@ -147,9 +149,9 @@ local Periodic.table := {
 #END
 };
 
-local Periodic.extendedDisplayUsed := CONCAT(4,MAKELIST(X,X,7,18));
+LOCAL auto: periodicExtendedDisplayUsed := CONCAT(4,MAKELIST(X,X,7,18));
 
-local Periodic.extendedDisplayNames := {
+LOCAL auto: periodicExtendedDisplayNames := {
     "Group",
     "Atomic Weight",
     "Density",
@@ -165,9 +167,7 @@ local Periodic.extendedDisplayNames := {
     "Thermal Conductivity"
 };
     
-#define CELL_SIZE 17
-
-local Periodic.colorTable := {
+LOCAL auto: periodicColorTable := {
     {RGB(226,238,254), RGB(0,96,236)},
     {RGB(215,248,255), RGB(0,117,139)},
     {RGB(255,231,231), RGB(216,0,35)},
@@ -179,252 +179,229 @@ local Periodic.colorTable := {
     {RGB(255,230,213), RGB(201,50,4)},
     {RGB(231,231,234), RGB(63,55,78)}
 };
-
-#define Colors paper[1], ink[2]
-
-local Periodic.chemicalGroups = {"Nonmetal", "Alkali Metal", "Alkaline Earth Metal", "Halogen", "Noble Gas", "Metalliod", "Post-Transition Metal", "Transition Metal", "Lanthanoid", "Actinoid"};
-
-local Periodic.column := 1;
-local Periodic.row := 1;
-
-Periodic::RenderCell(c)
-begin
-    #define Cell column[1], row[2], actinideElementName[3], colorIndex[4], elementAtomicNumber[5], chemicalElementName[6]
     
-    local cell;
+LOCAL auto: periodicChemicalGroups := {"Nonmetal", "Alkali Metal", "Alkaline Earth Metal", "Halogen", "Noble Gas", "Metalliod", "Post-Transition Metal", "Transition Metal", "Lanthanoid", "Actinoid"};
+LOCAL auto: periodicColumn := 1;
+LOCAL auto: periodicRow := 1;
+
+auto: PeriodicRenderCell(c: cell)
+BEGIN
     dict Cell cell;
     
-    cell = c;
+    regex `x1` cell.column * CELL_SIZE - 9
+    regex `y1` cell.row
+    regex `x2` (cell.column + 1) * CELL_SIZE - 2 - 9
+    regex `y2` (cell.row + 1) * CELL_SIZE - 2
     
-    def c[1] * CELL_SIZE - 9 x1;
-    def c[2] * CELL_SIZE y1;
-       
-    def eval:(c[1] + 1) * CELL_SIZE - 2 - 9 x2;
-    def eval:(c[2] + 1) * CELL_SIZE - 2 y2;
-    
-    struct Colors auto:colors;
-    colors = Periodic.colorTable[cell.colorIndex];
-    
+    dict Colors colors;
+    colors = periodicColorTable[cell.colorIndex];
 
-    if Periodic.column==cell.column && Periodic.row==cell.row do
-        struct Size auto:size;
+    IF periodicColumn==cell.column and periodicRow==cell.row THEN
+        LOCAL s: size;
+        dict Size size;
                 
-        rect(G1, x1 - 7, y1 - 7, x2 + 7, y2 + 7, colors.ink, colors.paper);
+        RECT_P(G1, x1 - 7, y1 - 7, x2 + 7, y2 + 7, colors.ink, colors.paper);
         size := TEXTSIZE(cell.actinideElementName, 3);
-        textout(cell.actinideElementName, G1, x1 + 7 - size.width / 2, y1 + 10 - size.height / 2, 3, colors.ink);
-        textout(cell.elementAtomicNumber, G1, x1 - 5, y1 - 5, 1, colors.ink);
+        TEXTOUT_P(cell.actinideElementName, G1, x1 + 7 - size.width / 2, y1 + 10 - size.height / 2, 3, colors.ink);
+        TEXTOUT_P(cell.elementAtomicNumber, G1, x1 - 5, y1 - 5, 1, colors.ink);
         
         size := TEXTSIZE(cell.elementAtomicNumber + " - " + cell.chemicalElementName, 4);
-        textout(cell.elementAtomicNumber + " - " + cell.chemicalElementName, G1, 160 - size.width / 2, 200, 4, colors.ink);
-        return;
-    end;
+        TEXTOUT_P(cell.elementAtomicNumber + " - " + cell.chemicalElementName, G1, 160 - size.width / 2, 200, 4, colors.ink);
+        RETURN;
+    END;
     
-    rect(G1, x1, y1, x2, y2, colors.paper, colors.paper);
-    textout(cell.actinideElementName, G1, x1 + 2, y1 + 4, 1, colors.ink);
-end;
+    RECT_P(G1, x1, y1, x2, y2, colors.paper, colors.paper);
+    TEXTOUT_P(cell.actinideElementName, G1, x1 + 2, y1 + 4, 1, colors.ink);
+END;
 
-
-
-Periodic::DisplayLine(auto:cell, I:index)
-begin
-    guard index<14 else
-        return;
-    end;
+auto: PeriodicDisplayLine(c: cell, I: index)
+BEGIN
+    IF index>=14 THEN
+        RETURN;
+    END;
     
-    /// It is necessary to evaluate, as we are referencing an alias 'cell' in the definition.
-    def eval:cell[3] actinideElementName;
-    def eval:cell[4] colorIndex;
-    def eval:cell[5] elementAtomicNumber;
-    def eval:cell[6] chemicalElementName;
+    LOCAL s: size;
     
-    dict Size auto:size;
+    dict Size size;
     dict Colors colors;
-    colors = Periodic.colorTable[colorIndex];
+    colors = periodicColorTable[colorIndex];
     
-    if even(index) == false then
-        rect(G1, 0, 31 + 16 * index, 320, 48 + 16 * index, RGB(255,255,255,191));
-    end;
+    IF even(index) == false THEN
+        RECT_P(G1, 0, 31 + 16 * index, 320, 48 + 16 * index, RGB(255,255,255,191));
+    END;
     
-    if index==1 then
-        textout(Periodic.extendedDisplayNames[index], G1, 4, 17 + 16, 2);
-        size = TEXTSIZE(Periodic.chemicalGroups[colorIndex], 0);
-        textout(Periodic.chemicalGroups[colorIndex], G1, SCREEN_WIDTH - size.width - 4, 15 + 16, 0, colors.ink);
-        return;
-    end;
+    IF index==1 THEN
+        TEXTOUT_P(periodicExtendedDisplayNames[index], G1, 4, 17 + 16, 2);
+        size = TEXTSIZE(periodicChemicalGroups[colorIndex], 0);
+        TEXTOUT_P(periodicChemicalGroups[colorIndex], G1, SCREEN_WIDTH - size.width - 4, 15 + 16, 0, colors.ink);
+        RETURN;
+    END;
     
     
-    size = TEXTSIZE(cell[Periodic.extendedDisplayUsed[index]], 0);
-    textout(Periodic.extendedDisplayNames[index], G1, 4, 17 + 16 * index, 2);
-    textout(cell[Periodic.extendedDisplayUsed[index]], G1, SCREEN_WIDTH - size.width - 4, 15 + 16 * index, 0, Color.Gray);
-end;
+    size = TEXTSIZE(cell[periodicExtendedDisplayUsed[index]], 0);
+    TEXTOUT_P(periodicExtendedDisplayNames[index], G1, 4, 17 + 16 * index, 2);
+    TEXTOUT_P(cell[periodicExtendedDisplayUsed[index]], G1, SCREEN_WIDTH - size.width - 4, 15 + 16 * index, 0, Color.Gray);
+END;
 
-Periodic::RenderTable()
-begin
+auto: PeriodicRenderTable()
+BEGIN
     DIMGROB_P(G1,320,240);
-    rect(G1);
-    MAKELIST([Periodic RenderCell:Periodic.table[X]], X, 1, SIZE(Periodic.table));
+    RECT_P(G1);
+    MAKELIST(PeriodicRenderCell(periodicTable[X]), X, 1, SIZE(periodicTable));
     
     dict column[1], row[2] cell;
-    local I:index;
+    LOCAL I: index;
         
-    for index := 1; index <= SIZE(Periodic.table); index += 1 do
-        local cell := Periodic.table[index];
-        if Periodic.column == cell.column && Periodic.row == cell.row then
+    FOR index FROM 1 TO SIZE(periodicTable) DO
+        LOCAL cell := periodicTable[index];
+        IF periodicColumn == cell.column AND periodicRow == cell.row THEN
             [Periodic RenderCell:cell];
             break;
-        end;
-    end;
-end;
+        END;
+    END;
+END;
 
-Periodic::ChemicalDataMenu(auto:cell)
-begin
-    /// It is necessary to evaluate, as we are referencing an alias 'cell' in the definition.
-    def eval:cell[3] actinideElementName;
-    def eval:cell[4] colorIndex;
-    def eval:cell[5] elementAtomicNumber;
-    def eval:cell[6] chemicalElementName;
+auto: PeriodicChemicalDataMenu(c: cell)
+BEGIN
+    dict Cell cell;
+    LOCAL I: index := cell.elementAtomicNumber;
     
-    local I:index := elementAtomicNumber;
-
-    do
-        struct Colors colors;
-        colors = Periodic.colorTable[colorIndex];
+    REPEAT
+        dict Colors colors;
+        colors = periodicColorTable[colorIndex];
     
-        defGROB(G1, SCREEN_WIDTH, SCREEN_HEIGHT, colors.paper);
-        rect(G1,0,0,SCREEN_WIDTH, 30, Color.Black);
-        textout(elementAtomicNumber + " - " + chemicalElementName + " (" + actinideElementName + ")", G1, 4, 2, 5, Color.White);
-        MAKELIST([Periodic DisplayLineWithCell:cell index:X], X, 1, SIZE(Periodic.extendedDisplayUsed));
+        DIMGROB_P(G1, SCREEN_WIDTH, SCREEN_HEIGHT, colors.paper);
+        RECT_P(G1,0,0,SCREEN_WIDTH, 30, Color.Black);
+        TEXTOUT_P(cell.elementAtomicNumber + " - " + cell.chemicalElementName + " (" + cell.actinideElementName + ")", G1, 4, 2, 5, Color.White);
+        MAKELIST(PeriodicDisplayLine(cell ,X), X, 1, SIZE(periodicExtendedDisplayUsed));
         
-        cartesian::blit(G1);
+        BLIT(G1);
 
-        local auto:input := WAIT(0);
+        LOCAL k: input := WAIT(0);
+        CASE
+            IF input == KeyCode.Esc THEN
+                RETURN;
+            END;
 
-        switch input
-            case KeyCode.Esc do
-                return;
-            end;
-
-            case KeyCode.Left do
+            IF input == KeyCode.Left THEN
                 index-=1;
-                if index==0 then index:=118; end;
-                cell := Periodic.table[index];
-            end;
+                IF index==0 THEN index:=118; END;
+                cell := periodicTable[index];
+            END;
 
-            case KeyCode.Right do
+            IF input == KeyCode.Right THEN
                 index+=1;
-                if index==119 then index:=1; end;
-                cell := Periodic.table[index];
-            end;
-        end;
-    end;
-end;
+                IF index==119 THEN index:=1; END;
+                cell := periodicTable[index];
+            END;
+        END;
+    UNTIL false;
+END;
 
-Periodic::DoesCellExist(c, r)
-begin
-    dict column[1], row[2] cell;
-    
-    local I:index;
+auto: PeriodicDoesCellExist(c: column, r: row)
+BEGIN
+    LOCAL I: index;
         
-    for index := 1; index <= SIZE(Periodic.table); index += 1 do
-        local cell := Periodic.table[index];
-        if c == cell.column && r == cell.row do
-            return true;
-        end;
-    end;
-end;
+    FOR index FROM 1 TO SIZE(periodicTable) DO
+        LOCAL cell := periodicTable[index];
+        dict Cell cell;
+        IF column == cell.column AND row == cell.row THEN
+            RETURN true;
+        END;
+    END;
+END;
 
-
-Periodic::OnTouch(p:input)
-begin
-    struct Event auto:event;
-    event = input;
+auto: PeriodicOnTouch(e: event)
+BEGIN
+    dict Event event;
+    CASE
+        IF event.type == EventType.MouseClick THEN
+            IF event.x >= 53 THEN
+                RETURN;
+            END;
+            IF event.y <= 220 THEN
+                RETURN;
+            END;
+            MSGBOX("HP Prime Periodic Table.");
+        END;
         
-    switch event.type
-        case EventType.MouseClick do
-            if event.x >= 53 then return;
-            if event.y <= 220 then return;
-            io::message::box("HP Prime Periodic Table.");
-        end;
-        
-        case EventType.MouseDown do
-            if event.y > 200 then return;
-            local column = floor((event.x + 9) / CELL_SIZE);
-            local row = floor(event.y / CELL_SIZE);
+        IF event.type == EventType.MouseDown THEN
+            IF event.y > 200 THEN RETURN; END;
+            LOCAL c: column := floor((event.x + 9) / CELL_SIZE);
+            LOCAL r: row := floor(event.y / CELL_SIZE);
             
-            if [Periodic DoesCellExistAtCoordinates:column ofRow: row] == true do
-                Periodic.column = column;
-                Periodic.row = row;
-                return;
-            end;
-        end;
-    end;
-end;
+            IF PeriodicDoesCellExist(column ,row) == true THEN
+                periodicColumn := column;
+                periodicRow := row;
+                RETURN;
+            END;
+        END;
+    END;
+END;
 
-Periodic::OnKeyPress(auto:keyPressed)
-begin
-    
+auto: PeriodicOnKeyPress(k: keyPressed)
+BEGIN
     dict column[1], row[2] cell;
-                    
-    switch keyPressed
-        case KeyCode.Enter do
-            local I:index;
+    CASE
+        IF keyPressed == KeyCode.Enter THEN
+            LOCAL I: index;
             
-            for index = 1; index <= SIZE(Periodic.table); index += 1 do
-                cell = Periodic.table[index];
-                if Periodic.column==cell.column && Periodic.row==cell.row then break; end;
-            end;
-            [Periodic ChemicalDataMenu:cell];
-        end;
+            FOR index FROM 1 TO SIZE(periodicTable) DO
+                cell = periodicTable[index];
+                IF periodicColumn==cell.column AND periodicRow==cell.row THEN break; END;
+            END;
+            PeriodicChemicalDataMenu(cell);
+        END;
         
-        case KeyCode.Left do
-            repeat
-                Periodic.column := (Periodic.column - 2) % 18 + 1;
-            until Periodic::DoesCellExist(Periodic.column, Periodic.row) == true;
-        end;
+        IF keyPressed == KeyCode.Left THEN
+            REPEAT
+                periodicColumn := (periodicColumn - 2) MOD 18 + 1;
+            UNTIL PeriodicDoesCellExist(periodicColumn, periodicRow) == true;
+        END;
         
-        case KeyCode.Right do
-            repeat
-                Periodic.column := Periodic.column % 18 + 1;
-            until Periodic::DoesCellExist(Periodic.column, Periodic.row) == true;
-        end;
+        IF keyPressed == KeyCode.Right THEN
+            REPEAT
+                periodicColumn := periodicColumn MOD 18 + 1;
+            UNTIL PeriodicDoesCellExist(periodicColumn, periodicRow) == true;
+        END;
         
-        case KeyCode.Up do
-            repeat
-                Periodic.row := (Periodic.row - 2) % 10 + 1;
-            until Periodic::DoesCellExist(Periodic.column, Periodic.row) == true;
-        end;
+        IF keyPressed == KeyCode.Up THEN
+            REPEAT
+                periodicRow := (periodicRow - 2) MOD 10 + 1;
+            UNTIL PeriodicDoesCellExist(periodicColumn, periodicRow) == true;
+        END;
         
-        case KeyCode.Down do
-            repeat
-                Periodic.row := Periodic.row % 10 + 1;
-            until Periodic::DoesCellExist(Periodic.column, Periodic.row) == true;
-        end;
-    end;
-end;
+        IF keyPressed == KeyCode.Down THEN
+            REPEAT
+                periodicRow := periodicRow MOD 10 + 1;
+            UNTIL PeriodicDoesCellExist(periodicColumn, periodicRow) == true;
+        END;
+    END;
+END;
 
-Periodic::Update()
-begin
-    [Periodic RenderTable];
+auto: PeriodicUpdate()
+BEGIN
+    PeriodicRenderTable();
     BLIT(G1);
-    drawMenu("About");
-end;
+    DRAWMENU("About");
+END;
 
 
-export PERIODIC()
-begin
-    do
-        Periodic::Update();
-        local auto:input = WAIT(-1);
+EXPORT PERIODIC()
+BEGIN
+    REPEAT
+        PeriodicUpdate();
+        LOCAL k: input := WAIT(-1);
         
-        if TYPE(input) == ObjectType.List then
-            Periodic::OnTouch(input);
-        else
-            if input == KeyCode.Esc then
-                Periodic.column := 0; Periodic.row := 0;
-                return;
-            end;
-            Periodic::OnKeyPress(input);
-        end;
-    end;
-end;
+        IF TYPE(input) == ObjectType.List THEN
+            PeriodicOnTouch(input);
+        ELSE
+            IF input == KeyCode.Esc THEN
+                periodicColumn := 0; periodicRow := 0;
+                RETURN;
+            END;
+            PeriodicOnKeyPress(input);
+        END;
+    UNTIL false;
+END;
 

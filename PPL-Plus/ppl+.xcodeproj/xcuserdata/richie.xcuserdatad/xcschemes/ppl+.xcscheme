@@ -57,7 +57,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "$(PROJECT_DIR)/examples/example.pp"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-help"
@@ -68,11 +68,15 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/richie/GitHub/PrimeSDK/installer/package-root/Users/Shared/Projects/Colors/src/main.pp"
+            argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/Applications/HP/PrimeSDK/examples/Colors/src/main.pp -o $(PROJECT_DIR)/examples/Colors"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-o MAD"
+            argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/Applications/HP/PrimeSDK/examples/MAD/src/main.pp -o $(PROJECT_DIR)/examples/MAD"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/Applications/HP/PrimeSDK/examples/Periodic/src/main.pp -o $(PROJECT_DIR)/examples/Periodic"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -89,7 +93,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-v avr"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-l $(PROJECT_DIR)/../Package\ Installer/package-root/Applications/HP/PrimeSDK/pplib"

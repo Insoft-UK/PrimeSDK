@@ -1,17 +1,15 @@
-﻿#pragma mode( separator(.,;) integer(h64) )
+#pragma mode( separator(.,;) integer(h64) )
 
-GLYPH_P(trgt, ascii, x, y, fnt, color, scaleX, scaleY)
+GLYPH_P(trgt, ascii, x, y, fnt, color, sizeX, sizeY)
 BEGIN
  LOCAL g := fnt[2, ascii];
- 
  LOCAL xAdvance := BITAND(BITSR(g,32),255);
  
   IF BITAND(g,#FFFFFFFF)==0 THEN
-    RETURN xAdvance * scaleX;
+    RETURN xAdvance * sizeX;
   END;
   
   LOCAL w, h, dX, dY, xx;
-  
   LOCAL yAdvance := fnt[5];
 
   w := BITAND(BITSR(g, 16), 255);
@@ -21,7 +19,7 @@ BEGIN
   dY := BITAND(BITSR(g, 48), 255) - 256;
  
   x := x + dX * sizeX;
-  y := y + (yAdvance + dY * scaleY);
+  y := y + (yAdvance + dY * sizeY);
   
   LOCAL bitmap := fnt[1];
 
@@ -39,10 +37,10 @@ BEGIN
       END;
      
       IF BITAND(bits, 1) == 1 THEN
-        IF scaleX == 1 AND scaleY == 1 THEN
+        IF sizeX == 1 AND sizeY == 1 THEN
           PIXON_P(trgt, x + xx,y, color);
         ELSE
-          RECT_P(trgt, x + xx * scaleX, y, x + xx * scaleX + scaleX - 1, y + scaleY - 1, color);
+          RECT_P(trgt, x + xx * sizeX, y, x + xx * sizeX + sizeX - 1, y + sizeY - 1, color);
         END;
       END;
       
@@ -54,10 +52,10 @@ BEGIN
     h - 1 ▶ h;
   UNTIL h == 0;
   
-  RETURN xAdvance * scaleX;
+  RETURN xAdvance * sizeX;
 END;
 
-EXPORT FONT_P(trgt, text, x, y, fnt, color, scaleX, scaleY)
+EXPORT FONT_P(trgt, text, x, y, fnt, color, sizeX, sizeY)
 BEGIN
   LOCAL i, l := ASC(text);
  
@@ -68,6 +66,6 @@ BEGIN
     IF l[i] < fnt[3] OR l[i] > fnt[4] THEN
       CONTINUE;
     END;
-    x := x + GLYPH_P(trgt, l[i] - fnt[3] + 1, x, y, fnt, color, scaleX, scaleY);
+    x := x + GLYPH_P(trgt, l[i] - fnt[3] + 1, x, y, fnt, color, sizeX, sizeY);
   END;
 END;

@@ -21,20 +21,46 @@
 @end
 #pragma mode( separator(.,;) integer(h64) )
 #include <pplang>
-#include <clang>
+#include <cplang>
 #include <hp>
 #include <dictionary>
 
-#include "defines.pp"
-local channel:Colors.channel = 0;
 
-local colorsH:Colors.h = 0, colorsS:Colors.s = 100, colorsV:Colors.v = 100;
-local colorsR:Colors.r = 255, colorsG:Colors.g = 0, colorsB:Colors.b = 0;
-local colorsUT:Colors.unitType = UnitType.Decimal;
-local colorsCS:Colors.colorSpace = ColorSpace.HSV;
+#define HUE G2
+#define BLACK_TO_TRANSPARENT_OVERLAY G3
+#define TRANSPARENT_TO_WHITE_OVERLAY G4
+#define ROUND G1
 
-#include "common.pp"
-Colors::Setup()
+dict Percentage = 0, Decimal = 1 UnitType;
+dict HSV = 0, HSL = 1 ColorSpace;
+
+
+local channel:colorsChannel = 0;
+
+local colorsH := 0, colorsS := 100, colorsV := 100;
+local colorsR := 255, colorsG := 0, colorsB := 0;
+local colorsUT: colorsUnitType := UnitType.Decimal;
+local colorsCS: colorsColorSpace := ColorSpace.HSV;
+
+
+HEX(d:decimal)
+begin
+    local h,l;
+    h = decimal >> 4;
+    l = decimal & 15;
+    return CHAR(ifte(h<10,48,55) + h) + CHAR(ifte(l<10,48,55) + l);
+end;
+
+DrawTextCentered(auto:string, auto:atX, auto:ofY, auto:fontSize)
+begin
+    local auto:size;
+    dict Size size;
+ 
+    size = TEXTSIZE(string, fontSize);
+    TEXTOUT_P(string, G9, atX - size.width / 2, ofY, fontSize, Color.White);
+end;
+
+ColorsSetup()
 begin
     local n, data;
     DIMGROB_P(G9, 320, 240, 0);
@@ -62,7 +88,8 @@ begin
     DIMGROB_P(TRANSPARENT_TO_WHITE_OVERLAY, 256, 1, data);
 end;
 
-Colors::DrawMenu()
+
+ColorsDrawMenu()
 begin
     /// 0-51, 53-104, (106-157, 159-210), 212-263, 265-319
     RECT_P(G9, 0, 220, 51, 239, #666666:32h);
@@ -71,26 +98,26 @@ begin
     RECT_P(G9, 212, 220, 263, 239, #666666:32h);
     RECT_P(G9, 265, 220, 319, 239, #666666:32h);
    
-    drawTextCentered("%",25,225,2);
-    drawTextCentered("d",78,225,2);
-    drawTextCentered("-         HUE         +",158,225,2);
-    drawTextCentered("HSV",237,225,2);
-    drawTextCentered("HSL",290,225,2);
+    DrawTextCentered("%",25,225,2);
+    DrawTextCentered("d",78,225,2);
+    DrawTextCentered("-         HUE         +",158,225,2);
+    DrawTextCentered("HSV",237,225,2);
+    DrawTextCentered("HSL",290,225,2);
     
-    if Colors.unitType == UnitType.Percentage then
+    if colorsUnitType == UnitType.Percentage then
         TEXTOUT_P("•", G9, 4, 225, 2, Color.White);
     else
         TEXTOUT_P("•", G9, 57, 225, 2, Color.White);
     end;
     
-    if Colors.colorSpace == ColorSpace.HSV then
+    if colorsColorSpace == ColorSpace.HSV then
         TEXTOUT_P("•", G9, 216, 225, 2, Color.White);
     else
         TEXTOUT_P("•", G9, 269, 225, 2, Color.White);
     end;
 end;
 
-Colors::DrawHue(h)
+ColorsDrawHue(h)
 begin
     BLIT_P(G9, 10, 148, 310, 168, HUE);
     
@@ -100,7 +127,7 @@ begin
     RECT_P(G9, X-2, Y-2, X+2, Y+21, Color.White, Color.Clear);
 end;
 
-Colors::DrawSV(h,s,v)
+ColorsDrawSV(h,s,v)
 begin
     RECT_P(G9, 10, 10, 137, 137, HSV(h, 100, 100));
     BLIT_P(G9, 10, 10, 138, 138, G4);
@@ -112,23 +139,23 @@ begin
     RECT_P(G9, X-2, Y-2, X+1, Y+1, Color.White, Color.Clear);
 end;
 
-Colors::Update()
+ColorsUpdate()
 begin
     RECT(G9,#222222:32h);
 
-    Colors::DrawMenu;
-    Colors::DrawHue(Colors.h);
-    Colors::DrawSV(Colors.h, Colors.s, Colors.v);
+    ColorsDrawMenu;
+    ColorsDrawHue(colorsH);
+    ColorsDrawSV(colorsH, colorsS, colorsV);
     
     // Color Picked
-    RECT_P(G9, 154, 10, 309, 42, HSV(Colors.h, Colors.s, Colors.v));
+    RECT_P(G9, 154, 10, 309, 42, HSV(colorsH, colorsS, colorsV));
     
     local hsl, rgb, cmyk, hex;
     
-    rgb = {Colors.r, Colors.g, Colors.b};
-    hsl = HSVtoHSL(Colors.h, Colors.s, Colors.v);
-    cmyk = RGBtoCMYK(Colors.r, Colors.g, Colors.b);
-    hex = "#" + HEX(Colors.r) + HEX(Colors.g) + HEX(Colors.b);
+    rgb = {colorsR, colorsG, colorsB};
+    hsl = HSVtoHSL(colorsH, colorsS, colorsV);
+    cmyk = RGBtoCMYK(colorsR, colorsG, colorsB);
+    hex = "#" + HEX(colorsR) + HEX(colorsG) + HEX(colorsB);
     
     L0 := TEXTSIZE(hex,7);
     TEXTOUT_P(hex,G9,160-L0(1)/2,180,7,Color.White);
@@ -145,19 +172,19 @@ begin
         TEXTOUT_P(info[n],G9,X+15-ts[1],Y+3,3,Color.White);
         RECT_P(G9,X+16,Y,X+55,Y+20,#333333:32h);
         
-        if Colors.channel == 1 && n == 1 then
+        if colorsChannel == 1 && n == 1 then
             RECT_P(G9,X+54,Y,X+55,Y+20,RGB(255,0,0));
         end;
         
-        if Colors.channel == 2 && n == 2 then
+        if colorsChannel == 2 && n == 2 then
             RECT_P(G9,X+54,Y,X+55,Y+20,RGB(0,255,0));
         end;
         
-        if Colors.channel == 3 && n == 3 then
+        if colorsChannel == 3 && n == 3 then
             RECT_P(G9,X+54,Y,X+55,Y+20,RGB(0,0,255));
         end;
         
-        if Colors.unitType == UnitType.Decimal then
+        if colorsUnitType == UnitType.Decimal then
             TEXTOUT_P(rgb[n],G9,X+22,Y+5,2,Color.White);
         else
             TEXTOUT_P(IP(rgb[n] / 255 * 100)+"%",G9,X+20,Y+5,2,Color.White);
@@ -166,8 +193,8 @@ begin
     end;
     
     /// HSV or HSL Info
-    if Colors.colorSpace == ColorSpace.HSV then info = {"H:","S:","V:"}; end;
-    if Colors.colorSpace == ColorSpace.HSL then info = {"H:","S:","L:"}; end;
+    if colorsColorSpace == ColorSpace.HSV then info = {"H:","S:","V:"}; end;
+    if colorsColorSpace == ColorSpace.HSL then info = {"H:","S:","L:"}; end;
     
     X += 58;
     Y = 51;
@@ -177,18 +204,18 @@ begin
         TEXTOUT_P(info[n],G9,X+15-ts[1],Y+3,3,Color.White);
         RECT_P(G9,X+16,Y,X+55,Y+20,#333333:32h);
         case
-            if Colors.colorSpace == ColorSpace.HSV then
+            if colorsColorSpace == ColorSpace.HSV then
                 if n == 1 then
-                    TEXTOUT_P(IP(Colors.h)+"°",G9,X+20,Y+5,2,Color.White);
+                    TEXTOUT_P(IP(colorsH)+"°",G9,X+20,Y+5,2,Color.White);
                 end;
                 if n == 2 then
-                    TEXTOUT_P(IP(Colors.s)+"%",G9,X+20,Y+5,2,Color.White);
+                    TEXTOUT_P(IP(colorsS)+"%",G9,X+20,Y+5,2,Color.White);
                 end;
                 if n == 3 then
-                    TEXTOUT_P(IP(Colors.v)+"%",G9,X+20,Y+5,2,Color.White);
+                    TEXTOUT_P(IP(colorsV)+"%",G9,X+20,Y+5,2,Color.White);
                 end;
             end;
-            if Colors.colorSpace == ColorSpace.HSL then
+            if colorsColorSpace == ColorSpace.HSL then
                 if n == 1 then
                     TEXTOUT_P(IP(hsl[n])+"°",G9,X+20,Y+5,2,Color.White);
                 else
@@ -214,106 +241,106 @@ begin
     BLIT_P(__SCREEN, G9);
 end;
 
-Colors::UpdateRGB()
+ColorsUpdateRGB()
 begin
     local rgb;
-    rgb = HSVtoRGB(Colors.h, Colors.s, Colors.v);
-    Colors.r = rgb[1];
-    Colors.g = rgb[2];
-    Colors.b = rgb[3];
+    rgb = HSVtoRGB(colorsH, colorsS, colorsV);
+    colorsR = rgb[1];
+    colorsG = rgb[2];
+    colorsB = rgb[3];
 end;
 
-Colors::DoMenu()
+ColorsDoMenu()
 begin
     local menu = (Y<220? 0: IP(X / (320/6)+0.025) + 1);
     case
         if menu == 1 then
-            Colors.unitType = UnitType.Percentage;
+            colorsUnitType = UnitType.Percentage;
         end;
             
         if menu == 2 then
-            Colors.unitType = UnitType.Decimal;
+            colorsUnitType = UnitType.Decimal;
         end;
             
         if menu == 3 then
-            Colors.h = floor((Colors.h - 29) / 30) * 30;
-            Colors::UpdateRGB;
+            colorsH = floor((colorsH - 29) / 30) * 30;
+            ColorsUpdateRGB;
             HP.MouseClr;
         end;
             
         if menu == 4 then
-            Colors.h = floor(Colors.h / 30) * 30 + 30;
-            Colors::UpdateRGB;
+            colorsH = floor(colorsH / 30) * 30 + 30;
+            ColorsUpdateRGB;
             HP.MouseClr;
         end;
             
         if menu == 5 then
-            Colors.colorSpace = ColorSpace.HSV;
+            colorsColorSpace = ColorSpace.HSV;
         end;
             
         if menu == 6 then
-            Colors.colorSpace = ColorSpace.HSL;
+            colorsColorSpace = ColorSpace.HSL;
         end;
     end;
 end;
 
-Colors::AdjRGB(delta)
+ColorsAdjRGB(delta)
 begin
     case
-        if Colors.channel == 1 then
-            Colors.r = Colors.r + delta;
-            Colors.r = IP(MIN(MAX(Colors.r, 0), 255));
+        if colorsChannel == 1 then
+            colorsR = colorsR + delta;
+            colorsR = IP(MIN(MAX(colorsR, 0), 255));
         end;
         
-        if Colors.channel == 2 then
-            Colors.g = Colors.g + delta;
-            Colors.g = IP(MIN(MAX(Colors.g, 0), 255));
+        if colorsChannel == 2 then
+            colorsG = colorsG + delta;
+            colorsG = IP(MIN(MAX(colorsG, 0), 255));
         end;
         
-        if Colors.channel == 3 then
-            Colors.b = Colors.b + delta;
-            Colors.b = IP(MIN(MAX(Colors.b, 0), 255));
+        if colorsChannel == 3 then
+            colorsB = colorsB + delta;
+            colorsB = IP(MIN(MAX(colorsB, 0), 255));
         end;
     end;
     
     // Update HSV values.
     local hsv;
-    hsv = RGBtoHSV(Colors.r, Colors.g, Colors.b);
-    Colors.h = hsv[1];
-    Colors.s = hsv[2];
-    Colors.v = hsv[3];
+    hsv = RGBtoHSV(colorsR, colorsG, colorsB);
+    colorsH = hsv[1];
+    colorsS = hsv[2];
+    colorsV = hsv[3];
 end;
 
-Colors::AdjHue(d:delta)
+ColorsAdjHue(d:delta)
 begin
-    Colors.h = Colors.h + delta;
-    Colors.h = IP(MIN(MAX(Colors.h, 0), 360));
+    colorsH = colorsH + delta;
+    colorsH = IP(MIN(MAX(colorsH, 0), 360));
     
-    Colors::UpdateRGB;
+    ColorsUpdateRGB;
 end;
 
-Colors::AdjSaturation(d:delta)
+ColorsAdjSaturation(d:delta)
 begin
-    Colors.s = Colors.s + delta;
-    Colors.s = IP(MIN(MAX(Colors.s, 0), 100));
+    colorsS = colorsS + delta;
+    colorsS = IP(MIN(MAX(colorsS, 0), 100));
     
-    Colors::UpdateRGB;
+    ColorsUpdateRGB;
 end;
 
-Colors::AdjBrightness(d:delta)
+ColorsAdjBrightness(d:delta)
 begin
-    Colors.v = Colors.v + delta;
-    Colors.v = IP(MIN(MAX(Colors.v, 0), 100));
+    colorsV = colorsV + delta;
+    colorsV = IP(MIN(MAX(colorsV, 0), 100));
     
-    Colors::UpdateRGB;
+    ColorsUpdateRGB;
 end;
 
-Colors::Loop()
+ColorsLoop()
 begin
     local focus = "";
 
     while 1 do
-        Colors::Update();
+        ColorsUpdate();
 
         local event = WAIT(-1);
         dict Event event;
@@ -325,47 +352,47 @@ begin
                 end;
                 
                 if event.key == KeyCode.Enter then
-                    return HSV(Colors.h, Colors.s, Colors.v);
+                    return HSV(colorsH, colorsS, colorsV);
                 end;
                 
                 if event.key == KeyCode.Minus then
-                    if Colors.channel == 0 then
-                        Colors::AdjHue(-1);
+                    if colorsChannel == 0 then
+                        ColorsAdjHue(-1);
                     else
-                        Colors::AdjRGB(-1);
+                        ColorsAdjRGB(-1);
                     end;
                 end;
                 
                 if event.key == KeyCode.Plus then
-                    if Colors.channel == 0 then
-                        Colors::AdjHue(1);
+                    if colorsChannel == 0 then
+                        ColorsAdjHue(1);
                     else
-                        Colors::AdjRGB(1);
+                        ColorsAdjRGB(1);
                     end;
                 end;
                 
                 if event.key == KeyCode.Up then
-                    if Colors.channel == 0 then
-                        Colors::AdjBrightness(1);
+                    if colorsChannel == 0 then
+                        ColorsAdjBrightness(1);
                     else
-                        Colors.channel += (Colors.channel == 1 ? 2 : -1);
+                        colorsChannel += (colorsChannel == 1 ? 2 : -1);
                     end;
                 end;
                 
                 if event.key == KeyCode.Down then
-                    if Colors.channel == 0 then
-                        Colors::AdjBrightness(-1);
+                    if colorsChannel == 0 then
+                        ColorsAdjBrightness(-1);
                     else
-                        Colors.channel += (Colors.channel == 3 ? -2 : 1);
+                        colorsChannel += (colorsChannel == 3 ? -2 : 1);
                     end;
                 end;
                 
-                if event.key == KeyCode.Left && Colors.channel == 0 then
-                    Colors::AdjSaturation(-1);
+                if event.key == KeyCode.Left && colorsChannel == 0 then
+                    ColorsAdjSaturation(-1);
                 end;
                 
-                if event.key == KeyCode.Right && Colors.channel == 0 then
-                    Colors::AdjSaturation(1);
+                if event.key == KeyCode.Right && colorsChannel == 0 then
+                    ColorsAdjSaturation(1);
                 end;
             then
             end;
@@ -376,48 +403,48 @@ begin
             X = event.x;
             Y = event.y;
             
-            Colors::DoMenu();
+            ColorsDoMenu();
             
             case
                 if event.type == EventType.MouseDown then
                     if X>=5 && X<315 && Y>=148 && Y<188 then
-                        Colors.h := (X - 5) / 310 * 360;
-                        Colors::UpdateRGB();
-                        Colors.channel = 0;
+                        colorsH := (X - 5) / 310 * 360;
+                        ColorsUpdateRGB();
+                        colorsChannel = 0;
                         focus = "Hue";
                     end;
                     
                     if X>=5 && X<143 && Y≥5 && Y<143 then
-                        Colors.s := IP((X - 5) / 137 * 100);
-                        Colors.v := IP((1 - (Y - 5) / 137) * 100);
-                        Colors::UpdateRGB();
-                        Colors.channel = 0;
+                        colorsS := IP((X - 5) / 137 * 100);
+                        colorsV := IP((1 - (Y - 5) / 137) * 100);
+                        ColorsUpdateRGB();
+                        colorsChannel = 0;
                         focus = "Saturation & Brightness";
                     end;
                     
                     if X>=138 && X <=193 && Y>=51 && Y<=71 then
-                        Colors.channel = 1;
+                        colorsChannel = 1;
                     end;
                     
                     if X>=138 && X <=193 && Y>=75 && Y<=95 then
-                        Colors.channel = 2;
+                        colorsChannel = 2;
                     end;
                     
                     if X>=138 && X <=193 && Y>=99 && Y<=119 then
-                        Colors.channel = 3;
+                        colorsChannel = 3;
                     end;
                 end;
                 
                 if event.type == EventType.MouseMove then
                     if focus == "Hue" then
-                        Colors.h = (X - 5) / 310 * 360;
-                        Colors::UpdateRGB();
+                        colorsH = (X - 5) / 310 * 360;
+                        ColorsUpdateRGB();
                     end;
                     
                     if focus == "Saturation & Brightness" then
-                        Colors.s = IP((X - 5) / 137 * 100);
-                        Colors.v = IP((1 - (Y - 5) / 137) * 100);
-                        Colors::UpdateRGB();
+                        colorsS = IP((X - 5) / 137 * 100);
+                        colorsV = IP((1 - (Y - 5) / 137) * 100);
+                        ColorsUpdateRGB();
                     end;
                 end;
                 
@@ -426,15 +453,15 @@ begin
                 end;
             end;
             
-            Colors.h = IP(MIN(MAX(Colors.h, 0), 360));
-            Colors.s = IP(MIN(MAX(Colors.s, 0), 100));
-            Colors.v = IP(MIN(MAX(Colors.v, 0), 100));
+            colorsH = IP(MIN(MAX(colorsH, 0), 360));
+            colorsS = IP(MIN(MAX(colorsS, 0), 100));
+            colorsV = IP(MIN(MAX(colorsV, 0), 100));
         end;
     end;
 end;
 
 export Colors()
 begin
-    Colors::Setup;
-    Colors::Loop;
+    ColorsSetup;
+    ColorsLoop;
 end;

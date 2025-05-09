@@ -61,7 +61,7 @@ namespace ppl_plus {
         
         void decreaseScopeDepth() {
             if (_scopeDepth == 0) {
-                std::cout << "Error: Unexpected '" << "END;" << "'\n";
+                std::cout << "Error: Unexpected '" << "END; at line:" << _currentline << "'\n";
                 return;
             }
             _scopeDepth--;
