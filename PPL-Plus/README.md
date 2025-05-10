@@ -110,4 +110,4 @@ Intended for `regex`
 In PPL+ `=` is treated as `:=` were in PPL `=` is treated as `==`
 
 >[!NOTE]
-The PPL+ proprietary programming language is susceptible to change, while also maintaining some compatibility with previous versions.
+The PPL+ pre-processor is susceptible to change, while also maintaining some compatibility with previous versions.
