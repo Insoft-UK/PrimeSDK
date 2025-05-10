@@ -104,7 +104,7 @@ Intended for `regex`
 
 ## Substitution
 `...` for `TO` included.
-`…` for `...` supported, `...` and `…` can now be used instead of `to`
+`…` for `...` supported, `...` and `…` can now be used instead of `TO`
 
 >[!IMPORTANT]
 In PPL+ `=` is treated as `:=` were in PPL `=` is treated as `==`
