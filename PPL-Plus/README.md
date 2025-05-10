@@ -30,7 +30,7 @@ BEGIN
   A := B;
 #END
   WAIT;
-  var a: alpha = 0;
+  LOCAL a: alpha = 0;
   alpha += 10;
   RETURN a;
 END;
