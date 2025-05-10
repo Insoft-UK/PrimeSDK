@@ -6,6 +6,7 @@
 <br/><br/>
 
 <b><a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/GROB">GROB</a> to be intergrated in the future.</b>
+**PPL+**
 
 ```
 #pragma mode( separator(.,;) integer(h64) )
@@ -35,7 +36,7 @@ END;
 ```
 
 
-`ppl+ project.pp`
+**PPL**
 
 ```
 #pragma mode( separator(.,;) integer(h64) )
