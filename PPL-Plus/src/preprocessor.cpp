@@ -48,11 +48,6 @@ bool Preprocessor::parse(std::string &str) {
     
     
     if (disregard == false) {
-        if (regex_search(str, std::regex(R"(^ *@disregard *$)"))) {
-            disregard = true;
-            return true;
-        }
-        
         re = R"(^ *#include +)";
         if (regex_search(str, re)) {
             std::sregex_token_iterator it;
@@ -195,15 +190,9 @@ bool Preprocessor::parse(std::string &str) {
         return true;
     }
     
-    if (regex_search(str, std::regex(R"(^ *@end|END *$)"))) {
-        disregard = false;
-        if (verbose) std::cout << MessageType::Verbose << "@end: " << disregard << '\n';
-        return true;
-    }
     
     if (regex_search(str, std::regex(R"(^ *#)"))) {
         str = "";
-//        std::cout << MessageType::Error << "invalid preprocessor\n";
     }
 
     return false;

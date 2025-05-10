@@ -73,16 +73,10 @@ namespace ppl_plus {
         void dumpIdentities();
         const TIdentity getIdentity(const std::string &identifier);
         
-        //MARK: - namespaces
-        void addNamespace(const std::string &name);
-        void removeNamespace(const std::string &name);
-        void removeAllLocalNamespace(void);
+        
         
     private:
         std::vector<TIdentity> _identities;
-        std::vector<std::string> _namespaces;
-        
-        const std::string namespacePattern(void);
     };
 }
 #endif // ALIASES_HPP

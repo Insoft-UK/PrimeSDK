@@ -22,10 +22,13 @@
 // SOFTWARE.
 @end
 
-#ifndef CLANG_PPLIB
-#define CLANG_PPLIB
+#ifndef CPLANG_PPLIB
+#define CPLANG_PPLIB
 
 #define var     LOCAL
+#define namespace alias
+
+@global regex `\bvoid\b *`
 
 @global regex `0x([\dA-F]+)` #$1:h
 @global regex `0b([0-1]+)` #$1:b
@@ -36,16 +39,14 @@
 
 @global regex `%{1}` MOD
 
-@global regex `void `
-
-@global regex `\bif *\((.*)\) *\{ *$` IF $1 THEN__PUSH__` `
+@global regex `\bif *\((.*)\) *\{ *$` IF $1 THEN__PUSH__``
 @global regex `\} *else *\{` ELSE
-@global regex `\bwhile *\((.*)\) *\{ *$` WHILE $1 DO__PUSH__` `
+@global regex `\bwhile *\((.*)\) *\{ *$` WHILE $1 DO__PUSH__``
 @global regex `\bdo *\{` REPEAT
 @global regex `\} *while *\((.*)\) *; *$` UNTIL NOT($1);
 @global regex `\bfor *\(([^;]+);([^;]+);([^;]+)\) *\{ *$` $1; WHILE$2 DO__PUSH__`__SPACE__$3;`
-@global regex `\bswitch *\(([a-zA-Z_][\w.:(),]*)\) *\{ *$` LOCAL sw\C`__SCOPE__/2` := $1;CASE__PUSH__` `
-@global regex `\bcase +(\-?\d+) *: *$` IF sw\C`__SCOPE__/2` == $1 THEN__PUSH__` `
+@global regex `\bswitch *\(([a-zA-Z_][\w.:(),]*)\) *\{ *$` LOCAL sw\C`__SCOPE__/2` := $1;CASE__PUSH__``
+@global regex `\bcase +(\-?\d+) *: *$` IF sw\C`__SCOPE__/2` == $1 THEN__PUSH__``
 
   
 @global regex `^ *\} *$` __POP__END;

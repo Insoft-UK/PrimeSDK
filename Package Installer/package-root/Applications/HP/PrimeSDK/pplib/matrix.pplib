@@ -25,17 +25,17 @@
 #ifndef MATRIX_PPLIB
 #define MATRIX_PPLIB
 
-namespace matrix::edit := EDITMAT;
-namespace matrix::addCol := ADDCOL;
-namespace matrix::addRow := ADDROW;
-namespace matrix::delCol := DELCOL;
-namespace matrix::redim := REDIM;
-namespace matrix::replace := REPLACE;
-namespace matrix::scale := SCALE;
-namespace matrix::scaleAdd := SCALEADD;
-namespace matrix::sub := Sub;
-namespace matrix::swapCol := SAWAPCOL;
-namespace matrix::swapRow := SWAPROW;
+alias matrix::edit := EDITMAT;
+alias matrix::addCol := ADDCOL;
+alias matrix::addRow := ADDROW;
+alias matrix::delCol := DELCOL;
+alias matrix::redim := REDIM;
+alias matrix::replace := REPLACE;
+alias matrix::scale := SCALE;
+alias matrix::scaleAdd := SCALEADD;
+alias matrix::sub := Sub;
+alias matrix::swapCol := SAWAPCOL;
+alias matrix::swapRow := SWAPROW;
 
 
 #endif /// MATRIX_PPLIB

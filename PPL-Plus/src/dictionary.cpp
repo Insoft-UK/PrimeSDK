@@ -61,7 +61,7 @@ bool Dictionary::proccessDictionary(const std::string &str) {
     identity.type = Aliases::Type::Alias;
     
     
-    re = R"(^(@global )?dict +(.+) ((?:`[\w.:]+`)|[\w.:]+)(?:\(([A-Za-z_ ,]+)\))?;$)";
+    re = R"((@global )?\bdict +(.+) ((?:`[\w.:]+`)|[\w.:]+)(?:\(([A-Za-z_ ,]+)\))?;)";
     if (regex_search(s1, match, re)) {
         identity.scope = match[1].matched ? Aliases::Scope::Global : Aliases::Scope::Auto;
         

@@ -25,18 +25,18 @@
 #ifndef CARTESIAN_PPLIB
 #define CARTESIAN_PPLIB
 
-namespace cartesian::arc := ARC;
-namespace cartesian::blit := BLIT;
-namespace cartesian::dimGROB := DIMGROB;
-namespace cartesian::getPixel := GETPIX;
-namespace cartesian::invert := INVERT;
-namespace cartesian::line := LINE;
-namespace cartesian::pixelOff := PIXOFF;
-namespace cartesian::pixelOn := PIXON;
-namespace cartesian::rect := RECT;
-namespace cartesian::fillPoly := FILLPOLY;
-namespace cartesian::subGROB := SUBGROB;
-namespace cartesian::textout := TEXTOUT;
+alias cartesian::arc := ARC;
+alias cartesian::blit := BLIT;
+alias cartesian::dimGROB := DIMGROB;
+alias cartesian::getPixel := GETPIX;
+alias cartesian::invert := INVERT;
+alias cartesian::line := LINE;
+alias cartesian::pixelOff := PIXOFF;
+alias cartesian::pixelOn := PIXON;
+alias cartesian::rect := RECT;
+alias cartesian::fillPoly := FILLPOLY;
+alias cartesian::subGROB := SUBGROB;
+alias cartesian::textout := TEXTOUT;
 
 @global regex `\bcartesian::(G\d)\.width\b` GROBW($1)
 @global regex `\bcartesian::(G\d)\.height\b` GROBH($1)

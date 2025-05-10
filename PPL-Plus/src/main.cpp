@@ -101,7 +101,7 @@ std::string removeWhitespaceAroundOperators(const std::string &str) {
     return result;
 }
 
-// MARK: - P+ To PPL Translater...
+// MARK: - PPL+ To PPL Translater...
 void reformatPPLLine(std::string &str) {
     std::regex re;
     
@@ -210,7 +210,7 @@ void capitalizeKeywords(std::string &str) {
 }
 
 
-void translatePPlusLine(std::string &ln, std::ofstream &outfile) {
+void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
     std::regex re;
     std::smatch match;
     std::ifstream infile;
@@ -325,10 +325,10 @@ void translatePPlusLine(std::string &ln, std::ofstream &outfile) {
     
     
     
-    //MARK: - namespace parsing
+    //MARK: - alias parsing
     
-    re = R"(^namespace ([A-Za-z](?:\w+|::[A-Za-z]+)*):=([A-Za-z](?:\w+|::[A-Za-z]+)*);$)";
-    if (regex_search(ln, match, re) && singleton->scopeDepth == 0) {
+    re = R"(^alias ([A-Za-z_](?:\w+|::[A-Za-z_]+)*):=([A-Za-z_](?:\w+|::[A-Za-z_]+)*);$)";
+    if (regex_search(ln, match, re)) {
         Aliases::TIdentity identity;
         identity.identifier = match[1].str();
         identity.real = match[2].str();
@@ -336,13 +336,6 @@ void translatePPlusLine(std::string &ln, std::ofstream &outfile) {
         identity.scope = Aliases::Scope::Auto;
         
         singleton->aliases.append(identity);
-        ln = "";
-        return;
-    }
-    
-    re = R"(^using ([A-Za-z](?:\w+|::[A-Za-z]+)*);$)";
-    if (regex_search(ln, match, re) && singleton->scopeDepth > 0) {
-        singleton->aliases.addNamespace(match[1].str());
         ln = "";
         return;
     }
@@ -382,24 +375,10 @@ void translatePPlusLine(std::string &ln, std::ofstream &outfile) {
             std::string s = *it;
             ln = "KEY " + s + "()";
         }
-        
-        re = R"(^ *(?:export +)?([_:.\w]+) *(?=\())";
-        if (regex_search(ln, match, re)) {
-            if (match[1].str().at(0) == '_') {
-                std::string pattern;
-                pattern = match[1].str();
-                re = pattern;
-                ln = regex_replace(ln, re, "auto:" + match[1].str());
-            }
-        }
-        re = R"(^ *(export +)?([a-zA-Z_]\w*((::)|\.))+[a-zA-Z_]\w* *(?=\())";
-        ln = regex_replace(ln, re, "auto:$0");
     }
-    
     
     singleton->autoname.parse(ln);
     Alias::parse(ln);
-    
     Calc::parse(ln);
     
     
@@ -532,6 +511,17 @@ void translatePPlusToPPL(const std::string &path, std::ofstream &outfile) {
             }
         }
         
+        re = R"(^ *@disregard *$)";
+        if (regex_match(utf8, re)) {
+            Singleton::shared()->incrementLineNumber();
+            re = R"(^ *@end *$)";
+            while (getline(infile, utf8)) {
+                Singleton::shared()->incrementLineNumber();
+                if (regex_match(utf8, re)) break;
+            }
+            continue;
+        }
+        
         while (preprocessor.disregard == true) {
             preprocessor.parse(utf8);
             Singleton::shared()->incrementLineNumber();
@@ -540,13 +530,11 @@ void translatePPlusToPPL(const std::string &path, std::ofstream &outfile) {
         
         if (isPythonBlock(utf8)) {
             writePythonBlock(infile, outfile);
-            Singleton::shared()->incrementLineNumber();
             continue;
         }
         
         if (isPPLBlock(utf8)) {
             writePPLBlock(infile, outfile);
-            Singleton::shared()->incrementLineNumber();
             continue;
         }
         
@@ -596,7 +584,7 @@ void translatePPlusToPPL(const std::string &path, std::ofstream &outfile) {
         iss.str(utf8);
         
         while(getline(iss, str)) {
-            translatePPlusLine(str, outfile);
+            translatePPLPlusLine(str, outfile);
             writeUTF16Line(str, outfile);
         }
         

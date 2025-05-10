@@ -26,11 +26,11 @@
 #define INTEGER_PPLIB
 
 @global regex `integer::toReal` B→R
-namespace integer::getBase := GETBASE;
-namespace integer::getBits := GETBITS;
+alias integer::getBase := GETBASE;
+alias integer::getBits := GETBITS;
 @global regex `integer::toBase` R→B
-namespace integer::setBits := SETBITS;
-namespace integer::setBase := SETBASE;
+alias integer::setBits := SETBITS;
+alias integer::setBase := SETBASE;
 
 @global dict System = 0, Binary = 1, Octal = 2, Decimal = 3, Hexadecimal = 4 integer::Base;
 

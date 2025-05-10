@@ -26,14 +26,14 @@
 #ifndef CSPACE_PPLIB
 #define CSPACE_PPLIB
 
-namespace color::convertHSVtoRGB := HSVtoRGB;
-namespace color::convertHSLtoHSV := HSLtoHSV;
-namespace color::convertHSLtoRGB := HSLtoRGB;
-namespace color::convertHSVtoHSL := HSVtoHSL;
-namespace color::convertRGBtoHSV := RGBtoHSV;
-namespace color::convertRGBtoHSL := RGBtoHSL;
-namespace color::HSL := HSL;
-namespace color::HSV := HSV;
-namespace color::CMYK := CMYK;
+alias color::convertHSVtoRGB := HSVtoRGB;
+alias color::convertHSLtoHSV := HSLtoHSV;
+alias color::convertHSLtoRGB := HSLtoRGB;
+alias color::convertHSVtoHSL := HSVtoHSL;
+alias color::convertRGBtoHSV := RGBtoHSV;
+alias color::convertRGBtoHSL := RGBtoHSL;
+alias color::HSL := HSL;
+alias color::HSV := HSV;
+alias color::CMYK := CMYK;
 
 #endif /// CSPACE_PPLIB

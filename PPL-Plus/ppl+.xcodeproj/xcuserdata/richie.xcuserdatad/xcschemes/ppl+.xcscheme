@@ -76,8 +76,8 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-v avr"
-            isEnabled = "NO">
+            argument = "-v a"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-l $(PROJECT_DIR)/../Package\ Installer/package-root/Applications/HP/PrimeSDK/pplib"

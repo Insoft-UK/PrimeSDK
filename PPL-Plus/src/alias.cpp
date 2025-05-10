@@ -37,11 +37,11 @@ static void parseAlias(const std::string &str, Aliases::TIdentity &identity) {
     
     /*
      eg. name:aliasname
-     Group  0 name:aliasname
+     Group  0 name:alias::name
             1 name
-            2 aliasname
+            2 alias::name
      */
-    re = R"(([a-zA-Z]\w*):([a-zA-Z_]\w*))";
+    re = R"(([a-zA-Z]\w*):([a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*))";
     
     if (regex_search(str, matches, re)) {
         identity.real = matches[1].str();
@@ -51,7 +51,7 @@ static void parseAlias(const std::string &str, Aliases::TIdentity &identity) {
 }
 
 static void parseAliases(const std::string &str, Aliases::TIdentity &identity) {
-    std::regex re(R"([a-zA-Z]\w*:[a-zA-Z_]\w*)");
+    std::regex re(R"([a-zA-Z]\w*:[a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*)");
     
     for(std::sregex_iterator it = std::sregex_iterator(str.begin(), str.end(), re); it != std::sregex_iterator(); ++it) {
         parseAlias(it->str(), identity);
@@ -89,12 +89,12 @@ bool Alias::parse(std::string &str) {
     
     if (singleton->scopeDepth == 0) {
         /*
-         eg. export name:alias(p1, p2:alias, auto:alias)
+         eg. export name:alias::name(p1, p2:alias, auto:alias)
          Group  0 export name:alias(p1, p2:alias, auto:alias)
-         1 name:alias
+         1 name:alias::name
          2 p1, p2:alias, auto:alias
          */
-        re = R"((?:export )?([a-zA-Z]\w*(?::[a-zA-Z_]\w*))?\((.*)\))";
+        re = std::regex(R"(^(?:EXPORT )?([a-zA-Z]\w*(?::[a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*)?)\((.*)\))", std::regex_constants::icase);
         
         if (regex_search(str, matches, re)) {
             parseFunctionName(matches[1].str());
@@ -113,7 +113,9 @@ bool Alias::parse(std::string &str) {
     }
     
     if (!parsed) return false;
-    str = regex_replace(str, std::regex(R"(:[a-zA-Z_]\w*)"), "");
+    
+    // Now that all aliases, if any, have been parsed, we can remove the :alias from the code.
+    str = regex_replace(str, std::regex(R"(([a-zA-Z]\w*):[a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*)"), "$1");
     
     return true;
 }

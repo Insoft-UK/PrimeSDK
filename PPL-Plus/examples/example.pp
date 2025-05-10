@@ -24,8 +24,8 @@
 #pragma mode( separator(.,,) integer(h64) )
 
 
-#include <pplang>
-#include <cplang>
+
+
 
 @disregard
  When defining a macro with parameters, issues can arise if an argument
@@ -41,12 +41,23 @@
 #PYTHON
 #END
 
+alias integer::base::set := SETBASE;
 
-Example:AVeryLongName(p:first, q:second)
+
+#PPL
+#END
+
+Example:AVery::LongName(p: first, q: second, _third)
 begin
     // Local Variables with aliases
     local a: alpha, b: beta;
+    local _hello;
     
+    alias base := integer::base;
+    
+    integer::base::set(A,3);
+    
+    base::set(B, 2);
     
     local e: myEvt;
     dict Event myEvt;
@@ -77,19 +88,19 @@ begin
     local dec := \`#15:3d * 2`;
     
     // LOCAL auto variable name
-    auto iAmVerryLong;
+    LOCAL iAmVerryLong;
 
 #
 end;
 
 auto:myFunction()
 begin
-    AVeryLongName(2,5);
+    AVery::LongName(2,5);
+    AVery::LongName();
 end;
 
-myFunction();
-
-void clang()
+#include <cplang>
+void cplang()
 {
     var i;
     
@@ -122,6 +133,7 @@ void clang()
     }
 }
 
+#include <pplang>
 pplang()
 begin
     var v: variableName = 0;

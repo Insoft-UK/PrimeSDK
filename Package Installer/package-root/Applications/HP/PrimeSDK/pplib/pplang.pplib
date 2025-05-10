@@ -32,7 +32,6 @@
 #define endif   END
 #define wend    END
 #define next    END
-#define var     LOCAL
 #define pi      π
 #define FROM    :=
 #define emptylist {0}
