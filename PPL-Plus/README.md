@@ -29,7 +29,8 @@ BEGIN
 #END
   WAIT;
   LOCAL a: alpha = 0;
-  alpha += 10;
+  LOCAL _beta = 1;
+  alpha = alpha + _beta;
   RETURN a;
 END;
 ```
@@ -53,7 +54,8 @@ BEGIN
   // So only PPL code in this section.
   WAIT;
   LOCAL a := 0;
-  a := a + 10;
+  LOCAL v1 := 1;
+  a := a + v1;
   RETURN a;
 END;
 ```
