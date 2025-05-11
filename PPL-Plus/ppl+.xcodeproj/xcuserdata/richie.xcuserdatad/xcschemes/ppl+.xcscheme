@@ -57,26 +57,26 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "$(PROJECT_DIR)/examples/example.pp"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-help"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/Applications/HP/PrimeSDK/examples/Colors/src/main.pp -o $(PROJECT_DIR)/examples/Colors"
+            argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/private/tmp/PrimeSDK/Examples/Colors/src/main.pp -o $(PROJECT_DIR)/examples/Colors"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/Applications/HP/PrimeSDK/examples/MAD/src/main.pp -o $(PROJECT_DIR)/examples/MAD"
+            argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/private/tmp/PrimeSDK/Examples/MAD/src/main.pp -o $(PROJECT_DIR)/examples/MAD"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/Applications/HP/PrimeSDK/examples/Periodic/src/main.pp -o $(PROJECT_DIR)/examples/Periodic"
-            isEnabled = "NO">
+            argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/private/tmp/PrimeSDK/Examples/Periodic/src/main.pp -o $(PROJECT_DIR)/examples/Periodic"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-v a"
+            argument = "-v apr"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

@@ -34,10 +34,11 @@ namespace ppl_plus {
     public:
         enum class Type {
             Unknown,
-            Variable,
             Macro,
             Alias,
-            Function
+            Function,
+            Argument,
+            Variable
         };
         
         enum class Scope {

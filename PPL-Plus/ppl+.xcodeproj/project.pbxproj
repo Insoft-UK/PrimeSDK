@@ -71,7 +71,7 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		1308443E2DCC2C7400CD8EC4 /* pplib */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = pplib; path = "../Package Installer/package-root/Applications/HP/PrimeSDK/pplib"; sourceTree = SOURCE_ROOT; };
-		130844652DCD598F00CD8EC4 /* examples */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = examples; path = "../Package Installer/package-root/Applications/HP/PrimeSDK/examples"; sourceTree = SOURCE_ROOT; };
+		130844962DD14C9600CD8EC4 /* Examples */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = Examples; path = "../Package Installer/package-root/private/tmp/PrimeSDK/Examples"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,7 +92,7 @@
 				1351CC552BFC0E180073FEDF /* README.md */,
 				136E64472D2877660054E0CC /* version.txt */,
 				137FB2942A046E8E00AEFDF2 /* ppl+.entitlements */,
-				130844652DCD598F00CD8EC4 /* examples */,
+				130844962DD14C9600CD8EC4 /* Examples */,
 				1308443E2DCC2C7400CD8EC4 /* pplib */,
 				13166E852BA12E5E00D1E6F0 /* examples */,
 				137FB2872A03B06500AEFDF2 /* src */,

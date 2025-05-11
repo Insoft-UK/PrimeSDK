@@ -73,7 +73,7 @@ bool Aliases::append(const TIdentity &idty) {
                     std::cout << "previous definition on line " << it.line << "\n";
                 }
                 else {
-                    std::cout << "previous definition in '" << ANSI::Green << basename(it.pathname) << ANSI::Default << "' on line " << it.line << "\n";
+                    std::cout << "previous definition in \"" << ANSI::Green << basename(it.pathname) << ANSI::Default << "\" on line " << it.line << "\n";
                 }
                 break;
             }
@@ -88,12 +88,17 @@ bool Aliases::append(const TIdentity &idty) {
     
     if (verbose) std::cout
         << MessageType::Verbose
-        << (Scope::Local == identity.scope && Type::Macro != identity.type ? ANSI::Default + ANSI::Bold + "local" + ANSI::Default + ":" : "")
-        << (Scope::Global == identity.scope && Type::Macro != identity.type ? ANSI::Yellow + "global" + ANSI::Default + ":" : "")
-        << (Type::Macro == identity.type ? "macro" : "")
-        << (Type::Alias == identity.type ? " alias" : "")
-        << (Type::Unknown == identity.type ? " identifier" : "")
-        << " '" << ANSI::Green << identity.identifier << ANSI::Default << "' for '" << ANSI::Green << identity.real << ANSI::Default << "' defined\n";
+        << "Defined "
+        << (Scope::Local == identity.scope ? ANSI::Default + ANSI::Bold + "local" + ANSI::Default + " " : "")
+        << (Type::Unknown == identity.type ? "alias " : "")
+        << (Type::Macro == identity.type ? "macro " : "")
+        << (Type::Alias == identity.type ? "alias " : "")
+        << (Type::Function == identity.type ? "function alias " : "")
+        << (Type::Argument == identity.type ? "argument alias " : "")
+        << (Type::Variable == identity.type ? "variable alias" : "")
+        << "'" << ANSI::Green << identity.identifier << ANSI::Default << "' "
+        << (identity.real.empty() ? "\n" : (identity.type == Type::Macro ? "as '" : "for '") + ANSI::Green + identity.real + ANSI::Default + "'\n");
+    
     return true;
 }
 
@@ -102,10 +107,14 @@ void Aliases::removeAllLocalAliases() {
         if (it->scope == Scope::Local) {
             if (verbose) std::cout
                 << MessageType::Verbose
-                << ANSI::Default << ANSI::Bold << "local" << ANSI::Default << ":"
-                << (Type::Alias == it->type ? " alias" : "")
-                << (Type::Unknown == it->type ? " identifier" : "")
-                << " '" << ANSI::Green << it->identifier << ANSI::Default << "' removed❗\n";
+                << "Removed " << ANSI::Default << ANSI::Bold << "local" << ANSI::Default << " "
+                << (Type::Unknown == it->type ? "alias " : "")
+                << (Type::Macro == it->type ? "macro " : "")
+                << (Type::Alias == it->type ? "alias " : "")
+                << (Type::Function == it->type ? "function alias " : "")
+                << (Type::Argument == it->type ? "argument alias " : "")
+                << (Type::Variable == it->type ? "variable alias " : "")
+                << "'" << ANSI::Green << it->identifier << ANSI::Default << "'\n";
             _identities.erase(it);
             removeAllLocalAliases();
             break;
@@ -118,12 +127,14 @@ void Aliases::removeAllAliasesOfType(const Type type) {
         if (it->type == type) {
             if (verbose) std::cout
                 << MessageType::Verbose
-                << (Scope::Local == it->scope && Type::Macro != it->type ? ANSI::Default + ANSI::Bold + "local" + ANSI::Default + ": " : "")
-                << (Scope::Global == it->scope && Type::Macro != it->type ? ANSI::Yellow + "global" + ANSI::Default + ": " : "")
-                << (Type::Macro == it->type ? "macro" : "")
-                << (Type::Alias == it->type ? " alias" : "")
-                << (Type::Unknown == it->type ? "identifier" : "")
-                << " '" << ANSI::Green << it->identifier << ANSI::Default << "' removed❗\n";
+                << "Removed " << ANSI::Default << ANSI::Bold << "local" << ANSI::Default << " "
+                << (Type::Unknown == it->type ? "alias " : "")
+                << (Type::Macro == it->type ? "macro " : "")
+                << (Type::Alias == it->type ? "alias " : "")
+                << (Type::Function == it->type ? "function alias " : "")
+                << (Type::Argument == it->type ? "argument alias " : "")
+                << (Type::Variable == it->type ? "variable alias " : "")
+                << "'" << ANSI::Green << it->identifier << ANSI::Default << "'\n";
             _identities.erase(it);
             removeAllAliasesOfType(type);
             break;
@@ -228,12 +239,15 @@ void Aliases::remove(const std::string &identifier) {
         if (it->identifier == identifier) {
             if (verbose) std::cout
                 << MessageType::Verbose
-                << (Scope::Local == it->scope && Type::Macro != it->type ? ANSI::Default + ANSI::Bold + "local" + ANSI::Default + ": " : "")
-                << (Scope::Global == it->scope && Type::Macro != it->type ? ANSI::Yellow + "global" + ANSI::Default + ": " : "")
-                << (Type::Macro == it->type ? "macro" : "")
-                << (Type::Alias == it->type ? "alias" : "")
-                << (Type::Unknown == it->type ? "identifier" : "")
-                << " '" << ANSI::Green << it->identifier << ANSI::Default << "' removed❗\n";
+                << "Removed "
+                << (Scope::Local == it->scope ? ANSI::Default + ANSI::Bold + "local " + ANSI::Default : "")
+                << (Type::Unknown == it->type ? "alias " : "")
+                << (Type::Macro == it->type ? "macro " : "")
+                << (Type::Alias == it->type ? "alias " : "")
+                << (Type::Function == it->type ? "function alias " : "")
+                << (Type::Argument == it->type ? "argument alias " : "")
+                << (Type::Variable == it->type ? "variable alias " : "")
+                << "'" << ANSI::Green << it->identifier << ANSI::Default << "'\n";
             
             _identities.erase(it);
             break;

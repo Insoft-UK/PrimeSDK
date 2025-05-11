@@ -51,7 +51,7 @@ using namespace ppl_plus;
 
 static Preprocessor preprocessor = Preprocessor();
 static Strings strings = Strings();
-
+static std::string assignment = "=";
 
 void terminator() {
     std::cout << MessageType::CriticalError << "An internal pre-processing problem occurred. Please review the syntax before this point.\n";
@@ -302,7 +302,7 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
      required.
      */
     
-    re = R"((?:[^<>=]|^)(>=|!=|<>|<=|=>)(?!=[<>=]))";
+    re = R"((?:[^<>=]|^)(>=|<>|<=|=>)(?!=[<>=]))";
     std::string::const_iterator it = ln.cbegin();
     while (std::regex_search(it, ln.cend(), match, re)) {
         // We will convert any >= != <= or => to PPLs ≥ ≠ ≤ and ▶
@@ -310,7 +310,6 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
         
         // Replace the operator with the appropriate PPL symbol.
         if (s == ">=") s = "≥";
-        if (s == "!=") s = "≠";
         if (s == "<>") s = "≠";
         if (s == "<=") s = "≤";
         if (s == "=>") s = "▶";
@@ -319,9 +318,11 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
         it = ln.cbegin();
     }
     
-    // PPL uses := instead of C's = for assignment. Converting all = to PPL style :=
-    re = R"(([^:=]|^)(?:=)(?!=))";
-    ln = std::regex_replace(ln, re, "$1 := ");
+    // PPL by default uses := instead of C's = for assignment. Converting all = to PPL style :=
+    if (assignment == "=") {
+        re = R"(([^:=]|^)(?:=)(?!=))";
+        ln = std::regex_replace(ln, re, "$1 := ");
+    }
     
     
     
@@ -511,6 +512,10 @@ void translatePPlusToPPL(const std::string &path, std::ofstream &outfile) {
             }
         }
         
+        if (regex_match(utf8, std::regex(R"(^ *#EXIT *$)"))) {
+            break;
+        }
+        
         re = R"(^ *@disregard *$)";
         if (regex_match(utf8, re)) {
             Singleton::shared()->incrementLineNumber();
@@ -538,8 +543,25 @@ void translatePPlusToPPL(const std::string &path, std::ofstream &outfile) {
             continue;
         }
         
-        re = R"(\#pragma mode *\(.*\)$)";
+        // Handle `#pragma mode` for PPL+
+        re = R"(^ *\#pragma mode *\(.*\) *$)";
         if (regex_match(utf8, re)) {
+            re = R"(([a-zA-Z]\w*)\(([^()]*)\))";
+            std::string s = utf8;
+            utf8 = "#pragma mode( ";
+            for(auto it = std::sregex_iterator(s.begin(), s.end(), re); it != std::sregex_iterator(); ++it) {
+                if (it->str(1) == "assignment") {
+                    if (it->str(2) != ":=" && it->str(2) != "=") {
+                        std::cout << MessageType::Warning << "#pragma mode: for '" << it->str() << "' invalid.\n";
+                    }
+                    if (it->str(2) == ":=") assignment = ":=";
+                    if (it->str(2) == "=") assignment = "=";
+                    continue;
+                }
+                utf8.append(it->str() + " ");
+            }
+            utf8.append(")");
+            
             writeUTF16Line(utf8 + "\n", outfile);
             Singleton::shared()->incrementLineNumber();
             continue;
@@ -551,6 +573,7 @@ void translatePPlusToPPL(const std::string &path, std::ofstream &outfile) {
             if (!preprocessor.filename.empty()) {
                 // Flagged with #include preprocessor for file inclusion, we process it before continuing.
                 translatePPlusToPPL(preprocessor.filename, outfile);
+                Singleton::shared()->incrementLineNumber();
             }
             Singleton::shared()->incrementLineNumber();
             continue;
@@ -627,7 +650,7 @@ void help(void) {
     << "Copyright (C) 2023-" << YEAR << " Insoft. All rights reserved.\n"
     << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n"
     << "\n"
-    << "Usage: " << COMMAND_NAME << " <input-file> [-o <output-file>] [-b <flags>] [-l <pathname>]\n"
+    << "Usage: " << COMMAND_NAME << " <input-file> [-o <output-file>] [-v <flags>] [-l <pathname>]\n"
     << "\n"
     << "Options:\n"
     << "  -o <output-file>        Specify the filename for generated PPL code.\n"
@@ -740,7 +763,7 @@ int main(int argc, char **argv) {
     
     std::string str;
     
-    str = "#define __pplus";
+    str = "#define __pplplus";
     preprocessor.parse(str);
     
     str = R"(#define __LIST_LIMIT 10000)";
@@ -761,14 +784,14 @@ int main(int argc, char **argv) {
     outfile.close();
     
     if (hasErrors() == true) {
-        std::cout << ANSI::Red << "ERRORS" << ANSI::Default << "❗\n";
+        std::cout << ANSI::Red << "ERRORS!" << ANSI::Default << "\n";
         remove(out_filename.c_str());
         return 0;
     }
     
     // Display elasps time in secononds.
     std::cout << "Completed in " << std::fixed << std::setprecision(2) << elapsed_time / 1e9 << " seconds\n";
-    std::cout << "UTF-16LE File '" << out_filename << "' Succefuly Created.\n";
+    std::cout << "UTF-16LE File \"" << out_filename << "\" Succefuly Created.\n";
     
     return 0;
 }

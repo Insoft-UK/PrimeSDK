@@ -34,29 +34,19 @@ USER_HOME="/Users/$CURRENT_USER"
 
 echo "Installing files to $USER_HOME"
 
-# Ensure destination directory exists
-if [ ! -d "$USER_HOME/Documents/HP Prime" ]; then
-    mkdir -p "$USER_HOME/Documents/HP Prime"
+mkdir -p "$USER_HOME/Documents/HP Prime"
+
+cp /private/tmp/PrimeSDK/Examples "$USER_HOME/Documents/HP Prime/Examples"
+rm -r /private/tmp/PrimeSDK/Examples
+chown -R "$CURRENT_USER" "$USER_HOME/Documents/HP Prime/Examples"
+chgrp -R staff "$USER_HOME/Documents/HP Prime/Examples"
+
+# Check if the symlink already exists
+if [ ! -L "$USER_HOME/Documents/HP Prime/Libraries" ]; then
+    # Create symlink
+    ln -s /Applications/HP/PrimeSDK/hpprgm "$USER_HOME/Documents/HP Prime/Libraries"
 fi
+mkdir -p "$USER_HOME/Documents/HP Prime/Projects"
 
-if [ -d "$USER_HOME/Documents/HP Prime" ]; then
-    if [ ! -d "$USER_HOME/Documents/HP Prime/Examples" ]; then
-        mv /Applications/HP/PrimeSDK/examples "$USER_HOME/Documents/HP Prime/Examples"
-        
-        # Set correct ownership (important!)
-        chown -R "$CURRENT_USER" "$USER_HOME/Documents/HP Prime/Examples"
-        chgrp -R staff "$USER_HOME/Documents/HP Prime/Examples"
-    fi
-    
-    if [ ! -d "$USER_HOME/Documents/HP Prime/Projects" ]; then
-        mkdir Projects
-    fi
-
-    if [ ! -d "$USER_HOME/Documents/HP Prime/Libraries" ]; then
-        ln -s /Applications/HP/PrimeSDK/hpprgm "$USER_HOME/Documents/HP Prime/Libraries"
-    fi
-fi
-
-rm -r /Applications/HP/PrimeSDK/examples
 
 exit 0

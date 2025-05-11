@@ -18,7 +18,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-@end;
+@end
 
 #include <dictionary>
 
@@ -148,6 +148,7 @@ LOCAL auto: periodicTable := {
     {18,7,"Uuo",5,118,"Ununoctium","n/a","n/a","n/a","n/a","n/a","n/a","n/a","n/a","n/a","n/a","n/a","n/a"}
 #END
 };
+
 
 LOCAL auto: periodicExtendedDisplayUsed := CONCAT(4,MAKELIST(X,X,7,18));
 

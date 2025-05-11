@@ -40,7 +40,7 @@ std::ostream &operator<<(std::ostream &os, MessageType type) {
     Singleton *singlenton = Singleton::shared();
 
     if (!singlenton->currentPath().empty()) {
-        os << ANSI::Blue << basename(singlenton->currentPath()) << ANSI::Default << " on line " << ANSI::Bold;
+        os << ANSI::Blue << basename(singlenton->currentPath()) << ANSI::Default << ":" << ANSI::Bold;
         os << singlenton->currentLineNumber() << ANSI::Default << " ";
     }
 
@@ -52,24 +52,20 @@ std::ostream &operator<<(std::ostream &os, MessageType type) {
             break;
             
         case MessageType::CriticalError:
-            os << "🛑 ";
+            os << ANSI::Bold << ANSI::Red << "critical error" << ANSI::Default << ": ";
             _failed = true;
             break;
 
         case MessageType::Warning:
-            os << "⚠️ ";
-            break;
-            
-        case MessageType::Verbose:
-            os << "💬 ";
+            os << ANSI::Yellow << "warning" << ANSI::Default << ": ";
             break;
             
         case MessageType::Deprecated:
-            os << ANSI::Orange << "deprecated" << ANSI::Default << ": ";
+            os << ANSI::Blue << "deprecated" << ANSI::Default << ": ";
             break;
 
         default:
-            os << ": ";
+            os << "";
             break;
     }
 
@@ -109,29 +105,7 @@ std::string strip_copy(const std::string &str) {
     return s;
 }
 
-std::ifstream::pos_type file_size(const std::string &filename)
-{
-    std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
-    std::ifstream::pos_type pos = in.tellg();
-    in.close();
-    return pos;
-}
 
-bool file_exists(const char *filename) {
-    std::ifstream infile;
-    
-    infile.open(filename, std::ios::in);
-    if (infile.is_open()) {
-        infile.close();
-        return true;
-    }
-    
-    return false;
-}
-
-bool file_exists(const std::string &filename) {
-    return file_exists(filename.c_str());
-}
 
 
 int countLeadingCharacters(const std::string &str, const char character) {

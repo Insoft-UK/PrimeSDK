@@ -39,7 +39,7 @@ alias subGROB := SUBGROB_P;
 alias textOut := TEXTOUT_P;
 alias textSize := TEXTSIZE;
 
-@global regex `\b(G\d)\.width\b` GROBW_P($1)
-@global regex `\b(G\d)\.height\b` GROBH_P($1)
+regex @`\b(G\d)\.width\b` GROBW_P($1)
+regex @`\b(G\d)\.height\b` GROBH_P($1)
 
 #endif /// PIXEL_PPLIB

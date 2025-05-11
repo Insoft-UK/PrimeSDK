@@ -37,6 +37,6 @@ alias string::rotate := ROTATE;
 alias string::stringFromId := STRINGFROMID;
 alias string::replace := REPLACE;
 
-@global regex `string::npos` 0
+regex @`string::npos` 0
 
 #endif /// STRING_PPLIB

@@ -68,7 +68,7 @@ static void parseFunctionName(const std::string &str) {
 static void parseParameters(const std::string &str) {
     Aliases::TIdentity identity;
     identity.scope = Aliases::Scope::Local;
-    identity.type = Aliases::Type::Unknown;
+    identity.type = Aliases::Type::Argument;
     parseAliases(str, identity);
 }
 

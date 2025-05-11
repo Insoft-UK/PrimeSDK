@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 @end
-#pragma mode( separator(.,,) integer(h64) )
+#pragma mode( separator(.,,) integer(h64) assignment(=) )
 
 
 
@@ -51,7 +51,8 @@ Example:AVery::LongName(p: first, q: second, _third)
 begin
     // Local Variables with aliases
     local a: alpha, b: beta;
-    local _hello;
+    local _hello = 6;
+    
     
     alias base := integer::base;
     
@@ -73,6 +74,8 @@ begin
     // b
     beta := first + second;
     
+    regex `(?:[^<>=]|^)!=(?!=[<>=])` ≠
+    
     if a <= b and b > 10 then a = a + 1; end;
     if a != b and b > 10 then a = a + 1; end;
     if a <> b and b > 10 then a = a + 1; end;
@@ -86,6 +89,8 @@ begin
     local bin := \`#1111:3b * 2`;
     local oct := \`#1111:3o * 2`;
     local dec := \`#15:3d * 2`;
+    
+        regex `(?:[^<>=]|^)!=(?!=[<>=])` ≠
     
     // LOCAL auto variable name
     LOCAL iAmVerryLong;

@@ -38,7 +38,7 @@ alias cartesian::fillPoly := FILLPOLY;
 alias cartesian::subGROB := SUBGROB;
 alias cartesian::textout := TEXTOUT;
 
-@global regex `\bcartesian::(G\d)\.width\b` GROBW($1)
-@global regex `\bcartesian::(G\d)\.height\b` GROBH($1)
+regex @`\bcartesian::(G\d)\.width\b` GROBW($1)
+regex @`\bcartesian::(G\d)\.height\b` GROBH($1)
 
 #endif /// CARTESIAN_PPLIB
