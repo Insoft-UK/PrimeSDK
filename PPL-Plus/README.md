@@ -52,6 +52,7 @@ BEGIN
   fn1;
   // In PPL+ `=` is treated as `:=` were in PPL `=` is treated as `==`
   // So only PPL code in this section.
+  A := B;
   WAIT;
   LOCAL a := 0;
   LOCAL v1 := 1;
