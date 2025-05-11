@@ -11,7 +11,7 @@
 
 ```
 #pragma mode( separator(.,;) integer(h64) )
-auto:displayCopyright()
+auto: displayCopyright()
 begin
   TEXTOUT_P("Copyright (c) 2023-2025 Insoft. All rights reserved.", 0, 0);
 end;
