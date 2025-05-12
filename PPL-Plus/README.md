@@ -63,15 +63,14 @@ END;
 
 ## Regular Expressions
 
-**switch**
-eg.
-```
-regex `\bswitch +([a-zA-Z_]\w*)` LOCAL sw__SCOPE__ := $1;CASE
-regex `\bcase +(\-?\d+) +do *$` IF sw\`__SCOPE__-1` == $1 THEN
-```
+### switch
+
 
 **PPL+**
 ```
+regex `\bswitch +([a-zA-Z_]\w*)` LOCAL sw__SCOPE__ := $1;CASE
+regex `\bcase +(\-?\d+) +do *$` IF sw\`__SCOPE__-1` == $1 THEN
+
 switch X
     case 0 do
     end;
