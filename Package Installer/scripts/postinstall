@@ -32,12 +32,11 @@ CURRENT_USER=$(stat -f%Su /dev/console)
 # Define the target home directory
 USER_HOME="/Users/$CURRENT_USER"
 
-echo "Installing files to $USER_HOME"
 
 mkdir -p "$USER_HOME/Documents/HP Prime"
 
 cp -R /private/tmp/PrimeSDK/Examples "$USER_HOME/Documents/HP Prime"
-rm -r /private/tmp/PrimeSDK/Examples
+rm -r /private/tmp/PrimeSDK
 chown -R "$CURRENT_USER" "$USER_HOME/Documents/HP Prime/Examples"
 chgrp -R staff "$USER_HOME/Documents/HP Prime/Examples"
 

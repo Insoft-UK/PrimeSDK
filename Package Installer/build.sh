@@ -32,6 +32,17 @@ xcrun notarytool submit --apple-id $APPLE_ID \
                         --password $PASSWORD \
                         --team-id $TEAM_ID \
                         --wait $NAME-signed.pkg
+                        
+# Staple
+xcrun stapler staple $NAME-signed.pkg
+
+# Verify
+xcrun stapler validate $NAME-signed.pkg
+
+# Gatekeeper
+spctl --assess --type install --verbose $NAME-signed.pkg
+                        
+read -p "Press Enter to continue."
 
 ./update_distribution.sh
 productbuild --distribution distribution.xml \
@@ -45,10 +56,20 @@ xcrun notarytool submit --apple-id $APPLE_ID \
                         --password $PASSWORD \
                         --team-id $TEAM_ID \
                         --wait $NAME-installer-signed.pkg
+                        
+# Staple
+xcrun stapler staple $NAME-installer-signed.pkg
+
+# Verify
+xcrun stapler validate $NAME-installer-signed.pkg
+
+# Gatekeeper
+spctl --assess --type install --verbose $NAME-installer-signed.pkg
+
+read -p "Press Enter to continue."
              
 rm -r $NAME.pkg
 rm -r $NAME-signed.pkg
 rm -r $NAME-installer.pkg
-
-spctl -a -v $NAME-installer-signed.pkg
 mv $NAME-installer-signed.pkg $NAME.pkg
+
