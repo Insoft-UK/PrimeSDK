@@ -14,6 +14,6 @@ Reformating your code enforce a consistent coding style throughout your project,
 ### <a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/GROB">GROB</a> for PPL Code
 A utility for generating PPL code from an image file for use with the BLIT and BLIT_P functions on the HP Prime.
 
-### Adafruit GFX Font Converter
+### Adafruit GFX <a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/PPL-Font">Font Converter</a>
 This is a handy utility that goes well with the original fontconvert tool provided by Adafruit for converting Adafruit_GFX .h to Adafruit_GFX .hpprgm format.
 
