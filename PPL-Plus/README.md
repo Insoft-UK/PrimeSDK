@@ -5,8 +5,6 @@
 <b>PPL+</b> is a pre-processor utility designed to improve code maintainability and readability in the HP Programming Language (PPL). PPL+ also allows one to define regular expressions to assist in the preprocessing workflow. The final output is a compact, optimized PPL program file tailored to the HP Prime’s limited storage capacity.
 <br/><br/>
 
-<b><a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/GROB">GROB</a> to be intergrated in the future.</b>
-
 **PPL+**
 
 ```
@@ -63,15 +61,14 @@ END;
 
 ## Regular Expressions
 
-**switch**
-eg.
-```
-regex `\bswitch +([a-zA-Z_]\w*)` LOCAL sw__SCOPE__ := $1;CASE
-regex `\bcase +(\-?\d+) +do *$` IF sw\`__SCOPE__-1` == $1 THEN
-```
+### switch
+
 
 **PPL+**
 ```
+regex `\bswitch +([a-zA-Z_]\w*)` LOCAL sw__SCOPE__ := $1;CASE
+regex `\bcase +(\-?\d+) +do *$` IF sw\`__SCOPE__-1` == $1 THEN
+
 switch X
     case 0 do
     end;
@@ -103,14 +100,16 @@ LOCAL i := 8;
 i := i + 1;
 ```
 
-Intended for `regex`
+## Assignment Style
 
-## Substitution
-`...` for `TO` included.
-`…` for `...` supported, `...` and `…` can now be used instead of `TO`
+In <b>PPL+</b>, the = operator is treated as := (assignment) by default, whereas in standard <b>PPL</b>, = is interpreted as == (equality). This behavior in PPL+ can be explicitly controlled using the directive:
+
+```#pragma mode( assignment(:=) )```
+
+This allows you to toggle between assignment-style and comparison-style interpretation of =.
 
 >[!IMPORTANT]
-In PPL+ `=` is treated as `:=` were in PPL `=` is treated as `==`
+In PPL+ by default `=` is treated as `:=` were in PPL `=` is treated as `==`
 
 >[!NOTE]
 The PPL+ pre-processor is susceptible to change, while also maintaining some compatibility with previous versions.
