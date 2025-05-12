@@ -51,7 +51,6 @@ regex @`< *string *> *\((.*)\)` STRING($1)
 regex @`< *string *> *([a-zA-Z_]\w*)\b` STRING($1)
 regex @`\bguard +(.*)\belse\b` IF NOT($1) THEN
 
-
 regex @`\b((?:#?[\dA-F]+(?::-?\d+)?[bodh]?)|[[:alpha:]][\w.:]*\b|\([^()]+\)) *& *((?:#?[\dA-F]+(?::-?\d+)?[bodh]?)|[[:alpha:]][\w.:]*\b|\([^()]+\))` BITAND($1,$2)
 regex @`\b((?:#?[\dA-F]+(?::-?\d+)?[bodh]?)|[[:alpha:]][\w.:]*\b|\([^()]+\)) *\| *((?:#?[\dA-F]+(?::-?\d+)?[bodh]?)|[[:alpha:]][\w.:]*\b|\([^()]+\))` BITOR($1,$2)
 regex @`\b((?:#?[\dA-F]+(?::-?\d+)?[bodh]?)|[[:alpha:]][\w.:]*\b|\([^()]+\)) *>> *((?:#?[\dA-F]+(?::-?\d+)?[bodh]?)|[[:alpha:]][\w.:]*\b|\([^()]+\))` BITSR($1,$2)

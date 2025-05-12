@@ -22,23 +22,9 @@
 // SOFTWARE.
 @end
 
-#ifndef CARTESIAN_PPLIB
-#define CARTESIAN_PPLIB
+#ifndef GROB_PPLIB
+#define GROB_PPLIB
 
-alias cartesian::arc := ARC;
-alias cartesian::blit := BLIT;
-alias cartesian::dimGROB := DIMGROB;
-alias cartesian::getPixel := GETPIX;
-alias cartesian::invert := INVERT;
-alias cartesian::line := LINE;
-alias cartesian::pixelOff := PIXOFF;
-alias cartesian::pixelOn := PIXON;
-alias cartesian::rect := RECT;
-alias cartesian::fillPoly := FILLPOLY;
-alias cartesian::subGROB := SUBGROB;
-alias cartesian::textout := TEXTOUT;
+alias hp::grob := GROB_P;
 
-regex @`\bcartesian::(G\d)\.width\b` GROBW($1)
-regex @`\bcartesian::(G\d)\.height\b` GROBH($1)
-
-#endif /// CARTESIAN_PPLIB
+#endif

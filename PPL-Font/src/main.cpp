@@ -231,7 +231,7 @@ static bool parseHAdafruitFont(const std::string &filename, TAdafruitFont &font)
     }
     
     std::smatch match;
-    std::regex_search(utf8, match, std::regex(R"(const uint8_t \w+\[\] PROGMEM = \{([^}]*))"));
+    std::regex_search(utf8, match, std::regex(R"(const (?:unsigned char|uint8_t) \w+\[\] PROGMEM = \{([^}]*))"));
     if (match[1].matched) {
         auto s = match.str(1);
         while (std::regex_search(s, match, std::regex(R"((?:0x)?[\d[a-fA-F]{1,2})"))) {
@@ -372,9 +372,9 @@ static void convertAdafruitFontToHpprgm(std::string &in_filename, std::string &o
 
 // MARK: - Main
 
-int main(int argc, const char * argv[])
+int main(int argc, const char **argv)
 {
-    if ( argc == 1 ) {
+    if (argc == 1) {
         error();
         return 0;
     }
@@ -419,7 +419,6 @@ int main(int argc, const char * argv[])
             return 0;
         }
         
-        if (!in_filename.empty()) error();
         in_filename = argv[n];
     }
     
@@ -428,12 +427,20 @@ int main(int argc, const char * argv[])
         name = std::filesystem::path(in_filename).stem().string();
     }
     
+    
 
     /*
      Initially, we display the command-line application’s basic information,
      including its name, version, and copyright details.
      */
     info();
+    
+    /*
+     If the input file does not have an extension, default is .h is applied.
+     */
+    if (std::filesystem::path(in_filename).extension().empty()) {
+        in_filename.append(".h");
+    }
     
     /*
      If no output file is specified, the program will use the input file’s name

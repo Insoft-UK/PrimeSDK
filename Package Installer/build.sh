@@ -1,21 +1,21 @@
 #!/bin/bash
 
-# Your AppleID, TeamID and Password (An app-specific password NOT! AppleID password)
-APPLE_ID="apple_id@icloud.com"
-TEAM_ID="0AB11C3DEF"
-PASSWORD="aaaa-bbbb-cccc-dddd"
+# Your AppleID, TeamID, Password and Name (An app-specific password NOT! AppleID password)
+if [ -z "$APPLE_ID" ]; then
+    source notarization.sh
+fi
 
 PACKAGEROOT=package-root
 PRIMESDK=Applications/HP/PrimeSDK
 NAME=primesdk
-IDENTIFIER=your.domain.$NAME
-YOUR_NAME="Your Name"
+IDENTIFIER=uk.insoft.$NAME
 
 find . -name '*.DS_Store' -type f -delete
 
 chmod 644 resources/background.png resources/background@2x.png
 
 # re-sign all binarys
+find "$PACKAGEROOT/$PRIMESDK/bin" -type f -exec xattr -c {} \;
 find "$PACKAGEROOT/$PRIMESDK/bin" -type f -exec codesign --remove-signature {} \;
 find "$PACKAGEROOT/$PRIMESDK/bin" -type f -exec codesign --sign "Developer ID Application: $YOUR_NAME ($TEAM_ID)" --options runtime --timestamp {} \;
 
@@ -65,8 +65,6 @@ xcrun stapler validate $NAME-installer-signed.pkg
 
 # Gatekeeper
 spctl --assess --type install --verbose $NAME-installer-signed.pkg
-
-read -p "Press Enter to continue."
              
 rm -r $NAME.pkg
 rm -r $NAME-signed.pkg

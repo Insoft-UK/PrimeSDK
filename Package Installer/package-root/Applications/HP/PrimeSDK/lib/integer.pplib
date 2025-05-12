@@ -49,4 +49,4 @@ regex @`\bOct\(([^()]*)\)` SETBASE($1,2)
 regex @`\bDec\(([^()]*)\)` SETBASE($1,3)
 regex @`\bHex\(([^()]*)\)` SETBASE($1,4)
 
-#endif /// INTEGER_PPLIB
+#endif

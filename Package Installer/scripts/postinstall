@@ -41,9 +41,12 @@ chown -R "$CURRENT_USER" "$USER_HOME/Documents/HP Prime/Examples"
 chgrp -R staff "$USER_HOME/Documents/HP Prime/Examples"
 
 # Check if the symlink already exists
-if [ ! -L "$USER_HOME/Documents/HP Prime/Libraries" ]; then
+if [ ! -L "$USER_HOME/Documents/HP Prime/Library" ]; then
     # Create symlink
-    ln -s /Applications/HP/PrimeSDK/hpprgm "$USER_HOME/Documents/HP Prime/Libraries"
+    ln -s /Applications/HP/PrimeSDK/hpprgm "$USER_HOME/Documents/HP Prime/Library"
+fi
+if [ ! -L "$USER_HOME/Documents/HP Prime/Libraries" ]; then
+    rm "$USER_HOME/Documents/HP Prime/Libraries"
 fi
 mkdir -p "$USER_HOME/Documents/HP Prime/Projects"
 

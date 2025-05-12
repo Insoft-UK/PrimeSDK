@@ -46,4 +46,4 @@ dict White = #FFFFFF:32h, Silver = #C0C0C0:32h, Gray = #808080:32h, Black = #000
 
 regex @`\bKC\.([a-zA-Z_]+)` KeyCode.$1
 
-#endif /// DICTIONARY_PPLIB
+#endif

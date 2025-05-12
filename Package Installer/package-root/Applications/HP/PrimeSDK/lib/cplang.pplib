@@ -1,3 +1,4 @@
+@disregard
 // The MIT License (MIT)
 //
 // Copyright (c) 2023-2025 Insoft. All rights reserved.
@@ -19,28 +20,38 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+@end
 
+#ifndef CPLANG_PPLIB
+#define CPLANG_PPLIB
 
-#ifndef PREPROCESSOR_HPP
-#define PREPROCESSOR_HPP
+#define var       LOCAL
+#define namespace alias
 
-#include "aliases.hpp"
+regex @`\bvoid\b *`
 
-namespace ppl_plus {
-    class Preprocessor {
-    public:
-        std::string path = "/Applications/HP/PrimeSDK/lib";       // default path for #include <‘filename‘>
-        std::string filename;
-        
-        bool verbose = false;
-        
-        bool disregard = false;
-        bool operators = true;
-        bool logicalOperators = true;
-        
-        bool parse(std::string &str);
-    };
-    
-}
+regex @`0x([\dA-F]+)` #$1:h
+regex @`0b([0-1]+)` #$1:b
 
-#endif /* PREPROCESSOR_HPP */
+regex @`&{2}` AND
+regex @`\|{2}` OR
+regex @`\^{2}` XOR
+regex @`(?:[^<>=]|^)!=(?!=[<>=])` ≠
+
+regex @`%{1}` MOD
+
+regex @`\b([a-zA-Z_]\w*) *([*\/+-])\= *` $1 := $1 $2
+
+regex @`\bif *\((.*)\) *\{ *$` IF $1 THEN__PUSH__``
+regex @`\} *else *\{` ELSE
+regex @`\bwhile *\((.*)\) *\{ *$` WHILE $1 DO__PUSH__``
+regex @`\bdo *\{` REPEAT
+regex @`\} *while *\((.*)\) *; *$` UNTIL NOT($1);
+regex @`\bfor *\(([^;]+);([^;]+);([^;]+)\) *\{ *$` $1; WHILE$2 DO__PUSH__`__SPACE__$3;`
+regex @`\bswitch *\(([a-zA-Z_][\w.:(),]*)\) *\{ *$` LOCAL sw\C`__SCOPE__/2` := $1;CASE__PUSH__``
+regex @`\bcase +(\-?\d+) *: *$` IF sw\C`__SCOPE__/2` == $1 THEN__PUSH__``
+
+regex @`^ *\} *$` __POP__END;
+regex @`^ *\{ *$` BEGIN
+
+#endif

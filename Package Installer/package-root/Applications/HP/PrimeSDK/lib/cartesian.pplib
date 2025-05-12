@@ -22,21 +22,23 @@
 // SOFTWARE.
 @end
 
-#ifndef STRING_PPLIB
-#define STRING_PPLIB
+#ifndef CARTESIAN_PPLIB
+#define CARTESIAN_PPLIB
 
-alias string::asc := ASC;
-alias string::char := CHAR;
-alias string::dim := DIM;
-alias string::toString := STRING;
-alias string::inString := INSTRING;
-alias string::left := LEFT;
-alias string::right := RIGHT;
-alias string::mid := MID;
-alias string::rotate := ROTATE;
-alias string::stringFromId := STRINGFROMID;
-alias string::replace := REPLACE;
+alias cartesian::arc := ARC;
+alias cartesian::blit := BLIT;
+alias cartesian::dimGROB := DIMGROB;
+alias cartesian::getPixel := GETPIX;
+alias cartesian::invert := INVERT;
+alias cartesian::line := LINE;
+alias cartesian::pixelOff := PIXOFF;
+alias cartesian::pixelOn := PIXON;
+alias cartesian::rect := RECT;
+alias cartesian::fillPoly := FILLPOLY;
+alias cartesian::subGROB := SUBGROB;
+alias cartesian::textout := TEXTOUT;
 
-regex @`string::npos` 0
+regex @`\bcartesian::(G\d)\.width\b` GROBW($1)
+regex @`\bcartesian::(G\d)\.height\b` GROBH($1)
 
-#endif /// STRING_PPLIB
+#endif

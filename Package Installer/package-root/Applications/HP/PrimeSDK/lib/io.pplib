@@ -1,3 +1,4 @@
+@disregard
 // The MIT License (MIT)
 //
 // Copyright (c) 2023-2025 Insoft. All rights reserved.
@@ -19,28 +20,21 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+@end
 
+#ifndef IO_PPLIB
+#define IO_PPLIB
 
-#ifndef PREPROCESSOR_HPP
-#define PREPROCESSOR_HPP
+alias io::choose := CHOOSE;
+alias io::editList := EDITLIST;
+alias io::getKey := GETKEY;
+alias io::input := INPUT;
+alias io::isKeyDown := ISKEYDOWN;
+alias io::mouse := MOUSE;
+alias io::messageBox := MSGBOX;
+alias io::drawMenu := DRAWMENU;
+alias io::print := PRINT;
+alias io::wait := WAIT;
+alias io::appFiles := AFiles;
 
-#include "aliases.hpp"
-
-namespace ppl_plus {
-    class Preprocessor {
-    public:
-        std::string path = "/Applications/HP/PrimeSDK/lib";       // default path for #include <‘filename‘>
-        std::string filename;
-        
-        bool verbose = false;
-        
-        bool disregard = false;
-        bool operators = true;
-        bool logicalOperators = true;
-        
-        bool parse(std::string &str);
-    };
-    
-}
-
-#endif /* PREPROCESSOR_HPP */
+#endif

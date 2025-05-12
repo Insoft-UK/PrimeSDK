@@ -22,9 +22,8 @@
 // SOFTWARE.
 @end
 
-
-#ifndef PPLIB
-#define PPLIB
+#ifndef PRIMELIB
+#define PRIMELIB
 
 #define view    VIEW
 #define freeze  FREEZE
@@ -53,4 +52,4 @@
 #define MOUSE_X 2
 #define MOUSE_Y 3
 
-#endif /// PPLIB
+#endif

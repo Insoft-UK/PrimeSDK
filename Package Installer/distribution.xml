@@ -2,13 +2,13 @@
 <installer-gui-script minSpecVersion="1">
     <title>PrimeSDK</title>
     <background file="resources/background.png" file-2x="resources/background@2x.png" alignment="center" scaling="proportional"/>
-    <welcome file="welcome.txt"/>
-    <license file="license.txt"/>
+    <welcome file="welcome.rtf"/>
+    <license file="license.rtf"/>
     <choices-outline>
         <line choice="default"/>
     </choices-outline>
     <choice id="default" title="Install PrimeSDK">
         <pkg-ref id="uk.insoft.primesdk"/>
     </choice>
-    <pkg-ref id="uk.insoft.primesdk" installKBytes="2936" version="1.1" onConclusion="none">primesdk.pkg</pkg-ref>
+    <pkg-ref id="uk.insoft.primesdk" installKBytes="5228" version="1.1" onConclusion="none">primesdk.pkg</pkg-ref>
 </installer-gui-script>

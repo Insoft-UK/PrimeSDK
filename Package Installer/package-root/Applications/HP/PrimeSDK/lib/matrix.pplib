@@ -22,18 +22,20 @@
 // SOFTWARE.
 @end
 
+#ifndef MATRIX_PPLIB
+#define MATRIX_PPLIB
 
-#ifndef CSPACE_PPLIB
-#define CSPACE_PPLIB
+alias matrix::edit := EDITMAT;
+alias matrix::addCol := ADDCOL;
+alias matrix::addRow := ADDROW;
+alias matrix::delCol := DELCOL;
+alias matrix::redim := REDIM;
+alias matrix::replace := REPLACE;
+alias matrix::scale := SCALE;
+alias matrix::scaleAdd := SCALEADD;
+alias matrix::sub := Sub;
+alias matrix::swapCol := SAWAPCOL;
+alias matrix::swapRow := SWAPROW;
 
-alias color::convertHSVtoRGB := HSVtoRGB;
-alias color::convertHSLtoHSV := HSLtoHSV;
-alias color::convertHSLtoRGB := HSLtoRGB;
-alias color::convertHSVtoHSL := HSVtoHSL;
-alias color::convertRGBtoHSV := RGBtoHSV;
-alias color::convertRGBtoHSL := RGBtoHSL;
-alias color::HSL := HSL;
-alias color::HSV := HSV;
-alias color::CMYK := CMYK;
 
-#endif /// CSPACE_PPLIB
+#endif

@@ -23,23 +23,17 @@
 @end
 
 
-#ifndef HP_PPLIB
-#define HP_PPLIB
+#ifndef CSPACE_PPLIB
+#define CSPACE_PPLIB
 
-#define __STORAGE_SCREEN G9
+alias color::convertHSVtoRGB := HSVtoRGB;
+alias color::convertHSLtoHSV := HSLtoHSV;
+alias color::convertHSLtoRGB := HSLtoRGB;
+alias color::convertHSVtoHSL := HSVtoHSL;
+alias color::convertRGBtoHSV := RGBtoHSV;
+alias color::convertRGBtoHSL := RGBtoHSL;
+alias color::HSL := HSL;
+alias color::HSV := HSV;
+alias color::CMYK := CMYK;
 
-regex @`hp::mouse\.x` L8[1,1]
-regex @`hp::mouse\.y` L8[1,2]
-regex @`hp::mouse\.type` L8[1,5]
-
-regex @`\bhp::storeScreen *\( *(G\d) *\)` DIMGROB_P($1, 320, 240, 0); BLIT_P($1, G0)
-regex @`\bhp::restoreScreen *\( *(G\d) *\)` BLIT_P($1)
-
-regex @`\bhp::clear(?:GROB|Screen) *\((.*)?\)` RECT($1)
-
-regex @`hp::waitEvent\(\)` WAIT(-1)
-
-regex @`\bhp::isKeyPressed *\(([\w.:]+)\)` IFTE(SIZE($1)==1,1,0)
-regex @`\bhp::isMouseEvent *\(([\w.:]+)\)` IFTE(SIZE($1)>1,1,0)
-
-#endif /// HP_PPLIB
+#endif
