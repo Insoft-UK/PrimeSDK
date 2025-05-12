@@ -109,7 +109,7 @@ Intended for `regex`
 `…` for `...` supported, `...` and `…` can now be used instead of `TO`
 
 >[!IMPORTANT]
-In PPL+ `=` is treated as `:=` were in PPL `=` is treated as `==`
+In PPL+ by default `=` is treated as `:=` were in PPL `=` is treated as `==`, this can be turned off by `#pragma mode( assignment(:=) )`
 
 >[!NOTE]
 The PPL+ pre-processor is susceptible to change, while also maintaining some compatibility with previous versions.
