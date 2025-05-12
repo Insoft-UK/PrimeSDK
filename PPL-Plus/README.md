@@ -108,8 +108,16 @@ Intended for `regex`
 `...` for `TO` included.
 `…` for `...` supported, `...` and `…` can now be used instead of `TO`
 
+### Assignment Style
+
+In <b>PPL+</b>, the = operator is treated as := (assignment) by default, whereas in standard <b>PPL</b>, = is interpreted as == (equality). This behavior in PPL+ can be explicitly controlled using the directive:
+
+```#pragma mode( assignment(:=) )```
+
+This allows you to toggle between assignment-style and comparison-style interpretation of =.
+
 >[!IMPORTANT]
-In PPL+ by default `=` is treated as `:=` were in PPL `=` is treated as `==`, this can be turned off by `#pragma mode( assignment(:=) )`
+In PPL+ by default `=` is treated as `:=` were in PPL `=` is treated as `==`
 
 >[!NOTE]
 The PPL+ pre-processor is susceptible to change, while also maintaining some compatibility with previous versions.
