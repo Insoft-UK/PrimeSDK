@@ -1,5 +1,4 @@
-<img src="https://github.com/Insoft-UK/Insoft-UK/blob/main/assets/logo.svg" width="80" height="80" />
-
+<img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/insoft.png" style="width: 128px" />
 # Minifier & Compressor for PPL Code
 Minification of your code results in it taking up less space, making it use less storage of your HP Prime's storage memory giving you more space for more programs.
 
