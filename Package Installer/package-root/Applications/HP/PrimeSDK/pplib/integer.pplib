@@ -34,20 +34,19 @@ alias integer::setBase := SETBASE;
 
 @global dict System = 0, Binary = 1, Octal = 2, Decimal = 3, Hexadecimal = 4 integer::Base;
 
-#define Int8(integer)     integer::setBits($1, -7)
-#define Int16(integer)    integer::setBits($1, -15)
-#define Int32(integer)    integer::setBits($1, -31)
-#define Int64(integer)    integer::setBits($1, -63)
+regex @`\bInt8\(([^()]*)\)` SETBITS($1,-7)
+regex @`\bInt16\(([^()]*)\)` SETBITS($1,-15)
+regex @`\bInt32\(([^()]*)\)` SETBITS($1,-31)
+regex @`\bInt64\(([^()]*)\)` SETBITS($1,-63)
 
-#define UInt8(integer)    integer::setBits($1, 8)
-#define UInt16(integer)   integer::setBits($1, 16)
-#define UInt32(integer)   integer::setBits($1, 32)
-#define UInt64(integer)   integer::setBits($1, 64)
+regex @`\bUInt8\(([^()]*)\)` SETBITS($1,8)
+regex @`\bUInt16\(([^()]*)\)` SETBITS($1,16)
+regex @`\bUInt32\(([^()]*)\)` SETBITS($1,32)
+regex @`\bUInt64\(([^()]*)\)` SETBITS($1,64)
 
-#define Bin(integer)      integer::setBase($1, integer::Base.Binary)
-#define Oct(integer)      integer::setBase($1, integer::Base.Octal)
-#define Dec(integer)      integer::setBase($1, integer::Base.Decimal)
-#define Hex(integer)      integer::setBase($1, integer::Base.Hexadecimal)
-
+regex @`\bBin\(([^()]*)\)` SETBASE($1,1)
+regex @`\bOct\(([^()]*)\)` SETBASE($1,2)
+regex @`\bDec\(([^()]*)\)` SETBASE($1,3)
+regex @`\bHex\(([^()]*)\)` SETBASE($1,4)
 
 #endif /// INTEGER_PPLIB

@@ -23,9 +23,13 @@
 @end
 #pragma mode( separator(.,,) integer(h64) assignment(=) )
 
+regex @`\bInt8\(([^()]*)\)` SETBITS($1,-7)
 
+dict Dark = 0, Light = 1 @ThemeMode;
 
+Int8(ThemeMode.Dark)
 
+A := 5 + -6;
 
 @disregard
  When defining a macro with parameters, issues can arise if an argument

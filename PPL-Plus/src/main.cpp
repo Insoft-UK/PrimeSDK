@@ -139,11 +139,11 @@ void reformatPPLLine(std::string &str) {
     str = regex_replace(str, re, "$1 -");
     
     // Ensuring that `-` in  `{ - `, `( - ` and `[ - ` situations have no surrounding whitespace.
-    re = R"(([({[]) +- +)";
+    re = R"(([({[,]) +- +)";
     str = regex_replace(str, re, "$1-");
     
+    // We can now safely convert `=` to `==` without affecting other operators.
     if (!regex_search(str, std::regex(R"(LOCAL [A-Za-z]\w* = )"))) {
-        // We can now safely convert `=` to `==` without affecting other operators.
         str = regex_replace(str, std::regex(R"( = )"), " == ");
     }
     
@@ -178,9 +178,8 @@ void reformatPPLLine(std::string &str) {
         str = regex_replace(str, std::regex(R"(LOCAL )"), "");
     }
     
-    str = regex_replace(str, std::regex(R"( +(:|-))"), " $1");
-    str = regex_replace(str, std::regex(R"(([^\d]) +- +)"), "$1 -");
-    str = regex_replace(str, std::regex(R"(([^-]) *-(?!= ))"), "$1 - ");
+
+    
     str = regex_replace(str, std::regex(R"(([)};])([A-Z]))"), "$1 $2");
     
     re = R"(([^a-zA-Z ])(BEGIN|END|RETURN|KILL|IF|THEN|ELSE|XOR|OR|AND|NOT|CASE|DEFAULT|IFERR|IFTE|FOR|FROM|STEP|DOWNTO|TO|DO|WHILE|REPEAT|UNTIL|BREAK|CONTINUE|EXPORT|CONST|LOCAL|KEY))";
@@ -279,10 +278,9 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
     singleton->codeStack.parse(ln);
 
     
-    if (Dictionary::isDictionary(ln)) {
-        Dictionary::proccessDictionary(ln);
-        ln = "";
-        return;
+    if (Dictionary::isDictionaryDefinition(ln)) {
+        Dictionary::proccessDictionaryDefinition(ln);
+        Dictionary::removeDictionaryDefinition(ln);
     }
     
     capitalizeKeywords(ln);
@@ -650,7 +648,7 @@ void help(void) {
     << "Copyright (C) 2023-" << YEAR << " Insoft. All rights reserved.\n"
     << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n"
     << "\n"
-    << "Usage: " << COMMAND_NAME << " <input-file> [-o <output-file>] [-v <flags>] [-l <pathname>]\n"
+    << "Usage: " << COMMAND_NAME << " <input-file> [-o <output-file>] [-v <flags>]\n"
     << "\n"
     << "Options:\n"
     << "  -o <output-file>        Specify the filename for generated PPL code.\n"
