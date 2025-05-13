@@ -429,7 +429,7 @@ enum BlockType {
 };
 
 bool isPythonBlock(const std::string str) {
-    std::regex re(R"(^ *# *PYTHON *(\/\/.*)?$)");
+    std::regex re(R"(^ *# *PYTHON .*$)");
     return std::regex_search(str, re);
 }
 
