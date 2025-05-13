@@ -42,7 +42,6 @@ xcrun stapler validate $NAME-signed.pkg
 # Gatekeeper
 spctl --assess --type install --verbose $NAME-signed.pkg
                         
-read -p "Press Enter to continue."
 
 ./update_distribution.sh
 productbuild --distribution distribution.xml \
