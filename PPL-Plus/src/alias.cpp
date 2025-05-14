@@ -41,17 +41,18 @@ static void parseAlias(const std::string &str, Aliases::TIdentity &identity) {
             1 name
             2 alias::name
      */
-    re = R"(([a-zA-Z]\w*):([a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*))";
+    re = R"(([a-zA-Z]\w*):(@)?([a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*))";
     
     if (regex_search(str, matches, re)) {
         identity.real = matches[1].str();
-        identity.identifier = matches[2].str();
+        identity.scope = matches[2].matched ? Aliases::Scope::Global : Aliases::Scope::Auto;
+        identity.identifier = matches[3].str();
         singleton->aliases.append(identity);
     }
 }
 
 static void parseAliases(const std::string &str, Aliases::TIdentity &identity) {
-    std::regex re(R"([a-zA-Z]\w*:[a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*)");
+    std::regex re(R"([a-zA-Z]\w*:@?[a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*)");
     
     for(std::sregex_iterator it = std::sregex_iterator(str.begin(), str.end(), re); it != std::sregex_iterator(); ++it) {
         parseAlias(it->str(), identity);

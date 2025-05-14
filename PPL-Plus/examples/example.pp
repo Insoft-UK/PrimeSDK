@@ -55,7 +55,7 @@ Example:AVery::LongName(p: first, q: second, _third)
 begin
     // Local Variables with aliases
     local a: alpha, b: beta;
-    local _hello = 6;
+    local @_hello = 6;
     
     
     alias base := integer::base;

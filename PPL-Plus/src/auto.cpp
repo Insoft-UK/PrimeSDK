@@ -52,11 +52,13 @@ static std::string base10ToBase32(unsigned int num) {
 
 static bool isValidPPLName(const std::string name) {
     std::regex re;
+    std::string s = name;
     
-    if (name.at(0) == '_') return false;
+    if (s.at(0) == '@') s.erase(remove(s.begin(), s.end(), '@'), s.end());
+    if (s.at(0) == '_') return false;
     
     re = R"(^[A-Za-z]\w*(?:(::)|\.))";
-    if (std::regex_search(name, re)) {
+    if (std::regex_search(s, re)) {
         return false;
     }
     
@@ -78,7 +80,7 @@ static void inferredAutoForVariableName(std::string &ln) {
         re =  R"([^,;]+)";
         for (auto it = std::sregex_iterator(str.begin(), str.end(), re);;) {
             std::string name = trim_copy(it->str());
-            if (regex_search(name, std::regex(R"(^[a-zA-Z]\w*:[a-zA-Z])"))) {
+            if (regex_search(name, std::regex(R"(^[a-zA-Z]\w*:@?[a-zA-Z])"))) {
                 code.append(name);
             }
             else {
