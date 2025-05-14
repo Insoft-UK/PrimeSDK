@@ -638,6 +638,20 @@ void error(void) {
 void info(void) {
     using namespace std;
     cout
+    << "          ***********     \n"
+    << "        ************      \n"
+    << "      ************        \n"
+    << "    ************  **      \n"
+    << "  ************  ******    \n"
+    << "************  **********  \n"
+    << "**********    ************\n"
+    << "************    **********\n"
+    << "  **********  ************\n"
+    << "    ******  ************  \n"
+    << "      **  ************    \n"
+    << "        ************      \n"
+    << "      ************        \n"
+    << "    ************          \n\n"
     << "Copyright (C) 2023-" << YEAR << " Insoft. All rights reserved.\n"
     << "Insoft "<< NAME << " version, " << VERSION_NUMBER << "\n\n";
 }
@@ -676,6 +690,8 @@ int main(int argc, char **argv) {
     }
     
     bool verbose = false;
+    bool showpath = false;
+    
     std::string args(argv[0]);
     
     for (int n = 1; n < argc; n++) {
@@ -729,6 +745,11 @@ int main(int argc, char **argv) {
             }
             preprocessor.path = std::string(argv[n]);
             if (preprocessor.path.at(preprocessor.path.length() - 1) == '/') preprocessor.path.resize(preprocessor.path.length() - 1);
+            continue;
+        }
+        
+        if (args == "--path") {
+            showpath = true;
             continue;
         }
         
@@ -808,9 +829,7 @@ int main(int argc, char **argv) {
                 continue;
             }
             
-//            if (entry.path().filename().string() == "block.re") continue;
-            
-            if (verbose) std::cout << entry.path().filename().string() << ":" << " loaded" << std::endl;
+            if (verbose) std::cout << "Library " << entry.path().filename() << " successfully loaded.\n";
             
             while (getline(infile, utf8)) {
                 utf8.insert(0, "regex ");
@@ -838,7 +857,10 @@ int main(int argc, char **argv) {
     
     // Display elasps time in secononds.
     std::cout << "Completed in " << std::fixed << std::setprecision(2) << elapsed_time / 1e9 << " seconds\n";
-    std::cout << "UTF-16LE File \"" << out_filename << "\" Succefuly Created.\n";
-    
+    if (showpath)
+        std::cout << "UTF-16LE file at \"" << out_filename << "\" succefuly created.\n";
+    else
+        std::cout << "UTF-16LE file " << fs::path(out_filename).filename() << " succefuly created.\n";
+            
     return 0;
 }

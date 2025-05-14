@@ -101,7 +101,6 @@ begin
     local oct := \`#1111:3o * 2`;
     local dec := \`#15:3d * 2`;
     
-    regex `(?:[^<>=]|^)!=(?!=[<>=])` ≠
     
     // LOCAL auto variable name
     LOCAL iAmVerryLong;
