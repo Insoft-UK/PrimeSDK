@@ -31,15 +31,30 @@ bool Regexp::parse(std::string &str) {
     std::regex re;
     std::smatch match;
     
-    re = R"(^ *\bregex +(@)?`([^`]*)` *(.*)$)";
+    re = R"(^ *\bregex +([@<>=≠≤≥~])?`([^`]*)`(i)? *(.*)$)";
     if (regex_search(str, match, re)) {
         TRegexp regexp = {
             .pattern = match[2].str(),
-            .replacement = match[3].str(),
-            .scopeLevel = match[1].matched ? 0 : static_cast<size_t>(Singleton::shared()->scopeDepth),
+            .insensitive = match[3].matched,
+            .replacement = match[4].str(),
+            .scopeLevel = static_cast<size_t>(Singleton::shared()->scopeDepth),
             .line = Singleton::shared()->currentLineNumber(),
             .pathname = Singleton::shared()->currentPath()
         };
+        
+        if (match[1].matched) {
+            if (match[1].str() == "@") {
+                regexp.scopeLevel = 0;
+            } else {
+                
+                if (match[1].str() == "~") {
+                    regexp.scopeLevel = 1;
+                    regexp.compare = "=";
+                } else {
+                    regexp.compare = match[1].str();
+                }
+            }
+        }
     
         str = std::string("");
         if (regularExpressionExists(regexp.pattern)) return true;
@@ -71,11 +86,34 @@ void Regexp::removeAllOutOfScopeRegexps() {
 
 void Regexp::resolveAllRegularExpression(std::string &str) {
     std::smatch match;
+    std::regex re;
     
     for (auto it = _regexps.begin(); it != _regexps.end(); ++it) {
-        if (std::regex_search(str, match, std::regex(it->pattern))) {
-            str = regex_replace(str, std::regex(it->pattern), it->replacement);
-            str = std::regex_replace(str, std::regex("__SCOPE__"), std::to_string(Singleton::shared()->scopeDepth));
+        if (!it->compare.empty()) {
+            auto currentScopeLevel = Singleton::shared()->scopeDepth;
+            if (it->compare == "<" && currentScopeLevel >= it->scopeLevel) continue;
+            if (it->compare == ">" && currentScopeLevel <= it->scopeLevel) continue;
+            if (it->compare == "=" && currentScopeLevel != it->scopeLevel) continue;
+            if (it->compare == "≠" && currentScopeLevel == it->scopeLevel) continue;
+            if (it->compare == "≤" && currentScopeLevel > it->scopeLevel) continue;
+            if (it->compare == "≥" && currentScopeLevel < it->scopeLevel) continue;
+        }
+        if (it->insensitive)
+            re = std::regex(it->pattern, std::regex_constants::icase);
+        else
+            re = std::regex(it->pattern);
+        
+        if (std::regex_search(str, match, re)) {
+            str = regex_replace(str, re, it->replacement);
+            
+            std::string key = "__SCOPE__";
+            std::string value = std::to_string(Singleton::shared()->scopeDepth);
+
+            size_t pos;
+            while ((pos = str.find(key)) != std::string::npos) {
+                str.replace(pos, key.length(), value);
+            }
+            
             Calc::evaluateMathExpression(str);
             resolveAllRegularExpression(str);
         }

@@ -35,7 +35,10 @@ namespace ppl_plus {
         typedef struct TRegexp {
             std::string pattern;
             std::string replacement;
+            bool insensitive;
             size_t scopeLevel;
+            std::string compare;
+            
             long line;              // line that definition accoured;
             std::string pathname;   // path and filename that definition accoured
         } TRegexp;

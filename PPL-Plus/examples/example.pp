@@ -51,13 +51,15 @@ alias integer::base::set := SETBASE;
 #PPL
 #END
 
+
+
 Example:AVery::LongName(p: first, q: second, _third)
 begin
     // Local Variables with aliases
     local a: alpha, b: beta;
     local @_hello = 6;
     
-    switch A
+    SWITCH A
     case 2 do
     end;
     end;
@@ -83,7 +85,9 @@ begin
     
     regex `(?:[^<>=]|^)!=(?!=[<>=])` ≠
     
-    if a <= b and b > 10 then a = a + 1; end;
+    if a <= b and b > 10 then
+    a = a + 1;
+    end;
     if a != b and b > 10 then a = a + 1; end;
     if a <> b and b > 10 then a = a + 1; end;
     if a >= b or b < 20 then a = a + 1; end;
@@ -101,9 +105,11 @@ begin
     
     // LOCAL auto variable name
     LOCAL iAmVerryLong;
+    
+    if a == 1 then
+    end;
 
-#
-end;
+end
 
 auto:myFunction()
 begin

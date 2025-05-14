@@ -429,7 +429,7 @@ enum BlockType {
 };
 
 bool isPythonBlock(const std::string str) {
-    std::regex re(R"(^ *# *PYTHON .*$)");
+    std::regex re(R"(^ *# *PYTHON( .*)?$)");
     return std::regex_search(str, re);
 }
 
@@ -722,7 +722,7 @@ int main(int argc, char **argv) {
             continue;
         }
         
-        if (args == "-l") {
+        if (args == "-I") {
             if (++n >= argc) {
                 error();
                 return 0;
@@ -808,10 +808,10 @@ int main(int argc, char **argv) {
                 continue;
             }
             
-            
+//            if (entry.path().filename().string() == "block.re") continue;
             
             if (verbose) std::cout << entry.path().filename().string() << ":" << " loaded" << std::endl;
-
+            
             while (getline(infile, utf8)) {
                 utf8.insert(0, "regex ");
                 Singleton::shared()->regexp.parse(utf8);

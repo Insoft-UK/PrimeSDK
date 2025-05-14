@@ -25,7 +25,6 @@
 #ifndef CPLANG_PPLIB
 #define CPLANG_PPLIB
 
-#define var       LOCAL
 #define namespace alias
 
 regex @`\bvoid\b *`

@@ -84,7 +84,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-l $(PROJECT_DIR)/../Package\ Installer/package-root/Applications/HP/PrimeSDK/include"
+            argument = "-I $(PROJECT_DIR)/../Package\ Installer/package-root/Applications/HP/PrimeSDK/include"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
