@@ -65,7 +65,12 @@ bool Preprocessor::parse(std::string &str) {
                 }
                 
                 if (std::filesystem::path(filename).extension().empty()) {
-                    filename.append(".pplib");
+                    // If no extension is given, priorities for new .ppl+ than shorter older extension of .pp, revert to .pp if no file with .ppl+ exists.
+                    if (std::filesystem::exists(std::filesystem::path(filename + ".pp")))
+                        filename.append(".pp");
+                    else
+                        filename.append(".ppl+");
+                    
                 }
                 
                 if (verbose) std::cout << MessageType::Verbose << "Included " << std::filesystem::path(filename).filename() << "\n";

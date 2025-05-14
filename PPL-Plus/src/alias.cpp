@@ -116,7 +116,7 @@ bool Alias::parse(std::string &str) {
     if (!parsed) return false;
     
     // Now that all aliases, if any, have been parsed, we can remove the :alias from the code.
-    str = regex_replace(str, std::regex(R"(([a-zA-Z]\w*):[a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*)"), "$1");
+    str = regex_replace(str, std::regex(R"(([a-zA-Z]\w*):@?[a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*)"), "$1");
     
     return true;
 }

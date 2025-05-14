@@ -57,7 +57,10 @@ begin
     local a: alpha, b: beta;
     local @_hello = 6;
     
-    
+    switch A
+    case 2 do
+    end;
+    end;
     alias base := integer::base;
     
     integer::base::set(A,3);
@@ -94,7 +97,7 @@ begin
     local oct := \`#1111:3o * 2`;
     local dec := \`#15:3d * 2`;
     
-        regex `(?:[^<>=]|^)!=(?!=[<>=])` ≠
+    regex `(?:[^<>=]|^)!=(?!=[<>=])` ≠
     
     // LOCAL auto variable name
     LOCAL iAmVerryLong;

@@ -56,7 +56,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/example.pp"
+            argument = "$(PROJECT_DIR)/examples/example"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -80,11 +80,11 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-v a"
+            argument = "-v l"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-l $(PROJECT_DIR)/../Package\ Installer/package-root/Applications/HP/PrimeSDK/pplib"
+            argument = "-l $(PROJECT_DIR)/../Package\ Installer/package-root/Applications/HP/PrimeSDK/include"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

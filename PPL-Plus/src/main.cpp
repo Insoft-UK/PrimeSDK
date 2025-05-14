@@ -675,6 +675,7 @@ int main(int argc, char **argv) {
         exit(100);
     }
     
+    bool verbose = false;
     std::string args(argv[0]);
     
     for (int n = 1; n < argc; n++) {
@@ -716,7 +717,8 @@ int main(int argc, char **argv) {
             if (args.find("a") != std::string::npos) Singleton::shared()->aliases.verbose = true;
             if (args.find("p") != std::string::npos) preprocessor.verbose = true;
             if (args.find("r") != std::string::npos) Singleton::shared()->regexp.verbose = true;
-            
+            if (args.find("l") != std::string::npos) verbose = true;
+                
             continue;
         }
         
@@ -734,9 +736,23 @@ int main(int argc, char **argv) {
         std::regex re(R"(.\w*$)");
     }
     
+    namespace fs = std::filesystem;
+    
+    if (!fs::exists(in_filename)) {
+        if (fs::exists(in_filename + ".pp")) in_filename.append(".pp");
+        if (fs::exists(in_filename + ".ppl+")) in_filename.append(".ppl+");
+    }
+    if (!fs::exists(in_filename)) {
+        error();
+        return 0;
+    }
+    
     if (!out_filename.length()) {
         out_filename = in_filename;
-        if (out_filename.rfind(".")) {
+        
+        if (fs::path(in_filename).extension().empty()) {
+            out_filename.append(".hpprgm");
+        } else {
             out_filename.replace(out_filename.rfind("."), out_filename.length() - out_filename.rfind("."), ".hpprgm");
         }
     }
@@ -772,6 +788,39 @@ int main(int argc, char **argv) {
     
     str = R"(#define __NUMERIC_BUILD )" + std::to_string(NUMERIC_BUILD);
     preprocessor.parse(str);
+    
+#ifdef DEBUG
+    std::string path = "/Users/richie/GitHub/PrimeSDK/Package Installer/package-root/Applications/HP/PrimeSDK/lib";
+#else
+    std::string path = "/Applications/HP/PrimeSDK/lib";
+#endif
+    
+    try {
+        for (const auto& entry : fs::directory_iterator(path)) {
+            if (fs::path(entry.path()).extension() != ".re") {
+                continue;
+            }
+            std::string utf8;
+            std::ifstream infile;
+            
+            infile.open(entry.path(), std::ios::in);
+            if (!infile.is_open()) {
+                continue;
+            }
+            
+            
+            
+            if (verbose) std::cout << entry.path().filename().string() << ":" << " loaded" << std::endl;
+
+            while (getline(infile, utf8)) {
+                utf8.insert(0, "regex ");
+                Singleton::shared()->regexp.parse(utf8);
+            }
+        }
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << "error: " << e.what() << std::endl;
+    }
+
     
     translatePPlusToPPL(in_filename, outfile);
     

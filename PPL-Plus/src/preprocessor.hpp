@@ -29,7 +29,7 @@
 namespace ppl_plus {
     class Preprocessor {
     public:
-        std::string path = "/Applications/HP/PrimeSDK/lib";       // default path for #include <‘filename‘>
+        std::string path = "/Applications/HP/PrimeSDK/include";       // default path for #include <‘filename‘>
         std::string filename;
         
         bool verbose = false;
