@@ -1,2 +1,2 @@
-=`^ *@begin` BEGIN
-~`^ *@end` END;
+=`^ *@begin\b` BEGIN
+~`^ *@end\b` END;

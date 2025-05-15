@@ -49,6 +49,8 @@
 
 using namespace ppl_plus;
 
+void translatePPLPlusToPPL(const std::string &pathname, std::ofstream &outfile);
+
 static Preprocessor preprocessor = Preprocessor();
 static Strings strings = Strings();
 static std::string assignment = "=";
@@ -57,11 +59,7 @@ void terminator() {
     std::cout << MessageType::CriticalError << "An internal pre-processing problem occurred. Please review the syntax before this point.\n";
     exit(0);
 }
-
 void (*old_terminate)() = std::set_terminate(terminator);
-
-
-void translatePPlusToPPL(const std::string &pathname, std::ofstream &outfile);
 
 // MARK: - Utills
 
@@ -324,7 +322,7 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
     
     
     
-    //MARK: - alias parsing
+    //MARK: alias parsing
     
     re = R"(^alias ([A-Za-z_](?:\w+|::[A-Za-z_]+)*):=([A-Za-z_](?:\w+|::[A-Za-z_]+)*);$)";
     if (regex_search(ln, match, re)) {
@@ -417,14 +415,44 @@ void writeUTF16Line(const std::string &ln, std::ofstream &outfile) {
     }
 }
 
-bool verbose(void) {
+void loadLibrary(const std::string path, const bool verbose)
+{
+    namespace fs = std::filesystem;
+    try {
+        for (const auto& entry : fs::directory_iterator(path)) {
+            if (fs::path(entry.path()).extension() != ".re") {
+                continue;
+            }
+            std::string utf8;
+            std::ifstream infile;
+            
+            infile.open(entry.path(), std::ios::in);
+            if (!infile.is_open()) {
+                continue;
+            }
+            
+            if (verbose) std::cout << "Library " << entry.path().filename() << " successfully loaded.\n";
+            
+            while (getline(infile, utf8)) {
+                utf8.insert(0, "regex ");
+                Singleton::shared()->regexp.parse(utf8);
+            }
+        }
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << "error: " << e.what() << std::endl;
+    }
+}
+
+bool verbose(void)
+{
     if (Singleton::shared()->aliases.verbose) return true;
     if (preprocessor.verbose) return true;
     
     return false;
 }
 
-enum BlockType {
+enum BlockType
+{
     BlockType_Python, BlockType_PPL, BlockType_PrimePlus
 };
 
@@ -476,7 +504,7 @@ void writePythonBlock(std::ifstream &infile, std::ofstream &outfile) {
     }
 }
 
-void translatePPlusToPPL(const std::string &path, std::ofstream &outfile) {
+void translatePPLPlusToPPL(const std::string &path, std::ofstream &outfile) {
     using namespace std;
     
     Singleton &singleton = *Singleton::shared();
@@ -570,7 +598,7 @@ void translatePPlusToPPL(const std::string &path, std::ofstream &outfile) {
         if (preprocessor.parse(utf8)) {
             if (!preprocessor.filename.empty()) {
                 // Flagged with #include preprocessor for file inclusion, we process it before continuing.
-                translatePPlusToPPL(preprocessor.filename, outfile);
+                translatePPLPlusToPPL(preprocessor.filename, outfile);
                 Singleton::shared()->incrementLineNumber();
             }
             Singleton::shared()->incrementLineNumber();
@@ -811,37 +839,12 @@ int main(int argc, char **argv) {
     preprocessor.parse(str);
     
 #ifdef DEBUG
-    std::string path = "/Users/richie/GitHub/PrimeSDK/Package Installer/package-root/Applications/HP/PrimeSDK/lib";
+    loadLibrary("/Users/richie/GitHub/PrimeSDK/Package Installer/package-root/Applications/HP/PrimeSDK/lib", true);
 #else
-    std::string path = "/Applications/HP/PrimeSDK/lib";
+    loadLibrary("/Applications/HP/PrimeSDK/lib", verbose);
 #endif
     
-    try {
-        for (const auto& entry : fs::directory_iterator(path)) {
-            if (fs::path(entry.path()).extension() != ".re") {
-                continue;
-            }
-            std::string utf8;
-            std::ifstream infile;
-            
-            infile.open(entry.path(), std::ios::in);
-            if (!infile.is_open()) {
-                continue;
-            }
-            
-            if (verbose) std::cout << "Library " << entry.path().filename() << " successfully loaded.\n";
-            
-            while (getline(infile, utf8)) {
-                utf8.insert(0, "regex ");
-                Singleton::shared()->regexp.parse(utf8);
-            }
-        }
-    } catch (const fs::filesystem_error& e) {
-        std::cerr << "error: " << e.what() << std::endl;
-    }
-
-    
-    translatePPlusToPPL(in_filename, outfile);
+    translatePPLPlusToPPL(in_filename, outfile);
     
     // Stop measuring time and calculate the elapsed time.
     long long elapsed_time = timer.elapsed();

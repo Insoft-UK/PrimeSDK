@@ -3,6 +3,7 @@ DIR=$(dirname "$0")
 cd $DIR
 clear
 
+./version_code
 make -j$(sysctl -n hw.ncpu) all
 
 read -p "Press Enter to exit!"

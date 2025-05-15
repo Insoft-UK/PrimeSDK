@@ -59,6 +59,11 @@ begin
     local a: alpha, b: beta;
     local @_hello = 6;
     
+    regex `\bnamespace +([a-zA-Z]\w*) := *([a-zA-Z]\w*);` regex `\breg\b $1` GO
+    namespace asas := re;
+    
+    reg;
+    
     SWITCH A
     case 2 do
     end;

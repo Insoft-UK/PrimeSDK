@@ -27,9 +27,6 @@
 
 #define try     IFERR
 #define catch   THEN
-#define endif   END
-#define wend    END
-#define next    END
 #define pi      π
 #define FROM    :=
 #define emptylist {0}

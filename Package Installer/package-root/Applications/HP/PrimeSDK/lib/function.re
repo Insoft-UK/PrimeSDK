@@ -1,1 +1,1 @@
-=`^ *public\b`i EXPORT
+=`^ *public +`i EXPORT
