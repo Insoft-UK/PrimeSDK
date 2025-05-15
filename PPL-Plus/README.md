@@ -106,7 +106,7 @@ In <b>PPL+</b>, the = operator is treated as := (assignment) by default, whereas
 
 ```#pragma mode( assignment(:=) )```
 
-This allows you to toggle between assignment-style and comparison-style interpretation of =.
+This allows you to toggle between assignment-style and comparison-style interpretation of = eg. `#pragma mode( assignment(:=) )` will use = as equality.
 
 >[!IMPORTANT]
 In PPL+ by default `=` is treated as `:=` were in PPL `=` is treated as `==`
