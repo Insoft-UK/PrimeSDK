@@ -51,7 +51,7 @@ bool Aliases::append(const TIdentity &idty) {
     
     trim(identity.identifier);
     trim(identity.real);
-    identity.path = singleton->currentPath();
+    identity.path = singleton->currentSourceFilePath();
     identity.line = singleton->currentLineNumber();
     
     if (!identity.message.empty()) {
@@ -63,7 +63,7 @@ bool Aliases::append(const TIdentity &idty) {
         identity.scope = singleton->scopeDepth == 0 ? Aliases::Scope::Global : Aliases::Scope::Local;
     }
     
-    std::string filename = Singleton::shared()->currentPath().filename().string();
+    std::string filename = Singleton::shared()->currentSourceFilePath().filename().string();
     
     
     if (identifierExists(identity.identifier)) {
@@ -91,7 +91,7 @@ bool Aliases::append(const TIdentity &idty) {
     
     if (verbose) std::cout
         << MessageType::Verbose
-        << "Defined "
+        << "defined "
         << (Scope::Local == identity.scope ? ANSI::Default + ANSI::Bold + "local" + ANSI::Default + " " : "")
         << (Type::Unknown == identity.type ? "alias " : "")
         << (Type::Macro == identity.type ? "macro " : "")
@@ -105,12 +105,12 @@ bool Aliases::append(const TIdentity &idty) {
     return true;
 }
 
-void Aliases::removeAllLocalAliases() {
+void Aliases::removeAllOutOfScopeAliases() {
     for (auto it = _identities.begin(); it != _identities.end(); ++it) {
         if (it->scope == Scope::Local) {
             if (verbose) std::cout
                 << MessageType::Verbose
-                << "Removed " << ANSI::Default << ANSI::Bold << "local" << ANSI::Default << " "
+                << "removed " << ANSI::Default << ANSI::Bold << "local" << ANSI::Default << " "
                 << (Type::Unknown == it->type ? "alias " : "")
                 << (Type::Macro == it->type ? "macro " : "")
                 << (Type::Alias == it->type ? "alias " : "")
@@ -119,7 +119,7 @@ void Aliases::removeAllLocalAliases() {
                 << (Type::Variable == it->type ? "variable alias " : "")
                 << "'" << ANSI::Green << it->identifier << ANSI::Default << "'\n";
             _identities.erase(it);
-            removeAllLocalAliases();
+            removeAllOutOfScopeAliases();
             break;
         }
     }
@@ -130,7 +130,7 @@ void Aliases::removeAllAliasesOfType(const Type type) {
         if (it->type == type) {
             if (verbose) std::cout
                 << MessageType::Verbose
-                << "Removed " << ANSI::Default << ANSI::Bold << "local" << ANSI::Default << " "
+                << "removed " << ANSI::Default << ANSI::Bold << "local" << ANSI::Default << " "
                 << (Type::Unknown == it->type ? "alias " : "")
                 << (Type::Macro == it->type ? "macro " : "")
                 << (Type::Alias == it->type ? "alias " : "")
@@ -242,7 +242,7 @@ void Aliases::remove(const std::string &identifier) {
         if (it->identifier == identifier) {
             if (verbose) std::cout
                 << MessageType::Verbose
-                << "Removed "
+                << "removed "
                 << (Scope::Local == it->scope ? ANSI::Default + ANSI::Bold + "local " + ANSI::Default : "")
                 << (Type::Unknown == it->type ? "alias " : "")
                 << (Type::Macro == it->type ? "macro " : "")

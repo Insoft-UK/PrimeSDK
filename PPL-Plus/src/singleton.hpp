@@ -50,20 +50,29 @@ namespace ppl_plus {
         
         void incrementLineNumber(void);
         long currentLineNumber(void);
-        std::filesystem::path currentPath(void);
+        std::filesystem::path mainSourceFilePath(void)
+        {
+            return std::filesystem::path(_paths.front());
+        }
         
-        std::filesystem::path getMainSourceDir(void) {
+        std::filesystem::path currentSourceFilePath(void);
+        
+        std::filesystem::path getMainSourceDir(void)
+        {
             return std::filesystem::path(_paths.front()).parent_path();
         }
+        
         
         void pushPath(const std::filesystem::path &path);
         void popPath(void);
         
-        void increaseScopeDepth(const std::string &endCode = "") {
+        void increaseScopeDepth(const std::string &endCode = "")
+        {
             _scopeDepth++;
         }
         
-        void decreaseScopeDepth() {
+        void decreaseScopeDepth()
+        {
             if (_scopeDepth == 0) {
                 std::cout << "Error: Unexpected '" << "END; at line:" << _currentline << "'\n";
                 return;

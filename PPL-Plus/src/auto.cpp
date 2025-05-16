@@ -163,15 +163,6 @@ bool Auto::parse(std::string &str) {
             inferredAutoForFunctionParameterNames(str);
         }
         
-//        re = std::regex(R"(\b(LOCAL|CONST) +)", std::regex_constants::icase);
-//        if (regex_search(str, match, re)) {
-//            while ((pos = str.find("auto:")) != std::string::npos) {
-//                str.erase(pos, 4);
-//                while (singleton->aliases.realExists("g" + base10ToBase32(++_globalCount)));
-//                str.insert(pos, "g" + base10ToBase32(_globalCount));
-//            }
-//        }
-        
         re = R"(\bauto *(?=: *(?:[A-Za-z_][\w:.]*) *(?=\()))";
         if (regex_search(str, match, re)) {
             while (singleton->aliases.realExists("fn" + base10ToBase32(++_fnCount)));

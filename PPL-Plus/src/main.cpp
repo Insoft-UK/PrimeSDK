@@ -52,7 +52,7 @@ static unsigned int indentation = 2;
 
 using namespace ppl_plus;
 
-void translatePPLPlusToPPL(const std::string &pathname, std::ofstream &outfile);
+void translatePPLPlusToPPL(const std::filesystem::path &path, std::ofstream &outfile);
 
 static Preprocessor preprocessor = Preprocessor();
 static Strings strings = Strings();
@@ -168,9 +168,9 @@ void reformatPPLLine(std::string &str) {
         
       
         if (regex_search(str, std::regex(R"(\bEND;$)"))) {
-            str = regex_replace(str, std::regex(R"(;(.+))"), ";\n" + std::string(Singleton::shared()->scopeDepth * INDENT_WIDTH, ' ') + "$1");
-        } else {
             str = regex_replace(str, std::regex(R"(;(.+))"), ";\n" + std::string((Singleton::shared()->scopeDepth - 1) * INDENT_WIDTH, ' ') + "$1");
+        } else {
+            str = regex_replace(str, std::regex(R"(; *(.+))"), "; $1");
         }
     }
     
@@ -179,7 +179,6 @@ void reformatPPLLine(std::string &str) {
         str = regex_replace(str, std::regex(R"(LOCAL )"), "");
     }
     
-
     
     str = regex_replace(str, std::regex(R"(([)};])([A-Z]))"), "$1 $2");
     
@@ -218,23 +217,16 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
 
     Singleton *singleton = Singleton::shared();
     
-    static int consecutiveBlankLines = 0;
-    
-    
     // Remove any leading white spaces before or after.
     trim(ln);
     
     if (ln.empty()) {
         ln = "";
-        if (!consecutiveBlankLines++) {
-            ln += '\n';
-        }
         return;
     }
-    consecutiveBlankLines = 0;
     
     if (singleton->regexp.parse(ln)) return;
-
+    
     
     if (ln.substr(0,2) == "//") {
         ln = ln.insert(0, std::string(singleton->scopeDepth * INDENT_WIDTH, ' '));
@@ -270,9 +262,6 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
     }
     ln = singleton->aliases.resolveAllAliasesInText(ln);
     
-    
-    
-    
     /*
      A code stack provides a convenient way to store code snippets
      that can be retrieved and used later.
@@ -284,7 +273,7 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
         Dictionary::proccessDictionaryDefinition(ln);
         Dictionary::removeDictionaryDefinition(ln);
     }
-    
+    if (ln.empty()) return;
     capitalizeKeywords(ln);
     ln = removeWhitespaceAroundOperators(ln);
     
@@ -359,7 +348,7 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
     for(auto it = std::sregex_iterator(ln.begin(), ln.end(), re); it != std::sregex_iterator(); ++it) {
         singleton->decreaseScopeDepth();
         if (singleton->scopeDepth == 0) {
-            singleton->aliases.removeAllLocalAliases();
+            singleton->aliases.removeAllOutOfScopeAliases();
             ln += '\n';
         }
        
@@ -397,6 +386,8 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
 }
 
 void writeUTF16Line(const std::string &ln, std::ofstream &outfile) {
+    if (ln.empty()) return;
+    
     for ( int n = 0; n < ln.length(); n++) {
         uint8_t *ascii = (uint8_t *)&ln.at(n);
         if (ln.at(n) == '\r') continue;
@@ -522,7 +513,7 @@ void writePythonBlock(std::ifstream &infile, std::ofstream &outfile) {
     }
 }
 
-void translatePPLPlusToPPL(const std::string &path, std::ofstream &outfile) {
+void translatePPLPlusToPPL(const std::filesystem::path &path, std::ofstream &outfile) {
     using namespace std;
     namespace fs = std::filesystem;
     
@@ -532,13 +523,13 @@ void translatePPLPlusToPPL(const std::string &path, std::ofstream &outfile) {
     string utf8;
     string str;
     smatch match;
+
     
     singleton.pushPath(path);
     
     infile.open(path,ios::in);
     if (!infile.is_open()) {
-        cout << "File not found.\n";
-        exit(0);
+        return;
     }
     
     while (getline(infile, utf8)) {
@@ -557,7 +548,7 @@ void translatePPLPlusToPPL(const std::string &path, std::ofstream &outfile) {
             }
         }
         
-        if (regex_match(utf8, std::regex(R"(^ *#EXIT *$)"))) {
+        if (regex_match(utf8, std::regex(R"(^ *#EXIT *$)", regex_constants::icase))) {
             break;
         }
         
@@ -617,7 +608,11 @@ void translatePPLPlusToPPL(const std::string &path, std::ofstream &outfile) {
                 embedPPLCode(filename, outfile);
                 continue;
             }
-            translatePPLPlusToPPL(preprocessor.filename, outfile);
+            if (!(fs::exists(filename))) {
+                cout << MessageType::Verbose << fs::path(filename).filename() << " file not found\n";
+            } else {
+                translatePPLPlusToPPL(filename, outfile);
+            }
             continue;
         }
         
@@ -633,7 +628,11 @@ void translatePPLPlusToPPL(const std::string &path, std::ofstream &outfile) {
                     break;
                 }
             }
-            translatePPLPlusToPPL(filename, outfile);
+            if (!(fs::exists(filename))) {
+                cout << MessageType::Verbose << fs::path(filename).filename() << " file not found\n";
+            } else {
+                translatePPLPlusToPPL(filename, outfile);
+            }
             continue;
         }
     

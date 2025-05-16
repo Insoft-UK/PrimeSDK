@@ -39,7 +39,7 @@ bool Regexp::parse(std::string &str) {
             .replacement = match[4].str(),
             .scopeLevel = static_cast<size_t>(Singleton::shared()->scopeDepth),
             .line = Singleton::shared()->currentLineNumber(),
-            .pathname = Singleton::shared()->currentPath()
+            .pathname = Singleton::shared()->currentSourceFilePath()
         };
         
         if (match[1].matched) {
@@ -62,7 +62,7 @@ bool Regexp::parse(std::string &str) {
         _regexps.push_back(regexp);
         if (verbose) std::cout
             << MessageType::Verbose
-            << "Defined " << (regexp.scopeLevel ? "local " : "") << "regular expresion "
+            << "defined " << (regexp.scopeLevel ? "local " : "") << "regular expresion "
             << "`" << ANSI::Green << regexp.pattern << ANSI::Default << "`\n";
         return true;
     }
@@ -75,7 +75,7 @@ void Regexp::removeAllOutOfScopeRegexps() {
         if (it->scopeLevel > Singleton::shared()->scopeDepth) {
             if (verbose) std::cout
                 << MessageType::Verbose
-                << "Removed " << (it->scopeLevel ? "local " : "") <<"regular expresion `" << ANSI::Green << it->pattern << ANSI::Default << "`\n";
+                << "removed " << (it->scopeLevel ? "local " : "") <<"regular expresion `" << ANSI::Green << it->pattern << ANSI::Default << "`\n";
             
             _regexps.erase(it);
             removeAllOutOfScopeRegexps();
@@ -125,7 +125,7 @@ bool Regexp::regularExpressionExists(const std::string &pattern) {
         if (it->pattern == pattern) {
             std::cout
             << MessageType::Warning
-            << "Regular expresion already defined. Previous definition at " << basename(it->pathname) << ":" << it->line << "\n";
+            << "regular expresion already defined. previous definition at " << basename(it->pathname) << ":" << it->line << "\n";
             return true;
         }
     }

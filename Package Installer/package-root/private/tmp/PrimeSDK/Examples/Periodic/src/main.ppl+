@@ -1,24 +1,28 @@
-@disregard
- Copyright © 2024 Insoft. All rights reserved.
- 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to DO so, subject to the following conditions:
- 
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
- 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
-@end
+#ifndef __pplplus
+// The MIT License (MIT)
+//
+// Copyright (c) 2023-2025 Insoft. All rights reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+#endif
+
+#pragma mode( separator(.,,) integer(h64) indentation(3) )
 
 #include <dictionary>
 
@@ -150,9 +154,9 @@ LOCAL auto: periodicTable := {
 };
 
 
-LOCAL auto: periodicExtendedDisplayUsed := CONCAT(4,MAKELIST(X,X,7,18));
+auto: periodicExtendedDisplayUsed := CONCAT(4,MAKELIST(X,X,7,18));
 
-LOCAL auto: periodicExtendedDisplayNames := {
+auto: periodicExtendedDisplayNames := {
     "Group",
     "Atomic Weight",
     "Density",
@@ -181,11 +185,11 @@ LOCAL auto: periodicColorTable := {
     {RGB(231,231,234), RGB(63,55,78)}
 };
     
-LOCAL auto: periodicChemicalGroups := {"Nonmetal", "Alkali Metal", "Alkaline Earth Metal", "Halogen", "Noble Gas", "Metalliod", "Post-Transition Metal", "Transition Metal", "Lanthanoid", "Actinoid"};
-LOCAL auto: periodicColumn := 1;
-LOCAL auto: periodicRow := 1;
+auto: periodicChemicalGroups := {"Nonmetal", "Alkali Metal", "Alkaline Earth Metal", "Halogen", "Noble Gas", "Metalliod", "Post-Transition Metal", "Transition Metal", "Lanthanoid", "Actinoid"};
+auto: periodicColumn := 1;
+auto: periodicRow := 1;
 
-auto: PeriodicRenderCell(c: cell)
+Periodic::RenderCell(c: cell)
 BEGIN
     dict Cell cell;
     
@@ -215,7 +219,7 @@ BEGIN
     TEXTOUT_P(cell.actinideElementName, G1, x1 + 2, y1 + 4, 1, colors.ink);
 END;
 
-auto: PeriodicDisplayLine(c: cell, I: index)
+auto: Periodic::DisplayLine(c: cell, I: index)
 BEGIN
     IF index>=14 THEN
         RETURN;
@@ -244,11 +248,11 @@ BEGIN
     TEXTOUT_P(cell[periodicExtendedDisplayUsed[index]], G1, SCREEN_WIDTH - size.width - 4, 15 + 16 * index, 0, Color.Gray);
 END;
 
-auto: PeriodicRenderTable()
+Periodic::RenderTable()
 BEGIN
     DIMGROB_P(G1,320,240);
     RECT_P(G1);
-    MAKELIST(PeriodicRenderCell(periodicTable[X]), X, 1, SIZE(periodicTable));
+    MAKELIST(Periodic::RenderCell(periodicTable[X]), X, 1, SIZE(periodicTable));
     
     dict column[1], row[2] cell;
     LOCAL I: index;
@@ -256,13 +260,13 @@ BEGIN
     FOR index FROM 1 TO SIZE(periodicTable) DO
         LOCAL cell := periodicTable[index];
         IF periodicColumn == cell.column AND periodicRow == cell.row THEN
-            [Periodic RenderCell:cell];
+            Periodic::RenderCell(cell);
             break;
         END;
     END;
 END;
 
-auto: PeriodicChemicalDataMenu(c: cell)
+Periodic::ChemicalDataMenu(c: cell)
 BEGIN
     dict Cell cell;
     LOCAL I: index := cell.elementAtomicNumber;
@@ -274,7 +278,7 @@ BEGIN
         DIMGROB_P(G1, SCREEN_WIDTH, SCREEN_HEIGHT, colors.paper);
         RECT_P(G1,0,0,SCREEN_WIDTH, 30, Color.Black);
         TEXTOUT_P(cell.elementAtomicNumber + " - " + cell.chemicalElementName + " (" + cell.actinideElementName + ")", G1, 4, 2, 5, Color.White);
-        MAKELIST(PeriodicDisplayLine(cell ,X), X, 1, SIZE(periodicExtendedDisplayUsed));
+        MAKELIST(Periodic::DisplayLine(cell ,X), X, 1, SIZE(periodicExtendedDisplayUsed));
         
         BLIT(G1);
 
@@ -299,7 +303,7 @@ BEGIN
     UNTIL false;
 END;
 
-auto: PeriodicDoesCellExist(c: column, r: row)
+Periodic::DoesCellExist(c: column, r: row)
 BEGIN
     LOCAL I: index;
         
@@ -312,7 +316,7 @@ BEGIN
     END;
 END;
 
-auto: PeriodicOnTouch(e: event)
+Periodic::OnTouch(e: event)
 BEGIN
     dict Event event;
     CASE
@@ -331,7 +335,7 @@ BEGIN
             LOCAL c: column := floor((event.x + 9) / CELL_SIZE);
             LOCAL r: row := floor(event.y / CELL_SIZE);
             
-            IF PeriodicDoesCellExist(column ,row) == true THEN
+            IF Periodic::DoesCellExist(column ,row) == true THEN
                 periodicColumn := column;
                 periodicRow := row;
                 RETURN;
@@ -340,7 +344,7 @@ BEGIN
     END;
 END;
 
-auto: PeriodicOnKeyPress(k: keyPressed)
+auto: Periodic::OnKeyPress(k: keyPressed)
 BEGIN
     dict column[1], row[2] cell;
     CASE
@@ -351,38 +355,38 @@ BEGIN
                 cell = periodicTable[index];
                 IF periodicColumn==cell.column AND periodicRow==cell.row THEN break; END;
             END;
-            PeriodicChemicalDataMenu(cell);
+            Periodic::ChemicalDataMenu(cell);
         END;
         
         IF keyPressed == KeyCode.Left THEN
             REPEAT
                 periodicColumn := (periodicColumn - 2) MOD 18 + 1;
-            UNTIL PeriodicDoesCellExist(periodicColumn, periodicRow) == true;
+            UNTIL Periodic::DoesCellExist(periodicColumn, periodicRow) == true;
         END;
         
         IF keyPressed == KeyCode.Right THEN
             REPEAT
                 periodicColumn := periodicColumn MOD 18 + 1;
-            UNTIL PeriodicDoesCellExist(periodicColumn, periodicRow) == true;
+            UNTIL Periodic::DoesCellExist(periodicColumn, periodicRow) == true;
         END;
         
         IF keyPressed == KeyCode.Up THEN
             REPEAT
                 periodicRow := (periodicRow - 2) MOD 10 + 1;
-            UNTIL PeriodicDoesCellExist(periodicColumn, periodicRow) == true;
+            UNTIL Periodic::DoesCellExist(periodicColumn, periodicRow) == true;
         END;
         
         IF keyPressed == KeyCode.Down THEN
             REPEAT
                 periodicRow := periodicRow MOD 10 + 1;
-            UNTIL PeriodicDoesCellExist(periodicColumn, periodicRow) == true;
+            UNTIL Periodic::DoesCellExist(periodicColumn, periodicRow) == true;
         END;
     END;
 END;
 
-auto: PeriodicUpdate()
+Periodic::Update()
 BEGIN
-    PeriodicRenderTable();
+    Periodic::RenderTable();
     BLIT(G1);
     DRAWMENU("About");
 END;
@@ -391,17 +395,17 @@ END;
 EXPORT PERIODIC()
 BEGIN
     REPEAT
-        PeriodicUpdate();
+        Periodic::Update();
         LOCAL k: input := WAIT(-1);
         
         IF TYPE(input) == ObjectType.List THEN
-            PeriodicOnTouch(input);
+            Periodic::OnTouch(input);
         ELSE
             IF input == KeyCode.Esc THEN
                 periodicColumn := 0; periodicRow := 0;
                 RETURN;
             END;
-            PeriodicOnKeyPress(input);
+            Periodic::OnKeyPress(input);
         END;
     UNTIL false;
 END;

@@ -39,8 +39,8 @@ bool hasErrors(void) {
 std::ostream &operator<<(std::ostream &os, MessageType type) {
     Singleton *singlenton = Singleton::shared();
 
-    if (!singlenton->currentPath().empty()) {
-        os << ANSI::Blue << basename(singlenton->currentPath().string()) << ANSI::Default << ":" << ANSI::Bold;
+    if (!singlenton->currentSourceFilePath().empty()) {
+        os << ANSI::Blue << singlenton->currentSourceFilePath().filename().string() << ANSI::Default << ":" << ANSI::Bold;
         os << singlenton->currentLineNumber() << ANSI::Default << " ";
     }
 

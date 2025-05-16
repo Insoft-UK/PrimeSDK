@@ -43,7 +43,7 @@ long Singleton::currentLineNumber(void) {
     return _currentline;
 }
 
-std::filesystem::path Singleton::currentPath(void) {
+std::filesystem::path Singleton::currentSourceFilePath(void) {
     if (_paths.empty()) return "";
     return _paths.back();
 }

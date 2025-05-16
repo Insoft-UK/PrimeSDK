@@ -104,19 +104,19 @@ bool Alias::parse(std::string &str) {
                 parseParameters(matches[2].str());
             }
             parsed = true;
+        } else {
+            re = R"(\b[a-zA-Z]\w*:[a-zA-Z]\w*(?:::[a-zA-Z]\w*)*\b)";
+            if (regex_search(str, re)) {
+                parseVariables(str);
+                parsed = true;
+            }
         }
-        
-        re = R"(\b[a-zA-Z]\w*:[a-zA-Z]\w*(?:::[a-zA-Z]\w*)*\b)";
-        if (regex_search(str, re)) {
+    } else {
+        re = std::regex(R"(^ *(LOCAL|CONST) +.*)", std::regex_constants::icase);
+        if (regex_match(str, re)) {
             parseVariables(str);
             parsed = true;
         }
-    }
-    
-    re = std::regex(R"(^ *(LOCAL|CONST) +.*)", std::regex_constants::icase);
-    if (regex_match(str, re)) {
-        parseVariables(str);
-        parsed = true;
     }
     
     if (!parsed) return false;

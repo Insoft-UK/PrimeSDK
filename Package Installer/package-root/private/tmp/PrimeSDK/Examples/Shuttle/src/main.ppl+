@@ -7,7 +7,7 @@
 // Converted to P+ by Richie Hughes <developer@insoft.uk>
 // http://calc.fjk.ch
 
-local Data := {
+Data := {
   -2, 1, 1155, 879, 1123, 906, 
   -2, 2, 2005, 2, 2005, 58, 
   -2, 3, 1899, 489, 1936, 92, 

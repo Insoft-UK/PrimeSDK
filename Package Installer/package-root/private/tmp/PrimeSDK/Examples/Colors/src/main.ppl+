@@ -1,24 +1,27 @@
-@disregard
- Copyright © 2024 Insoft. All rights reserved.
- 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
- 
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
- 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
-@end
+#ifndef __pplplus
+// The MIT License (MIT)
+//
+// Copyright (c) 2023-2025 Insoft. All rights reserved.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+#endif
+
 #pragma mode( separator(.,;) integer(h64) )
 #include <pplang>
 #include <cplang>
@@ -35,13 +38,12 @@ dict Percentage = 0, Decimal = 1 UnitType;
 dict HSV = 0, HSL = 1 ColorSpace;
 
 
-local channel:colorsChannel = 0;
+channel: colorsChannel = 0;
 
-local colorsH := 0, colorsS := 100, colorsV := 100;
-local colorsR := 255, colorsG := 0, colorsB := 0;
-local colorsUT: colorsUnitType := UnitType.Decimal;
-local colorsCS: colorsColorSpace := ColorSpace.HSV;
-
+colorsH := 0, colorsS := 100, colorsV := 100;
+colorsR := 255, colorsG := 0, colorsB := 0;
+colorsUT: colorsUnitType := UnitType.Decimal;
+colorsCS: colorsColorSpace := ColorSpace.HSV;
 
 HEX(d:decimal)
 begin
@@ -60,7 +62,7 @@ begin
     TEXTOUT_P(string, G9, atX - size.width / 2, ofY, fontSize, Color.White);
 end;
 
-ColorsSetup()
+Colors::Setup()
 begin
     local n, data;
     DIMGROB_P(G9, 320, 240, 0);
@@ -89,7 +91,7 @@ begin
 end;
 
 
-ColorsDrawMenu()
+Colors::DrawMenu()
 begin
     /// 0-51, 53-104, (106-157, 159-210), 212-263, 265-319
     RECT_P(G9, 0, 220, 51, 239, #666666:32h);
@@ -117,7 +119,7 @@ begin
     end;
 end;
 
-ColorsDrawHue(h)
+Colors::DrawHue(h)
 begin
     BLIT_P(G9, 10, 148, 310, 168, HUE);
     
@@ -127,7 +129,7 @@ begin
     RECT_P(G9, X-2, Y-2, X+2, Y+21, Color.White, Color.Clear);
 end;
 
-ColorsDrawSV(h,s,v)
+Colors::DrawSV(h,s,v)
 begin
     RECT_P(G9, 10, 10, 137, 137, HSV(h, 100, 100));
     BLIT_P(G9, 10, 10, 138, 138, G4);
@@ -139,13 +141,13 @@ begin
     RECT_P(G9, X-2, Y-2, X+1, Y+1, Color.White, Color.Clear);
 end;
 
-ColorsUpdate()
+Colors::Update()
 begin
     RECT(G9,#222222:32h);
 
-    ColorsDrawMenu;
-    ColorsDrawHue(colorsH);
-    ColorsDrawSV(colorsH, colorsS, colorsV);
+    Colors::DrawMenu;
+    Colors::DrawHue(colorsH);
+    Colors::DrawSV(colorsH, colorsS, colorsV);
     
     // Color Picked
     RECT_P(G9, 154, 10, 309, 42, HSV(colorsH, colorsS, colorsV));
@@ -241,7 +243,7 @@ begin
     BLIT_P(__SCREEN, G9);
 end;
 
-ColorsUpdateRGB()
+Colors::UpdateRGB()
 begin
     local rgb;
     rgb = HSVtoRGB(colorsH, colorsS, colorsV);
@@ -250,7 +252,7 @@ begin
     colorsB = rgb[3];
 end;
 
-ColorsDoMenu()
+Colors::DoMenu()
 begin
     local menu = (Y<220? 0: IP(X / (320/6)+0.025) + 1);
     case
@@ -264,13 +266,13 @@ begin
             
         if menu == 3 then
             colorsH = floor((colorsH - 29) / 30) * 30;
-            ColorsUpdateRGB;
+            Colors::UpdateRGB;
             HP.MouseClr;
         end;
             
         if menu == 4 then
             colorsH = floor(colorsH / 30) * 30 + 30;
-            ColorsUpdateRGB;
+            Colors::UpdateRGB;
             HP.MouseClr;
         end;
             
@@ -284,7 +286,7 @@ begin
     end;
 end;
 
-ColorsAdjRGB(delta)
+Colors::AdjRGB(delta)
 begin
     case
         if colorsChannel == 1 then
@@ -311,36 +313,36 @@ begin
     colorsV = hsv[3];
 end;
 
-ColorsAdjHue(d:delta)
+Colors::AdjHue(d:delta)
 begin
     colorsH = colorsH + delta;
     colorsH = IP(MIN(MAX(colorsH, 0), 360));
     
-    ColorsUpdateRGB;
+    Colors::UpdateRGB;
 end;
 
-ColorsAdjSaturation(d:delta)
+Colors::AdjSaturation(d:delta)
 begin
     colorsS = colorsS + delta;
     colorsS = IP(MIN(MAX(colorsS, 0), 100));
     
-    ColorsUpdateRGB;
+    Colors::UpdateRGB;
 end;
 
-ColorsAdjBrightness(d:delta)
+Colors::AdjBrightness(d:delta)
 begin
     colorsV = colorsV + delta;
     colorsV = IP(MIN(MAX(colorsV, 0), 100));
     
-    ColorsUpdateRGB;
+    Colors::UpdateRGB;
 end;
 
-ColorsLoop()
+Colors::Loop()
 begin
     local focus = "";
 
     while 1 do
-        ColorsUpdate();
+        Colors::Update();
 
         local event = WAIT(-1);
         dict Event event;
@@ -357,23 +359,23 @@ begin
                 
                 if event.key == KeyCode.Minus then
                     if colorsChannel == 0 then
-                        ColorsAdjHue(-1);
+                        Colors::AdjHue(-1);
                     else
-                        ColorsAdjRGB(-1);
+                        Colors::AdjRGB(-1);
                     end;
                 end;
                 
                 if event.key == KeyCode.Plus then
                     if colorsChannel == 0 then
-                        ColorsAdjHue(1);
+                        Colors::AdjHue(1);
                     else
-                        ColorsAdjRGB(1);
+                        Colors::AdjRGB(1);
                     end;
                 end;
                 
                 if event.key == KeyCode.Up then
                     if colorsChannel == 0 then
-                        ColorsAdjBrightness(1);
+                        Colors::AdjBrightness(1);
                     else
                         colorsChannel += (colorsChannel == 1 ? 2 : -1);
                     end;
@@ -381,18 +383,18 @@ begin
                 
                 if event.key == KeyCode.Down then
                     if colorsChannel == 0 then
-                        ColorsAdjBrightness(-1);
+                        Colors::AdjBrightness(-1);
                     else
                         colorsChannel += (colorsChannel == 3 ? -2 : 1);
                     end;
                 end;
                 
                 if event.key == KeyCode.Left && colorsChannel == 0 then
-                    ColorsAdjSaturation(-1);
+                    Colors::AdjSaturation(-1);
                 end;
                 
                 if event.key == KeyCode.Right && colorsChannel == 0 then
-                    ColorsAdjSaturation(1);
+                    Colors::AdjSaturation(1);
                 end;
             then
             end;
@@ -403,13 +405,13 @@ begin
             X = event.x;
             Y = event.y;
             
-            ColorsDoMenu();
+            Colors::DoMenu();
             
             case
                 if event.type == EventType.MouseDown then
                     if X>=5 && X<315 && Y>=148 && Y<188 then
                         colorsH := (X - 5) / 310 * 360;
-                        ColorsUpdateRGB();
+                        Colors::UpdateRGB();
                         colorsChannel = 0;
                         focus = "Hue";
                     end;
@@ -417,7 +419,7 @@ begin
                     if X>=5 && X<143 && Y≥5 && Y<143 then
                         colorsS := IP((X - 5) / 137 * 100);
                         colorsV := IP((1 - (Y - 5) / 137) * 100);
-                        ColorsUpdateRGB();
+                        Colors::UpdateRGB();
                         colorsChannel = 0;
                         focus = "Saturation & Brightness";
                     end;
@@ -438,13 +440,13 @@ begin
                 if event.type == EventType.MouseMove then
                     if focus == "Hue" then
                         colorsH = (X - 5) / 310 * 360;
-                        ColorsUpdateRGB();
+                        Colors::UpdateRGB();
                     end;
                     
                     if focus == "Saturation & Brightness" then
                         colorsS = IP((X - 5) / 137 * 100);
                         colorsV = IP((1 - (Y - 5) / 137) * 100);
-                        ColorsUpdateRGB();
+                        Colors::UpdateRGB();
                     end;
                 end;
                 
@@ -462,6 +464,6 @@ end;
 
 export Colors()
 begin
-    ColorsSetup;
-    ColorsLoop;
+    Colors::Setup;
+    Colors::Loop;
 end;

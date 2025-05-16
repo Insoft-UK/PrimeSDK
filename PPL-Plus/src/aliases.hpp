@@ -64,7 +64,7 @@ namespace ppl_plus {
         bool verbose = false;
         
         bool append(const TIdentity &identity);
-        void removeAllLocalAliases();
+        void removeAllOutOfScopeAliases();
         void removeAllAliasesOfType(const Type type);
         std::string resolveAllAliasesInText(const std::string &str);
         void remove(const std::string &identifier);
