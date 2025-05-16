@@ -35,8 +35,140 @@ using namespace ppl_plus;
 
 static Singleton *_singleton  = Singleton::shared();
 
+//#include <string>
+//#include <cctype>
 
-bool Preprocessor::parse(std::string &str) {
+
+bool Preprocessor::isIncludeLine(const std::string &str)
+{
+    size_t i = 0;
+
+    // Skip leading whitespace
+    while (i < str.size() && std::isspace(static_cast<unsigned char>(str[i]))) ++i;
+
+    // Match "#include"
+    const std::string keyword = "#include";
+    if (str.compare(i, keyword.size(), keyword) != 0)
+        return false;
+
+    i += keyword.size();
+
+    // Must be at least one space after "#include"
+    if (i >= str.size() || !std::isspace(static_cast<unsigned char>(str[i])))
+        return false;
+
+    // Skip whitespace after #include
+    while (i < str.size() && std::isspace(static_cast<unsigned char>(str[i]))) ++i;
+
+    // Check for opening delimiter: < or "
+    if (i >= str.size()) return false;
+
+    char opener = str[i];
+    char closer = (opener == '<') ? '>' : (opener == '"') ? '"' : '\0';
+
+    if (closer == '\0') return false;
+
+    ++i;
+    while (i < str.size() && str[i] != closer) ++i;
+
+    return i < str.size() && str[i] == closer;
+}
+
+bool Preprocessor::isQuotedInclude(const std::string &str)
+{
+    size_t i = 0;
+
+    // Skip leading whitespace
+    while (i < str.size() && std::isspace(static_cast<unsigned char>(str[i]))) ++i;
+
+    // Match "#include"
+    const std::string keyword = "#include";
+    if (str.compare(i, keyword.size(), keyword) != 0)
+        return false;
+
+    i += keyword.size();
+
+    // Must have at least one space
+    if (i >= str.size() || !std::isspace(static_cast<unsigned char>(str[i])))
+        return false;
+
+    // Skip spaces after #include
+    while (i < str.size() && std::isspace(static_cast<unsigned char>(str[i]))) ++i;
+
+    // Check for opening quote
+    if (i >= str.size() || str[i] != '"') return false;
+
+    ++i;
+    while (i < str.size() && str[i] != '"') ++i;
+
+    return i < str.size() && str[i] == '"';
+}
+
+bool Preprocessor::isAngleInclude(const std::string &str)
+{
+    size_t i = 0;
+
+    // Skip leading whitespace
+    while (i < str.size() && std::isspace(static_cast<unsigned char>(str[i]))) ++i;
+
+    // Match "#include"
+    const std::string keyword = "#include";
+    if (str.compare(i, keyword.size(), keyword) != 0)
+        return false;
+
+    i += keyword.size();
+
+    // Must be at least one space after "#include"
+    if (i >= str.size() || !std::isspace(static_cast<unsigned char>(str[i])))
+        return false;
+
+    // Skip spaces between #include and filename
+    while (i < str.size() && std::isspace(static_cast<unsigned char>(str[i]))) ++i;
+
+    // Must start with '<' and end with '>'
+    if (i >= str.size() || str[i] != '<') return false;
+
+    ++i;
+    while (i < str.size() && str[i] != '>') ++i;
+
+    return i < str.size() && str[i] == '>';
+}
+
+std::string Preprocessor::extractIncludeFilename(const std::string &str)
+{
+    size_t i = 0;
+
+    // Skip leading whitespace
+    while (i < str.size() && std::isspace(static_cast<unsigned char>(str[i]))) ++i;
+
+    const std::string keyword = "#include";
+    if (str.compare(i, keyword.size(), keyword) != 0)
+        return "";
+
+    i += keyword.size();
+
+    // Skip whitespace after "#include"
+    while (i < str.size() && std::isspace(static_cast<unsigned char>(str[i]))) ++i;
+
+    if (i >= str.size()) return "";
+
+    char opener = str[i];
+    char closer = (opener == '<') ? '>' : (opener == '"') ? '"' : '\0';
+
+    if (closer == '\0') return "";  // Invalid format
+
+    ++i; // move past opener
+    size_t start = i;
+
+    while (i < str.size() && str[i] != closer) ++i;
+
+    if (i >= str.size()) return ""; // No closing delimiter
+
+    return str.substr(start, i - start);
+}
+
+bool Preprocessor::parse(std::string &str)
+{
     std::string s;
     std::regex re;
     std::smatch match;
@@ -48,61 +180,6 @@ bool Preprocessor::parse(std::string &str) {
     
     
     if (disregard == false) {
-        re = R"(^ *#include +)";
-        if (regex_search(str, re)) {
-            std::sregex_token_iterator it;
-            const std::sregex_token_iterator end;
-            
-            re = R"(^ *#include +<([^<>:"\|\?\*]*)>)";
-            it = std::sregex_token_iterator {
-                str.begin(), str.end(), re, {1}
-            };
-            if (it != end) {
-                filename = *it++;
-                
-                if (std::filesystem::path(filename).parent_path().empty()) {
-                    filename.insert(0, path + "/");
-                }
-                
-                if (std::filesystem::path(filename).extension().empty()) {
-                    // If no extension is given, priorities for new .ppl+ than shorter older extension of .pp, revert to .pp if no file with .ppl+ exists.
-                    if (std::filesystem::exists(std::filesystem::path(filename + ".pp")))
-                        filename.append(".pp");
-                    else
-                        filename.append(".ppl+");
-                    
-                }
-                
-                if (verbose) std::cout << MessageType::Verbose << "Included " << std::filesystem::path(filename).filename() << "\n";
-                
-                return true;
-            }
-            
-            re = R"(^ *#include +"([^<>:"\|\?\*]*)\")";
-            it = std::sregex_token_iterator {
-                str.begin(), str.end(), re, {1}
-            };
-            if (it != end) {
-                filename = *it++;
-                std::filesystem::path filepath;
-                
-                filepath = filename;
-                if (std::filesystem::exists(filepath)) {
-                    if (verbose) std::cout << MessageType::Verbose << "Included " << std::filesystem::path(filename).filename() << "\n";
-                    return true;
-                }
-                
-                filepath = _singleton->getProjectDir() + "/" + filename;
-                if (std::filesystem::exists(filepath)) {
-                    if (verbose) std::cout << MessageType::Verbose << "Included " << std::filesystem::path(filename).filename() << "\n";
-                    return true;
-                }
-                std::cout << MessageType::Error << "#include Unable to include file " << std::filesystem::path(filename).filename() << " - file dose not exist\n";
-                return false;
-            }
-            return false;
-        }
-        
         /*
          eg. #define NAME(a,b,c) c := a+b
          Group  0 #define NAME(a,b,c) c := a+b

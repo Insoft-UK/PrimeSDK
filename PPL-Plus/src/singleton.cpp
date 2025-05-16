@@ -43,18 +43,15 @@ long Singleton::currentLineNumber(void) {
     return _currentline;
 }
 
-std::string Singleton::currentPath(void) {
+std::filesystem::path Singleton::currentPath(void) {
     if (_paths.empty()) return "";
     return _paths.back();
 }
 
-std::string Singleton::getProjectDir(void) {
-    std::string path = std::filesystem::path(_paths.front()).parent_path();
-    return path;
-}
 
-void Singleton::pushPath(const std::string &path) {
-    _paths.push_back(path);
+
+void Singleton::pushPath(const std::filesystem::path &path) {
+    _paths.push_back(path.lexically_normal());
     _lines.push_back(_currentline);
     _currentline = 1;
 }

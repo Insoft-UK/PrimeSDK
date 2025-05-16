@@ -51,7 +51,7 @@ bool Aliases::append(const TIdentity &idty) {
     
     trim(identity.identifier);
     trim(identity.real);
-    identity.pathname = singleton->currentPath();
+    identity.path = singleton->currentPath();
     identity.line = singleton->currentLineNumber();
     
     if (!identity.message.empty()) {
@@ -63,17 +63,20 @@ bool Aliases::append(const TIdentity &idty) {
         identity.scope = singleton->scopeDepth == 0 ? Aliases::Scope::Global : Aliases::Scope::Local;
     }
     
+    std::string filename = Singleton::shared()->currentPath().filename().string();
+    
+    
     if (identifierExists(identity.identifier)) {
         for (const auto &it : _identities) {
             if (it.identifier == identity.identifier) {
                 std::cout
                 << MessageType::Warning
                 << "redefinition of: " << ANSI::Bold << identity.identifier << ANSI::Default << ", ";
-                if (basename(Singleton::shared()->currentPath()) == basename(it.pathname)) {
+                if (filename == it.path.filename()) {
                     std::cout << "previous definition on line " << it.line << "\n";
                 }
                 else {
-                    std::cout << "previous definition in \"" << ANSI::Green << basename(it.pathname) << ANSI::Default << "\" on line " << it.line << "\n";
+                    std::cout << "previous definition in " << ANSI::Green << it.path.filename() << ANSI::Default << " on line " << it.line << "\n";
                 }
                 break;
             }

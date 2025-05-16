@@ -443,6 +443,20 @@ void loadLibrary(const std::string path, const bool verbose)
     }
 }
 
+void embedPPLCode(const std::string filename, std::ofstream &outfile)
+{
+    std::ifstream infile;
+    std::string s;
+    
+    infile.open(filename, std::ios::in);
+    if (infile.is_open()) {
+        while (getline(infile, s)) {
+            s.append("\n");
+            writeUTF16Line(s, outfile);
+        }
+    }
+}
+
 bool verbose(void)
 {
     if (Singleton::shared()->aliases.verbose) return true;
@@ -506,6 +520,7 @@ void writePythonBlock(std::ifstream &infile, std::ofstream &outfile) {
 
 void translatePPLPlusToPPL(const std::string &path, std::ofstream &outfile) {
     using namespace std;
+    namespace fs = std::filesystem;
     
     Singleton &singleton = *Singleton::shared();
     ifstream infile;
@@ -594,18 +609,42 @@ void translatePPLPlusToPPL(const std::string &path, std::ofstream &outfile) {
         }
         
         
-        
-        if (preprocessor.parse(utf8)) {
-            if (!preprocessor.filename.empty()) {
-                // Flagged with #include preprocessor for file inclusion, we process it before continuing.
-                translatePPLPlusToPPL(preprocessor.filename, outfile);
-                Singleton::shared()->incrementLineNumber();
-            }
+        if (preprocessor.isQuotedInclude(utf8)) {
             Singleton::shared()->incrementLineNumber();
+            
+            std::string filename = preprocessor.extractIncludeFilename(utf8);
+            if (fs::path(filename).parent_path().empty() && fs::exists(filename) == false) {
+                filename = singleton.getMainSourceDir().string() + "/" + filename;
+            }
+            if (fs::path(filename).extension() == ".hpprgm") {
+                embedPPLCode(filename, outfile);
+                continue;
+            }
+            translatePPLPlusToPPL(preprocessor.filename, outfile);
+            continue;
+        }
+        
+        if (preprocessor.isAngleInclude(utf8)) {
+            Singleton::shared()->incrementLineNumber();
+            std::string filename = preprocessor.extractIncludeFilename(utf8);
+            if (fs::path(filename).extension().empty()) {
+                filename.append(".ppl+");
+            }
+            for (fs::path systemIncludePath : preprocessor.systemIncludePath) {
+                if (fs::exists(systemIncludePath.string() + "/" + filename)) {
+                    filename = systemIncludePath.string() + "/" + filename;
+                    break;
+                }
+            }
+            translatePPLPlusToPPL(filename, outfile);
             continue;
         }
         
         
+        if (preprocessor.parse(utf8)) {
+            Singleton::shared()->incrementLineNumber();
+            continue;
+        }
         
     
         /*
@@ -614,10 +653,10 @@ void translatePPLPlusToPPL(const std::string &path, std::ofstream &outfile) {
          not on the same line. This ensures proper indentation can be applied
          during the reformatting stage of PPL code.
          
-         But we must ignore the line if it's a def, undef or regex and all @
+         But we must ignore the line if it's a regex and all @
         */
         
-        if (!regex_search(utf8, regex(R"(^ *(@[a-z]+ )? *(def|undef|regex) )"))) {
+        if (!regex_search(utf8, regex(R"(^ *(@[a-z]+ )? *regex )"))) {
             re = regex(R"(\b(THEN)\b)", regex_constants::icase);
             utf8 = regex_replace(utf8, re, "$1\n");
             
@@ -710,6 +749,8 @@ void help(void) {
 
 // MARK: - Main
 int main(int argc, char **argv) {
+    namespace fs = std::filesystem;
+    
     std::string in_filename, out_filename;
     
     if (argc == 1) {
@@ -751,13 +792,7 @@ int main(int argc, char **argv) {
         }
         
         
-        if ( args == "-v" ) {
-            if ( n + 1 >= argc ) {
-                error();
-                exit(103);
-            }
-            args = argv[++n];
-            
+        if (args.starts_with("-v=")) {
             if (args.find("a") != std::string::npos) Singleton::shared()->aliases.verbose = true;
             if (args.find("p") != std::string::npos) preprocessor.verbose = true;
             if (args.find("r") != std::string::npos) Singleton::shared()->regexp.verbose = true;
@@ -766,13 +801,8 @@ int main(int argc, char **argv) {
             continue;
         }
         
-        if (args == "-I") {
-            if (++n >= argc) {
-                error();
-                return 0;
-            }
-            preprocessor.path = std::string(argv[n]);
-            if (preprocessor.path.at(preprocessor.path.length() - 1) == '/') preprocessor.path.resize(preprocessor.path.length() - 1);
+        if (args.starts_with("-I")) {
+            preprocessor.systemIncludePath.push_front(fs::path(args.substr(2)).has_filename() ? fs::path(args.substr(2)) : fs::path(args.substr(2)).parent_path());
             continue;
         }
         
@@ -785,7 +815,7 @@ int main(int argc, char **argv) {
         std::regex re(R"(.\w*$)");
     }
     
-    namespace fs = std::filesystem;
+    
     
     if (!fs::exists(in_filename)) {
         if (fs::exists(in_filename + ".pp")) in_filename.append(".pp");

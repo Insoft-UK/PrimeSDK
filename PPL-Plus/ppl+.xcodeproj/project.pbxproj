@@ -73,6 +73,7 @@
 		1308443E2DCC2C7400CD8EC4 /* include */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = include; path = "../Package Installer/package-root/Applications/HP/PrimeSDK/include"; sourceTree = SOURCE_ROOT; };
 		130844962DD14C9600CD8EC4 /* Examples */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = Examples; path = "../Package Installer/package-root/private/tmp/PrimeSDK/Examples"; sourceTree = SOURCE_ROOT; };
 		130845642DD4222800CD8EC4 /* lib */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = lib; path = "../Package Installer/package-root/Applications/HP/PrimeSDK/lib"; sourceTree = SOURCE_ROOT; };
+		136C5CAD2DD651360089FC5D /* hpprgm */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); name = hpprgm; path = "../Package Installer/package-root/Applications/HP/PrimeSDK/hpprgm"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,9 +94,10 @@
 				1351CC552BFC0E180073FEDF /* README.md */,
 				136E64472D2877660054E0CC /* version.txt */,
 				137FB2942A046E8E00AEFDF2 /* ppl+.entitlements */,
+				136C5CAD2DD651360089FC5D /* hpprgm */,
+				1308443E2DCC2C7400CD8EC4 /* include */,
 				130845642DD4222800CD8EC4 /* lib */,
 				130844962DD14C9600CD8EC4 /* Examples */,
-				1308443E2DCC2C7400CD8EC4 /* include */,
 				13166E852BA12E5E00D1E6F0 /* examples */,
 				137FB2872A03B06500AEFDF2 /* src */,
 				137FB2862A03B06500AEFDF2 /* Products */,
@@ -166,7 +168,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 137FB28C2A03B06500AEFDF2 /* Build configuration list for PBXNativeTarget "ppl+" */;
 			buildPhases = (
-				1352EC5D2B40B72B003130E4 /* ShellScript */,
 				137FB2812A03B06500AEFDF2 /* Sources */,
 				137FB2822A03B06500AEFDF2 /* Frameworks */,
 				137FB2832A03B06500AEFDF2 /* CopyFiles */,
@@ -211,27 +212,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		1352EC5D2B40B72B003130E4 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 8;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-			shellPath = /bin/sh;
-			shellScript = "./version_code\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		137FB2812A03B06500AEFDF2 /* Sources */ = {

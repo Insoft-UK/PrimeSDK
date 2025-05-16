@@ -40,7 +40,7 @@ std::ostream &operator<<(std::ostream &os, MessageType type) {
     Singleton *singlenton = Singleton::shared();
 
     if (!singlenton->currentPath().empty()) {
-        os << ANSI::Blue << basename(singlenton->currentPath()) << ANSI::Default << ":" << ANSI::Bold;
+        os << ANSI::Blue << basename(singlenton->currentPath().string()) << ANSI::Default << ":" << ANSI::Bold;
         os << singlenton->currentLineNumber() << ANSI::Default << " ";
     }
 

@@ -50,9 +50,13 @@ namespace ppl_plus {
         
         void incrementLineNumber(void);
         long currentLineNumber(void);
-        std::string currentPath(void);
-        std::string getProjectDir(void);
-        void pushPath(const std::string &path);
+        std::filesystem::path currentPath(void);
+        
+        std::filesystem::path getMainSourceDir(void) {
+            return std::filesystem::path(_paths.front()).parent_path();
+        }
+        
+        void pushPath(const std::filesystem::path &path);
         void popPath(void);
         
         void increaseScopeDepth(const std::string &endCode = "") {
@@ -68,7 +72,7 @@ namespace ppl_plus {
         }
         
     private:
-        std::vector<std::string> _paths;
+        std::vector<std::filesystem::path> _paths;
         std::vector<long> _lines;
         static Singleton *_shared;
         

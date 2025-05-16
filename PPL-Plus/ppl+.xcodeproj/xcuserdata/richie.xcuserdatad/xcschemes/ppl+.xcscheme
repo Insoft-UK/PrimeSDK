@@ -80,15 +80,15 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-v apr"
+            argument = "-v=a"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-v=l"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-v l"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "-I $(PROJECT_DIR)/../Package\ Installer/package-root/Applications/HP/PrimeSDK/include"
+            argument = "-I$(PROJECT_DIR)/../Package\ Installer/package-root/Applications/HP/PrimeSDK/include/"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

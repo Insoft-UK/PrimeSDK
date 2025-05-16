@@ -25,12 +25,14 @@
 #define PREPROCESSOR_HPP
 
 #include "aliases.hpp"
+#include <deque>
+#include <fstream>
 
 namespace ppl_plus {
     class Preprocessor {
     public:
-        std::string path = "/Applications/HP/PrimeSDK/include";       // default path for #include <‘filename‘>
         std::string filename;
+        std::deque<std::filesystem::path> systemIncludePath;
         
         bool verbose = false;
         
@@ -38,7 +40,16 @@ namespace ppl_plus {
         bool operators = true;
         bool logicalOperators = true;
         
+        bool isIncludeLine(const std::string &str);
+        bool isQuotedInclude(const std::string &str);
+        bool isAngleInclude(const std::string &str);
+        std::string extractIncludeFilename(const std::string &str);
         bool parse(std::string &str);
+        
+        Preprocessor() {
+            systemIncludePath.push_front(std::filesystem::path("/Applications/HP/PrimeSDK/include"));
+        }
+        
     };
     
 }

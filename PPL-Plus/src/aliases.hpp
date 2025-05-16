@@ -28,6 +28,7 @@
 #include <list>
 #include <vector>
 #include <stdint.h>
+#include <fstream>
 
 namespace ppl_plus {
     class Aliases {
@@ -54,7 +55,7 @@ namespace ppl_plus {
             Type type;
             Scope scope;
             long line;              // line that definition accoured;
-            std::string pathname;   // path and filename that definition accoured
+            std::filesystem::path path;   // path and filename that definition accoured
             bool deprecated = false;
             std::string message;    // Used by deprecated, holds the message for deprecated.
         } TIdentity;
