@@ -34,9 +34,10 @@
 
 #include "singleton.hpp"
 
-#define INDENT_WIDTH 2
 
 #define basename(path)  path.substr(path.find_last_of("/") + 1)
+
+
 
 enum class MessageType {
     Warning,

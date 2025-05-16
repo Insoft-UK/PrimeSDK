@@ -1,4 +1,4 @@
-@disregard
+#ifndef __pplplus
 // The MIT License (MIT)
 //
 // Copyright (c) 2023-2025 Insoft. All rights reserved.
@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-@end
+#endif
 
 
 #ifndef HP_PPLIB
@@ -33,7 +33,7 @@ regex @`hp::mouse\.y` L8[1,2]
 regex @`hp::mouse\.type` L8[1,5]
 
 regex @`\bhp::storeScreen *\( *(G\d) *\)` DIMGROB_P($1, 320, 240, 0); BLIT_P($1, G0)
-regex @`\bhp::restoreScreen *\( *(G\d) *\)` BLIT_P($1)
+regex @`\bhp::restoreScreen *\( *(G\d) *\)` BLIT($1)
 
 regex @`\bhp::clear(?:GROB|Screen) *\((.*)?\)` RECT($1)
 

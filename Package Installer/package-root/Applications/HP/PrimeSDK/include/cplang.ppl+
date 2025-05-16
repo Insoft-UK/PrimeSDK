@@ -1,4 +1,4 @@
-@disregard
+#ifndef __pplplus
 // The MIT License (MIT)
 //
 // Copyright (c) 2023-2025 Insoft. All rights reserved.
@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-@end
+#endif
 
 #ifndef CPLANG_PPLIB
 #define CPLANG_PPLIB
@@ -46,7 +46,7 @@ regex @`\} *else *\{` ELSE
 regex @`\bwhile *\((.*)\) *\{ *$` WHILE $1 DO__PUSH__``
 regex @`\bdo *\{` REPEAT
 regex @`\} *while *\((.*)\) *; *$` UNTIL NOT($1);
-regex @`\bfor *\(([^;]+);([^;]+);([^;]+)\) *\{ *$` $1; WHILE$2 DO__PUSH__`__SPACE__$3;`
+regex @`\bfor *\(([^;]+); *([^;]+); *([^;]+)\) *\{ *$` $1; WHILE $2 DO__PUSH__`__INDENT__$3;`
 regex @`\bswitch *\(([a-zA-Z_][\w.:(),]*)\) *\{ *$` LOCAL sw\C`__SCOPE__/2` := $1;CASE__PUSH__``
 regex @`\bcase +(\-?\d+) *: *$` IF sw\C`__SCOPE__/2` == $1 THEN__PUSH__``
 

@@ -95,7 +95,7 @@ bool Alias::parse(std::string &str) {
          1 name:alias::name
          2 p1, p2:alias, auto:alias
          */
-        re = std::regex(R"(^(?:EXPORT )?([a-zA-Z]\w*(?::[a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*)?)\((.*)\))", std::regex_constants::icase);
+        re = std::regex(R"(^(?:EXPORT )?([a-zA-Z]\w*(?::[a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*)?)\((.*)\)$)", std::regex_constants::icase);
         
         if (regex_search(str, matches, re)) {
             parseFunctionName(matches[1].str());
@@ -103,6 +103,12 @@ bool Alias::parse(std::string &str) {
             if (!matches[2].str().empty()) {
                 parseParameters(matches[2].str());
             }
+            parsed = true;
+        }
+        
+        re = R"(\b[a-zA-Z]\w*:[a-zA-Z]\w*(?:::[a-zA-Z]\w*)*\b)";
+        if (regex_search(str, re)) {
+            parseVariables(str);
             parsed = true;
         }
     }

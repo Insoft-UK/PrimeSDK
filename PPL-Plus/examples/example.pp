@@ -1,4 +1,4 @@
-@disregard
+#disregard
 // The MIT License (MIT)
 //
 // Copyright (c) 2023-2025 Insoft. All rights reserved.
@@ -20,8 +20,9 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-@end
-#pragma mode( separator(.,,) integer(h64) assignment(=) )
+#end
+
+#pragma mode( separator(.,,) integer(h64) assignment(=) indentation(1) )
 
 regex @`\bInt8\(([^()]*)\)` SETBITS($1,-7)
 
@@ -31,13 +32,13 @@ Int8(ThemeMode.Dark)
 
 A := 5 + -6;
 
-@disregard
+#disregard
  When defining a macro with parameters, issues can arise if an argument
  name is adjacent to a letter. To resolve this, you can use numbered
  placeholders like `1$` for the first argument, `2$` for the second, `3$`
  for the third, and so on. This ensures the macro arguments remain uniquely
  identifiable and avoid issues, note that $0 is the identifier.
-@end
+#endif
 
 #define MacroList(i)      L$1
 #define COPYWRITE "Copyright (c) 2023-2025 Insoft. All rights reserved."
@@ -53,10 +54,12 @@ alias integer::base::set := SETBASE;
 
 #include "ppl.hpprgm"
 
-Example:AVery::LongName(p: first, q: second, _third)
+hg: alp="9",auto:h, b: beta = 8, cel;
+
+public AVery::LongName(p: first, q: second, _third)
 begin
     // Local Variables with aliases
-    local a: alpha, b: beta;
+    local a: alpha, b: beta = 8;
     local @_hello = 6;
     
     local d: beta;

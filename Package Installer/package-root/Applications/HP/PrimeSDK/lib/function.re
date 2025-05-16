@@ -1,1 +1,2 @@
-=`^ *public +`i EXPORT
+=`^ *public\b`i EXPORT
+=`\bfunction +`i

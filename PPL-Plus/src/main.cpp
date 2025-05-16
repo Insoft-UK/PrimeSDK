@@ -46,6 +46,9 @@
 
 #define NAME "PPL+ Pre-Processor for PPL"
 #define COMMAND_NAME "ppl+"
+#define INDENT_WIDTH indentation
+
+static unsigned int indentation = 2;
 
 using namespace ppl_plus;
 
@@ -230,16 +233,14 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
     }
     consecutiveBlankLines = 0;
     
+    if (singleton->regexp.parse(ln)) return;
+
     
     if (ln.substr(0,2) == "//") {
         ln = ln.insert(0, std::string(singleton->scopeDepth * INDENT_WIDTH, ' '));
         ln += '\n';
         return;
     }
-    
-    if (singleton->regexp.parse(ln)) return;
-    
-
 
     /*
      While parsing the contents, strings may inadvertently undergo parsing, leading
@@ -257,13 +258,16 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
     
     ln = regex_replace(ln, std::regex(R"(\s+)"), " "); // All multiple whitespaces in succesion to a single space, future reg-ex will not require to deal with '\t', only spaces.
     
-    
     // Remove any comments.
     singleton->comments.preserveComment(ln);
     singleton->comments.removeComment(ln);
 
     
     singleton->regexp.resolveAllRegularExpression(ln);
+    if (preprocessor.parse(ln)) {
+        ln = "";
+        return;
+    }
     ln = singleton->aliases.resolveAllAliasesInText(ln);
     
     
@@ -557,17 +561,6 @@ void translatePPLPlusToPPL(const std::string &path, std::ofstream &outfile) {
             break;
         }
         
-        re = R"(^ *@disregard *$)";
-        if (regex_match(utf8, re)) {
-            Singleton::shared()->incrementLineNumber();
-            re = R"(^ *@end *$)";
-            while (getline(infile, utf8)) {
-                Singleton::shared()->incrementLineNumber();
-                if (regex_match(utf8, re)) break;
-            }
-            continue;
-        }
-        
         while (preprocessor.disregard == true) {
             preprocessor.parse(utf8);
             Singleton::shared()->incrementLineNumber();
@@ -597,6 +590,10 @@ void translatePPLPlusToPPL(const std::string &path, std::ofstream &outfile) {
                     }
                     if (it->str(2) == ":=") assignment = ":=";
                     if (it->str(2) == "=") assignment = "=";
+                    continue;
+                }
+                if (it->str(1) == "indentation") {
+                    indentation = std::atoi(it->str(2).c_str());
                     continue;
                 }
                 utf8.append(it->str() + " ");
@@ -639,13 +636,6 @@ void translatePPLPlusToPPL(const std::string &path, std::ofstream &outfile) {
             translatePPLPlusToPPL(filename, outfile);
             continue;
         }
-        
-        
-        if (preprocessor.parse(utf8)) {
-            Singleton::shared()->incrementLineNumber();
-            continue;
-        }
-        
     
         /*
          We first need to perform pre-parsing to ensure that, in lines such

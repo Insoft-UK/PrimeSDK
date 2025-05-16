@@ -270,7 +270,7 @@ bool Preprocessor::parse(std::string &str)
         disregard = !disregard;return true;
     }
     
-    if (regex_search(str, std::regex(R"(^ *#endif\b *((\/\/.*)|)$)"))) {
+    if (regex_search(str, std::regex(R"(^ *#end(if)?\b *((\/\/.*)|)$)"))) {
         disregard = false;
         return true;
     }
