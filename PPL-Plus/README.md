@@ -2,7 +2,7 @@
 
 <br />
 <img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/PPL+_Logo.png" style="width: 128px" />
-<b>PPL+</b> is a pre-processor utility designed to improve code maintainability and readability in the HP Prime Programming Language (PPL). PPL+ also allows one to define regular expressions to assist in the preprocessing workflow. The final output is a compact, optimized PPL program file tailored to the HP Prime’s limited storage capacity.
+<b>PPL+</b> is a preprocessor utility designed to improve code maintainability and readability in the HP Prime Programming Language (PPL). PPL+ also allows one to define regular expressions to assist in the preprocessing workflow. The final output is a compact, optimized PPL program file tailored to the HP Prime’s limited storage capacity.
 <br/><br/>
 
 **PPL+**
@@ -112,4 +112,4 @@ This allows you to use = as equality.
 In PPL+ by default `=` is treated as `:=` were in PPL `=` is treated as `==`
 
 >[!NOTE]
-The PPL+ pre-processor is susceptible to change, while also maintaining some compatibility with previous versions.
+The PPL+ preprocessor (formerly known as P+) is subject to change but aims to maintain some level of compatibility with previous versions.
