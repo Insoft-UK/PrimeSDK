@@ -18,3 +18,4 @@ A utility for generating PPL code from an image file for use with the BLIT and B
 This is a handy utility that goes well with the original fontconvert tool provided by Adafruit for converting Adafruit_GFX .h to Adafruit_GFX .hpprgm format.
 
 ### <a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/hpprgm/README.md">HP Prime Program Tool</a>
+This utility tool provides the ability to extract **PPL** code from an HP Prime `.hpprgm` file.
