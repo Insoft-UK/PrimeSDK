@@ -1,7 +1,7 @@
 # PPL+ for HP Prime
 
 <br />
-<img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/PPL+_Logo.png" style="width: 128px" />
+<img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/PPL+.png" style="width: 128px" />
 <b>PPL+</b> is a preprocessor utility designed to improve code maintainability and readability in the HP Prime Programming Language (PPL). PPL+ also allows one to define regular expressions to assist in the preprocessing workflow. The final output is a compact, optimized PPL program file tailored to the HP Prime’s limited storage capacity.
 <br/><br/>
 
