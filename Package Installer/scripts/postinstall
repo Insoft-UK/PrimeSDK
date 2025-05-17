@@ -35,7 +35,7 @@ USER_HOME="/Users/$CURRENT_USER"
 
 mkdir -p "$USER_HOME/Documents/HP Prime"
 
-cp -R /private/tmp/PrimeSDK/Examples "$USER_HOME/Documents/HP Prime"
+rsync -av --delete --itemize-changes /private/tmp/PrimeSDK/Examples "$USER_HOME/Documents/HP Prime"
 rm -r /private/tmp/PrimeSDK
 chown -R "$CURRENT_USER" "$USER_HOME/Documents/HP Prime/Examples"
 chgrp -R staff "$USER_HOME/Documents/HP Prime/Examples"
