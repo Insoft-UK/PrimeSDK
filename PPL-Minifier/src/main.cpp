@@ -44,12 +44,8 @@
 #define NAME "PPL Minifier"
 #define COMMAND_NAME "pplmin"
 
-using namespace ppl;
-
 static Preprocessor preprocessor = Preprocessor();
 static Strings strings = Strings();
-
-
 
 void terminator() {
   std::cout << MessageType::Error << "An internal preprocessing problem occurred. Please review the syntax before this point.\n";
@@ -292,11 +288,11 @@ void minifieLine(std::string &ln, std::ofstream &outfile) {
     
     Aliases::TIdentity identity;
     
-    if (Singleton::Scope::Global == singleton->scope) {
+    if (singleton->scope == Singleton::Scope::Global) {
         identity.scope = Aliases::Scope::Global;
         
         // LOCAL
-        ln = regex_replace(ln, std::regex(R"(\bLOCAL +)"), "");
+        ln = regex_replace(ln, std::regex(R"(\bLOCAL +)", std::regex_constants::icase), "");
         
         // Function
         re = R"(^([A-Za-z]\w*)\(([\w,]*)\);?$)";
@@ -339,12 +335,11 @@ void minifieLine(std::string &ln, std::ofstream &outfile) {
         }
     }
     
-    if (Singleton::Scope::Local == singleton->scope) {
+    if (singleton->scope == Singleton::Scope::Local) {
         identity.scope = Aliases::Scope::Local;
         
         // LOCAL
-        re = R"(\bLOCAL (?:[A-Za-z]\w*[,;])+)";
-        if (regex_search(ln, match, re)) {
+        if (regex_search(ln, match, std::regex(R"(\bLOCAL (?:[A-Za-z]\w*[,;])+)", std::regex_constants::icase))) {
             std::string matched = match.str();
             re = R"([A-Za-z]\w*(?=[,;]))";
             
@@ -358,8 +353,7 @@ void minifieLine(std::string &ln, std::ofstream &outfile) {
             }
         }
         
-        re = R"(\bLOCAL ([A-Za-z]\w*)(?::=))";
-        if (regex_search(ln, match, re)) {
+        if (regex_search(ln, match, std::regex(R"(\bLOCAL ([A-Za-z]\w*)(?::=))", std::regex_constants::icase))) {
             identity.type = Aliases::Type::Variable;
             identity.identifier = match.str(1);
             identity.real = "v" + base10ToBase32(++localVariableAliasCount);
@@ -388,6 +382,8 @@ void minifieLine(std::string &ln, std::ofstream &outfile) {
                 ln = ln.replace(match.position(), match.length(), ss.str());
             }
         }
+        
+        ln = regex_replace(ln, std::regex(R"( +FROM +)", std::regex_constants::icase), ":=");
     }
     
     ln = singleton->aliases.resolveAliasesInText(ln);
@@ -479,11 +475,12 @@ void convertAndFormatFile(std::ifstream &infile, std::ofstream &outfile)
 
 
 void version(void) {
-    std::cout << "Copyright (C) 2024 Insoft. All rights reserved.\n";
-    std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n";
-    std::cout << "Built on: " << DATE << "\n";
-    std::cout << "Licence: MIT License\n\n";
-    std::cout << "For more information, visit: http://www.insoft.uk\n";
+    std::cout
+    << "Copyright (C) 2024 Insoft. All rights reserved."
+    << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")"
+    << "Built on: " << DATE << ""
+    << "Licence: MIT License\n"
+    << "For more information, visit: http://www.insoft.uk\n";
 }
 
 void error(void) {
@@ -492,19 +489,21 @@ void error(void) {
 }
 
 void info(void) {
-    std::cout << "Copyright (c) 2024 Insoft. All rights reserved.\n";
-    std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n\n";
+    std::cout 
+    << "Copyright (c) 2024 Insoft. All rights reserved."
+    << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n\n";
 }
 
 void help(void) {
-    std::cout << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n";
-    std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n";
-    std::cout << "\n";
-    std::cout << "Usage: " << COMMAND_NAME << " <input-file>\n\n";
-    std::cout << "Additional Commands:\n";
-    std::cout << "  " << COMMAND_NAME << " {-version | -help}\n";
-    std::cout << "    -version              Display the version information.\n";
-    std::cout << "    -help                 Show this help message.\n";
+    std::cout 
+    << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved."
+    << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")"
+    << ""
+    << "Usage: " << COMMAND_NAME << " <input-file>\n"
+    << "Additional Commands:"
+    << "  " << COMMAND_NAME << " {-version | -help}"
+    << "    -version              Display the version information."
+    << "    -help                 Show this help message.\n";
 }
 
 // Custom facet to use comma as the thousands separator

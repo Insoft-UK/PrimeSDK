@@ -122,7 +122,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 137FB28C2A03B06500AEFDF2 /* Build configuration list for PBXNativeTarget "pplmin" */;
 			buildPhases = (
-				1352EC5D2B40B72B003130E4 /* ShellScript */,
 				137FB2812A03B06500AEFDF2 /* Sources */,
 				137FB2822A03B06500AEFDF2 /* Frameworks */,
 				137FB2832A03B06500AEFDF2 /* CopyFiles */,
@@ -167,27 +166,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		1352EC5D2B40B72B003130E4 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "./version_code\n\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		137FB2812A03B06500AEFDF2 /* Sources */ = {

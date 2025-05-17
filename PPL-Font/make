@@ -3,6 +3,7 @@ DIR=$(dirname "$0")
 cd $DIR
 clear
 
+~/GitHub/Insoft-UK/scripts/version_code.sh
 make -j$(sysctl -n hw.ncpu) all
 
 read -p "Press Enter to exit!"

@@ -3,6 +3,7 @@ xcuserdata/
 .DS_Store
 *.pkg
 ignore
+version_code.sh
 update_files
 build
 Nightly\ Build
