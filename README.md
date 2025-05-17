@@ -17,3 +17,4 @@ A utility for generating PPL code from an image file for use with the BLIT and B
 ### Adafruit GFX <a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/PPL-Font/README.md">Font Converter</a>
 This is a handy utility that goes well with the original fontconvert tool provided by Adafruit for converting Adafruit_GFX .h to Adafruit_GFX .hpprgm format.
 
+### <a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/PPL-Font/README.md">HP Prime Program Tool</a>
