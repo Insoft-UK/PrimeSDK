@@ -50,16 +50,40 @@
 
 static unsigned int indentation = 2;
 
-using namespace ppl_plus;
+using ppl_plus::Singleton;
+using ppl_plus::Strings;
+using ppl_plus::Aliases;
+using ppl_plus::Alias;
+using ppl_plus::Calc;
+using ppl_plus::Dictionary;
+using ppl_plus::Preprocessor;
 
-void translatePPLPlusToPPL(const std::filesystem::path &path, std::ofstream &outfile);
+using std::cout;
+using std::string;
+using std::ofstream;
+using std::ifstream;
+using std::regex;
+using std::smatch;
+using std::regex_replace;
+using std::sregex_iterator;
+using std::sregex_token_iterator;
+using std::to_string;
+using std::fixed;
+using std::ios;
+using std::setprecision;
+using std::istringstream;
+
+namespace fs = std::filesystem;
+namespace rc = std::regex_constants;
+
+void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile);
 
 static Preprocessor preprocessor = Preprocessor();
 static Strings strings = Strings();
-static std::string assignment = "=";
+static string assignment = "=";
 
 void terminator() {
-    std::cout << MessageType::CriticalError << "An internal pre-processing problem occurred. Please review the syntax before this point.\n";
+    cout << MessageType::CriticalError << "An internal pre-processing problem occurred. Please review the syntax before this point.\n";
     exit(0);
 }
 void (*old_terminate)() = std::set_terminate(terminator);
@@ -91,31 +115,31 @@ uint32_t utf8_to_utf16(const char *str) {
 }
 
 // Function to remove whitespaces around specific operators using regular expressions
-std::string removeWhitespaceAroundOperators(const std::string &str) {
+string removeWhitespaceAroundOperators(const string &str) {
     // Regular expression pattern to match spaces around the specified operators
     // Operators: {}[]()≤≥≠<>=*/+-▶.,;:!^
-    std::regex re(R"(\s*([{}[\]()≤≥≠<>=*\/+\-▶.,;:!^&|%`])\s*)");
+    regex re(R"(\s*([{}[\]()≤≥≠<>=*\/+\-▶.,;:!^&|%`])\s*)");
     
     // Replace matches with the operator and no surrounding spaces
-    std::string result = std::regex_replace(str, re, "$1");
+    string result = regex_replace(str, re, "$1");
     
     return result;
 }
 
 // MARK: - PPL+ To PPL Translater...
-void reformatPPLLine(std::string &str) {
-    std::regex re;
+void reformatPPLLine(string &str) {
+    regex re;
     
     Strings strings = Strings();
     strings.preserveStrings(str);
     
     str = removeWhitespaceAroundOperators(str);
     
-    str = regex_replace(str, std::regex(R"(,)"), ", ");
-    str = regex_replace(str, std::regex(R"(\{)"), "{ ");
-    str = regex_replace(str, std::regex(R"(\})"), " }");
-    str = regex_replace(str, std::regex(R"(^ +(\} *;))"), "$1\n");
-    str = regex_replace(str, std::regex(R"(\{ +\})"), "{}");
+    str = regex_replace(str, regex(R"(,)"), ", ");
+    str = regex_replace(str, regex(R"(\{)"), "{ ");
+    str = regex_replace(str, regex(R"(\})"), " }");
+    str = regex_replace(str, regex(R"(^ +(\} *;))"), "$1\n");
+    str = regex_replace(str, regex(R"(\{ +\})"), "{}");
     
     /*
      To prevent correcting over-modifications, first replace all double `==` with a single `=`.
@@ -127,7 +151,7 @@ void reformatPPLLine(std::string &str) {
      `=` or `:=` with surrounding whitespace are targeted, we can then safely convert `=` to `==`
      without affecting other operators.
      */
-    str = regex_replace(str, std::regex(R"(==)"), "=");
+    str = regex_replace(str, regex(R"(==)"), "=");
     
     // Ensuring that standalone `≥`, `≤`, `≠`, `=`, `:=`, `+`, `-`, `*` and `/` have surrounding whitespace.
     re = R"(≥|≤|≠|=|:=|\+|-|\*|\/|▶)";
@@ -144,43 +168,43 @@ void reformatPPLLine(std::string &str) {
     str = regex_replace(str, re, "$1-");
     
     // We can now safely convert `=` to `==` without affecting other operators.
-    if (!regex_search(str, std::regex(R"(LOCAL [A-Za-z]\w* = )"))) {
-        str = regex_replace(str, std::regex(R"( = )"), " == ");
+    if (!regex_search(str, regex(R"(LOCAL [A-Za-z]\w* = )"))) {
+        str = regex_replace(str, regex(R"( = )"), " == ");
     }
     
     
     if (Singleton::shared()->scopeDepth > 0) {
         try {
-            if (!regex_search(str, std::regex(R"(\b(BEGIN|IF|CASE|REPEAT|WHILE|FOR|ELSE|IFERR)\b)"))) {
-                str.insert(0, std::string(Singleton::shared()->scopeDepth * INDENT_WIDTH, ' '));
+            if (!regex_search(str, regex(R"(\b(BEGIN|IF|CASE|REPEAT|WHILE|FOR|ELSE|IFERR)\b)"))) {
+                str.insert(0, string(Singleton::shared()->scopeDepth * INDENT_WIDTH, ' '));
             } else {
-                str.insert(0, std::string((Singleton::shared()->scopeDepth - 1) * INDENT_WIDTH, ' '));
+                str.insert(0, string((Singleton::shared()->scopeDepth - 1) * INDENT_WIDTH, ' '));
             }
         }
         catch (...) {
-            std::cout << MessageType::CriticalError << "'" << str << "'\n";
+            cout << MessageType::CriticalError << "'" << str << "'\n";
             exit(0);
         }
         
         
-        re = std::regex(R"(^ *(THEN)\b)", std::regex_constants::icase);
-        str = regex_replace(str, re, std::string((Singleton::shared()->scopeDepth - 1) * INDENT_WIDTH, ' ') + "$1");
+        re = regex(R"(^ *(THEN)\b)", rc::icase);
+        str = regex_replace(str, re, string((Singleton::shared()->scopeDepth - 1) * INDENT_WIDTH, ' ') + "$1");
         
       
-        if (regex_search(str, std::regex(R"(\bEND;$)"))) {
-            str = regex_replace(str, std::regex(R"(;(.+))"), ";\n" + std::string((Singleton::shared()->scopeDepth - 1) * INDENT_WIDTH, ' ') + "$1");
+        if (regex_search(str, regex(R"(\bEND;$)"))) {
+            str = regex_replace(str, regex(R"(;(.+))"), ";\n" + string((Singleton::shared()->scopeDepth - 1) * INDENT_WIDTH, ' ') + "$1");
         } else {
-            str = regex_replace(str, std::regex(R"(; *(.+))"), "; $1");
+            str = regex_replace(str, regex(R"(; *(.+))"), "; $1");
         }
     }
     
     if (Singleton::shared()->scopeDepth == 0) {
-        str = regex_replace(str, std::regex(R"(END;)"), "$0\n");
-        str = regex_replace(str, std::regex(R"(LOCAL )"), "");
+        str = regex_replace(str, regex(R"(END;)"), "$0\n");
+        str = regex_replace(str, regex(R"(LOCAL )"), "");
     }
     
     
-    str = regex_replace(str, std::regex(R"(([)};])([A-Z]))"), "$1 $2");
+    str = regex_replace(str, regex(R"(([)};])([A-Z]))"), "$1 $2");
     
     re = R"(([^a-zA-Z ])(BEGIN|END|RETURN|KILL|IF|THEN|ELSE|XOR|OR|AND|NOT|CASE|DEFAULT|IFERR|IFTE|FOR|FROM|STEP|DOWNTO|TO|DO|WHILE|REPEAT|UNTIL|BREAK|CONTINUE|EXPORT|CONST|LOCAL|KEY))";
     str = regex_replace(str, re, "$1 $2");
@@ -195,24 +219,24 @@ void reformatPPLLine(std::string &str) {
     strings.restoreStrings(str);
 }
 
-void capitalizeKeywords(std::string &str) {
-    std::string result = str;
-    std::regex re;
+void capitalizeKeywords(string &str) {
+    string result = str;
+    regex re;
     
     // We turn any keywords that are in lowercase to uppercase
     re = R"(\b(begin|end|return|kill|if|then|else|xor|or|and|not|case|default|iferr|ifte|for|from|step|downto|to|do|while|repeat|until|break|continue|export|const|local|key)\b)";
-    for(std::sregex_iterator it = std::sregex_iterator(str.begin(), str.end(), re); it != std::sregex_iterator(); ++it) {
-        std::string result = it->str();
-        std::transform(result.begin(), result.end(), result.begin(), ::toupper);
+    for(sregex_iterator it = sregex_iterator(str.begin(), str.end(), re); it != sregex_iterator(); ++it) {
+        string result = it->str();
+        transform(result.begin(), result.end(), result.begin(), ::toupper);
         str = str.replace(it->position(), it->length(), result);
     }
 }
 
 
-void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
-    std::regex re;
-    std::smatch match;
-    std::ifstream infile;
+void translatePPLPlusLine(string &ln, ofstream &outfile) {
+    regex re;
+    smatch match;
+    ifstream infile;
     
 
     Singleton *singleton = Singleton::shared();
@@ -229,7 +253,7 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
     
     
     if (ln.substr(0,2) == "//") {
-        ln = ln.insert(0, std::string(singleton->scopeDepth * INDENT_WIDTH, ' '));
+        ln = ln.insert(0, string(singleton->scopeDepth * INDENT_WIDTH, ' '));
         ln += '\n';
         return;
     }
@@ -248,7 +272,7 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
     strings.preserveStrings(ln);
     strings.blankOutStrings(ln);
     
-    ln = regex_replace(ln, std::regex(R"(\s+)"), " "); // All multiple whitespaces in succesion to a single space, future reg-ex will not require to deal with '\t', only spaces.
+    ln = regex_replace(ln, regex(R"(\s+)"), " "); // All multiple whitespaces in succesion to a single space, future reg-ex will not require to deal with '\t', only spaces.
     
     // Remove any comments.
     singleton->comments.preserveComment(ln);
@@ -292,10 +316,10 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
      */
     
     re = R"((?:[^<>=]|^)(>=|<>|<=|=>)(?!=[<>=]))";
-    std::string::const_iterator it = ln.cbegin();
-    while (std::regex_search(it, ln.cend(), match, re)) {
+    string::const_iterator it = ln.cbegin();
+    while (regex_search(it, ln.cend(), match, re)) {
         // We will convert any >= != <= or => to PPLs ≥ ≠ ≤ and ▶
-        std::string s = match.str(1);
+        string s = match.str(1);
         
         // Replace the operator with the appropriate PPL symbol.
         if (s == ">=") s = "≥";
@@ -310,7 +334,7 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
     // PPL by default uses := instead of C's = for assignment. Converting all = to PPL style :=
     if (assignment == "=") {
         re = R"(([^:=]|^)(?:=)(?!=))";
-        ln = std::regex_replace(ln, re, "$1 := ");
+        ln = regex_replace(ln, re, "$1 := ");
     }
     
     
@@ -333,19 +357,19 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
     //MARK: -
     
     re = R"(\b(log|cos|sin|tan|ln|min|max)\b)";
-    for(std::sregex_iterator it = std::sregex_iterator(ln.begin(), ln.end(), re); it != std::sregex_iterator(); ++it) {
-        std::string result = it->str();
-        std::transform(result.begin(), result.end(), result.begin(), ::toupper);
+    for(sregex_iterator it = sregex_iterator(ln.begin(), ln.end(), re); it != sregex_iterator(); ++it) {
+        string result = it->str();
+        transform(result.begin(), result.end(), result.begin(), ::toupper);
         ln = ln.replace(it->position(), it->length(), result);
     }
     
     re = R"(\b(BEGIN|IF|FOR|CASE|REPEAT|WHILE|IFERR)\b)";
-    for(auto it = std::sregex_iterator(ln.begin(), ln.end(), re); it != std::sregex_iterator(); ++it) {
+    for(auto it = sregex_iterator(ln.begin(), ln.end(), re); it != sregex_iterator(); ++it) {
         singleton->increaseScopeDepth();
     }
     
     re = R"(\b(END|UNTIL)\b)";
-    for(auto it = std::sregex_iterator(ln.begin(), ln.end(), re); it != std::sregex_iterator(); ++it) {
+    for(auto it = sregex_iterator(ln.begin(), ln.end(), re); it != sregex_iterator(); ++it) {
         singleton->decreaseScopeDepth();
         if (singleton->scopeDepth == 0) {
             singleton->aliases.removeAllOutOfScopeAliases();
@@ -358,11 +382,11 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
     
     if (singleton->scopeDepth == 0) {
         re = R"(^ *(KS?A?_[A-Z\d][a-z]*) *$)";
-        std::sregex_token_iterator it = std::sregex_token_iterator {
+        sregex_token_iterator it = sregex_token_iterator {
             ln.begin(), ln.end(), re, {1}
         };
-        if (it != std::sregex_token_iterator()) {
-            std::string s = *it;
+        if (it != sregex_token_iterator()) {
+            string s = *it;
             ln = "KEY " + s + "()";
         }
     }
@@ -374,10 +398,10 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
     
     reformatPPLLine(ln);
     
-    ln = regex_replace(ln, std::regex(R"(__NL__)"), "\n");
-    ln = regex_replace(ln, std::regex(R"(__CR__)"), "\r");
-    ln = regex_replace(ln, std::regex(R"(__INDENT__)"), std::string(INDENT_WIDTH, ' '));
-    ln = regex_replace(ln, std::regex(R"(__SPACE__)"), " ");
+    ln = regex_replace(ln, regex(R"(__NL__)"), "\n");
+    ln = regex_replace(ln, regex(R"(__CR__)"), "\r");
+    ln = regex_replace(ln, regex(R"(__INDENT__)"), string(INDENT_WIDTH, ' '));
+    ln = regex_replace(ln, regex(R"(__SPACE__)"), " ");
    
     strings.restoreStrings(ln);
     singleton->comments.restoreComment(ln);
@@ -385,7 +409,7 @@ void translatePPLPlusLine(std::string &ln, std::ofstream &outfile) {
     ln += '\n';
 }
 
-void writeUTF16Line(const std::string &ln, std::ofstream &outfile) {
+void writeUTF16Line(const string &ln, ofstream &outfile) {
     if (ln.empty()) return;
     
     for ( int n = 0; n < ln.length(); n++) {
@@ -410,23 +434,22 @@ void writeUTF16Line(const std::string &ln, std::ofstream &outfile) {
     }
 }
 
-void loadLibrary(const std::string path, const bool verbose)
+void loadLibrary(const string path, const bool verbose)
 {
-    namespace fs = std::filesystem;
     try {
         for (const auto& entry : fs::directory_iterator(path)) {
             if (fs::path(entry.path()).extension() != ".re") {
                 continue;
             }
-            std::string utf8;
-            std::ifstream infile;
+            string utf8;
+            ifstream infile;
             
             infile.open(entry.path(), std::ios::in);
             if (!infile.is_open()) {
                 continue;
             }
             
-            if (verbose) std::cout << "Library " << entry.path().filename() << " successfully loaded.\n";
+            if (verbose) cout << "Library " << entry.path().filename() << " successfully loaded.\n";
             
             while (getline(infile, utf8)) {
                 utf8.insert(0, "regex ");
@@ -434,16 +457,16 @@ void loadLibrary(const std::string path, const bool verbose)
             }
         }
     } catch (const fs::filesystem_error& e) {
-        std::cerr << "error: " << e.what() << std::endl;
+        std::cerr << "error: " << e.what() << '\n';
     }
 }
 
-void embedPPLCode(const std::string filename, std::ofstream &outfile)
+void embedPPLCode(const string filename, ofstream &outfile)
 {
-    std::ifstream infile;
-    std::string s;
+    ifstream infile;
+    string s;
     
-    infile.open(filename, std::ios::in);
+    infile.open(filename, ios::in);
     if (infile.is_open()) {
         while (getline(infile, s)) {
             s.append("\n");
@@ -465,24 +488,24 @@ enum BlockType
     BlockType_Python, BlockType_PPL, BlockType_PrimePlus
 };
 
-bool isPythonBlock(const std::string str) {
-    std::regex re(R"(^ *# *PYTHON( .*)?$)");
-    return std::regex_search(str, re);
+bool isPythonBlock(const string str) {
+    regex re(R"(^ *# *PYTHON( .*)?$)");
+    return regex_search(str, re);
 }
 
-bool isPPLBlock(const std::string str) {
-    std::regex re(R"(^ *# *PPL *(\/\/.*)?$)");
-    return std::regex_search(str, re);
+bool isPPLBlock(const string str) {
+    regex re(R"(^ *# *PPL *(\/\/.*)?$)");
+    return regex_search(str, re);
 }
 
-void writePPLBlock(std::ifstream &infile, std::ofstream &outfile) {
-    std::regex re(R"(^ *# *(END) *(?:\/\/.*)?$)");
-    std::string str;
+void writePPLBlock(ifstream &infile, ofstream &outfile) {
+    regex re(R"(^ *# *(END) *(?:\/\/.*)?$)");
+    string str;
     
     Singleton::shared()->incrementLineNumber();
     
     while(getline(infile, str)) {
-        if (std::regex_search(str, re)) {
+        if (regex_search(str, re)) {
             Singleton::shared()->incrementLineNumber();
             return;
         }
@@ -493,15 +516,15 @@ void writePPLBlock(std::ifstream &infile, std::ofstream &outfile) {
     }
 }
 
-void writePythonBlock(std::ifstream &infile, std::ofstream &outfile) {
-    std::regex re(R"(^ *# *(END) *(?:\/\/.*)?$)");
-    std::string str;
+void writePythonBlock(ifstream &infile, ofstream &outfile) {
+    regex re(R"(^ *# *(END) *(?:\/\/.*)?$)");
+    string str;
     
     writeUTF16Line("#PYTHON\n", outfile);
     Singleton::shared()->incrementLineNumber();
     
     while(getline(infile, str)) {
-        if (std::regex_search(str, re)) {
+        if (regex_search(str, re)) {
             writeUTF16Line("#END\n", outfile);
             Singleton::shared()->incrementLineNumber();
             return;
@@ -513,10 +536,7 @@ void writePythonBlock(std::ifstream &infile, std::ofstream &outfile) {
     }
 }
 
-void translatePPLPlusToPPL(const std::filesystem::path &path, std::ofstream &outfile) {
-    using namespace std;
-    namespace fs = std::filesystem;
-    
+void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile) {
     Singleton &singleton = *Singleton::shared();
     ifstream infile;
     regex re;
@@ -548,7 +568,7 @@ void translatePPLPlusToPPL(const std::filesystem::path &path, std::ofstream &out
             }
         }
         
-        if (regex_match(utf8, std::regex(R"(^ *#EXIT *$)", regex_constants::icase))) {
+        if (regex_match(utf8, regex(R"(^ *#EXIT *$)", rc::icase))) {
             break;
         }
         
@@ -572,19 +592,19 @@ void translatePPLPlusToPPL(const std::filesystem::path &path, std::ofstream &out
         re = R"(^ *\#pragma mode *\(.*\) *$)";
         if (regex_match(utf8, re)) {
             re = R"(([a-zA-Z]\w*)\(([^()]*)\))";
-            std::string s = utf8;
+            string s = utf8;
             utf8 = "#pragma mode( ";
-            for(auto it = std::sregex_iterator(s.begin(), s.end(), re); it != std::sregex_iterator(); ++it) {
+            for(auto it = sregex_iterator(s.begin(), s.end(), re); it != sregex_iterator(); ++it) {
                 if (it->str(1) == "assignment") {
                     if (it->str(2) != ":=" && it->str(2) != "=") {
-                        std::cout << MessageType::Warning << "#pragma mode: for '" << it->str() << "' invalid.\n";
+                        cout << MessageType::Warning << "#pragma mode: for '" << it->str() << "' invalid.\n";
                     }
                     if (it->str(2) == ":=") assignment = ":=";
                     if (it->str(2) == "=") assignment = "=";
                     continue;
                 }
                 if (it->str(1) == "indentation") {
-                    indentation = std::atoi(it->str(2).c_str());
+                    indentation = atoi(it->str(2).c_str());
                     continue;
                 }
                 utf8.append(it->str() + " ");
@@ -600,7 +620,7 @@ void translatePPLPlusToPPL(const std::filesystem::path &path, std::ofstream &out
         if (preprocessor.isQuotedInclude(utf8)) {
             Singleton::shared()->incrementLineNumber();
             
-            std::string filename = preprocessor.extractIncludeFilename(utf8);
+            string filename = preprocessor.extractIncludeFilename(utf8);
             if (fs::path(filename).parent_path().empty() && fs::exists(filename) == false) {
                 filename = singleton.getMainSourceDir().string() + "/" + filename;
             }
@@ -618,7 +638,7 @@ void translatePPLPlusToPPL(const std::filesystem::path &path, std::ofstream &out
         
         if (preprocessor.isAngleInclude(utf8)) {
             Singleton::shared()->incrementLineNumber();
-            std::string filename = preprocessor.extractIncludeFilename(utf8);
+            string filename = preprocessor.extractIncludeFilename(utf8);
             if (fs::path(filename).extension().empty()) {
                 filename.append(".ppl+");
             }
@@ -646,13 +666,13 @@ void translatePPLPlusToPPL(const std::filesystem::path &path, std::ofstream &out
         */
         
         if (!regex_search(utf8, regex(R"(^ *(@[a-z]+ )? *regex )"))) {
-            re = regex(R"(\b(THEN)\b)", regex_constants::icase);
+            re = regex(R"(\b(THEN)\b)", rc::icase);
             utf8 = regex_replace(utf8, re, "$1\n");
             
-            re = regex(R"(; *\b(ELSE)\b)", regex_constants::icase);
+            re = regex(R"(; *\b(ELSE)\b)", rc::icase);
             utf8 = regex_replace(utf8, re, ";\n$1\n");
             
-            re = regex(R"(; *(END|UNTIL|ELSE|LOCAL|CONST)?;)", regex_constants::icase);
+            re = regex(R"(; *(END|UNTIL|ELSE|LOCAL|CONST)?;)", rc::icase);
             utf8 = regex_replace(utf8, re, ";\n$1;");
         }
         
@@ -687,7 +707,7 @@ void version(void) {
 }
 
 void error(void) {
-    std::cout << COMMAND_NAME << ": try '" << COMMAND_NAME << " --help' for more information\n";
+    cout << COMMAND_NAME << ": try '" << COMMAND_NAME << " --help' for more information\n";
     exit(0);
 }
 
@@ -738,9 +758,8 @@ void help(void) {
 
 // MARK: - Main
 int main(int argc, char **argv) {
-    namespace fs = std::filesystem;
     
-    std::string in_filename, out_filename;
+    string in_filename, out_filename;
     
     if (argc == 1) {
         error();
@@ -750,7 +769,7 @@ int main(int argc, char **argv) {
     bool verbose = false;
     bool showpath = false;
     
-    std::string args(argv[0]);
+    string args(argv[0]);
     
     for (int n = 1; n < argc; n++) {
         args = argv[n];
@@ -782,10 +801,10 @@ int main(int argc, char **argv) {
         
         
         if (args.starts_with("-v=")) {
-            if (args.find("a") != std::string::npos) Singleton::shared()->aliases.verbose = true;
-            if (args.find("p") != std::string::npos) preprocessor.verbose = true;
-            if (args.find("r") != std::string::npos) Singleton::shared()->regexp.verbose = true;
-            if (args.find("l") != std::string::npos) verbose = true;
+            if (args.find("a") != string::npos) Singleton::shared()->aliases.verbose = true;
+            if (args.find("p") != string::npos) preprocessor.verbose = true;
+            if (args.find("r") != string::npos) Singleton::shared()->regexp.verbose = true;
+            if (args.find("l") != string::npos) verbose = true;
                 
             continue;
         }
@@ -801,7 +820,7 @@ int main(int argc, char **argv) {
         }
         
         in_filename = argv[n];
-        std::regex re(R"(.\w*$)");
+        regex re(R"(.\w*$)");
     }
     
     
@@ -828,8 +847,8 @@ int main(int argc, char **argv) {
     info();
     
     
-    std::ofstream outfile;
-    outfile.open(out_filename, std::ios::out | std::ios::binary);
+    ofstream outfile;
+    outfile.open(out_filename, ios::out | ios::binary);
     if(!outfile.is_open())
     {
         error();
@@ -843,7 +862,7 @@ int main(int argc, char **argv) {
     // Start measuring time
     Timer timer;
     
-    std::string str;
+    string str;
     
     str = "#define __pplplus";
     preprocessor.parse(str);
@@ -851,10 +870,10 @@ int main(int argc, char **argv) {
     str = R"(#define __LIST_LIMIT 10000)";
     preprocessor.parse(str);
     
-    str = R"(#define __VERSION )" + std::to_string(NUMERIC_BUILD / 100);
+    str = R"(#define __VERSION )" + to_string(NUMERIC_BUILD / 100);
     preprocessor.parse(str);
     
-    str = R"(#define __NUMERIC_BUILD )" + std::to_string(NUMERIC_BUILD);
+    str = R"(#define __NUMERIC_BUILD )" + to_string(NUMERIC_BUILD);
     preprocessor.parse(str);
     
 #ifdef DEBUG
@@ -872,17 +891,17 @@ int main(int argc, char **argv) {
     outfile.close();
     
     if (hasErrors() == true) {
-        std::cout << ANSI::Red << "ERRORS!" << ANSI::Default << "\n";
+        cout << ANSI::Red << "ERRORS!" << ANSI::Default << "\n";
         remove(out_filename.c_str());
         return 0;
     }
     
     // Display elasps time in secononds.
-    std::cout << "Completed in " << std::fixed << std::setprecision(2) << elapsed_time / 1e9 << " seconds\n";
+    cout << "Completed in " << fixed << setprecision(2) << elapsed_time / 1e9 << " seconds\n";
     if (showpath)
-        std::cout << "UTF-16LE file at \"" << out_filename << "\" succefuly created.\n";
+        cout << "UTF-16LE file at \"" << out_filename << "\" succefuly created.\n";
     else
-        std::cout << "UTF-16LE file " << fs::path(out_filename).filename() << " succefuly created.\n";
+        cout << "UTF-16LE file " << fs::path(out_filename).filename() << " succefuly created.\n";
             
     return 0;
 }

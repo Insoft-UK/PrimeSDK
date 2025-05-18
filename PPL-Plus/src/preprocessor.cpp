@@ -31,13 +31,10 @@
 #include <fstream>
 #include <cctype>
 
-using namespace ppl_plus;
+using ppl_plus::Preprocessor;
+using ppl_plus::Singleton;
 
 static Singleton *_singleton  = Singleton::shared();
-
-//#include <string>
-//#include <cctype>
-
 
 bool Preprocessor::isIncludeLine(const std::string &str)
 {

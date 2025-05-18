@@ -27,7 +27,7 @@
 #include <iostream>
 #include <regex>
 
-using namespace ppl_plus;
+using ppl_plus::Comments;
 
 void Comments::preserveComment(const std::string &str)
 {

@@ -28,7 +28,8 @@
 #include <algorithm>
 #include <regex>
 
-using namespace ppl_plus;
+
+using ppl_plus::Singleton;
 
 static bool _failed = false;
 

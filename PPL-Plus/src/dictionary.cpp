@@ -22,7 +22,7 @@
 
 #include "dictionary.hpp"
 
-using namespace ppl_plus;
+using ppl_plus::Dictionary;
 
 static void removeUnnecessaryWhitespace(std::string &str) {
     // Regular expression pattern to match spaces around the specified operators

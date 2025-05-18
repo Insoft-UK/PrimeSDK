@@ -14,12 +14,6 @@ find . -name '*.DS_Store' -type f -delete
 
 chmod 644 resources/background.png resources/background@2x.png
 
-# re-sign all binarys
-find "$PACKAGEROOT/$PRIMESDK/bin" -type f -exec xattr -c {} \;
-find "$PACKAGEROOT/$PRIMESDK/bin" -type f -exec codesign --remove-signature {} \;
-find "$PACKAGEROOT/$PRIMESDK/bin" -type f -exec codesign --sign "Developer ID Application: $YOUR_NAME ($TEAM_ID)" --options runtime --timestamp {} \;
-
-
 pkgbuild --root package-root \
          --identifier $IDENTIFIER \
          --version 1.4 --install-location / \

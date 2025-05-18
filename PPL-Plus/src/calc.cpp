@@ -31,7 +31,21 @@
 #include <iomanip>
 #include <cmath>
 
-using namespace ppl_plus;
+using ppl_plus::Calc;
+
+using std::cout;
+using std::string;
+using std::regex;
+using std::smatch;
+using std::sregex_iterator;
+using std::sregex_token_iterator;
+using std::to_string;
+using std::fixed;
+using std::setprecision;
+using std::stringstream;
+using std::invalid_argument;
+using std::vector;
+using std::stack;
 
 static bool _verbose = false;
 
@@ -40,8 +54,8 @@ static bool isOperator(char c) {
     return (c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^');
 }
 
-static bool isExpresionValid(const std::string &expression) {
-    std::regex re;
+static bool isExpresionValid(const string &expression) {
+    regex re;
     
     re = R"([\d+\-*\/ πe%&|()]+)";
     return regex_match(expression, re);
@@ -63,7 +77,7 @@ static double applyOperator(const double a, const double b, const char op) {
         case '*': return a * b;
         case '/':
             if (b == 0) {
-                std::cout << MessageType::Error << "#[]: division by zero\n";
+                cout << MessageType::Error << "#[]: division by zero\n";
                 return 0;
             }
             return a / b;
@@ -71,13 +85,13 @@ static double applyOperator(const double a, const double b, const char op) {
         case '^': return pow(a, b);
             
         default:
-            std::cout << MessageType::Error << "#[]: unknown '" << op << "' operator\n";
+            cout << MessageType::Error << "#[]: unknown '" << op << "' operator\n";
             return 0;
     }
 }
 
-static std::string separateExpression(const std::string &expression) {
-    std::stringstream separated;
+static string separateExpression(const string &expression) {
+    stringstream separated;
     for (size_t i = 0; i < expression.length(); ++i) {
         if (expression[i] == '(' || expression[i] == ')' || expression[i] == '+' || expression[i] == '-' || expression[i] == '*' || expression[i] == '/' || expression[i] == '%' || expression[i] == '^') {
             // Handle negative numbers (only if '-' is not preceded by a digit)
@@ -94,13 +108,13 @@ static std::string separateExpression(const std::string &expression) {
 }
 
 // Function to convert infix expression to postfix (RPN)
-static std::vector<std::string> infixToPostfix(const std::string &expression) {
-    std::vector<std::string> output;
-    std::stack<char> operators;
+static vector<string> infixToPostfix(const string &expression) {
+    vector<string> output;
+    stack<char> operators;
     
-    std::regex re(R"([^ ]+)");
-    for(auto it = std::sregex_iterator(expression.begin(), expression.end(), re); it != std::sregex_iterator(); ++it ) {
-        std::string result = it->str();
+    regex re(R"([^ ]+)");
+    for(auto it = sregex_iterator(expression.begin(), expression.end(), re); it != sregex_iterator(); ++it ) {
+        string result = it->str();
         
         if (isdigit(result[0]) || (result.length() > 1 && result[0] == '-')) {
             output.push_back(it->str());
@@ -109,7 +123,7 @@ static std::vector<std::string> infixToPostfix(const std::string &expression) {
         
         if (isOperator(result.c_str()[0])) {
             while (!operators.empty() && precedence(operators.top()) >= precedence(result.c_str()[0])) {
-                output.push_back(std::string(1, operators.top()));
+                output.push_back(string(1, operators.top()));
                 operators.pop();
             }
             operators.push(result.c_str()[0]);
@@ -123,11 +137,11 @@ static std::vector<std::string> infixToPostfix(const std::string &expression) {
         
         if (result.c_str()[0] == ')') {
             while (!operators.empty() && operators.top() != '(') {
-                output.push_back(std::string(1, operators.top()));
+                output.push_back(string(1, operators.top()));
                 operators.pop();
             }
             if (operators.empty()) {
-                std::cout << MessageType::Error << "#[]: missing '(' in expression '" << expression << "'\n";
+                cout << MessageType::Error << "#[]: missing '(' in expression '" << expression << "'\n";
                 continue;
             }
                 
@@ -135,35 +149,35 @@ static std::vector<std::string> infixToPostfix(const std::string &expression) {
             continue;
         }
         
-        std::cout << MessageType::Error << "#[]: uknown '" << result << "' in expression '" << expression << "'\n";
+        cout << MessageType::Error << "#[]: uknown '" << result << "' in expression '" << expression << "'\n";
     }
 
     while (!operators.empty()) {
-        output.push_back(std::string(1, operators.top()));
+        output.push_back(string(1, operators.top()));
         operators.pop();
     }
     
     if (_verbose) {
-        std::cout << MessageType::Verbose << "calc: RPN: ";
+        cout << MessageType::Verbose << "calc: RPN: ";
         for (auto it = output.begin(); it != output.end(); ) {
-            std::cout << *it;
+            cout << *it;
             if (++it != output.end()) {
-                std::cout << ",";
+                cout << ",";
             }
         }
-        std::cout << "\n";
+        cout << "\n";
     }
 
     return output;
 }
 
 // Function to evaluate a postfix expression
-static double evaluatePostfix(const std::vector<std::string>& postfix) {
-    std::stack<double> values;
+static double evaluatePostfix(const vector<string>& postfix) {
+    stack<double> values;
 
-    for (const std::string &token : postfix) {
+    for (const string &token : postfix) {
         if (isdigit(token[0]) || (token.length() > 1 && token[0] == '-')) {
-            values.push(std::stod(token));
+            values.push(stod(token));
             continue;
         }
         if (isOperator(token[0])) {
@@ -177,8 +191,8 @@ static double evaluatePostfix(const std::vector<std::string>& postfix) {
 }
 
 // Function to evaluate an infix expression
-static double evaluateExpression(const std::string &expression) {
-    std::vector<std::string> postfix = infixToPostfix(expression);
+static double evaluateExpression(const string &expression) {
+    vector<string> postfix = infixToPostfix(expression);
     return evaluatePostfix(postfix);
 }
 
@@ -208,7 +222,7 @@ static uint64_t convertToBitWidth(uint64_t num, int bitWidth) {
 // Function to perform two's complement on a number with a given bit width
 static int64_t twosComplement(int64_t num, int bitWidth) {
     if (bitWidth <= 0 || bitWidth > 64) {
-        throw std::invalid_argument("Bit width must be between 1 and 64.");
+        throw invalid_argument("Bit width must be between 1 and 64.");
     }
 
     // Create a mask to fit within the specified bit width
@@ -227,27 +241,27 @@ static int64_t twosComplement(int64_t num, int bitWidth) {
     return num;
 }
 
-static std::string decimalSignedNumber(int64_t num, int bitWidth) {
+static string decimalSignedNumber(int64_t num, int bitWidth) {
     if (bitWidth < 1 || bitWidth > 64) bitWidth = 64;
     
     num = convertToBitWidth(num, bitWidth);
     num = twosComplement(num, bitWidth);
 
-    return std::to_string(num);
+    return to_string(num);
 }
 
-static std::string decimalUnsignedNumber(int64_t num, int bitWidth) {
+static string decimalUnsignedNumber(int64_t num, int bitWidth) {
     if (bitWidth < 1 || bitWidth > 64) bitWidth = 64;
     
     num = convertToBitWidth(num, bitWidth);
 
-    return std::to_string(num);
+    return to_string(num);
 }
 
 // Function to convert a string with PPL-style integer number to return a base 10 number
-static std::string convertPPLIntegerNumberToBase10(const std::string &str) {
-    std::regex re;
-    std::smatch match;
+static string convertPPLIntegerNumberToBase10(const string &str) {
+    regex re;
+    smatch match;
     
     re = R"(#([\dA-F]+)(?::(-)?(6[0-4]|[1-5][0-9]|[1-9]))?([odh])?)";
     if (!regex_search(str, match, re)) return str;
@@ -263,7 +277,7 @@ static std::string convertPPLIntegerNumberToBase10(const std::string &str) {
     if (match.str(4) == "h") base = 16;
     if (match.str(4) == "o") base = 8;
     
-    int64_t num = std::stol(match.str(1), nullptr, base);
+    int64_t num = stol(match.str(1), nullptr, base);
     int bitWidth = match.str(3).empty() ? 64 : atoi(match.str(3).c_str());
     
     if (match.str(2).empty())
@@ -273,10 +287,10 @@ static std::string convertPPLIntegerNumberToBase10(const std::string &str) {
 }
 
 // Function to convert a string with PPL-style integer number to a plain base 10 number
-static void convertPPLStyleNumbersToBase10(std::string &str) {
-    std::regex re;
-    std::smatch match;
-    std::string s;
+static void convertPPLStyleNumbersToBase10(string &str) {
+    regex re;
+    smatch match;
+    string s;
     
     re = R"(#([\dA-F])+(?::-?\d+)?([odh])?)";
     while (regex_search(str, match, re)) {
@@ -293,28 +307,28 @@ static void convertPPLStyleNumbersToBase10(std::string &str) {
 
 // MARK: - Public Methods
 
-bool Calc::evaluateMathExpression(std::string &str)
+bool Calc::evaluateMathExpression(string &str)
 {
-    std::regex re;
-    std::smatch match;
+    regex re;
+    smatch match;
     
     if (!isExpresionValid(str)) return false;
     
-    std::string expression = str;
+    string expression = str;
     convertPPLStyleNumbersToBase10(expression);
     
-    expression = regex_replace(expression, std::regex(R"(e)"), "2.71828182845904523536028747135266250");
-    expression = regex_replace(expression, std::regex(R"(π|pi)"), "3.14159265358979323846264338327950288");
+    expression = regex_replace(expression, regex(R"(e)"), "2.71828182845904523536028747135266250");
+    expression = regex_replace(expression, regex(R"(π|pi)"), "3.14159265358979323846264338327950288");
     
     strip(expression);
     
     expression = separateExpression(expression);
     double result = evaluateExpression(expression);
     
-    std::stringstream ss;
-    ss << std::fixed << std::setprecision(10) << result;
+    stringstream ss;
+    ss << fixed << setprecision(10) << result;
     expression = ss.str();
-    expression.erase ( expression.find_last_not_of('0') + 1, std::string::npos );
+    expression.erase ( expression.find_last_not_of('0') + 1, string::npos );
     if (expression.at(expression.length() - 1) == '.') {
         expression.resize(expression.length() - 1);
     }
@@ -323,34 +337,34 @@ bool Calc::evaluateMathExpression(std::string &str)
     return true;
 }
 
-bool Calc::parse(std::string &str)
+bool Calc::parse(string &str)
 {
-    std::regex re;
-    std::smatch match;
+    regex re;
+    smatch match;
     
     
     
     re = R"(\\( *\d{1,2}|F|C|R)?(?:\[|`)(.*)(?:\]|`))";
     while (regex_search(str, match, re)) {
         
-        std::string matched = match.str();
+        string matched = match.str();
         
         convertPPLStyleNumbersToBase10(matched);
         
-        std::string expression;
+        string expression;
         int scale = 0;
         
-        matched = regex_replace(matched, std::regex(R"(e)"), "2.71828182845904523536028747135266250");
-        matched = regex_replace(matched, std::regex(R"(π)"), "3.14159265358979323846264338327950288");
+        matched = regex_replace(matched, regex(R"(e)"), "2.71828182845904523536028747135266250");
+        matched = regex_replace(matched, regex(R"(π)"), "3.14159265358979323846264338327950288");
         
         strip(matched);
         
         char output = 0;
         
-        auto it = std::sregex_token_iterator {
+        auto it = sregex_token_iterator {
             matched.begin(), matched.end(), re, {1, 2}
         };
-        if (it != std::sregex_token_iterator()) {
+        if (it != sregex_token_iterator()) {
             if (it->matched) {
                 if (isdigit(it->str().c_str()[0])) {
                     scale = atoi(it->str().c_str());
@@ -388,13 +402,13 @@ bool Calc::parse(std::string &str)
                 break;
         }
         
-        std::stringstream ss;
-        ss << std::fixed << std::setprecision(scale > -1 ? scale : 10) << result;
-        std::string s = ss.str();
+        stringstream ss;
+        ss << fixed << setprecision(scale > -1 ? scale : 10) << result;
+        string s = ss.str();
         
         if (scale < 0) {
-            s.erase ( s.find_last_not_of('0') + 1, std::string::npos );
-            s.erase ( s.find_last_not_of('.') + 1, std::string::npos );
+            s.erase ( s.find_last_not_of('0') + 1, string::npos );
+            s.erase ( s.find_last_not_of('.') + 1, string::npos );
         }
         
         

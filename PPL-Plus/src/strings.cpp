@@ -23,7 +23,7 @@
 #include "strings.hpp"
 #include <regex>
 
-using namespace ppl_plus;
+using ppl_plus::Strings;
 
 void Strings::preserveStrings(const std::string &str) {
     std::regex re;

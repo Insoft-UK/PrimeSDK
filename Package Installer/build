@@ -3,7 +3,15 @@ DIR=$(dirname "$0")
 clear
 cd "$DIR"
 
-source ../../notarization
+source ../../notarization.sh
+
+PACKAGEROOT=package-root
+PRIMESDK=Applications/HP/PrimeSDK
+
+# re-sign all binarys
+find "$PACKAGEROOT/$PRIMESDK/bin" -type f -exec xattr -c {} \;
+find "$PACKAGEROOT/$PRIMESDK/bin" -type f -exec codesign --remove-signature {} \;
+find "$PACKAGEROOT/$PRIMESDK/bin" -type f -exec codesign --sign "Developer ID Application: $YOUR_NAME ($TEAM_ID)" --options runtime --timestamp {} \;
 
 ./build.sh
 
