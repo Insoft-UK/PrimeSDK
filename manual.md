@@ -13,6 +13,7 @@ BEGIN
   // Your code here
 END;
 ```
+
 - **EXPORT**: Makes the program accessible from the calculator’s program catalog.
 - **ProgramName**: The name of your program.
 - **BEGIN … END;**: Encloses the main body of the program.
@@ -32,11 +33,12 @@ END;
 ```
 LOCAL x, y, z;
 ```
+
 ### 4. Control Structures
 
-HP PPL includes standard control structures:
-- **Conditional Statements**:
+**HP PPL includes standard control structures**:
 
+- **Conditional Statements**:
 <sub>PPL</sub>
 ```
 IF condition THEN
@@ -66,7 +68,6 @@ UNTIL condition;
 ```
 
 ### 5. Functions and Procedures
-
 **You can define functions to encapsulate reusable code**:
 
 <sub>PPL</sub>
@@ -79,6 +80,7 @@ END;
 Functions can return values using the RETURN statement.
 
 ### 6. Input and Output
+
 - **Displaying Output**:
 - **PRINT("Text");**: Displays text in the terminal view.
 - **TEXTOUT_P("Text", x, y);**: Outputs text on the graphics screen at coordinates (x, y).
@@ -87,8 +89,8 @@ Functions can return values using the RETURN statement.
 - **INPUT({var1, var2});**: Prompts for multiple inputs.
 
 ### 7. Graphics and Drawing
+**HP PPL provides commands for graphical operations**:
 
-HP PPL provides commands for graphical operations:
 - **Drawing Primitives**:
 - **LINE_P(x1, y1, x2, y2);**: Draws a line between two points.
 - **RECT_P(x1, y1, x2, y2);**: Draws a rectangle.
@@ -99,44 +101,44 @@ HP PPL provides commands for graphical operations:
 - **WAIT(n);**: Pauses the program for n seconds.
 
 ### 8. Working with Lists and Matrices
-- **Creating Lists**:
 
+- **Creating Lists**:
 <sub>PPL</sub>
 ```
 LOCAL myList := {1, 2, 3};
 ```
-- **Accessing List Elements**:
 
+- **Accessing List Elements**:
 <sub>PPL</sub>
 ```
 myList(1); // Accesses the first element
 ```
--	Creating Matrices:
 
+-	**Creating Matrices**:
 <sub>PPL</sub>
 ```
 LOCAL myMatrix := [[1, 2], [3, 4]];
 ```
--	Accessing Matrix Elements:
 
+-	**Accessing Matrix Elements**:
 <sub>PPL</sub>
 ```
 myMatrix(1, 2); // Accesses element at row 1, column 2
 ```
 
 ### 9. Error Handling
+**Use TRY...CATCH blocks to handle errors gracefully**:
 
 <sub>PPL</sub>
 ```
-**Use TRY...CATCH blocks to handle errors gracefully**:
 TRY
   // Code that may cause an error
 CATCH
   // Error handling code
 END;
 ```
-### 10. Additional Resources
 
+### 10. Additional Resources
 **For more in-depth information and examples, consider the following resources**:
 
 - **HP Prime Programming Tutorial by Edward Shore**: An in-depth tutorial covering various aspects of HP PPL, including graphics, user input, and mathematical operations.
