@@ -52,6 +52,7 @@ VAR x, y, z;
 **HP PPL includes standard control structures**:
 
 - **Conditional Statements**:
+
 <sub>PPL</sub>
 ```
 IF condition THEN
@@ -116,24 +117,28 @@ Functions can return values using the RETURN statement.
 ### 8. Working with Lists and Matrices
 
 - **Creating Lists**:
+
 <sub>PPL</sub>
 ```
 LOCAL myList := {1, 2, 3};
 ```
 
 - **Accessing List Elements**:
+
 <sub>PPL</sub>
 ```
 myList(1); // Accesses the first element
 ```
 
 -	**Creating Matrices**:
+
 <sub>PPL</sub>
 ```
 LOCAL myMatrix := [[1, 2], [3, 4]];
 ```
 
 -	**Accessing Matrix Elements**:
+
 <sub>PPL</sub>
 ```
 myMatrix(1, 2); // Accesses element at row 1, column 2
