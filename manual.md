@@ -129,7 +129,7 @@ myMatrix(1, 2); // Accesses element at row 1, column 2
 ### 9. Error Handling
 **Use TRY...CATCH blocks to handle errors gracefully**:
 
-<sub>PPL</sub>
+<sub>PPL+</sub>
 ```
 TRY
   // Code that may cause an error
