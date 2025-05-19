@@ -1,4 +1,4 @@
-# HP PPL Programming Manual
+# HP PPL/PPL+ Programming Manual
 
 ### 1. Introduction to HP PPL
 HP PPL (Prime Programming Language) is a high-level, Pascal-like language developed for the HP Prime Graphing Calculator. It allows users to create custom programs and applications, leveraging the calculator’s advanced features, including its Computer Algebra System (CAS), graphics capabilities, and user interface components.
