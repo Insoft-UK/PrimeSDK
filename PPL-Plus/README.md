@@ -1,4 +1,4 @@
-# PPL+ for HP Prime
+# PPL+ for HP Prime Programming Language
 
 <br />
 <img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/PPL+.png" style="width: 128px" />
