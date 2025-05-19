@@ -14,6 +14,14 @@ BEGIN
 END;
 ```
 
+<sub>PPL+</sub>
+```
+catalog ProgramName()
+begin
+  // Your code here
+end;
+```
+
 - **EXPORT**: Makes the program accessible from the calculator’s program catalog.
 - **ProgramName**: The name of your program.
 - **BEGIN … END;**: Encloses the main body of the program.
