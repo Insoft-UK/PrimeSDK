@@ -42,6 +42,11 @@ end;
 LOCAL x, y, z;
 ```
 
+<sub>PPL+</sub>
+```
+var x, y, z;
+```
+
 ### 4. Control Structures
 
 **HP PPL includes standard control structures**:
