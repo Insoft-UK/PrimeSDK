@@ -16,10 +16,10 @@ END;
 
 <sub>PPL+</sub>
 ```
-catalog ProgramName()
-begin
+CATALOG ProgramName()
+BEGIN
   // Your code here
-end;
+END;
 ```
 
 - **EXPORT**: Makes the program accessible from the calculator’s program catalog.
@@ -44,7 +44,7 @@ LOCAL x, y, z;
 
 <sub>PPL+</sub>
 ```
-var x, y, z;
+VAR x, y, z;
 ```
 
 ### 4. Control Structures
