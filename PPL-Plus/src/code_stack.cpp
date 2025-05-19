@@ -56,7 +56,7 @@ bool CodeStack::parse(std::string &str)
         }
         
         // __PUSH__``
-        _stack.push(trim_copy(match.str(1)));
+        _stack.push(match.str(1));
         
         // Erase only the matched portion and update the iterator correctly
         it = str.erase(it + match.position(), it + match.position() + match.length());

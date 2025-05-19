@@ -1,2 +1,2 @@
->`\bwend|next\b`i END
+>`\b(?:wend|next)\b`i END
 >`\.{3}|…` TO

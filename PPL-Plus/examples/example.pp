@@ -24,14 +24,25 @@
 
 #pragma mode( separator(.,,) integer(h64) assignment(=) indentation(1) )
 
-Very::LongNameTest(p: first, q: second, _third)
-BEGIN
+regex `\bpushy *\(.+\) *;` __PUSH__`$1`
+regex `\bpop\b *;` __POP__
+//__PUSH__`i := i + 1;`
+pushy(i := i + 1);
+local i := 8;
+__POP__
+pop;
+
+
+
+catalog func Very::LongNameTest(p: first, q: second, _third) BEGIN
+TRY
+catch
+end;
 END;
 
-regex @`\bInt8\(([^()]*)\)` SETBITS($1,-7)
+regex `\bInt8\(([^()]*)\)` SETBITS($1,-7)
 
 dict Dark = 0, Light = 1 @ThemeMode;
-
 
 
 #disregard

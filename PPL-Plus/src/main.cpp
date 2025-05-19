@@ -434,11 +434,33 @@ void writeUTF16Line(const string &ln, ofstream &outfile) {
     }
 }
 
-void loadLibrary(const string path, const bool verbose)
+void loadRegexLib(const fs::path path, const bool verbose)
 {
+    string utf8;
+    ifstream infile;
+    
+    infile.open(path, std::ios::in);
+    if (!infile.is_open()) {
+        return;
+    }
+    
+    if (verbose) cout << "Library " << path.filename() << " successfully loaded.\n";
+    
+    while (getline(infile, utf8)) {
+        utf8.insert(0, "regex ");
+        Singleton::shared()->regexp.parse(utf8);
+    }
+    
+    infile.close();
+}
+
+void loadRegexLibs(const string path, const bool verbose)
+{
+    loadRegexLib(path + "/.base.re", verbose);
+    
     try {
         for (const auto& entry : fs::directory_iterator(path)) {
-            if (fs::path(entry.path()).extension() != ".re") {
+            if (fs::path(entry.path()).extension() != ".re" || fs::path(entry.path()).filename() == ".base.re") {
                 continue;
             }
             string utf8;
@@ -455,6 +477,8 @@ void loadLibrary(const string path, const bool verbose)
                 utf8.insert(0, "regex ");
                 Singleton::shared()->regexp.parse(utf8);
             }
+            
+            infile.close();
         }
     } catch (const fs::filesystem_error& e) {
         std::cerr << "error: " << e.what() << '\n';
@@ -656,24 +680,32 @@ void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile) {
             continue;
         }
     
-        /*
-         We first need to perform pre-parsing to ensure that, in lines such
-         as if condition then statement/s end;, the statement/s and end; are
-         not on the same line. This ensures proper indentation can be applied
-         during the reformatting stage of PPL code.
-         
-         But we must ignore the line if it's a regex and all @
-        */
-        
-        if (!regex_search(utf8, regex(R"(^ *(@[a-z]+ )? *regex )"))) {
-            re = regex(R"(\b(THEN)\b)", rc::icase);
-            utf8 = regex_replace(utf8, re, "$1\n");
+        if (!Singleton::shared()->scopeDepth) {
+            // Local Scope
             
-            re = regex(R"(; *\b(ELSE)\b)", rc::icase);
-            utf8 = regex_replace(utf8, re, ";\n$1\n");
+            /*
+             We first need to perform pre-parsing to ensure that, in lines such
+             as if condition then statement/s end;, the statement/s and end; are
+             not on the same line. This ensures proper indentation can be applied
+             during the reformatting stage of PPL code.
+             
+             But we must ignore the line if it's a regex and all @
+             */
             
-            re = regex(R"(; *(END|UNTIL|ELSE|LOCAL|CONST)?;)", rc::icase);
-            utf8 = regex_replace(utf8, re, ";\n$1;");
+            if (!regex_search(utf8, regex(R"(^ *(@[a-z]+ )? *regex )"))) {
+                re = regex(R"(\b(THEN)\b)", rc::icase);
+                utf8 = regex_replace(utf8, re, "$1\n");
+                
+                re = regex(R"(; *\b(ELSE)\b)", rc::icase);
+                utf8 = regex_replace(utf8, re, ";\n$1\n");
+                
+                re = regex(R"(; *(END|UNTIL|ELSE|LOCAL|CONST)?;)", rc::icase);
+                utf8 = regex_replace(utf8, re, ";\n$1;");
+            }
+        } else {
+            // Global Scope
+            re = regex(R"((.+)\bBEGIN\b)", rc::icase);
+            utf8 = regex_replace(utf8, re, "$1\nBEGIN");
         }
         
         
@@ -877,9 +909,9 @@ int main(int argc, char **argv) {
     preprocessor.parse(str);
     
 #ifdef DEBUG
-    loadLibrary("/Users/richie/GitHub/PrimeSDK/Package Installer/package-root/Applications/HP/PrimeSDK/lib", true);
+    loadRegexLibs("/Users/richie/GitHub/PrimeSDK/Package Installer/package-root/Applications/HP/PrimeSDK/lib", true);
 #else
-    loadLibrary("/Applications/HP/PrimeSDK/lib", verbose);
+    loadRegexLibs("/Applications/HP/PrimeSDK/lib", verbose);
 #endif
     
     translatePPLPlusToPPL(in_filename, outfile);

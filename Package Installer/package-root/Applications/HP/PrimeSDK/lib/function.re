@@ -1,2 +1,2 @@
-=`^ *public\b`i EXPORT
+=`^ *catalog\b`i EXPORT
 =`\bfunc(?:tion)? +`i
