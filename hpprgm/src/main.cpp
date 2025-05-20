@@ -121,7 +121,7 @@ bool isHPPrgrmFileFormat(std::ifstream &infile)
     }
     
 invalid:
-    infile.seekg(0);
+    infile.seekg(std::ios::beg);
     return false;
 }
 
@@ -227,8 +227,20 @@ int main(int argc, const char **argv)
         if(!infile.is_open()) return 0;
         
         if (!isHPPrgrmFileFormat(infile)) {
-            infile.close();
-            return 0;
+            // G1 .hpprgm file format.
+            uint32_t offset;
+            infile.read(reinterpret_cast<char*>(&offset), sizeof(offset));
+#ifndef __LITTLE_ENDIAN__
+            offset = swap_endian(offset);
+#endif
+            offset += 8;
+            infile.seekg(offset, std::ios::beg);
+
+            if (!infile.good()) {
+                std::cerr << "Seek failed (possibly past EOF or bad stream).\n";
+                infile.close();
+                return 0;
+            }
         }
         
         std::ofstream outfile;

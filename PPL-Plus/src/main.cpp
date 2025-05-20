@@ -971,6 +971,9 @@ int main(int argc, char **argv) {
         /**
          0x0000-0x0003: Size of the header, excludes itself
          */
+#ifndef __LITTLE_ENDIAN__
+        codeSize = swap_endian(codeSize);
+#endif
         outfile.write(reinterpret_cast<const char*>(&codeSize), sizeof(codeSize));
         
         /**

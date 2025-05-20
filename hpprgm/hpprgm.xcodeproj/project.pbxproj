@@ -92,7 +92,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8476422E189579CD00AFBE9C /* Build configuration list for PBXNativeTarget "hpprgm" */;
 			buildPhases = (
-				1328C28A2BC83B5A003C4B3A /* ShellScript */,
 				84764221189579CD00AFBE9C /* Sources */,
 				84764222189579CD00AFBE9C /* Frameworks */,
 				84764223189579CD00AFBE9C /* CopyFiles */,
@@ -133,27 +132,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		1328C28A2BC83B5A003C4B3A /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 12;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "./version_code\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		84764221189579CD00AFBE9C /* Sources */ = {
