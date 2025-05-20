@@ -938,28 +938,47 @@ int main(int argc, char **argv) {
     long long elapsed_time = timer.elapsed();
     
     if (fs::path(out_filename).extension() == ".hpprgm") {
-        outfile.put(0x00);
-        outfile.put(0x00);
-        
-        // ".hpprgm" requires a 20-byte header, followed by the file size (uint32_t).
-        
-        // Get the current file size (after writing program content).
+        // Get the current file size.
         streampos currentPos = outfile.tellp();
-        uint32_t fileSize = static_cast<uint32_t>(currentPos) - 20;
+        
+        // Code size will be the current filesize - the header size + the two aditional bytes.
+        uint32_t codeSize = static_cast<uint32_t>(currentPos) - 20 + 2;
 
         // Seek to the beginning to write the header.
         outfile.seekp(0, ios::beg);
 
-        // Write the 16-byte UTF-16LE header.
+        // HEADER
+        /**
+         0x0000-0x0003: Header Size, excludes itself (so the header begins at offset 4)
+         */
         outfile.put(0x0C); // 12
         outfile.put(0x00);
-        for (int i = 0; i < 14; ++i) {
+        outfile.put(0x00);
+        outfile.put(0x00);
+        
+        // Write the 12-byte UTF-16LE header.
+        /**
+         0x0004-0x0005: Number of variables in table.
+         0x0006-0x0007: Number of uknown?
+         0x0008-0x0009: Number of exported functions in table.
+         0x000A-0x000F: Conn. kit generates 7F 01 00 00 00 00 but all zeros seems to work too.
+         */
+        for (int i = 0; i < 12; ++i) {
             outfile.put(0x00);
         }
 
-        // Write the file size in little endian
-//        fileSize = swap_endian(fileSize);
-        outfile.write(reinterpret_cast<const char*>(&fileSize), sizeof(fileSize));
+        // CODE HEADER
+        /**
+         0x0000-0x0003: Size of the header, excludes itself
+         */
+        outfile.write(reinterpret_cast<const char*>(&codeSize), sizeof(codeSize));
+        
+        /**
+         0x0004-0x????: Code in UTF-16 LE until 00 00
+         */
+        outfile.seekp(0, ios::end);
+        outfile.put(0x00);
+        outfile.put(0x00);
     }
     
     
