@@ -1,0 +1,8 @@
+LE
+0x30000000 (eg: 48 Bytes) Size of Header
+
+header
+0x00000000, 0x01000000, 0x00000000, 0x3100, Name...
+UTF16LE Name + null terminated by 0x0000, 0x0000
+  
+Unsigned 32-Bit PPL Source Code Size
