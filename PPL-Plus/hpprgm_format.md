@@ -1,6 +1,6 @@
 # The .hpprgm format
 >[!WARNING]
->This is the .hpprgm format for the HP Prime G1, not the G2. It is accepted by the HP Prime Emulator on macOS and is automatically converted, making it compatible. However, on Windows 11 (NT 10.1), which uses a more up-to-date emulator, compatibility has not yet been verified.
+>This is an older version of the .hpprgm format, originally used by the HP Prime G1 (not the G2). It is accepted by the HP Prime Emulator on macOS, where it is automatically converted for compatibility. However, on Windows 11 (NT 10.1), which uses a more recent version of the emulator, compatibility with this older format has not yet been verified.
 
 **0x0000-0x0003**:
 
