@@ -24,28 +24,22 @@
 
 #pragma mode( separator(.,,) integer(h64) assignment(=) indentation(1) )
 
-regex `\bpushy *\(.+\) *;` __PUSH__`$1`
-regex `\bpop\b *;` __POP__
-//__PUSH__`i := i + 1;`
-pushy(i := i + 1);
-local i := 8;
-__POP__
-pop;
+#define MAX_SIZE 100
 
-
+var myList = ( MAX_SIZE );
 
 catalog func Very::LongNameTest(p: first, q: second, _third) BEGIN
-TRY
-catch
+    try
+    catch
+    end;
 end;
-END;
 
 regex `\bInt8\(([^()]*)\)` SETBITS($1,-7)
 
 dict Dark = 0, Light = 1 @ThemeMode;
 
 
-#disregard
+#difndef __pplplus
  When defining a macro with parameters, issues can arise if an argument
  name is adjacent to a letter. To resolve this, you can use numbered
  placeholders like `1$` for the first argument, `2$` for the second, `3$`

@@ -31,6 +31,7 @@
 #include <ctime>
 #include <vector>
 #include <iterator>
+#include <cstdlib>
 
 #include "timer.hpp"
 #include "singleton.hpp"
@@ -72,6 +73,8 @@ using std::fixed;
 using std::ios;
 using std::setprecision;
 using std::istringstream;
+using std::streampos;
+using std::getenv;
 
 namespace fs = std::filesystem;
 namespace rc = std::regex_constants;
@@ -81,6 +84,37 @@ void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile);
 static Preprocessor preprocessor = Preprocessor();
 static Strings strings = Strings();
 static string assignment = "=";
+
+
+
+std::string expandTilde(const string &path) {
+    if (path.starts_with("~/")) {
+        const char* home = getenv("HOME");
+        if (home) {
+            return string(home) + path.substr(1);  // Replace '~' with $HOME
+        }
+    }
+    return path;
+}
+
+template <typename T>
+T swap_endian(T u)
+{
+    static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
+
+    union
+    {
+        T u;
+        unsigned char u8[sizeof(T)];
+    } source, dest;
+
+    source.u = u;
+
+    for (size_t k = 0; k < sizeof(T); k++)
+        dest.u8[k] = source.u8[sizeof(T) - k - 1];
+
+    return dest.u;
+}
 
 void terminator() {
     cout << MessageType::CriticalError << "An internal pre-processing problem occurred. Please review the syntax before this point.\n";
@@ -444,7 +478,7 @@ void loadRegexLib(const fs::path path, const bool verbose)
         return;
     }
     
-    if (verbose) cout << "Library " << path.filename() << " successfully loaded.\n";
+    if (verbose) cout << "Library " << (path.filename() == ".base.re" ? "base" : path.stem()) << " successfully loaded.\n";
     
     while (getline(infile, utf8)) {
         utf8.insert(0, "regex ");
@@ -463,22 +497,7 @@ void loadRegexLibs(const string path, const bool verbose)
             if (fs::path(entry.path()).extension() != ".re" || fs::path(entry.path()).filename() == ".base.re") {
                 continue;
             }
-            string utf8;
-            ifstream infile;
-            
-            infile.open(entry.path(), std::ios::in);
-            if (!infile.is_open()) {
-                continue;
-            }
-            
-            if (verbose) cout << "Library " << entry.path().filename() << " successfully loaded.\n";
-            
-            while (getline(infile, utf8)) {
-                utf8.insert(0, "regex ");
-                Singleton::shared()->regexp.parse(utf8);
-            }
-            
-            infile.close();
+            loadRegexLib(entry.path(), verbose);
         }
     } catch (const fs::filesystem_error& e) {
         std::cerr << "error: " << e.what() << '\n';
@@ -693,19 +712,14 @@ void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile) {
              */
             
             if (!regex_search(utf8, regex(R"(^ *(@[a-z]+ )? *regex )"))) {
-                re = regex(R"(\b(THEN)\b)", rc::icase);
-                utf8 = regex_replace(utf8, re, "$1\n");
-                
-                re = regex(R"(; *\b(ELSE)\b)", rc::icase);
-                utf8 = regex_replace(utf8, re, ";\n$1\n");
-                
-                re = regex(R"(; *(END|UNTIL|ELSE|LOCAL|CONST)?;)", rc::icase);
-                utf8 = regex_replace(utf8, re, ";\n$1;");
+                utf8 = regex_replace(utf8, regex(R"(\b(THEN)\b)", rc::icase), "$1\n");
+                utf8 = regex_replace(utf8, regex(R"(; *\b(ELSE)\b)", rc::icase), ";\n$1\n");
+                utf8 = regex_replace(utf8, regex(R"(; *(END|UNTIL|ELSE|LOCAL|CONST)?;)", rc::icase), ";\n$1;");
+                utf8 = regex_replace(utf8, regex(R"((.+)\bBEGIN\b)", rc::icase), "$1\nBEGIN");
             }
+            
         } else {
             // Global Scope
-            re = regex(R"((.+)\bBEGIN\b)", rc::icase);
-            utf8 = regex_replace(utf8, re, "$1\nBEGIN");
         }
         
         
@@ -851,7 +865,7 @@ int main(int argc, char **argv) {
             continue;
         }
         
-        in_filename = argv[n];
+        in_filename = expandTilde(argv[n]);
         regex re(R"(.\w*$)");
     }
     
@@ -866,14 +880,11 @@ int main(int argc, char **argv) {
         return 0;
     }
     
-    if (!out_filename.length()) {
-        out_filename = in_filename;
-        
-        if (fs::path(in_filename).extension().empty()) {
-            out_filename.append(".hpprgm");
-        } else {
-            out_filename.replace(out_filename.rfind("."), out_filename.length() - out_filename.rfind("."), ".hpprgm");
-        }
+    if (out_filename.empty()) {
+        out_filename = fs::path(in_filename).stem().string() + ".ppl";
+    }
+    if (fs::path(out_filename).parent_path().empty()) {
+        out_filename.insert(0, fs::path(in_filename).parent_path().string() + "/");
     }
     
     info();
@@ -886,10 +897,16 @@ int main(int argc, char **argv) {
         error();
         return 0;
     }
+
+    if (fs::path(out_filename).extension() != ".hpprgm") {
+        // The ".ppl" file format requires UTF-16LE.
+        outfile.put(0xFF);
+        outfile.put(0xFE);
+    } else {
+        outfile.seekp(20, ios::beg);
+    }
     
-    // The "hpprgm" file format requires UTF-16LE.
-    outfile.put(0xFF);
-    outfile.put(0xFE);
+      
     
     // Start measuring time
     Timer timer;
@@ -909,15 +926,42 @@ int main(int argc, char **argv) {
     preprocessor.parse(str);
     
 #ifdef DEBUG
-    loadRegexLibs("/Users/richie/GitHub/PrimeSDK/Package Installer/package-root/Applications/HP/PrimeSDK/lib", true);
+    loadRegexLibs(expandTilde("~/GitHub/PrimeSDK/Package Installer/package-root/Applications/HP/PrimeSDK/lib"), true);
 #else
     loadRegexLibs("/Applications/HP/PrimeSDK/lib", verbose);
 #endif
+    
     
     translatePPLPlusToPPL(in_filename, outfile);
     
     // Stop measuring time and calculate the elapsed time.
     long long elapsed_time = timer.elapsed();
+    
+    if (fs::path(out_filename).extension() == ".hpprgm") {
+        outfile.put(0x00);
+        outfile.put(0x00);
+        
+        // ".hpprgm" requires a 20-byte header, followed by the file size (uint32_t).
+        
+        // Get the current file size (after writing program content).
+        streampos currentPos = outfile.tellp();
+        uint32_t fileSize = static_cast<uint32_t>(currentPos) - 20;
+
+        // Seek to the beginning to write the header.
+        outfile.seekp(0, ios::beg);
+
+        // Write the 16-byte UTF-16LE header.
+        outfile.put(0x0C); // 12
+        outfile.put(0x00);
+        for (int i = 0; i < 14; ++i) {
+            outfile.put(0x00);
+        }
+
+        // Write the file size in little endian
+//        fileSize = swap_endian(fileSize);
+        outfile.write(reinterpret_cast<const char*>(&fileSize), sizeof(fileSize));
+    }
+    
     
     
     outfile.close();
@@ -927,6 +971,7 @@ int main(int argc, char **argv) {
         remove(out_filename.c_str());
         return 0;
     }
+    
     
     // Display elasps time in secononds.
     cout << "Completed in " << fixed << setprecision(2) << elapsed_time / 1e9 << " seconds\n";
