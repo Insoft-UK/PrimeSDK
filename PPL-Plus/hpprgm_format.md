@@ -1,4 +1,4 @@
-# The .hpprgm format
+# The G1 .hpprgm format NOT G2
 
 **0x0000-0x0003**:
 
