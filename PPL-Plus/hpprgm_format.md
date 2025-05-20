@@ -1,26 +1,16 @@
 # The .hpprgm format
+>[!WARNING]
+>This is an older version of the .hpprgm format, originally used by the HP Prime G1 (not the G2). It is accepted by the HP Prime Emulator on macOS, where it is automatically converted for compatibility. However, on Windows 11 (NT 10.1), which uses a more recent version of the emulator, compatibility with this older format has not yet been verified.
 
-**0x0000-0x0003**:
+**0x0000-0x0003**: Header Size, excludes itself (so the header begins at offset 4)
 
-- Header Size, excludes itself (so the header begins at offset 4)
-
-**0x0004-0x0005**:
-
-- Number of variables in table
+**0x0004-0x0005**: Number of variables in table
   
-**0x0006-0x0007**:
+**0x0006-0x0007**: Number of **uknown**?
 
-- Number of **uknown**?
-
-**0x0008-0x0009**:
-- Number of exported functions in table
+**0x0008-0x0009**: Number of exported functions in table
  
-**0x000A-0x000F**:
-
-- Conn. kit generates
-    7F 01 00 00 00 00
-    but all zeros seems to work too.
-
+**0x000A-0x000F**: Conn. kit generates **7F 01 00 00 00 00** but all zeros seems to work too.
 
 **0x0010-0x----**:
 
@@ -36,9 +26,7 @@
 >[!NOTE]
 >There are as many blocks of this type as you have exported variables and the blocks are in the same order as the exported variables
 
-**0x0000-0x0003**:
-
-- Size of the value, **excludes itself**
+**0x0000-0x0003**: Size of the value, **excludes itself**
 
 **0x0004-0x0005**:
 
@@ -57,72 +45,39 @@
   #### IF base-10 integer or float:
 
 
-    **0x0008-0x000B**:
+    **0x0008-0x000B**: Exponent (signed little endian 32-bit integer)
+    
+    **0x000C-0x0013**: Mantissa
   
-    ```
-    exponent
-    signed little endian 32-bit integer
-    ```
-  
-    **0x000C-0x0013**:
-  
-    ```
-    mantissa
     little endian weird stuff. Hexadecimal to be interpreted as decimal...
-      
-    00 00 00 00 00 00 00 25 01 is supposed to be 1.25 in decimal,
-    00 00 00 00 00 00 00 28 06 -> 6.28 and so on
+  
+    **00 00 00 00 00 00 00 25 01** is supposed to be 1.25 in decimal,
+    **00 00 00 00 00 00 00 28 06** -> 6.28 and so on
       
     The value is mantissa*10^exponent
-    ```
   
   #### IF base-16 integer:
   
-    **0x0008-0x000B**:
-  
-    **02 00 00 00** (why?)
+    **0x0008-0x000B**: **02 00 00 00** (why?)
 
-    **0x000C-0x0013**:
-  
-    ```
-    55 63 62 00 00 00 00 00 becomes #626355
-    25 06 00 00 00 00 00 00 becomes #625
-    ```
+    **0x000C-0x0013**: BCD **55 63 62 00 00 00 00 00** becomes #626355 **25 06 00 00 00 00 00 00** becomes #625
   
   #### IF string:
   
-    **0x0008-0x0009**:
-  
-    - Length of string in characters, excludes the tailing **00 00**
+    **0x0008-0x0009**: Length of string in characters, excludes the tailing **00 00**
 
-    **0x000A-**:
-
-    - string itself, ends in **00 00**
+    **0x000A-**: string itself, ends in **00 00**
 
   
   #### IF list:
 
-    **0x0006-0x0007**:
-    
-      - ??? (Tends to be **16 00**, **16 01** or **16 02**)
+    **0x0006-0x0007**: ??? (Tends to be **16 00**, **16 01** or **16 02**)
 
-  
-    **0x0008-0x0009**:
-  
-      - 32-bit LE Amount of members in list, let's call this N
+    **0x0008-0x0009**: 32-bit LE Amount of members in list, let's call this N
 
-        
-    **0x000A-0x000B**:
-  
-      - ??? (Probably reserved for something, `7F 01` or `00 00`)
-
-        
-    **N 4-byte values**:
-  
-    ```
-    ???
-    Actual list of values follows, they are in reverse order compared to what they are in the source.
-    ```
+    **0x000A-0x000B**: ??? (Probably reserved for something, **7F 01** or **00 00**)
+ 
+    **N 4-byte values**: ??? Actual list of values follows, they are in reverse order compared to what they are in the source.
     
     **An entry in the list follows this formula**:
   
@@ -131,12 +86,9 @@
 
 ## CODE HEADER
 
-**0x0000-0x0003**:
-
-- size of the header, excludes itself
+**0x0000-0x0003**: size of the header, excludes itself
 
 
-**0x0004-**:
-- Code in UTF-16 LE until 00 00
+**0x0004-0x----**: Code in UTF-16 LE until **00 00**
 
 
