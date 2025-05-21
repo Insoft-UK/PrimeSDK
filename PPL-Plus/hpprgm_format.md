@@ -86,8 +86,7 @@
 
 ## CODE HEADER
 
-**0x0000-0x0003**: size of the header, excludes itself
-
+**0x0000-0x0003**: Size of the **PPL Code** in UTF-16 LE
 
 **0x0004-0x----**: Code in UTF-16 LE until **00 00**
 
