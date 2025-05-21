@@ -1,18 +1,18 @@
 // The MIT License (MIT)
-// 
-// Copyright (c) 2023 Insoft. All rights reserved.
-// 
+//
+// Copyright (c) 2023-2025 Insoft. All rights reserved.
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the Software), to deal
+// of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in all
 // copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -20,9 +20,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#define VERSION_NUMBER        "4.0.4"
-#define VERSION_CODE          "D0E59-25EK"
-#define NUMERIC_BUILD          40459
-#define INTERNAL_BUILD_CODE   "D0E59"
-#define DATE                  "2025 May 21"
-#define YEAR                  "2025"
+#ifndef hpprgm_hpp
+#define hpprgm_hpp
+
+#include <fstream>
+#include <sstream>
+
+namespace hpprgm {
+    bool is_g1(const std::string &s);
+    bool is_g2(const std::string &s);
+    bool is_utf16le(const std::string &s);
+    std::wstring load(const std::string &s);
+}
+
+#endif /* hpprgm_hpp */

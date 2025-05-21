@@ -33,6 +33,9 @@
 #include <iterator>
 #include <cstdlib>
 
+#include <iconv.h>
+//#include <stdexcept>
+
 #include "timer.hpp"
 #include "singleton.hpp"
 #include "common.hpp"
@@ -42,6 +45,7 @@
 #include "alias.hpp"
 #include "strings.hpp"
 #include "calc.hpp"
+#include "hpprgm.hpp"
 
 #include "../version_code.h"
 
@@ -124,7 +128,33 @@ void (*old_terminate)() = std::set_terminate(terminator);
 
 // MARK: - Utills
 
-uint32_t utf8_to_utf16(const char *str) {
+std::string utf16_to_utf8(const std::wstring &wstr) {
+    std::string utf8;
+    uint16_t utf16 = 0;
+
+    for (size_t i = 0; i < wstr.size(); i++) {
+        utf16 = static_cast<uint16_t>(wstr[i]);
+
+        if (utf16 <= 0x007F) {
+            // 1-byte UTF-8: 0xxxxxxx
+            utf8 += static_cast<char>(utf16 & 0x7F);
+        } else if (utf16 <= 0x07FF) {
+            // 2-byte UTF-8: 110xxxxx 10xxxxxx
+            utf8 += static_cast<char>(0b11000000 | ((utf16 >> 6) & 0b00011111));
+            utf8 += static_cast<char>(0b10000000 | (utf16 & 0b00111111));
+        } else {
+            // 3-byte UTF-8: 1110xxxx 10xxxxxx 10xxxxxx
+            utf8 += static_cast<char>(0b11100000 | ((utf16 >> 12) & 0b00001111));
+            utf8 += static_cast<char>(0b10000000 | ((utf16 >> 6) & 0b00111111));
+            utf8 += static_cast<char>(0b10000000 | (utf16 & 0b00111111));
+        }
+    }
+
+    return utf8;
+}
+
+
+uint16_t utf8_to_utf16(const char *str) {
     uint8_t *utf8 = (uint8_t *)str;
     uint16_t utf16 = *utf8;
     
@@ -504,16 +534,24 @@ void loadRegexLibs(const string path, const bool verbose)
     }
 }
 
-void embedPPLCode(const string filename, ofstream &outfile)
+
+
+void embedPPLCode(const string filename, ofstream &os)
 {
-    ifstream infile;
+    ifstream is;
     string s;
     
-    infile.open(filename, ios::in);
-    if (infile.is_open()) {
-        while (getline(infile, s)) {
-            s.append("\n");
-            writeUTF16Line(s, outfile);
+    is.open(filename, ios::in);
+    if (is.is_open()) {
+        if (fs::path(filename).extension() == ".hpprgm" || hpprgm::is_utf16le(filename)) {
+            std::wstring ws = hpprgm::load(filename);
+            s.append(utf16_to_utf8(ws));
+            writeUTF16Line(s, os);
+        } else {
+            while (getline(is, s)) {
+                s.append("\n");
+                writeUTF16Line(s, os);
+            }
         }
     }
 }
@@ -667,7 +705,7 @@ void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile) {
             if (fs::path(filename).parent_path().empty() && fs::exists(filename) == false) {
                 filename = singleton.getMainSourceDir().string() + "/" + filename;
             }
-            if (fs::path(filename).extension() == ".hpprgm") {
+            if (fs::path(filename).extension() == ".hpprgm" || fs::path(filename).extension() == ".ppl") {
                 embedPPLCode(filename, outfile);
                 continue;
             }
@@ -789,6 +827,7 @@ void help(void) {
     << "Options:\n"
     << "  -o <output-file>        Specify the filename for generated PPL code.\n"
     << "  -v                      Display detailed processing information.\n"
+    << "  --utf16-le              UTF16-LE for .hpprgm file format.\n"
     << "\n"
     << "  Verbose Flags:\n"
     << "     a                    Aliases\n"
@@ -815,6 +854,8 @@ int main(int argc, char **argv) {
     bool verbose = false;
     bool showpath = false;
     
+    bool utf16 = false;
+    
     string args(argv[0]);
     
     for (int n = 1; n < argc; n++) {
@@ -826,11 +867,16 @@ int main(int argc, char **argv) {
                 exit(101);
             }
             out_filename = argv[n + 1];
-            if (out_filename.substr(out_filename.length() - 7).compare(".hpprgm") != 0) {
-                out_filename += ".hpprgm";
+            if (fs::path(out_filename).extension().empty()) {
+                out_filename.append(".hpprgm");
             }
             
             n++;
+            continue;
+        }
+        
+        if ( args == "--utf16-le" ) {
+            utf16 = true;
             continue;
         }
         
@@ -898,8 +944,8 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    if (fs::path(out_filename).extension() != ".hpprgm") {
-        // The ".ppl" file format requires UTF-16LE.
+    if (fs::path(out_filename).extension() != ".hpprgm" || utf16) {
+        // The ".ppl" file format requires UTF16-LE.
         outfile.put(0xFF);
         outfile.put(0xFE);
     } else {
@@ -934,10 +980,7 @@ int main(int argc, char **argv) {
     
     translatePPLPlusToPPL(in_filename, outfile);
     
-    // Stop measuring time and calculate the elapsed time.
-    long long elapsed_time = timer.elapsed();
-    
-    if (fs::path(out_filename).extension() == ".hpprgm") {
+    if (fs::path(out_filename).extension() == ".hpprgm" && !utf16) {
         // Get the current file size.
         streampos currentPos = outfile.tellp();
         
@@ -969,7 +1012,7 @@ int main(int argc, char **argv) {
 
         // CODE HEADER
         /**
-         0x0000-0x0003: Size of the header, excludes itself
+         0x0000-0x0003: Size of the PPL Code in UTF-16 LE
          */
 #ifndef __LITTLE_ENDIAN__
         codeSize = swap_endian(codeSize);
@@ -977,15 +1020,12 @@ int main(int argc, char **argv) {
         outfile.write(reinterpret_cast<const char*>(&codeSize), sizeof(codeSize));
         
         /**
-         0x0004-0x????: Code in UTF-16 LE until 00 00
+         0x0004-0x----: Code in UTF-16 LE until 00 00
          */
         outfile.seekp(0, ios::end);
         outfile.put(0x00);
         outfile.put(0x00);
     }
-    
-    
-    
     outfile.close();
     
     if (hasErrors() == true) {
@@ -994,6 +1034,8 @@ int main(int argc, char **argv) {
         return 0;
     }
     
+    // Stop measuring time and calculate the elapsed time.
+    long long elapsed_time = timer.elapsed();
     
     // Display elasps time in secononds.
     cout << "Completed in " << fixed << setprecision(2) << elapsed_time / 1e9 << " seconds\n";
@@ -1001,6 +1043,7 @@ int main(int argc, char **argv) {
         cout << "UTF-16LE file at \"" << out_filename << "\" succefuly created.\n";
     else
         cout << "UTF-16LE file " << fs::path(out_filename).filename() << " succefuly created.\n";
+    
             
     return 0;
 }
