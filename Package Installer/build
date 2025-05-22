@@ -13,7 +13,7 @@ find "$PACKAGEROOT/$PRIMESDK/bin" -type f -exec xattr -c {} \;
 find "$PACKAGEROOT/$PRIMESDK/bin" -type f -exec codesign --remove-signature {} \;
 find "$PACKAGEROOT/$PRIMESDK/bin" -type f -exec codesign --sign "Developer ID Application: $YOUR_NAME ($TEAM_ID)" --options runtime --timestamp {} \;
 
-./build.sh
+./build_installer.sh
 
 read -p "Press Enter to exit!"
 

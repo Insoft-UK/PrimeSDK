@@ -10,7 +10,9 @@ PRIMESDK=Applications/HP/PrimeSDK
 NAME=primesdk
 IDENTIFIER=uk.insoft.$NAME
 
-find . -name '*.DS_Store' -type f -delete
+source update_distribution.sh
+
+#find . -name '*.DS_Store' -type f -delete
 
 chmod 644 resources/background.png resources/background@2x.png
 
