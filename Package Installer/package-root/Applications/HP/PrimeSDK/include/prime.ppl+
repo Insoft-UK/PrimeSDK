@@ -30,24 +30,7 @@
 #define kill    KILL
 #define eval    EVAL
 
-#define ceil    CEILING
-#define floor   FLOOR
-#define round   ROUND
-
-#define SCREEN G0
-
-#define SCREEN_WIDTH        320
-#define SCREEN_HEIGHT       240
-
-#define SCREEN_TOP            0
-#define SCREEN_MIDDLE       120
-#define SCREEN_BOTTOM       239
-
-#define SCREEN_LEFT           0
-#define SCREEN_CENTRE       160
-#define SCREEN_RIGHT        319
-
-#define TOUCH_MENU          220
+dict Width = 320, Height = 240, Top = 0, Middle = 119, Bottom = 239, Left = 0, Centre = 159, Right = 319 @Screen;
 
 #define MOUSE_X 2
 #define MOUSE_Y 3
