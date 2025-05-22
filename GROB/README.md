@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/insoft.png" style="width: 128px" />
+<img src="https://raw.githubusercontent.com/Insoft-UK/Insoft-UK/main/assets/silhouette-logo.svg" style="width: 128px" />
 
 # GROB
 A utility for generating PPL code from an image file for use with the BLIT and BLIT_P functions on the HP Prime.
