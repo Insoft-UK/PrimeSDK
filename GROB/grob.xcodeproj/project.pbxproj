@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -33,6 +33,10 @@
 		13EBE2F32B22249100302F26 /* grob */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = grob; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		134778ED2DE0E494009EB2C8 /* examples */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = examples; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		13EBE2F02B22249000302F26 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -60,6 +64,7 @@
 				136E64442D262CE90054E0CC /* version.txt */,
 				138F54D42C977703009357F9 /* LICENSE.md */,
 				138F54D52C977708009357F9 /* README.md */,
+				134778ED2DE0E494009EB2C8 /* examples */,
 				1352EDEC2B4786BC003130E4 /* src */,
 				137FB2862A03B06500AEFDF2 /* Products */,
 			);
@@ -80,7 +85,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13EBE2F72B22249100302F26 /* Build configuration list for PBXNativeTarget "grob" */;
 			buildPhases = (
-				1352EC5E2B40B849003130E4 /* ShellScript */,
 				13EBE2EF2B22249000302F26 /* Sources */,
 				13EBE2F02B22249000302F26 /* Frameworks */,
 				13EBE2F12B22249000302F26 /* CopyFiles */,
@@ -125,27 +129,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		1352EC5E2B40B849003130E4 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "./version_code\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		13EBE2EF2B22249000302F26 /* Sources */ = {

@@ -81,7 +81,7 @@ static std::string ppl(const void *data, const size_t lengthInBytes, const int c
 
         if (count) os << ", ";
         if (count % columns == 0) {
-            os << (count ? "\n  " : "  ");
+            os << (count ? "\n    " : "    ");
         }
         os << "#" << std::uppercase << std::hex << std::setfill('0') << std::setw(16) << n << ":64h";
         
@@ -118,6 +118,16 @@ static size_t loadBinaryFile(const char* filename, TBitmap &bitmap) {
     return fsize;
 }
 
+std::string expandTilde(const std::string &path) {
+    if (path.starts_with("~/")) {
+        const char* home = getenv("HOME");
+        if (home) {
+            return std::string(home) + path.substr(1);  // Replace '~' with $HOME
+        }
+    }
+    return path;
+}
+
 
 // MARK: - Command Line
 
@@ -127,15 +137,15 @@ void help(void)
     std::cout << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved.\n";
     std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n";
     std::cout << "\n";
-    std::cout << "Usage: " << COMMAND_NAME << " <input-file> [-o <output-file>] [-c <columns>] [-n <name>] [-g <1…9>] [-ppl] \n";
+    std::cout << "Usage: " << COMMAND_NAME << " <input-file> [-o <output-file>] [-c <columns>] [-n <name>] [-g<1-9>] [-ppl] \n";
     std::cout << "\n";
     std::cout << "Options:\n";
     std::cout << "  -o <output-file>           Specify the filename for generated PPL code.\n";
     std::cout << "  -c <columns>               Number of columns.\n";
     std::cout << "  -n <name>                  Custom name.\n";
-    std::cout << "  -g <1…9>                   Graphic object 1-9 to use if file is an image.\n";
-    std::cout << "  -ppl                       Wrap PPL code between #PPL...#END\n";
-    std::cout << "  -endian <le|be>            Endianes le(default).\n";
+    std::cout << "  -G<1-9>                    Graphic object G1-G9 to use if file is an image.\n";
+    std::cout << "  --ppl                      Wrap PPL code between #PPL...#END\n";
+    std::cout << "  --endian <le|be>           Endianes le(default).\n";
     std::cout << "\n";
     std::cout << "Additional Commands:\n";
     std::cout << "  " << COMMAND_NAME << " {--version | --help}\n";
@@ -162,7 +172,7 @@ void info(void) {
 }
 
 
-void saveAs(std::string& filename, const std::string& str) {
+void saveAs(const std::string &filename, const std::string& str) {
     std::ofstream outfile;
     outfile.open(filename, std::ios::out | std::ios::binary);
 
@@ -172,8 +182,9 @@ void saveAs(std::string& filename, const std::string& str) {
     }
     
     bool utf16le = false;
+    std::string extension = std::filesystem::path(filename).extension();
     
-    if (std::string::npos != filename.rfind(".hpprgm")) utf16le = true;
+    if (extension == ".hpprgm" || extension == ".ppl") utf16le = true;
     
     if (utf16le) {
         outfile.put(0xFF);
@@ -225,7 +236,7 @@ void saveAs(std::string& filename, const std::string& str) {
 int main(int argc, const char * argv[]) {
     std::string in_filename, out_filename, prefix, sufix, name;
     int columns = 8;
-    int grob = 1;
+    std::string grob("G0");
     bool pplus = false;
     bool le = true;
 
@@ -236,37 +247,38 @@ int main(int argc, const char * argv[]) {
     }
    
     for( int n = 1; n < argc; n++ ) {
-        if ( strcmp( argv[n], "-o" ) == 0 || strcmp( argv[n], "--out" ) == 0 ) {
+        std::string args = argv[n];
+        
+        if (args == "-o" || args == "--out") {
             if ( n + 1 >= argc ) {
                 error();
                 exit(100);
             }
             out_filename = argv[n + 1];
-            if (std::string::npos == out_filename.rfind('.')) {
-                out_filename += ".hpprgm";
-            }
-
+            out_filename = expandTilde(out_filename);
+            if (std::filesystem::path(out_filename).extension().empty()) out_filename.append(".ppl");
+    
             n++;
             continue;
         }
         
-        if ( strcmp( argv[n], "--help" ) == 0 ) {
+        if (args == "--help") {
             help();
             exit(0);
         }
         
-        if ( strcmp( argv[n], "--version" ) == 0 ) {
+        if (args == "--version") {
             version();
             exit(0);
             return 0;
         }
         
-        if ( strcmp( argv[n], "-ppl" ) == 0 ) {
+        if (args == "--ppl") {
             pplus = true;
             continue;
         }
         
-        if ( strcmp( argv[n], "-endian" ) == 0 ) {
+        if (args == "--endian") {
             if ( n + 1 >= argc ) {
                 info();
                 exit(0);
@@ -279,19 +291,12 @@ int main(int argc, const char * argv[]) {
             continue;
         }
         
-        if ( strcmp( argv[n], "-g" ) == 0 ) {
-            if ( n + 1 >= argc ) {
-                info();
-                exit(0);
-            }
-            
-            n++;
-            grob = atoi(argv[n]);
-        
+        if (args.substr(0,2) == "-G") {
+            grob = args.substr(1);
             continue;
         }
         
-        if ( strcmp( argv[n], "-c" ) == 0 ) {
+        if (args == "-c") {
             if ( n + 1 >= argc ) {
                 info();
                 exit(0);
@@ -303,7 +308,7 @@ int main(int argc, const char * argv[]) {
             continue;
         }
         
-        if ( strcmp( argv[n], "-n" ) == 0 )
+        if (args == "-n")
         {
             if ( n + 1 >= argc ) {
                 error();
@@ -322,15 +327,16 @@ int main(int argc, const char * argv[]) {
     
     info();
     
-    if (out_filename.empty()) {
-        out_filename = regex_replace(in_filename, std::regex(R"((\.\w+)?$)"), "");
-        out_filename += ".hpprgm";
+    in_filename = expandTilde(in_filename);
+    
+    if (!std::filesystem::exists(in_filename)) {
+        std::cout << "file '" << in_filename << "' not found.\n";
+        return 0;
     }
     
-    
-    if (!filesize(in_filename.c_str())) {
-        std::cout << "file '" << in_filename << "' not found.\n";
-        exit(0x01);
+    if (out_filename.empty()) {
+        std::filesystem::path path = std::filesystem::path(in_filename);
+        out_filename = path.parent_path().string() + "/" + path.stem().string() + ".ppl";
     }
     
     if (name.empty()) {
@@ -350,6 +356,7 @@ int main(int argc, const char * argv[]) {
             case 1:
                 lengthInBytes = bitmap.width * bitmap.height / 8;
                 columns = bitmap.width / 64;
+                bitmap.palette.resize(0);
                 bitmap.palette.push_back(0xFFFFFFFF);
                 bitmap.palette.push_back(0xFF);
                 if (!bitmap.bytes.empty()) {
@@ -418,14 +425,17 @@ int main(int argc, const char * argv[]) {
     
     switch (bitmap.bpp) {
         case 0:
-            utf8 += "CONST " + name + ":= {" + ppl(bitmap.bytes.data(), lengthInBytes, columns, le) + "};\n";
+            utf8 += "LOCAL " + name + ":= {" + ppl(bitmap.bytes.data(), lengthInBytes, columns, le) + "};\n";
             break;
             
         case 1:
         case 4:
         case 8:
-            os << "CONST " << name << "_palt := {\n  ";
+            os << "LOCAL " << name << " := {\n";
+            os << "  {\n" << ppl(bitmap.bytes.data(), lengthInBytes, columns, le) << "\n  },\n";
+            os << "  { " << std::dec << bitmap.width << ", " << bitmap.height << " },\n";
             
+            os << "  {\n    ";
             for (int i = 0; i < bitmap.palette.size(); i += 1) {
                 uint32_t color = bitmap.palette.at(i);
 #ifdef __LITTLE_ENDIAN__
@@ -433,20 +443,21 @@ int main(int argc, const char * argv[]) {
 #endif
                 color &= 0xFFFFFF;
                 if (i) os << ", ";
-                if (i % 16 == 0 && i) os << "\n  ";
+                if (i % 16 == 0 && i) os << "\n    ";
                 os << "#" << std::uppercase << std::hex << std::setfill('0') << std::setw(6) << color << ":64h";
             }
-            os << "\n};\n\n";
+            os << "\n  }\n};\n\n";
             
-            os << "CONST " << name << "_data := {\n" << ppl(bitmap.bytes.data(), lengthInBytes, columns, le) << "\n};\n\n";
-            os << "GROB_P(G" << grob << ", " << std::dec << bitmap.width << ", " << bitmap.height << ", " << name << "_data, " << name << "_palt);\n";
+            os << "GROB.IMG(" << grob << ", " << name << ");\n";
             utf8.append(os.str());
             break;
         
             
         default:
-            os << "CONST " << name << "_data := {\n" << ppl(bitmap.bytes.data(), lengthInBytes, columns, le) << "\n};\n\n";
-            os << "DIMGROB_P(G" << grob << ", " << bitmap.width << ", " << bitmap.height << ", " << name << "_data);\n";
+            os << "LOCAL " << name << " := {\n";
+            os << "  {\n" << ppl(bitmap.bytes.data(), lengthInBytes, columns, le) << "\n  },\n";
+            os << "  { " << std::dec << bitmap.width << ", " << bitmap.height << " };\n}\n\n";
+            os << "GROB.IMG(" << grob << ", " << name << ");\n";
             utf8.append(os.str());
             break;
     }
