@@ -1,4 +1,9 @@
-*/*.xcworkspace/xcuserdata/
+GROB/*.xcworkspace/xcuserdata/
+PPL-Plus/*.xcworkspace/xcuserdata/
+PPL-Minifier/*.xcworkspace/xcuserdata/
+PPL-Font/*.xcworkspace/xcuserdata/
+PPL-Reformat/*.xcworkspace/xcuserdata/
+hpprgm/*.xcworkspace/xcuserdata/
 .DS_Store
 *.pkg
 ignore
