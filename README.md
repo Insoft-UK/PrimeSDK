@@ -2,7 +2,7 @@
 
 # PrimeSDK for macOS
 
-### <a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/PPL-Plus/README.md">PPL+</a> Pre-Processor for PPL
+### <a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/PPL+/README.md">PPL+</a> Pre-Processor for PPL
 PPL+ is a pre-processor utility designed to improve code maintainability and readability in the HP Programming Language (PPL). PPL+ also allows one to define regular expressions to assist in the preprocessing workflow. The final output is a compact, optimized PPL program file tailored to the HP Prime’s limited storage capacity.
 
 ### <a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/PPL-Minifier/README.md">Minifier & Compressor</a> for PPL Code
