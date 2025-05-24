@@ -33,6 +33,7 @@
 
 dict color[1], shade[2] @theme;
 
+
 dict Dark = 0, Light = 1 @ThemeMode;
 dict New = 0, Complete = 1, Drag = 2, Stretch = 3, Rotate = 4, LongClick = 5 @MouseType;
 dict Real = 0, Integer = 1, String = 2, Complex = 3, Matrix = 4, Error = 5, List = 6, Function = 8, Unit = 9, Cas = 14 @ObjectType;
@@ -44,6 +45,6 @@ dict Black = 0, DarkGray = 1, LightGray = 2, White = 3 @SystemColor;
 dict Current = 0, Size10 = 1, Size12 = 2, Small = 2, Size14 = 3, Medium = 3, Size16 = 4, Large = 4, Size18 = 5, Size20 = 6, Size22 = 7 @Font;
 dict White = #FFFFFF:32h, Silver = #C0C0C0:32h, Gray = #808080:32h, Black = #000000:32h, Red = #FF0000:32h, Magenta = #FF00FF:32h, Cardinal = #D03020:32h, Coral = #F08070:32h, Pink = #FFC0C0:32h, Indigo = #400080:32h, Purple = #800080:32h, Violet = #8000FF:32h, Lavender = #C0C0FF:32h, NavyBlue = #000080:32h, Blue = #0000FF:32h, Denim = #1060C0:32h, Lochmara = #0070C0:32h, SkyBlue = #80D0FF:32h, PacificBlue = #00A0C0:32h, Teal = #008080:32h, Cyan = #00FFFF:32h, Aqua = #00FFFF:32h, FirGreen = #003000:32h, OfficeGreen = #008000:32h, Shamrock = #00A060:32h, Apple = #50B040:32h, LimeGreen = #00FF00:32h, Chocolate = #400808:32h, Brown = #905000:32h, Orange = #FF8000:32h, Olive = #808000:32h, Tangerine = #FFD000:32h, Yellow = #FFFF00:32h, Khaki = #F0E090:32h, Tan = #D0B090:32h, Maroon = #800000:32h, SnowWhite = #FFF0F0:32h, Clear = #FF000000:32h @Color;
 
-regex @`\bKC\.([a-zA-Z_]+)` KeyCode.$1
+regex @`\bK_([a-zA-Z_]+)` KeyCode.$1
 
 #endif

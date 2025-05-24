@@ -24,10 +24,10 @@
 
 #pragma mode( separator(.,,) integer(h64) assignment(=) indentation(2) )
 #include <hp>
+#include <dictionary>
 
 regex `\bInt8\(([^()]*)\)` SETBITS($1,-7)
 
-dict Dark = 0, Light = 1 @ThemeMode;
 
 
 #ifndef __pplplus
@@ -57,7 +57,7 @@ pplang()
 begin
     hp::screen::clear(0);
 local y;
-    var v: variableName = 0;
+    var v: variableName = K_Apps;
     10▶variableName;
     
     

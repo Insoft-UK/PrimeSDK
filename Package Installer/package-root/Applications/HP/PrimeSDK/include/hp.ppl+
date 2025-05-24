@@ -42,7 +42,7 @@ regex @`hp::mouse\.x` HP.ms[1,1]
 regex @`hp::mouse\.y` HP.ms[1,2]
 regex @`hp::mouse\.type` HP.ms[1,5]
 
-regex @`\bhp::screen::store *\( *(G\d) *\)` DIMGROB_P($1, 320, 240, 0); BLIT_P($1, G0)
+regex @`\bhp::screen::store *\( *(G\d) *\)` SUBGROB(G0,$1)
 regex @`\bhp::screen::restore *\( *(G\d) *\)` BLIT($1)
 regex @`\bhp::screen::clear *\((.*)?\)` RECT($1)
 
