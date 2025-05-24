@@ -26,18 +26,25 @@
 #ifndef HP_PPLIB
 #define HP_PPLIB
 
-#define __STORAGE_SCREEN G9
+alias hp::glyph := HP.Glyph;
+alias hp::text := HP.Text;
+alias hp::zones::reset := HP.RZs;
+alias hp::zone::reset := HP.RZn;
+alias hp::zone::set := HP.SZs;
+alias hp::zone := HP.Zn;
+alias hp::event::wait HP.EWait;
+alias hp::mouse::wait := HP.MWait;
+alias hp::mouse::clear := HP.MClr;
+alias hp::mouse := HP.MPt;
+alias hp::menu := HP.Mn;
 
-regex @`hp::mouse\.x` L8[1,1]
-regex @`hp::mouse\.y` L8[1,2]
-regex @`hp::mouse\.type` L8[1,5]
+regex @`hp::mouse\.x` HP.ms[1,1]
+regex @`hp::mouse\.y` HP.ms[1,2]
+regex @`hp::mouse\.type` HP.ms[1,5]
 
-regex @`\bhp::storeScreen *\( *(G\d) *\)` DIMGROB_P($1, 320, 240, 0); BLIT_P($1, G0)
-regex @`\bhp::restoreScreen *\( *(G\d) *\)` BLIT($1)
-
-regex @`\bhp::clear(?:GROB|Screen) *\((.*)?\)` RECT($1)
-
-regex @`hp::waitEvent\(\)` WAIT(-1)
+regex @`\bhp::screen::store *\( *(G\d) *\)` DIMGROB_P($1, 320, 240, 0); BLIT_P($1, G0)
+regex @`\bhp::screen::restore *\( *(G\d) *\)` BLIT($1)
+regex @`\bhp::screen::clear *\((.*)?\)` RECT($1)
 
 regex @`\bhp::isKeyPressed *\(([\w.:]+)\)` IFTE(SIZE($1)==1,1,0)
 regex @`\bhp::isMouseEvent *\(([\w.:]+)\)` IFTE(SIZE($1)>1,1,0)

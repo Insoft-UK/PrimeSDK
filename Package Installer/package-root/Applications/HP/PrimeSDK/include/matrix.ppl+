@@ -26,16 +26,16 @@
 #define MATRIX_PPLIB
 
 alias matrix::edit := EDITMAT;
-alias matrix::addCol := ADDCOL;
-alias matrix::addRow := ADDROW;
-alias matrix::delCol := DELCOL;
+alias matrix::add::col := ADDCOL;
+alias matrix::add::row := ADDROW;
+alias matrix::delete::col := DELCOL;
 alias matrix::redim := REDIM;
 alias matrix::replace := REPLACE;
 alias matrix::scale := SCALE;
-alias matrix::scaleAdd := SCALEADD;
+alias matrix::scale::add := SCALEADD;
 alias matrix::sub := Sub;
-alias matrix::swapCol := SAWAPCOL;
-alias matrix::swapRow := SWAPROW;
+alias matrix::swap::col := SAWAPCOL;
+alias matrix::swap::row := SWAPROW;
 
 
 #endif

@@ -27,17 +27,17 @@
 
 alias arc := ARC_P;
 alias blit := BLIT_P;
-alias dimGROB := DIMGROB_P;
-alias getPixel := GETPIX_P;
+alias dimgrob := DIMGROB_P;
+alias pixel := GETPIX_P;
 alias invert := INVERT_P;
 alias line := LINE_P;
-alias pixelOff := PIXOFF_P;
-alias pixelOn := PIXON_P;
+alias pixel::off := PIXOFF_P;
+alias pixel::on := PIXON_P;
 alias rect := RECT_P;
-alias fillPoly := FILLPOLY_P;
-alias subGROB := SUBGROB_P;
-alias textOut := TEXTOUT_P;
-alias textSize := TEXTSIZE;
+alias fillpoly := FILLPOLY_P;
+alias subgrob := SUBGROB_P;
+alias textout := TEXTOUT_P;
+alias textsize := TEXTSIZE;
 
 regex @`\b(G\d)\.width\b` GROBW_P($1)
 regex @`\b(G\d)\.height\b` GROBH_P($1)

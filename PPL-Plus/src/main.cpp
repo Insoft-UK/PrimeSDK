@@ -405,7 +405,7 @@ void translatePPLPlusLine(string &ln, ofstream &outfile) {
     
     //MARK: alias parsing
     
-    re = R"(^alias ([A-Za-z_](?:\w+|::[A-Za-z_]+)*):=([A-Za-z_](?:\w+|::[A-Za-z_]+)*);$)";
+    re = R"(^alias ([A-Za-z_]\w*(?:::[a-zA-Z]\w*)*):=([a-zA-Z]\w*(?:\.[a-zA-Z]\w*)*);$)";
     if (regex_search(ln, match, re)) {
         Aliases::TIdentity identity;
         identity.identifier = match[1].str();

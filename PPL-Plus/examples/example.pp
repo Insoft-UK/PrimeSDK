@@ -23,7 +23,7 @@
 #endif
 
 #pragma mode( separator(.,,) integer(h64) assignment(=) indentation(2) )
-
+#include <hp>
 
 regex `\bInt8\(([^()]*)\)` SETBITS($1,-7)
 
@@ -55,6 +55,7 @@ dict Dark = 0, Light = 1 @ThemeMode;
 
 pplang()
 begin
+    hp::screen::clear(0);
 local y;
     var v: variableName = 0;
     10▶variableName;

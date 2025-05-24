@@ -25,12 +25,12 @@
 #ifndef INTEGER_PPLIB
 #define INTEGER_PPLIB
 
-regex @`integer::toReal` B→R
-alias integer::getBase := GETBASE;
-alias integer::getBits := GETBITS;
-regex @`integer::toBase` R→B
-alias integer::setBits := SETBITS;
-alias integer::setBase := SETBASE;
+regex @`integer::to_real` B→R
+alias integer::getbase := GETBASE;
+alias integer::getbits := GETBITS;
+regex @`integer::to_base` R→B
+alias integer::setbits := SETBITS;
+alias integer::setbase := SETBASE;
 
 @global dict System = 0, Binary = 1, Octal = 2, Decimal = 3, Hexadecimal = 4 integer::Base;
 

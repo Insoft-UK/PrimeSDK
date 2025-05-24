@@ -28,13 +28,13 @@
 alias string::asc := ASC;
 alias string::char := CHAR;
 alias string::dim := DIM;
-alias string::toString := STRING;
-alias string::inString := INSTRING;
+alias string::to_string := STRING;
+alias string::in_string := INSTRING;
 alias string::left := LEFT;
 alias string::right := RIGHT;
 alias string::mid := MID;
 alias string::rotate := ROTATE;
-alias string::stringFromId := STRINGFROMID;
+alias string::string::from_id := STRINGFROMID;
 alias string::replace := REPLACE;
 
 regex @`string::npos` 0

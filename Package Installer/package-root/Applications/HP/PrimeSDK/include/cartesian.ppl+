@@ -27,15 +27,15 @@
 
 alias cartesian::arc := ARC;
 alias cartesian::blit := BLIT;
-alias cartesian::dimGROB := DIMGROB;
-alias cartesian::getPixel := GETPIX;
+alias cartesian::dimgrob := DIMGROB;
+alias cartesian::pixel := GETPIX;
 alias cartesian::invert := INVERT;
 alias cartesian::line := LINE;
-alias cartesian::pixelOff := PIXOFF;
-alias cartesian::pixelOn := PIXON;
+alias cartesian::pixel::off := PIXOFF;
+alias cartesian::pixel::on := PIXON;
 alias cartesian::rect := RECT;
-alias cartesian::fillPoly := FILLPOLY;
-alias cartesian::subGROB := SUBGROB;
+alias cartesian::fillpoly := FILLPOLY;
+alias cartesian::subgrob := SUBGROB;
 alias cartesian::textout := TEXTOUT;
 
 regex @`\bcartesian::(G\d)\.width\b` GROBW($1)
