@@ -6,7 +6,7 @@ A utility for generating PPL code from an image file for use with the BLIT and B
 <img width="64" height="64" src="https://github.com/Insoft-UK/PrimeSDK/blob/main/assets/spectrum-8bit.png" >
 
 ```
-grob spectrum-8bit.bmp -g 1
+grob spectrum-8bit.bmp -G1
 ```
 
 > [!NOTE]
