@@ -444,11 +444,11 @@ int main(int argc, const char * argv[]) {
                 color &= 0xFFFFFF;
                 if (i) os << ", ";
                 if (i % 16 == 0 && i) os << "\n    ";
-                os << "#" << std::uppercase << std::hex << std::setfill('0') << std::setw(6) << color << ":64h";
+                os << "#" << std::uppercase << std::hex << std::setfill('0') << std::setw(6) << color << ":32h";
             }
             os << "\n  }\n};\n\n";
             
-            os << "GROB.IMG(" << grob << ", " << name << ");\n";
+            os << "GROB.Image(" << grob << ", " << name << ");\n";
             utf8.append(os.str());
             break;
         
@@ -457,7 +457,7 @@ int main(int argc, const char * argv[]) {
             os << "LOCAL " << name << " := {\n";
             os << "  {\n" << ppl(bitmap.bytes.data(), lengthInBytes, columns, le) << "\n  },\n";
             os << "  { " << std::dec << bitmap.width << ", " << bitmap.height << " };\n}\n\n";
-            os << "GROB.IMG(" << grob << ", " << name << ");\n";
+            os << "GROB.Image(" << grob << ", " << name << ");\n";
             utf8.append(os.str());
             break;
     }

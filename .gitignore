@@ -1,5 +1,4 @@
-*.xcworkspace/xcuserdata/
-xcuserdata/
+*/*.xcworkspace/xcuserdata/
 .DS_Store
 *.pkg
 ignore
