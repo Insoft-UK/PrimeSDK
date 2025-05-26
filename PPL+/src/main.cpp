@@ -153,8 +153,48 @@ std::string utf16_to_utf8(const std::wstring &wstr) {
     return utf8;
 }
 
+std::wstring utf8_to_utf16(const std::string &str) {
+    std::wstring utf16;
+    size_t i = 0;
 
-uint16_t utf8_to_utf16(const char *str) {
+    while (i < str.size()) {
+        uint8_t byte1 = static_cast<uint8_t>(str[i]);
+
+        if ((byte1 & 0b10000000) == 0) {
+            // 1-byte UTF-8: 0xxxxxxx
+            utf16 += static_cast<wchar_t>(byte1);
+            i += 1;
+        } else if ((byte1 & 0b11100000) == 0b11000000) {
+            // 2-byte UTF-8: 110xxxxx 10xxxxxx
+            if (i + 1 >= str.size()) break;
+            uint8_t byte2 = static_cast<uint8_t>(str[i + 1]);
+
+            uint16_t ch = ((byte1 & 0b00011111) << 6) |
+                          (byte2 & 0b00111111);
+            utf16 += static_cast<wchar_t>(ch);
+            i += 2;
+        } else if ((byte1 & 0b11110000) == 0b11100000) {
+            // 3-byte UTF-8: 1110xxxx 10xxxxxx 10xxxxxx
+            if (i + 2 >= str.size()) break;
+            uint8_t byte2 = static_cast<uint8_t>(str[i + 1]);
+            uint8_t byte3 = static_cast<uint8_t>(str[i + 2]);
+
+            uint16_t ch = ((byte1 & 0b00001111) << 12) |
+                          ((byte2 & 0b00111111) << 6) |
+                          (byte3 & 0b00111111);
+            utf16 += static_cast<wchar_t>(ch);
+            i += 3;
+        } else {
+            // Invalid or unsupported UTF-8 sequence
+            i += 1; // Skip it
+        }
+    }
+
+    return utf16;
+}
+
+
+uint16_t to_utf16(const char *str) {
     uint8_t *utf8 = (uint8_t *)str;
     uint16_t utf16 = *utf8;
     
@@ -482,7 +522,7 @@ void writeUTF16Line(const string &ln, ofstream &outfile) {
         
         // Output as UTF-16LE
         if (*ascii >= 0x80) {
-            uint16_t utf16 = utf8_to_utf16(&ln.at(n));
+            uint16_t utf16 = to_utf16(&ln.at(n));
             
 #ifndef __LITTLE_ENDIAN__
             utf16 = utf16 >> 8 | utf16 << 8;
@@ -536,15 +576,15 @@ void loadRegexLibs(const string path, const bool verbose)
 
 
 
-void embedPPLCode(const string filename, ofstream &os)
+void embedPPLCode(const string &filepath, ofstream &os)
 {
     ifstream is;
     string s;
     
-    is.open(filename, ios::in);
+    is.open(filepath, ios::in);
     if (is.is_open()) {
-        if (fs::path(filename).extension() == ".hpprgm" || hpprgm::is_utf16le(filename)) {
-            std::wstring ws = hpprgm::load(filename);
+        if (fs::path(filepath).extension() == ".hpprgm" || hpprgm::isUTF16le(filepath)) {
+            std::wstring ws = hpprgm::load(filepath);
             s.append(utf16_to_utf8(ws));
             writeUTF16Line(s, os);
         } else {

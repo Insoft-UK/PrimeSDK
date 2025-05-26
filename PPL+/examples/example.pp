@@ -41,6 +41,8 @@ regex `\bInt8\(([^()]*)\)` SETBITS($1,-7)
 #define MacroList(i)      L$1
 #define COPYWRITE "Copyright (c) 2023-2025 Insoft. All rights reserved."
 
+//#include "example.ppl"
+
 #PYTHON
 #END
 
@@ -49,6 +51,10 @@ regex `\bInt8\(([^()]*)\)` SETBITS($1,-7)
 #END
 
 
+
+//#include "g1.hpprgm"
+//#include "g2.hpprgm"
+//#include "utf16-le.hpprgm"
 
 #include <pplang>
 

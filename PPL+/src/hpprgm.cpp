@@ -22,7 +22,7 @@
 
 #include "hpprgm.hpp"
 
-static std::wstring read_wstring_until_null(std::ifstream &is, std::streampos offset = 0) {
+static std::wstring readInUTF16(std::ifstream &is, std::streampos offset = 0) {
     // Seek to the desired offset (if any)
     if (offset > 0) {
         is.seekg(offset, std::ios::beg);
@@ -46,18 +46,18 @@ static std::wstring read_wstring_until_null(std::ifstream &is, std::streampos of
     return result;
 }
 
-static std::wstring utf16_code(const std::string &s)
+static std::wstring readInPPLCode(const std::string &s)
 {
     std::wstring wstr;
     std::ifstream is;
     
     is.open(s, std::ios::in | std::ios::binary);
-    wstr = read_wstring_until_null(is, 2);
+    wstr = readInUTF16(is, 2);
     is.close();
     return wstr;
 }
 
-static std::wstring g1_code(const std::string &s)
+static std::wstring extractPPLCode(const std::string &s)
 {
     uint32_t u32;
     std::streampos pos, codePos;
@@ -65,6 +65,19 @@ static std::wstring g1_code(const std::string &s)
     std::ifstream is;
     
     is.open(s, std::ios::in | std::ios::binary);
+    
+    while (!is.eof()) {
+        is.read((char *)&u32, sizeof(uint32_t));
+        if (u32 == 0x00C0009B) {
+            wstr = readInUTF16(is, is.tellg());
+            is.close();
+            
+            return wstr;
+        }
+        is.peek();
+    }
+    
+    is.seekg(0, std::ios::beg);
     is.read(reinterpret_cast<char*>(&u32), sizeof(u32));
     
     is.seekg(u32, std::ios::cur);
@@ -79,31 +92,12 @@ static std::wstring g1_code(const std::string &s)
         is.close();
     }
     
-    wstr = read_wstring_until_null(is, codePos);
+    wstr = readInUTF16(is, codePos);
     return wstr;
 }
 
-static std::wstring g2_code(const std::string &s)
-{
-    std::wstring wstr;
-    std::ifstream is;
-    uint32_t u32;
-    
-    is.open(s, std::ios::in | std::ios::binary);
-    
-    while (!is.eof()) {
-        is.read((char *)&u32, sizeof(uint32_t));
-        if (u32 == 0x00C0009B) break;;
-        is.peek();
-    }
-    
-    wstr = read_wstring_until_null(is, is.tellg());
-    is.close();
-    
-    return wstr;
-}
 
-bool hpprgm::is_g1(const std::string &s)
+bool hpprgm::isG1(const std::string &s)
 {
     std::ifstream is;
     uint32_t header_size, code_size;
@@ -126,7 +120,7 @@ bool hpprgm::is_g1(const std::string &s)
     return filesize == 4 + header_size + 4 + code_size;
 }
 
-bool hpprgm::is_g2(const std::string &s)
+bool hpprgm::isG2(const std::string &s)
 {
     std::ifstream is;
     uint32_t sig;
@@ -138,7 +132,7 @@ bool hpprgm::is_g2(const std::string &s)
     return sig == 0xB28A617C;
 }
 
-bool hpprgm::is_utf16le(const std::string &s)
+bool hpprgm::isUTF16le(const std::string &s)
 {
     std::ifstream is;
     uint16_t sig;
@@ -152,16 +146,11 @@ bool hpprgm::is_utf16le(const std::string &s)
 
 std::wstring hpprgm::load(const std::string &s)
 {
-    std::ifstream is;
-    
     if (!std::filesystem::exists(s)) return std::wstring();
-    is.open(s, std::ios::in | std::ios::binary);
     
-    if (is_utf16le(s)) return utf16_code(s);
-    if (is_g2(s)) return g2_code(s);
-    if (is_g1(s)) return g1_code(s);
+    if (isUTF16le(s)) return readInPPLCode(s);
+    if (isG2(s) || isG1(s)) return extractPPLCode(s);
     
     return std::wstring();
-    
 }
 
