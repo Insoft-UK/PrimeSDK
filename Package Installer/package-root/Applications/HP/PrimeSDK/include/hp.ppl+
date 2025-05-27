@@ -32,7 +32,7 @@ alias hp::zones::reset := HP.RZs;
 alias hp::zone::reset := HP.RZn;
 alias hp::zone::set := HP.SZs;
 alias hp::zone := HP.Zn;
-alias hp::event::wait HP.EWait;
+alias hp::event::wait := HP.EWait;
 alias hp::mouse::wait := HP.MWait;
 alias hp::mouse::clear := HP.MClr;
 alias hp::mouse := HP.MPt;

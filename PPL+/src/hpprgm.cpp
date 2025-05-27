@@ -97,17 +97,17 @@ static std::wstring extractPPLCode(const std::string &s)
 }
 
 
-bool hpprgm::isG1(const std::string &s)
+static bool isG1(const std::string &filepath)
 {
     std::ifstream is;
     uint32_t header_size, code_size;
     std::filesystem::path path;
     
-    path = std::filesystem::path(s);
+    path = std::filesystem::path(filepath);
     if (!std::filesystem::exists(path)) return false;
     auto filesize = std::filesystem::file_size(path);
     
-    is.open(s, std::ios::in | std::ios::binary);
+    is.open(filepath, std::ios::in | std::ios::binary);
     is.read(reinterpret_cast<char*>(&header_size), sizeof(header_size));
     if (filesize < header_size + 4) {
         is.close();
@@ -120,37 +120,40 @@ bool hpprgm::isG1(const std::string &s)
     return filesize == 4 + header_size + 4 + code_size;
 }
 
-bool hpprgm::isG2(const std::string &s)
+static bool isG2(const std::string &filepath)
 {
     std::ifstream is;
     uint32_t sig;
     
-    is.open(s, std::ios::in | std::ios::binary);
+    is.open(filepath, std::ios::in | std::ios::binary);
     is.read(reinterpret_cast<char*>(&sig), sizeof(sig));
     is.close();
     
     return sig == 0xB28A617C;
 }
 
-bool hpprgm::isUTF16le(const std::string &s)
+static bool isUTF16le(const std::string &filepath)
 {
     std::ifstream is;
     uint16_t sig;
     
-    is.open(s, std::ios::in | std::ios::binary);
+    is.open(filepath, std::ios::in | std::ios::binary);
     is.read(reinterpret_cast<char*>(&sig), sizeof(sig));
     is.close();
     
     return sig == 0xFEFF;
 }
 
-std::wstring hpprgm::load(const std::string &s)
+
+std::wstring hpprgm::load(const std::string &filepath)
 {
-    if (!std::filesystem::exists(s)) return std::wstring();
+    std::wstring wstr;
     
-    if (isUTF16le(s)) return readInPPLCode(s);
-    if (isG2(s) || isG1(s)) return extractPPLCode(s);
+    if (!std::filesystem::exists(filepath)) return wstr;
     
-    return std::wstring();
+    if (isUTF16le(filepath)) return readInPPLCode(filepath);
+    if (isG2(filepath) || isG1(filepath)) return extractPPLCode(filepath);
+    
+    return wstr;
 }
 

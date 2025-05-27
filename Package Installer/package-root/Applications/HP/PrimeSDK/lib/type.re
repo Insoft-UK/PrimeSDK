@@ -1,1 +1,2 @@
 `\bInt *\(` IP(
+`\bString *\(` STRING(

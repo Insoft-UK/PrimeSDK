@@ -1,4 +1,3 @@
-#ifndef __pplplus
 // The MIT License (MIT)
 //
 // Copyright (c) 2023-2025 Insoft. All rights reserved.
@@ -20,58 +19,20 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-#endif
 
-#pragma mode( separator(.,,) integer(h64) assignment(=) indentation(2) )
-#include <hp>
-#include <dictionary>
+#ifndef utf_hpp
+#define utf_hpp
 
-regex `\bInt8\(([^()]*)\)` SETBITS($1,-7)
+#include <sstream>
+#include <fstream>
+#include <cstdlib>
 
+class utf {
+public:
+    static std::string to_utf8(const std::wstring &wstr);
+    static std::wstring to_utf16(const std::string &str);
+    static uint16_t utf16(const char *str);
+    static void write(const std::string &str, std::ofstream &outfile);
+};
 
-
-#ifndef __pplplus
- When defining a macro with parameters, issues can arise if an argument
- name is adjacent to a letter. To resolve this, you can use numbered
- placeholders like `1$` for the first argument, `2$` for the second, `3$`
- for the third, and so on. This ensures the macro arguments remain uniquely
- identifiable and avoid issues, note that $0 is the identifier.
-#endif
-
-#define MacroList(i)      L$1
-#define COPYWRITE "Copyright (c) 2023-2025 Insoft. All rights reserved."
-
-//#include "example.ppl"
-
-#PYTHON
-#END
-
-
-#PPL
-#END
-
-
-
-//#include "g1.hpprgm"
-//#include "g2.hpprgm"
-//#include "utf16-le.hpprgm"
-
-#include <pplang>
-
-
-pplang()
-begin
-    hp::screen::clear(0);
-local y;
-    var v: variableName = K_Apps;
-    10▶variableName;
-    
-    
-    for variableName in 0...7
-    end;
-    
-    switch variableName
-    case 1 do
-        end;
-    end;
-end;
+#endif /* utf_hpp */

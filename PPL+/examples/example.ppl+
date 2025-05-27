@@ -22,22 +22,65 @@
 // SOFTWARE.
 #endif
 
-#ifndef PPLANG_PPLIB
-#define PPLANG_PPLIB
+#pragma mode( separator(.,,) integer(h64) assignment(=) indentation(2) )
 
-#define pi      π
-#define FROM    :=
-#define emptylist {0}
+#include <hp>
+#include <dictionary>
 
-regex @`\bfor ([a-zA-Z]\w*) in (\d+)\.{3}(\d+)(?:: do)?\b` FOR $1 FROM $2 TO $3 DO
-regex @`\bloop\b` WHILE 1 DO
+//#include "g1.hpprgm"
 
-regex @`\(([^?]+)\?(.+):(.+)\)` IFTE($1, $2, $3)
-regex @`\bguard +(.*)\belse\b` IF NOT($1) THEN
 
-regex @`\b((?:#?[\dA-F]+(?::-?\d+)?[bodh]?)|[[:alpha:]][\w.:]*\b|\([^()]+\)) *& *((?:#?[\dA-F]+(?::-?\d+)?[bodh]?)|[[:alpha:]][\w.:]*\b|\([^()]+\))` BITAND($1,$2)
-regex @`\b((?:#?[\dA-F]+(?::-?\d+)?[bodh]?)|[[:alpha:]][\w.:]*\b|\([^()]+\)) *\| *((?:#?[\dA-F]+(?::-?\d+)?[bodh]?)|[[:alpha:]][\w.:]*\b|\([^()]+\))` BITOR($1,$2)
-regex @`\b((?:#?[\dA-F]+(?::-?\d+)?[bodh]?)|[[:alpha:]][\w.:]*\b|\([^()]+\)) *>> *((?:#?[\dA-F]+(?::-?\d+)?[bodh]?)|[[:alpha:]][\w.:]*\b|\([^()]+\))` BITSR($1,$2)
-regex @`\b((?:#?[\dA-F]+(?::-?\d+)?[bodh]?)|[[:alpha:]][\w.:]*\b|\([^()]+\)) *<< *((?:#?[\dA-F]+(?::-?\d+)?[bodh]?)|[[:alpha:]][\w.:]*\b|\([^()]+\))` BITSL($1,$2)
-
+#ifndef __pplplus
+ When defining a macro with parameters, issues can arise if an argument
+ name is adjacent to a letter. To resolve this, you can use numbered
+ placeholders like `1$` for the first argument, `2$` for the second, `3$`
+ for the third, and so on. This ensures the macro arguments remain uniquely
+ identifiable and avoid issues, note that $0 is the identifier.
 #endif
+
+#define MacroList(i)      L$1
+#define COPYWRITE "Copyright (c) 2023-2025 Insoft. All rights reserved."
+
+
+
+#PYTHON
+#END
+
+
+#PPL
+#END
+
+
+
+#include <pplang>
+
+pplang()
+begin
+    switch A
+        case 1 do
+        end;
+        default
+    end;
+    
+    
+    if A == B and A == 1 then
+        return;
+    endif;
+    
+    while true do
+        a+1 => A;
+        if a == 100 then break;
+        endif
+    wend;
+    
+    
+    repeat
+        A-1 => A;
+    until A <> 0;
+    
+    try
+        A*B => A;
+    then
+    else
+    end;
+end;

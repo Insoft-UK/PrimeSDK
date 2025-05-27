@@ -46,6 +46,7 @@
 #include "strings.hpp"
 #include "calc.hpp"
 #include "hpprgm.hpp"
+#include "utf.hpp"
 
 #include "../version_code.h"
 
@@ -53,7 +54,7 @@
 #define COMMAND_NAME "ppl+"
 #define INDENT_WIDTH indentation
 
-static unsigned int indentation = 2;
+static unsigned int indentation = 1;
 
 using ppl_plus::Singleton;
 using ppl_plus::Strings;
@@ -89,36 +90,43 @@ static Preprocessor preprocessor = Preprocessor();
 static Strings strings = Strings();
 static string assignment = "=";
 
+// MARK: - Extensions
 
-
-std::string expandTilde(const string &path) {
-    if (path.starts_with("~/")) {
-        const char* home = getenv("HOME");
-        if (home) {
-            return string(home) + path.substr(1);  // Replace '~' with $HOME
+namespace std::filesystem {
+    std::string expand_tilde(const string &path) {
+        if (path.starts_with("~/")) {
+            const char* home = getenv("HOME");
+            if (home) {
+                return string(home) + path.substr(1);  // Replace '~' with $HOME
+            }
         }
+        return path;
     }
-    return path;
 }
 
-template <typename T>
-T swap_endian(T u)
-{
-    static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
-
-    union
+namespace std {
+    template <typename T>
+    T swap_endian(T u)
     {
-        T u;
-        unsigned char u8[sizeof(T)];
-    } source, dest;
-
-    source.u = u;
-
-    for (size_t k = 0; k < sizeof(T); k++)
-        dest.u8[k] = source.u8[sizeof(T) - k - 1];
-
-    return dest.u;
+        
+        static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
+        
+        union
+        {
+            T u;
+            unsigned char u8[sizeof(T)];
+        } source, dest;
+        
+        source.u = u;
+        
+        for (size_t k = 0; k < sizeof(T); k++)
+            dest.u8[k] = source.u8[sizeof(T) - k - 1];
+        
+        return dest.u;
+    }
 }
+
+// MARK: - Other
 
 void terminator() {
     cout << MessageType::CriticalError << "An internal pre-processing problem occurred. Please review the syntax before this point.\n";
@@ -126,109 +134,6 @@ void terminator() {
 }
 void (*old_terminate)() = std::set_terminate(terminator);
 
-// MARK: - Utills
-
-std::string utf16_to_utf8(const std::wstring &wstr) {
-    std::string utf8;
-    uint16_t utf16 = 0;
-
-    for (size_t i = 0; i < wstr.size(); i++) {
-        utf16 = static_cast<uint16_t>(wstr[i]);
-
-        if (utf16 <= 0x007F) {
-            // 1-byte UTF-8: 0xxxxxxx
-            utf8 += static_cast<char>(utf16 & 0x7F);
-        } else if (utf16 <= 0x07FF) {
-            // 2-byte UTF-8: 110xxxxx 10xxxxxx
-            utf8 += static_cast<char>(0b11000000 | ((utf16 >> 6) & 0b00011111));
-            utf8 += static_cast<char>(0b10000000 | (utf16 & 0b00111111));
-        } else {
-            // 3-byte UTF-8: 1110xxxx 10xxxxxx 10xxxxxx
-            utf8 += static_cast<char>(0b11100000 | ((utf16 >> 12) & 0b00001111));
-            utf8 += static_cast<char>(0b10000000 | ((utf16 >> 6) & 0b00111111));
-            utf8 += static_cast<char>(0b10000000 | (utf16 & 0b00111111));
-        }
-    }
-
-    return utf8;
-}
-
-std::wstring utf8_to_utf16(const std::string &str) {
-    std::wstring utf16;
-    size_t i = 0;
-
-    while (i < str.size()) {
-        uint8_t byte1 = static_cast<uint8_t>(str[i]);
-
-        if ((byte1 & 0b10000000) == 0) {
-            // 1-byte UTF-8: 0xxxxxxx
-            utf16 += static_cast<wchar_t>(byte1);
-            i += 1;
-        } else if ((byte1 & 0b11100000) == 0b11000000) {
-            // 2-byte UTF-8: 110xxxxx 10xxxxxx
-            if (i + 1 >= str.size()) break;
-            uint8_t byte2 = static_cast<uint8_t>(str[i + 1]);
-
-            uint16_t ch = ((byte1 & 0b00011111) << 6) |
-                          (byte2 & 0b00111111);
-            utf16 += static_cast<wchar_t>(ch);
-            i += 2;
-        } else if ((byte1 & 0b11110000) == 0b11100000) {
-            // 3-byte UTF-8: 1110xxxx 10xxxxxx 10xxxxxx
-            if (i + 2 >= str.size()) break;
-            uint8_t byte2 = static_cast<uint8_t>(str[i + 1]);
-            uint8_t byte3 = static_cast<uint8_t>(str[i + 2]);
-
-            uint16_t ch = ((byte1 & 0b00001111) << 12) |
-                          ((byte2 & 0b00111111) << 6) |
-                          (byte3 & 0b00111111);
-            utf16 += static_cast<wchar_t>(ch);
-            i += 3;
-        } else {
-            // Invalid or unsupported UTF-8 sequence
-            i += 1; // Skip it
-        }
-    }
-
-    return utf16;
-}
-
-
-uint16_t to_utf16(const char *str) {
-    uint8_t *utf8 = (uint8_t *)str;
-    uint16_t utf16 = *utf8;
-    
-    if ((utf8[0] & 0b11110000) == 0b11100000) {
-        utf16 = utf8[0] & 0b11111;
-        utf16 <<= 6;
-        utf16 |= utf8[1] & 0b111111;
-        utf16 <<= 6;
-        utf16 |= utf8[2] & 0b111111;
-        return utf16;
-    }
-    
-    // 110xxxxx 10xxxxxx
-    if ((utf8[0] & 0b11100000) == 0b11000000) {
-        utf16 = utf8[0] & 0b11111;
-        utf16 <<= 6;
-        utf16 |= utf8[1] & 0b111111;
-        return utf16;
-    }
-    
-    return utf16;
-}
-
-// Function to remove whitespaces around specific operators using regular expressions
-string removeWhitespaceAroundOperators(const string &str) {
-    // Regular expression pattern to match spaces around the specified operators
-    // Operators: {}[]()≤≥≠<>=*/+-▶.,;:!^
-    regex re(R"(\s*([{}[\]()≤≥≠<>=*\/+\-▶.,;:!^&|%`])\s*)");
-    
-    // Replace matches with the operator and no surrounding spaces
-    string result = regex_replace(str, re, "$1");
-    
-    return result;
-}
 
 // MARK: - PPL+ To PPL Translater...
 void reformatPPLLine(string &str) {
@@ -237,45 +142,11 @@ void reformatPPLLine(string &str) {
     Strings strings = Strings();
     strings.preserveStrings(str);
     
-    str = removeWhitespaceAroundOperators(str);
     
+    str = regex_replace(str, regex(R"(\s*([^\w \s])\s*)"), "$1");
     str = regex_replace(str, regex(R"(,)"), ", ");
-    str = regex_replace(str, regex(R"(\{)"), "{ ");
-    str = regex_replace(str, regex(R"(\})"), " }");
-    str = regex_replace(str, regex(R"(^ +(\} *;))"), "$1\n");
     str = regex_replace(str, regex(R"(\{ +\})"), "{}");
-    
-    /*
-     To prevent correcting over-modifications, first replace all double `==` with a single `=`.
-     
-     Converting standalone `=` to `==` initially can lead to unintended changes like `<=`, `>=`,
-     `:=`, and `==` turning into `<==`, `>==`, `:==`, and `===`.
-     
-     By first reverting all double `==` back to a single `=`, and ensuring that only standalone
-     `=` or `:=` with surrounding whitespace are targeted, we can then safely convert `=` to `==`
-     without affecting other operators.
-     */
-    str = regex_replace(str, regex(R"(==)"), "=");
-    
-    // Ensuring that standalone `≥`, `≤`, `≠`, `=`, `:=`, `+`, `-`, `*` and `/` have surrounding whitespace.
-    re = R"(≥|≤|≠|=|:=|\+|-|\*|\/|▶)";
-    str = regex_replace(str, re, " $0 ");
-    
-    // We now hand the issue of Unary Minus/Operator
-    
-    // Ensuring that `≥`, `≤`, `≠`, `=`, `+`, `-`, `*` and `/` have a whitespace befor `-`.
-    re = R"(([≥≤≠=\+|\-|\*|\/]) +- +)";
-    str = regex_replace(str, re, "$1 -");
-    
-    // Ensuring that `-` in  `{ - `, `( - ` and `[ - ` situations have no surrounding whitespace.
-    re = R"(([({[,]) +- +)";
-    str = regex_replace(str, re, "$1-");
-    
-    // We can now safely convert `=` to `==` without affecting other operators.
-    if (!regex_search(str, regex(R"(LOCAL [A-Za-z]\w* = )"))) {
-        str = regex_replace(str, regex(R"( = )"), " == ");
-    }
-    
+    str = regex_replace(str, regex(R"(:=|▶|≥|≤|≠|==)"), " $0 ");
     
     if (Singleton::shared()->scopeDepth > 0) {
         try {
@@ -403,7 +274,7 @@ void translatePPLPlusLine(string &ln, ofstream &outfile) {
     }
     if (ln.empty()) return;
     capitalizeKeywords(ln);
-    ln = removeWhitespaceAroundOperators(ln);
+    ln = regex_replace(ln, regex(R"(\s*([^\w \s])\s*)"), "$1");
     
     /*
      In C++, the standard library provides support for regular expressions
@@ -513,30 +384,7 @@ void translatePPLPlusLine(string &ln, ofstream &outfile) {
     ln += '\n';
 }
 
-void writeUTF16Line(const string &ln, ofstream &outfile) {
-    if (ln.empty()) return;
-    
-    for ( int n = 0; n < ln.length(); n++) {
-        uint8_t *ascii = (uint8_t *)&ln.at(n);
-        if (ln.at(n) == '\r') continue;
-        
-        // Output as UTF-16LE
-        if (*ascii >= 0x80) {
-            uint16_t utf16 = to_utf16(&ln.at(n));
-            
-#ifndef __LITTLE_ENDIAN__
-            utf16 = utf16 >> 8 | utf16 << 8;
-#endif
-            outfile.write((const char *)&utf16, 2);
-            if ((*ascii & 0b11100000) == 0b11000000) n++;
-            if ((*ascii & 0b11110000) == 0b11100000) n+=2;
-            if ((*ascii & 0b11111000) == 0b11110000) n+=3;
-        } else {
-            outfile.put(ln.at(n));
-            outfile.put('\0');
-        }
-    }
-}
+
 
 void loadRegexLib(const fs::path path, const bool verbose)
 {
@@ -579,21 +427,25 @@ void loadRegexLibs(const string path, const bool verbose)
 void embedPPLCode(const string &filepath, ofstream &os)
 {
     ifstream is;
-    string s;
+    string str;
     
+    fs::path path = filepath;
     is.open(filepath, ios::in);
-    if (is.is_open()) {
-        if (fs::path(filepath).extension() == ".hpprgm" || hpprgm::isUTF16le(filepath)) {
-            std::wstring ws = hpprgm::load(filepath);
-            s.append(utf16_to_utf8(ws));
-            writeUTF16Line(s, os);
-        } else {
-            while (getline(is, s)) {
-                s.append("\n");
-                writeUTF16Line(s, os);
-            }
+    if (!is.is_open()) return;
+    if (path.extension() == ".hpprgm" || path.extension() == ".ppl") {
+        std::wstring wstr = hpprgm::load(filepath);
+        if (!wstr.empty()) {
+            str.append(utf::to_utf8(wstr));
+            utf::write(str, os);
+            is.close();
+            return;
         }
     }
+    while (getline(is, str)) {
+        str.append("\n");
+        utf::write(str, os);
+    }
+    is.close();
 }
 
 bool verbose(void)
@@ -632,7 +484,7 @@ void writePPLBlock(ifstream &infile, ofstream &outfile) {
         }
         
         str.append("\n");
-        writeUTF16Line(str, outfile);
+        utf::write(str, outfile);
         Singleton::shared()->incrementLineNumber();
     }
 }
@@ -641,18 +493,18 @@ void writePythonBlock(ifstream &infile, ofstream &outfile) {
     regex re(R"(^ *# *(END) *(?:\/\/.*)?$)");
     string str;
     
-    writeUTF16Line("#PYTHON\n", outfile);
+    utf::write("#PYTHON\n", outfile);
     Singleton::shared()->incrementLineNumber();
     
     while(getline(infile, str)) {
         if (regex_search(str, re)) {
-            writeUTF16Line("#END\n", outfile);
+            utf::write("#END\n", outfile);
             Singleton::shared()->incrementLineNumber();
             return;
         }
         
         str.append("\n");
-        writeUTF16Line(str, outfile);
+        utf::write(str, outfile);
         Singleton::shared()->incrementLineNumber();
     }
 }
@@ -732,7 +584,7 @@ void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile) {
             }
             utf8.append(")");
             
-            writeUTF16Line(utf8 + "\n", outfile);
+            utf::write(utf8 + "\n", outfile);
             Singleton::shared()->incrementLineNumber();
             continue;
         }
@@ -777,36 +629,30 @@ void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile) {
             continue;
         }
     
-        if (!Singleton::shared()->scopeDepth) {
-            // Local Scope
-            
-            /*
-             We first need to perform pre-parsing to ensure that, in lines such
-             as if condition then statement/s end;, the statement/s and end; are
-             not on the same line. This ensures proper indentation can be applied
-             during the reformatting stage of PPL code.
-             
-             But we must ignore the line if it's a regex and all @
-             */
-            
-            if (!regex_search(utf8, regex(R"(^ *(@[a-z]+ )? *regex )"))) {
-                utf8 = regex_replace(utf8, regex(R"(\b(THEN)\b)", rc::icase), "$1\n");
-                utf8 = regex_replace(utf8, regex(R"(; *\b(ELSE)\b)", rc::icase), ";\n$1\n");
-                utf8 = regex_replace(utf8, regex(R"(; *(END|UNTIL|ELSE|LOCAL|CONST)?;)", rc::icase), ";\n$1;");
-                utf8 = regex_replace(utf8, regex(R"((.+)\bBEGIN\b)", rc::icase), "$1\nBEGIN");
-            }
-            
-        } else {
-            // Global Scope
+  
+        /*
+         We first need to perform pre-parsing to ensure that, in lines such
+         as if condition then statement/s end;, the statement/s and end; are
+         not on the same line. This ensures proper indentation can be applied
+         during the reformatting stage of PPL code.
+         
+         But we must ignore the line if it's a regex and all @
+         */
+        
+        if (!regex_search(utf8, regex(R"(^ *\b(?:regex|dict) +)"))) {
+            utf8 = regex_replace(utf8, regex(R"(\b(THEN)\b)", rc::icase), "$1\n");
+            utf8 = regex_replace(utf8, regex(R"(; *\b(ELSE)\b)", rc::icase), ";\n$1\n");
+            utf8 = regex_replace(utf8, regex(R"(; *(END|UNTIL|ELSE|LOCAL|CONST)\b;)", rc::icase), ";\n$1;");
+            utf8 = regex_replace(utf8, regex(R"((.+)\bBEGIN\b)", rc::icase), "$1\nBEGIN");
         }
-        
-        
+            
+    
         istringstream iss;
         iss.str(utf8);
         
         while(getline(iss, str)) {
             translatePPLPlusLine(str, outfile);
-            writeUTF16Line(str, outfile);
+            utf::write(str, outfile);
         }
         
         
@@ -951,7 +797,7 @@ int main(int argc, char **argv) {
             continue;
         }
         
-        in_filename = expandTilde(argv[n]);
+        in_filename = fs::expand_tilde(argv[n]);
         regex re(R"(.\w*$)");
     }
     
@@ -1012,7 +858,7 @@ int main(int argc, char **argv) {
     preprocessor.parse(str);
     
 #ifdef DEBUG
-    loadRegexLibs(expandTilde("~/GitHub/PrimeSDK/Package Installer/package-root/Applications/HP/PrimeSDK/lib"), true);
+    loadRegexLibs(fs::expand_tilde("~/GitHub/PrimeSDK/Package Installer/package-root/Applications/HP/PrimeSDK/lib"), true);
 #else
     loadRegexLibs("/Applications/HP/PrimeSDK/lib", verbose);
 #endif

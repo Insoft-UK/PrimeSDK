@@ -27,10 +27,7 @@
 #include <sstream>
 
 namespace hpprgm {
-    bool isG1(const std::string &s);
-    bool isG2(const std::string &s);
-    bool isUTF16le(const std::string &s);
-    std::wstring load(const std::string &s);
+    std::wstring load(const std::string &filepath);
 }
 
 #endif /* hpprgm_hpp */
