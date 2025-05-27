@@ -146,7 +146,7 @@ void reformatPPLLine(string &str) {
     str = regex_replace(str, regex(R"(\s*([^\w \s])\s*)"), "$1");
     str = regex_replace(str, regex(R"(,)"), ", ");
     str = regex_replace(str, regex(R"(\{ +\})"), "{}");
-    str = regex_replace(str, regex(R"(:=|▶|≥|≤|≠|==)"), " $0 ");
+    str = regex_replace(str, regex(R"(:=|▶)"), " $0 ");
     
     if (Singleton::shared()->scopeDepth > 0) {
         try {

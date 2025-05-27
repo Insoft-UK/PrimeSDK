@@ -22,7 +22,7 @@
 // SOFTWARE.
 #endif
 
-#pragma mode( separator(.,,) integer(h64) assignment(=) indentation(2) )
+#pragma mode( separator(.,,) integer(h64) assignment(=) indentation(4) )
 
 #include <hp>
 #include <dictionary>
@@ -75,7 +75,7 @@ begin
     
     
     repeat
-        A-1 => A;
+        A - 1 => A;
     until A <> 0;
     
     try
