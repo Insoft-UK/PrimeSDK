@@ -1,3 +1,11 @@
+<img src="https://www.moravia.education/files/content_categories/header_image/20-13_hp-calcs_00b-uvodni.png" />
+
+### HP Prime G2
+
+Graphing calculator HP Prime has a **3.5-inch full color touch screen**, that delivers touch screen or keypad interaction. **A range of advanced built-in and programmable functions**, a rechargeable built-in long-life Li-Ion battery, easy way to **switch between RPN, textbook and algebraic entry-system logic**, an optional Wi-Fi adapter and more makes HP Prime the leading edge in graphing calculators.
+
+<a href="https://www.moravia.education/en/id/72-hp-prime-g2">more...</a>
+
 <img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/PrimeSDK.png" style="width: 128px" />
 
 # PrimeSDK for macOS
