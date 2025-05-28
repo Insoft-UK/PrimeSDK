@@ -462,13 +462,11 @@ enum BlockType
 };
 
 bool isPythonBlock(const string str) {
-    regex re(R"(^ *# *PYTHON( .*)?$)");
-    return regex_search(str, re);
+    return regex_match(str, regex(R"(^ *# *PYTHON[^\w].*$)", rc::icase));
 }
 
 bool isPPLBlock(const string str) {
-    regex re(R"(^ *# *PPL *(\/\/.*)?$)");
-    return regex_search(str, re);
+    return regex_match(str, regex(R"(^ *# *PPL *(\/\/.*)?$)", rc::icase));
 }
 
 void writePPLBlock(ifstream &infile, ofstream &outfile) {
@@ -489,12 +487,25 @@ void writePPLBlock(ifstream &infile, ofstream &outfile) {
     }
 }
 
-void writePythonBlock(ifstream &infile, ofstream &outfile) {
-    regex re(R"(^ *# *(END) *(?:\/\/.*)?$)");
+void writePythonBlock(ifstream &infile, ofstream &outfile, const string &arguments) {
+    regex re;
     string str;
     
-    utf::write("#PYTHON\n", outfile);
-    Singleton::shared()->incrementLineNumber();
+    Aliases aliases;
+    if (!arguments.empty()) {
+        Aliases::TIdentity identity;
+        identity.type = Aliases::Type::Argument;
+        int i = 0;
+        re = R"(([a-zA-Z]\w*))";
+        for (auto it = std::sregex_iterator(arguments.begin(), arguments.end(), re); it != std::sregex_iterator(); it++) {
+            identity.identifier = it->str();
+            identity.real = "argv[" + to_string(i) + "]";
+            aliases.append(identity);
+            i++;
+        }
+    }
+    
+    re = regex(R"(^ *# *(END) *(?:\/\/.*)?$)", rc::icase);
     
     while(getline(infile, str)) {
         if (regex_search(str, re)) {
@@ -503,6 +514,7 @@ void writePythonBlock(ifstream &infile, ofstream &outfile) {
             return;
         }
         
+        str = aliases.resolveAllAliasesInText(str);
         str.append("\n");
         utf::write(str, outfile);
         Singleton::shared()->incrementLineNumber();
@@ -552,7 +564,11 @@ void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile) {
         }
         
         if (isPythonBlock(utf8)) {
-            writePythonBlock(infile, outfile);
+            Singleton::shared()->incrementLineNumber();
+            utf8 = clean_whitespace(utf8);
+            utf::write(utf8 + '\n', outfile);
+            regex_search(utf8, match, regex(R"(\(([a-zA-Z]\w*(?:,[a-zA-Z]\w*)*)\))"));
+            writePythonBlock(infile, outfile, match.str(1));
             continue;
         }
         

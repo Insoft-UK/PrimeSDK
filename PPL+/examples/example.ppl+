@@ -24,6 +24,7 @@
 
 #pragma mode( separator(.,,) integer(h64) assignment(=) indentation(4) )
 
+
 #include <hp>
 #include <dictionary>
 
@@ -43,7 +44,9 @@
 
 
 
-#PYTHON
+#PYTHON hello(a, b)
+altha=int(a)
+beta=int(b)
 #END
 
 
@@ -53,9 +56,12 @@
 
 
 #include <pplang>
-
-pplang()
+var auto: beta;
+export pplang(auto: alpha)
 begin
+    var auto: yellow;
+    var auto: blue;
+    B = alpha;
     switch A
         case 1 do
         end;
@@ -83,4 +89,10 @@ begin
     then
     else
     end;
+end;
+
+export pplang(auto: alpha)
+begin
+    var auto: yellow;
+    var auto: blue;
 end;

@@ -121,3 +121,24 @@ int countLeadingCharacters(const std::string &str, const char character) {
     return count;
 }
 
+std::string clean_whitespace(const std::string& input) {
+    std::string output;
+    char current = '\0';
+    
+    for (size_t i = 0; i < input.length(); i++) {
+        if (std::isspace(static_cast<unsigned char>(current))) {
+            if(std::isalpha(input[i]) && !output.empty() && std::isalpha(output.back())) {
+                output += ' ';
+            }
+        }
+        current = input[i];
+
+        if (std::isspace(static_cast<unsigned char>(current))) {
+            continue;
+        }
+        output += current;
+    }
+    
+
+    return output;
+}

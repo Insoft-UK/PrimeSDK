@@ -161,13 +161,21 @@ bool Auto::parse(std::string &str) {
         if (isDefiningFunction(str)) {
             inferredAutoForFunctionName(str);
             inferredAutoForFunctionParameterNames(str);
+            
+            re = R"(\bauto *(?=: *(?:[A-Za-z_][\w:.]*) *(?=\()))";
+            if (regex_search(str, match, re)) {
+                while (singleton->aliases.realExists("fn" + base10ToBase32(++_fnCount)));
+                str.replace(match.position(), match.str().length(), "fn" + base10ToBase32(_fnCount));
+            }
+            
+            _paramCount = 0;
+            while ((pos = str.find("auto:")) != std::string::npos) {
+                while (singleton->aliases.realExists("p" + base10ToBase32(++_paramCount)));
+                str.replace(pos, 4, "p" + base10ToBase32(_paramCount));
+            }
         }
         
-        re = R"(\bauto *(?=: *(?:[A-Za-z_][\w:.]*) *(?=\()))";
-        if (regex_search(str, match, re)) {
-            while (singleton->aliases.realExists("fn" + base10ToBase32(++_fnCount)));
-            str.replace(match.position(), match.str().length(), "fn" + base10ToBase32(_fnCount));
-        }
+        
         
         re = R"(\b[a-zA-Z]\w*:[a-zA-Z]\w*(?:::[a-zA-Z]\w*)*\b)";
         if (regex_search(str, re)) {
@@ -177,13 +185,8 @@ bool Auto::parse(std::string &str) {
                 str.insert(pos, "g" + base10ToBase32(_globalCount));
             }
         }
-        
-        _paramCount = 0;
         _varCount = 0;
-        while ((pos = str.find("auto:")) != std::string::npos) {
-            while (singleton->aliases.realExists("p" + base10ToBase32(++_paramCount)));
-            str.replace(pos, 4, "p" + base10ToBase32(_paramCount));
-        }
+        
     }
     
     
