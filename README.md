@@ -1,4 +1,4 @@
-<img src="https://www.moravia.education/files/content_categories/header_image/20-13_hp-calcs_00b-uvodni.png" />
+<img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/hp-prime.png" />
 
 ### HP Prime G2
 
