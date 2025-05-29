@@ -665,15 +665,17 @@ void embedPPLCode(const string &filepath, ofstream &os)
     if (!is.is_open()) return;
     if (path.extension() == ".hpprgm" || path.extension() == ".ppl") {
         std::wstring wstr = hpprgm::load(filepath);
+        
         if (!wstr.empty()) {
-            str.append(utf::to_utf8(wstr));
+            str = utf::to_utf8(wstr);
+            str = regex_replace(str, regex(R"(^ *#pragma mode *\(.+\) *\n+)"), "");
             utf::write(str, os);
             is.close();
             return;
         }
     }
     while (getline(is, str)) {
-        str.append("\n");
+        str += '\n';
         utf::write(str, os);
     }
     is.close();
@@ -780,6 +782,7 @@ void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile) {
     string str;
     smatch match;
 
+    bool pragma = false;
     
     singleton.pushPath(path);
     
@@ -826,6 +829,11 @@ void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile) {
         
         // Handle `#pragma mode` for PPL+
         if (utf8.find("#pragma mode") != string::npos) {
+            if (pragma) {
+                Singleton::shared()->incrementLineNumber();
+                continue;
+            }
+            pragma = true;
             re = R"(([a-zA-Z]\w*)\(([^()]*)\))";
             string s = utf8;
             utf8 = "#pragma mode( ";
@@ -906,9 +914,10 @@ void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile) {
          */
         
         if (!regex_search(utf8, regex(R"(^ *\b(?:regex|dict) +)"))) {
-            utf8 = regex_replace(utf8, regex(R"(\b(THEN)\b)", rc::icase), "$1\n");
+            utf8 = regex_replace(utf8, regex(R"(\b(THEN|IFERR|TRY|REPEAT)\b)", rc::icase), "$1\n");
+            utf8 = regex_replace(utf8, regex(R"((; *)(THEN|UNTIL)\b)", rc::icase), "$1\n$2");
             utf8 = regex_replace(utf8, regex(R"(; *\b(ELSE)\b)", rc::icase), ";\n$1\n");
-            utf8 = regex_replace(utf8, regex(R"(; *(END|UNTIL|ELSE|LOCAL|CONST)\b;)", rc::icase), ";\n$1;");
+            utf8 = regex_replace(utf8, regex(R"(; *(END|UNTIL|ELSE|LOCAL|CONST|ENDIF|WEND)\b;)", rc::icase), ";\n$1;");
             utf8 = regex_replace(utf8, regex(R"((.+)\bBEGIN\b)", rc::icase), "$1\nBEGIN");
         }
             

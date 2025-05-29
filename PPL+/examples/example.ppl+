@@ -24,11 +24,22 @@
 
 #pragma mode( separator(.,,) integer(h64) assignment(:=) indentation(3) operators(:=,==,▶,≥,≤,≠,-,+,*,/) )
 
-
-#include <hp>
+#include <cartesian>
+#include <cplang>
+#include <cspace>
 #include <dictionary>
+#include <grob>
+#include <hp>
+#include <hpfont>
+#include <integer>
+#include <io>
+#include <matrix>
+#include <pixel>
+#include <pplang>
+#include <prime>
+#include <string>
 
-//#include "g1.hpprgm"
+#include "utf16-le.hpprgm"
 
 
 #ifndef __pplplus
@@ -86,9 +97,7 @@ begin
         A - 1 => A;
     until A <> 0;
     
-    try
-        A*B => A;
-    then
+    try A*B => A; then
     else
     end;
 end;
