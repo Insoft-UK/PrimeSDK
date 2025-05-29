@@ -26,15 +26,15 @@
 #define IO_PPLIB
 
 alias io::choose := CHOOSE;
-alias io::editList := EDITLIST;
-alias io::getKey := GETKEY;
+alias io::editlist := EDITLIST;
+alias io::getkey := GETKEY;
 alias io::input := INPUT;
-alias io::isKeyDown := ISKEYDOWN;
+alias io::is_keydown := ISKEYDOWN;
 alias io::mouse := MOUSE;
-alias io::messageBox := MSGBOX;
-alias io::drawMenu := DRAWMENU;
+alias io::message::box := MSGBOX;
+alias io::draw::menu := DRAWMENU;
 alias io::print := PRINT;
 alias io::wait := WAIT;
-alias io::appFiles := AFiles;
+alias io::app::files := AFiles;
 
 #endif

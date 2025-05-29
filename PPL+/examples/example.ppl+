@@ -22,7 +22,7 @@
 // SOFTWARE.
 #endif
 
-#pragma mode( separator(.,,) integer(h64) assignment(:=) indentation(4) operators(:=,==,▶,≥,≤,≠,-,+,*,/) )
+#pragma mode( separator(.,,) integer(h64) assignment(:=) indentation(3) operators(:=,==,▶,≥,≤,≠,-,+,*,/) )
 
 
 #include <hp>
@@ -34,7 +34,7 @@
 #ifndef __pplplus
  When defining a macro with parameters, issues can arise if an argument
  name is adjacent to a letter. To resolve this, you can use numbered
- placeholders like `1$` for the first argument, `2$` for the second, `3$`
+ placeholders like `$1` for the first argument, `$2` for the second, `$3`
  for the third, and so on. This ensures the macro arguments remain uniquely
  identifiable and avoid issues, note that $0 is the identifier.
 #endif
@@ -43,39 +43,37 @@
 #define COPYWRITE "Copyright (c) 2023-2025 Insoft. All rights reserved."
 
 
-
-#PYTHON hello (  a , b:delta, d:del )
-altha=int(del)
-beta=int(delta)
+#PYTHON hello(a: Alpha, b: Beta, d: Delta)
+altha=int(Alpha)
+beta=int(Beta)
+delta=int(Delta)
 #END
 
 
 #PPL
-LOCAL A := 0;
+LOCAL A:=0;
 #END
 
-A = 4 * -4;
-
-g := { {7, 8,8}, 8  };
-k:= {    };
+A=A*-4;
 
 #include <pplang>
 var auto: beta; // hj hh    hhh
 export pplang(auto: alpha)
 begin
-    var auto: yellow;
-    var auto: blue;
-    B := alpha;
+    var auto: somename;
+    
     switch A
         case 1 do
+            A + somename => B;
+        end;
+        case 2 do
+            A - somename => B;
         end;
         default
     end;
     
     
-    if A <> B and A <= 1 or B = C then
-        return;
-    endif;
+    if A <> B and A <= B or B == 0 then return; endif;
     
     while true do
         a+1 => A;

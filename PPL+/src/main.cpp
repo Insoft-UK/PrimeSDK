@@ -369,6 +369,37 @@ vector<string> split_escaped_commas(const string &input)
     return result;
 }
 
+string process_escapes(const string &input) {
+    string result;
+    for (size_t i = 0; i < input.length(); ++i) {
+        if (input[i] != '\\' || i + 1 == input.length()) {
+            result += input[i];
+            continue;
+        }
+        char next = input[i + 1];
+        if (next == 'n') {
+            result += '\n';
+            ++i; // skip the next character
+            continue;
+        }
+        if (next == 's') {
+            result += ' ';
+            ++i; // skip the next character
+            continue;
+        }
+        if (next == 't') {
+            result += (string(INDENT_WIDTH, ' '));
+            ++i; // skip the next character
+            continue;
+        }
+        result += input[i]; // add the backslash
+        result += next;     // add the next character as is
+        ++i; // skip the next character
+    }
+    return result;
+}
+
+
 // MARK: - PPL+ To PPL Translater...
 void reformatPPLLine(string &str) {
     regex re;
@@ -449,6 +480,8 @@ void translatePPLPlusLine(string &ln, ofstream &outfile) {
     
     // Remove any leading white spaces before or after.
     trim(ln);
+    
+    
     
     if (ln.empty()) {
         ln = "";
@@ -574,10 +607,7 @@ void translatePPLPlusLine(string &ln, ofstream &outfile) {
     
     reformatPPLLine(ln);
     
-    ln = regex_replace(ln, regex(R"(__NL__)"), "\n");
-    ln = regex_replace(ln, regex(R"(__CR__)"), "\r");
-    ln = regex_replace(ln, regex(R"(__INDENT__)"), string(INDENT_WIDTH, ' '));
-    ln = regex_replace(ln, regex(R"(__SPACE__)"), " ");
+    ln = process_escapes(ln);
    
     strings.restoreStrings(ln);
     singleton->comments.restoreComment(ln);
@@ -663,11 +693,11 @@ enum BlockType
 };
 
 bool isPythonBlock(const string str) {
-    return regex_match(str, regex(R"(^ *# *PYTHON[^\w].*$)", rc::icase));
+    return str.find("#PYTHON") != string::npos;
 }
 
 bool isPPLBlock(const string str) {
-    return regex_match(str, regex(R"(^ *# *PPL *(\/\/.*)?$)", rc::icase));
+    return str.find("#PPL") != string::npos;
 }
 
 void processPPLBlock(ifstream &infile, ofstream &outfile) {
@@ -691,6 +721,7 @@ void processPythonBlock(ifstream &infile, ofstream &outfile, string &input) {
     regex re;
     string str;
     Aliases aliases;
+    aliases.verbose = Singleton::shared()->aliases.verbose;
     
     Singleton::shared()->incrementLineNumber();
     
@@ -773,7 +804,7 @@ void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile) {
             }
         }
         
-        if (regex_match(utf8, regex(R"(^ *#EXIT *$)", rc::icase))) {
+        if (utf8.find("#EXIT") != string::npos) {
             break;
         }
         
@@ -794,8 +825,7 @@ void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile) {
         }
         
         // Handle `#pragma mode` for PPL+
-        re = R"(^ *\#pragma mode *\(.*\) *$)";
-        if (regex_match(utf8, re)) {
+        if (utf8.find("#pragma mode") != string::npos) {
             re = R"(([a-zA-Z]\w*)\(([^()]*)\))";
             string s = utf8;
             utf8 = "#pragma mode( ";
