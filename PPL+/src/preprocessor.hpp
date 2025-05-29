@@ -25,7 +25,6 @@
 #define PREPROCESSOR_HPP
 
 #include "aliases.hpp"
-#include <deque>
 #include <fstream>
 
 namespace ppl_plus {

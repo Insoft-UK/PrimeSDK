@@ -32,9 +32,8 @@
 #include <vector>
 #include <iterator>
 #include <cstdlib>
-
 #include <iconv.h>
-//#include <stdexcept>
+
 
 #include "timer.hpp"
 #include "singleton.hpp"
@@ -80,6 +79,8 @@ using std::setprecision;
 using std::istringstream;
 using std::streampos;
 using std::getenv;
+using std::vector;
+using std::stringstream;
 
 namespace fs = std::filesystem;
 namespace rc = std::regex_constants;
@@ -89,42 +90,56 @@ void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile);
 static Preprocessor preprocessor = Preprocessor();
 static Strings strings = Strings();
 static string assignment = "=";
+static vector<string> operators = { ":=", "==", "▶", "≥", "≤", "≠" };
 
 // MARK: - Extensions
 
 namespace std::filesystem {
     std::string expand_tilde(const string &path) {
-        if (path.starts_with("~/")) {
-            const char* home = getenv("HOME");
+        if (!path.empty() && path.starts_with("~")) {
+#ifdef _WIN32
+            const char* home = std::getenv("USERPROFILE");
+#else
+            const char* home = std::getenv("HOME");
+#endif
+            
             if (home) {
                 return string(home) + path.substr(1);  // Replace '~' with $HOME
             }
         }
-        return path;
+        return path;  // return as-is if no tilde or no HOME
     }
 }
 
-namespace std {
-    template <typename T>
-    T swap_endian(T u)
-    {
-        
-        static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
-        
-        union
+#if __cplusplus >= 202302L
+    #include <bit>
+    using std::byteswap;
+#elif __cplusplus >= 201103L
+    #include <cstdint>
+    namespace std {
+        template <typename T>
+        T bitswap(T u)
         {
-            T u;
-            unsigned char u8[sizeof(T)];
-        } source, dest;
-        
-        source.u = u;
-        
-        for (size_t k = 0; k < sizeof(T); k++)
-            dest.u8[k] = source.u8[sizeof(T) - k - 1];
-        
-        return dest.u;
+            
+            static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
+            
+            union
+            {
+                T u;
+                unsigned char u8[sizeof(T)];
+            } source, dest;
+            
+            source.u = u;
+            
+            for (size_t k = 0; k < sizeof(T); k++)
+                dest.u8[k] = source.u8[sizeof(T) - k - 1];
+            
+            return dest.u;
+        }
     }
-}
+#else
+    #error "C++11 or newer is required"
+#endif
 
 // MARK: - Other
 
@@ -135,6 +150,225 @@ void terminator() {
 void (*old_terminate)() = std::set_terminate(terminator);
 
 
+string replace_operators(const string &input)
+{
+    string output;
+    output.reserve(input.size());  // Reserve space to reduce reallocations
+
+    for (std::size_t i = 0; i < input.size(); ++i) {
+        if (i + 1 < input.size()) {
+            // Lookahead for 2-character operators
+            if (input[i] == '>' && input[i + 1] == '=') {
+                output += "≥";
+                ++i;
+                continue;
+            }
+            if (input[i] == '<' && input[i + 1] == '=') {
+                output += "≤";
+                ++i;
+                continue;
+            }
+            if (input[i] == '=' && input[i + 1] == '>') {
+                output += "▶";
+                ++i;
+                continue;
+            }
+            if (input[i] == '<' && input[i + 1] == '>') {
+                output += "≠";
+                ++i;
+                continue;
+            }
+        }
+
+        // Default: copy character
+        output += input[i];
+    }
+
+    return output;
+}
+
+string expand_assignment_equals(const string &input)
+{
+    string output;
+    output.reserve(input.size() * 2);  // Worst-case growth
+
+    for (size_t i = 0; i < input.size(); ++i) {
+        if (input[i] == '=') {
+            // Check if preceded by ':' (:=), do not expand
+            if (i > 0 && input[i - 1] == ':') {
+                output += '=';
+            }
+            // Check if followed by '=' (already '=='), copy as-is
+            else if (i + 1 < input.size() && input[i + 1] == '=') {
+                output += "==";
+                ++i;  // skip next '='
+            }
+            else {
+                output += "==";
+            }
+        } else {
+            output += input[i];
+        }
+    }
+
+    return output;
+}
+
+string convert_assign_to_colon_equal(const string &input)
+{
+    string output;
+    output.reserve(input.size() * 2);  // Conservative buffer size
+
+    for (size_t i = 0; i < input.size(); ++i) {
+        if (input[i] == '=') {
+            // Check for '=='
+            if (i + 1 < input.size() && input[i + 1] == '=') {
+                output += "==";
+                ++i;
+            }
+            // Check for ':=' (don't modify)
+            else if (i > 0 && input[i - 1] == ':') {
+                output += '=';
+            }
+            // Replace single '=' with ':='
+            else {
+                output += ":=";
+            }
+        } else {
+            output += input[i];
+        }
+    }
+
+    return output;
+}
+
+
+string normalize_operators(const string &input) {
+    // List of all operators to normalize
+        
+        string result;
+        size_t i = 0;
+
+        while (i < input.size()) {
+            bool matched = false;
+
+            for (const string& op : operators) {
+                if (input.compare(i, op.size(), op) == 0) {
+                    if (!result.empty() && result.back() != ' ') result += ' ';
+                    result += op;
+                    i += op.size();
+                    if (i < input.size() && input[i] != ' ') result += ' ';
+                    matched = true;
+                    break;
+                }
+            }
+
+            if (!matched) {
+                result += input[i++];
+            }
+        }
+
+        // Final cleanup: collapse multiple spaces
+        istringstream iss(result);
+        string word, cleaned;
+        while (iss >> word) {
+            if (!cleaned.empty()) cleaned += ' ';
+            cleaned += word;
+        }
+
+        return cleaned;
+}
+
+string fix_unary_minus(const string &input)
+{
+    istringstream iss(input);
+    vector<string> tokens;
+    string token;
+
+    // Tokenize input by whitespace
+    while (iss >> token) {
+        tokens.push_back(token);
+    }
+
+    vector<string> corrected;
+    for (size_t i = 0; i < tokens.size(); ++i) {
+        if (tokens[i] == "-" && i + 1 < tokens.size()) {
+            const string& next = tokens[i + 1];
+
+            // Check if next token is number or identifier
+            if (isdigit(next[0]) || isalpha(next[0])) {
+                // If previous token is an operator or it's the first token
+                if (i == 0 || tokens[i - 1] == ":=" || tokens[i - 1] == "=" ||
+                    tokens[i - 1] == "*" || tokens[i - 1] == "/" || tokens[i - 1] == "+" ||
+                    tokens[i - 1] == "(") {
+                    corrected.push_back("-" + next);
+                    ++i; // Skip next token
+                    continue;
+                }
+            }
+        }
+
+        corrected.push_back(tokens[i]);
+    }
+
+    // Rebuild string
+    string result;
+    for (const auto& t : corrected) {
+        if (!result.empty()) result += ' ';
+        result += t;
+    }
+
+    return result;
+}
+
+vector<string> split_commas(const string &input)
+{
+    vector<string> result;
+    stringstream ss(input);
+    string token;
+
+    while (getline(ss, token, ',')) {
+        result.push_back(token);
+    }
+
+    return result;
+}
+
+vector<string> split_escaped_commas(const string &input)
+{
+    vector<string> result;
+    string token;
+    bool escape = false;
+
+    for (size_t i = 0; i < input.size(); ++i) {
+        char c = input[i];
+
+        if (escape) {
+            // Handle escaped character
+            if (c == ',') {
+                token += ',';  // Turn \, into ,
+            } else {
+                token += '\\'; // Preserve the backslash
+                token += c;
+            }
+            escape = false;
+        }
+        else if (c == '\\') {
+            escape = true;
+        }
+        else if (c == ',') {
+            result.push_back(token);
+            token.clear();
+        }
+        else {
+            token += c;
+        }
+    }
+
+    result.push_back(token); // Add last token
+    return result;
+}
+
 // MARK: - PPL+ To PPL Translater...
 void reformatPPLLine(string &str) {
     regex re;
@@ -142,11 +376,8 @@ void reformatPPLLine(string &str) {
     Strings strings = Strings();
     strings.preserveStrings(str);
     
-    
-    str = regex_replace(str, regex(R"(\s*([^\w \s])\s*)"), "$1");
-    str = regex_replace(str, regex(R"(,)"), ", ");
-    str = regex_replace(str, regex(R"(\{ +\})"), "{}");
-    str = regex_replace(str, regex(R"(:=|▶)"), " $0 ");
+    str = normalize_operators(str);
+    str = fix_unary_minus(str);
     
     if (Singleton::shared()->scopeDepth > 0) {
         try {
@@ -224,14 +455,13 @@ void translatePPLPlusLine(string &ln, ofstream &outfile) {
         return;
     }
     
-    if (singleton->regexp.parse(ln)) return;
-    
-    
     if (ln.substr(0,2) == "//") {
         ln = ln.insert(0, string(singleton->scopeDepth * INDENT_WIDTH, ' '));
         ln += '\n';
         return;
     }
+    
+    if (singleton->regexp.parse(ln)) return;
 
     /*
      While parsing the contents, strings may inadvertently undergo parsing, leading
@@ -246,14 +476,13 @@ void translatePPLPlusLine(string &ln, ofstream &outfile) {
      */
     strings.preserveStrings(ln);
     strings.blankOutStrings(ln);
-    
-    ln = regex_replace(ln, regex(R"(\s+)"), " "); // All multiple whitespaces in succesion to a single space, future reg-ex will not require to deal with '\t', only spaces.
-    
+ 
     // Remove any comments.
     singleton->comments.preserveComment(ln);
     singleton->comments.removeComment(ln);
-
     
+    ln = normalize_whitespace(ln);
+
     singleton->regexp.resolveAllRegularExpression(ln);
     if (preprocessor.parse(ln)) {
         ln = "";
@@ -273,46 +502,18 @@ void translatePPLPlusLine(string &ln, ofstream &outfile) {
         Dictionary::removeDictionaryDefinition(ln);
     }
     if (ln.empty()) return;
+    
     capitalizeKeywords(ln);
     ln = regex_replace(ln, regex(R"(\s*([^\w \s])\s*)"), "$1");
     
-    /*
-     In C++, the standard library provides support for regular expressions
-     through the <regex> library, but it does not support lookbehind
-     assertions (such as (?<!...)) directly, as they are not part of the
-     regular expressions supported by the C++ Standard Library.
-     
-     However, we can work around this limitation by adjusting your regular
-     expression to achieve the same result using alternative techniques.
-     
-     This approach doesn’t fully replicate lookbehind functionality, but
-     it can be effective for simpler cases where a limited lookbehind is
-     required.
-     */
-    
-    re = R"((?:[^<>=]|^)(>=|<>|<=|=>)(?!=[<>=]))";
-    string::const_iterator it = ln.cbegin();
-    while (regex_search(it, ln.cend(), match, re)) {
-        // We will convert any >= != <= or => to PPLs ≥ ≠ ≤ and ▶
-        string s = match.str(1);
-        
-        // Replace the operator with the appropriate PPL symbol.
-        if (s == ">=") s = "≥";
-        if (s == "<>") s = "≠";
-        if (s == "<=") s = "≤";
-        if (s == "=>") s = "▶";
-       
-        ln = ln.replace(match.position(1), match.length(1), s);
-        it = ln.cbegin();
-    }
+    ln = replace_operators(ln);
     
     // PPL by default uses := instead of C's = for assignment. Converting all = to PPL style :=
     if (assignment == "=") {
-        re = R"(([^:=]|^)(?:=)(?!=))";
-        ln = regex_replace(ln, re, "$1 := ");
+        ln = convert_assign_to_colon_equal(ln);
+    } else {
+        ln = expand_assignment_equals(ln);
     }
-    
-    
     
     //MARK: alias parsing
     
@@ -469,14 +670,13 @@ bool isPPLBlock(const string str) {
     return regex_match(str, regex(R"(^ *# *PPL *(\/\/.*)?$)", rc::icase));
 }
 
-void writePPLBlock(ifstream &infile, ofstream &outfile) {
-    regex re(R"(^ *# *(END) *(?:\/\/.*)?$)");
+void processPPLBlock(ifstream &infile, ofstream &outfile) {
     string str;
     
     Singleton::shared()->incrementLineNumber();
     
     while(getline(infile, str)) {
-        if (regex_search(str, re)) {
+        if (str.find("#END") != string::npos) {
             Singleton::shared()->incrementLineNumber();
             return;
         }
@@ -487,28 +687,48 @@ void writePPLBlock(ifstream &infile, ofstream &outfile) {
     }
 }
 
-void writePythonBlock(ifstream &infile, ofstream &outfile, const string &arguments) {
+void processPythonBlock(ifstream &infile, ofstream &outfile, string &input) {
     regex re;
     string str;
-    
     Aliases aliases;
-    if (!arguments.empty()) {
-        Aliases::TIdentity identity;
-        identity.type = Aliases::Type::Argument;
-        int i = 0;
-        re = R"(([a-zA-Z]\w*))";
-        for (auto it = std::sregex_iterator(arguments.begin(), arguments.end(), re); it != std::sregex_iterator(); it++) {
-            identity.identifier = it->str();
-            identity.real = "argv[" + to_string(i) + "]";
-            aliases.append(identity);
-            i++;
+    
+    Singleton::shared()->incrementLineNumber();
+    
+    input = clean_whitespace(input);
+
+    size_t start = input.find('(');
+    size_t end = input.find(')', start);
+        
+    if (start != string::npos && end != string::npos && end > start) {
+        vector<string> arguments = split_commas(input.substr(start + 1, end - start - 1));
+        input = "#PYTHON (";
+        int index = 0;
+        
+        Aliases::TIdentity identity = {
+            .type = Aliases::Type::Argument
+        };
+        for (const string &argument : arguments) {
+            if (index++) input.append(",");
+            start = argument.find(':');
+            
+            if (start != string::npos) {
+                input.append(argument.substr(0, start));
+                identity.identifier = argument.substr(start + 1, argument.length() - start - 1);
+                identity.real = "argv[" + to_string(index) + "]";
+                aliases.append(identity);
+                continue;
+            }
+            input.append(argument);
         }
+        input.append(")");
     }
+        
     
-    re = regex(R"(^ *# *(END) *(?:\/\/.*)?$)", rc::icase);
+    utf::write(input + '\n', outfile);
     
+
     while(getline(infile, str)) {
-        if (regex_search(str, re)) {
+        if (str.find("#END") != string::npos) {
             utf::write("#END\n", outfile);
             Singleton::shared()->incrementLineNumber();
             return;
@@ -564,16 +784,12 @@ void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile) {
         }
         
         if (isPythonBlock(utf8)) {
-            Singleton::shared()->incrementLineNumber();
-            utf8 = clean_whitespace(utf8);
-            utf::write(utf8 + '\n', outfile);
-            regex_search(utf8, match, regex(R"(\(([a-zA-Z]\w*(?:,[a-zA-Z]\w*)*)\))"));
-            writePythonBlock(infile, outfile, match.str(1));
+            processPythonBlock(infile, outfile, utf8);
             continue;
         }
         
         if (isPPLBlock(utf8)) {
-            writePPLBlock(infile, outfile);
+            processPPLBlock(infile, outfile);
             continue;
         }
         
@@ -594,6 +810,10 @@ void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile) {
                 }
                 if (it->str(1) == "indentation") {
                     indentation = atoi(it->str(2).c_str());
+                    continue;
+                }
+                if (it->str(1) == "operators") {
+                    operators = split_escaped_commas(normalize_whitespace(it->str(2)));
                     continue;
                 }
                 utf8.append(it->str() + " ");
@@ -715,7 +935,7 @@ void info(void) {
     << "      ************        \n"
     << "    ************          \n\n"
     << "Copyright (C) 2023-" << YEAR << " Insoft. All rights reserved.\n"
-    << "Insoft "<< NAME << " version, " << VERSION_NUMBER << "\n\n";
+    << "Insoft PPL+" << string(YEAR).substr(2) << " Pre-Processor for PPL\n\n";
 }
 
 void help(void) {
@@ -940,7 +1160,11 @@ int main(int argc, char **argv) {
     long long elapsed_time = timer.elapsed();
     
     // Display elasps time in secononds.
-    cout << "Completed in " << fixed << setprecision(2) << elapsed_time / 1e9 << " seconds\n";
+    if (elapsed_time / 1e9 < 1.0) {
+        cout << "Completed in " << fixed << setprecision(2) << elapsed_time / 1e6 << " milliseconds\n";
+    } else {
+        cout << "Completed in " << fixed << setprecision(2) << elapsed_time / 1e9 << " seconds\n";
+    }
     if (showpath)
         cout << "UTF-16LE file at \"" << out_filename << "\" succefuly created.\n";
     else

@@ -22,7 +22,7 @@
 // SOFTWARE.
 #endif
 
-#pragma mode( separator(.,,) integer(h64) assignment(=) indentation(4) )
+#pragma mode( separator(.,,) integer(h64) assignment(:=) indentation(4) operators(:=,==,▶,≥,≤,≠,-,+,*,/) )
 
 
 #include <hp>
@@ -44,24 +44,28 @@
 
 
 
-#PYTHON hello(a, b)
-altha=int(a)
-beta=int(b)
+#PYTHON hello (  a , b:delta, d:del )
+altha=int(del)
+beta=int(delta)
 #END
 
 
 #PPL
+LOCAL A := 0;
 #END
 
+A = 4 * -4;
 
+g := { {7, 8,8}, 8  };
+k:= {    };
 
 #include <pplang>
-var auto: beta;
+var auto: beta; // hj hh    hhh
 export pplang(auto: alpha)
 begin
     var auto: yellow;
     var auto: blue;
-    B = alpha;
+    B := alpha;
     switch A
         case 1 do
         end;
@@ -69,13 +73,13 @@ begin
     end;
     
     
-    if A == B and A == 1 then
+    if A <> B and A <= 1 or B = C then
         return;
     endif;
     
     while true do
         a+1 => A;
-        if a == 100 then break;
+        if a >= 100 then break;
         endif
     wend;
     

@@ -142,3 +142,24 @@ std::string clean_whitespace(const std::string& input) {
 
     return output;
 }
+
+std::string normalize_whitespace(const std::string& input) {
+    std::string output;
+    output.reserve(input.size());  // Optimize memory allocation
+
+    bool in_whitespace = false;
+
+    for (char ch : input) {
+        if (std::isspace(static_cast<unsigned char>(ch))) {
+            if (!in_whitespace) {
+                output += ' ';
+                in_whitespace = true;
+            }
+        } else {
+            output += ch;
+            in_whitespace = false;
+        }
+    }
+
+    return output;
+}

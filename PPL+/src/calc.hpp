@@ -28,7 +28,6 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
-#include <deque>
 #include <stdint.h>
 
 namespace ppl_plus {

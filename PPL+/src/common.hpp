@@ -85,8 +85,9 @@ std::string &strip(std::string &str);
 std::string strip_copy(const std::string &str);
 
 std::string clean_whitespace(const std::string &input);
-
+std::string normalize_whitespace(const std::string& input);
 
 int countLeadingCharacters(const std::string &str, const char character);
+
 
 #endif /* common_hpp */
