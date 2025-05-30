@@ -37,4 +37,8 @@ alias io::print := PRINT;
 alias io::wait := WAIT;
 alias io::app::files := AFiles;
 
+/// New, recommended!
+alias mouse := MOUSE;
+alias keyboard := GETKEY;
+
 #endif

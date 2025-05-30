@@ -34,6 +34,7 @@ namespace ppl_plus {
         void preserveComment(const std::string &str);
         std::string &removeComment(std::string &str);
         std::string &restoreComment(std::string &str);
+        static std::string removeTripleSlashComment(const std::string &str);
         
     private:
         std::string _preservedComment;

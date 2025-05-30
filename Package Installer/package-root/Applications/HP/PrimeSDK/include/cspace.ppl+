@@ -26,15 +26,7 @@
 #ifndef CSPACE_PPLIB
 #define CSPACE_PPLIB
 
-alias color::convertHSVtoRGB := HSVtoRGB;
-alias color::convertHSLtoHSV := HSLtoHSV;
-alias color::convertHSLtoRGB := HSLtoRGB;
-alias color::convertHSVtoHSL := HSVtoHSL;
-alias color::convertRGBtoHSV := RGBtoHSV;
-alias color::convertRGBtoHSL := RGBtoHSL;
-alias color::RGB := RGB;
-alias color::HSL := HSL;
-alias color::HSV := HSV;
-alias color::CMYK := CMYK;
+alias cs::normalize := ColorSpace.Normalize;
+alias cs::clamp_rgb := ColorSpace.ClampRGB;
 
 #endif

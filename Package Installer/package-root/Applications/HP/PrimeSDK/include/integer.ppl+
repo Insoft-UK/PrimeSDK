@@ -25,10 +25,10 @@
 #ifndef INTEGER_PPLIB
 #define INTEGER_PPLIB
 
-regex @`integer::to_real` B→R
+alias integer::to_real := B→R;
 alias integer::getbase := GETBASE;
 alias integer::getbits := GETBITS;
-regex @`integer::to_base` R→B
+alias integer::to_base := R→B;
 alias integer::setbits := SETBITS;
 alias integer::setbase := SETBASE;
 

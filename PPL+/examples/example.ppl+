@@ -24,6 +24,8 @@
 
 #pragma mode( separator(.,,) integer(h64) assignment(:=) indentation(3) operators(:=,==,▶,≥,≤,≠,-,+,*,/) )
 
+A =sin(5)*7;
+
 #include <cartesian>
 #include <cplang>
 #include <cspace>
@@ -68,7 +70,7 @@ LOCAL A:=0;
 A=A*-4;
 
 #include <pplang>
-var auto: beta; // hj hh    hhh
+var auto: beta; /// hj hh    hhh
 export pplang(auto: alpha)
 begin
     var auto: somename;
@@ -82,7 +84,6 @@ begin
         end;
         default
     end;
-    
     
     if A <> B and A <= B or B == 0 then return; endif;
     

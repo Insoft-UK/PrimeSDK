@@ -33,7 +33,7 @@
 #include <iterator>
 #include <cstdlib>
 #include <iconv.h>
-
+#include <unordered_set>
 
 #include "timer.hpp"
 #include "singleton.hpp"
@@ -46,6 +46,7 @@
 #include "calc.hpp"
 #include "hpprgm.hpp"
 #include "utf.hpp"
+#include "comments.hpp"
 
 #include "../version_code.h"
 
@@ -400,6 +401,98 @@ string process_escapes(const string &input) {
 }
 
 
+string to_lower(const string &s)
+{
+    std::string result = s;
+    std::transform(result.begin(), result.end(), result.begin(),
+                   [](unsigned char c) { return std::tolower(c); });
+    return result;
+}
+
+string to_upper(const string &s)
+{
+    std::string result = s;
+    std::transform(result.begin(), result.end(), result.begin(),
+                   [](unsigned char c) { return std::toupper(c); });
+    return result;
+}
+
+string replace_words(const string& input,
+                          const vector<std::string>& words,
+                          const string& replacement)
+{
+    // Create lowercase word set
+    std::unordered_set<string> wordSet;
+    for (const auto& w : words) {
+        wordSet.insert(to_lower(w));
+    }
+
+    std::string result;
+    size_t i = 0;
+    
+    while (i < input.size()) {
+        if (!isalpha(static_cast<unsigned char>(input[i])) && input[i] != '_') {
+            result += input[i];
+            ++i;
+            continue;
+        }
+        size_t start = i;
+        
+        while (i < input.size() && (isalpha(static_cast<unsigned char>(input[i])) || input[i] == '_')) {
+            ++i;
+        }
+        
+        string word = input.substr(start, i - start);
+        string lowerWord = to_lower(word);
+        
+        if (wordSet.count(lowerWord)) {
+            result += replacement;
+            continue;
+        }
+        
+        result += word;
+    }
+    
+    return result;
+}
+
+string capitalize_words(const string &input, const std::unordered_set<std::string> &words)
+{
+    // Create lowercase word set
+    std::unordered_set<string> wordset;
+    for (const auto& w : words) {
+        wordset.insert(to_lower(w));
+    }
+    
+    string result;
+    size_t i = 0;
+    
+    while (i < input.size()) {
+        if (!isalpha(static_cast<unsigned char>(input[i])) && input[i] != '_') {
+            result += input[i];
+            ++i;
+            continue;
+        }
+        size_t start = i;
+        
+        while (i < input.size() && (isalpha(static_cast<unsigned char>(input[i])) || input[i] == '_')) {
+            ++i;
+        }
+        
+        string word = input.substr(start, i - start);
+        string lowercase = to_lower(word);
+        
+        if (wordset.count(lowercase)) {
+            result += to_upper(lowercase);
+            continue;
+        }
+        
+        result += word;
+    }
+    
+    return result;
+}
+
 // MARK: - PPL+ To PPL Translater...
 void reformatPPLLine(string &str) {
     regex re;
@@ -454,19 +547,6 @@ void reformatPPLLine(string &str) {
     
     
     strings.restoreStrings(str);
-}
-
-void capitalizeKeywords(string &str) {
-    string result = str;
-    regex re;
-    
-    // We turn any keywords that are in lowercase to uppercase
-    re = R"(\b(begin|end|return|kill|if|then|else|xor|or|and|not|case|default|iferr|ifte|for|from|step|downto|to|do|while|repeat|until|break|continue|export|const|local|key)\b)";
-    for(sregex_iterator it = sregex_iterator(str.begin(), str.end(), re); it != sregex_iterator(); ++it) {
-        string result = it->str();
-        transform(result.begin(), result.end(), result.begin(), ::toupper);
-        str = str.replace(it->position(), it->length(), result);
-    }
 }
 
 
@@ -536,7 +616,15 @@ void translatePPLPlusLine(string &ln, ofstream &outfile) {
     }
     if (ln.empty()) return;
     
-    capitalizeKeywords(ln);
+    // Keywords
+    ln = capitalize_words(ln, {
+        "begin", "end", "return", "kill", "if", "then", "else", "xor", "or", "and", "not",
+        "case", "default", "iferr", "ifte", "for", "from", "step", "downto", "to", "do",
+        "while", "repeat", "until", "break", "continue", "export", "const", "local", "key"
+    });
+    
+    ln = capitalize_words(ln, {"log", "cos", "sin", "tan", "ln", "min", "max"});
+    
     ln = regex_replace(ln, regex(R"(\s*([^\w \s])\s*)"), "$1");
     
     ln = replace_operators(ln);
@@ -550,7 +638,8 @@ void translatePPLPlusLine(string &ln, ofstream &outfile) {
     
     //MARK: alias parsing
     
-    re = R"(^alias ([A-Za-z_]\w*(?:::[a-zA-Z]\w*)*):=([a-zA-Z]\w*(?:\.[a-zA-Z]\w*)*);$)";
+    re = R"(^alias ([A-Za-z_]\w*(?:::[a-zA-Z]\w*)*):=([a-zA-Z][\w→]*(?:\.[a-zA-Z][\w→]*)*);$)";
+//    re = R"(^alias ([A-Za-z_]\w*(?:::[a-zA-Z]\w*)*):=([a-zA-Z\x{7F}-\x{FFFF}][\x{7F}-\x{FFFF}\w]*(?:\.[a-zA-Z\x{7F}-\x{FFFF}][\x{7F}-\x{FFFF}\w]*)*);$)";
     if (regex_search(ln, match, re)) {
         Aliases::TIdentity identity;
         identity.identifier = match[1].str();
@@ -565,12 +654,6 @@ void translatePPLPlusLine(string &ln, ofstream &outfile) {
     
     //MARK: -
     
-    re = R"(\b(log|cos|sin|tan|ln|min|max)\b)";
-    for(sregex_iterator it = sregex_iterator(ln.begin(), ln.end(), re); it != sregex_iterator(); ++it) {
-        string result = it->str();
-        transform(result.begin(), result.end(), result.begin(), ::toupper);
-        ln = ln.replace(it->position(), it->length(), result);
-    }
     
     re = R"(\b(BEGIN|IF|FOR|CASE|REPEAT|WHILE|IFERR)\b)";
     for(auto it = sregex_iterator(ln.begin(), ln.end(), re); it != sregex_iterator(); ++it) {
@@ -807,6 +890,8 @@ void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile) {
             }
         }
         
+        utf8 = ppl_plus::Comments().removeTripleSlashComment(utf8);
+        
         if (utf8.find("#EXIT") != string::npos) {
             break;
         }
@@ -903,6 +988,9 @@ void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile) {
             continue;
         }
     
+        utf8 = replace_words(utf8, {"endif", "wend", "next"}, "END");
+        utf8 = replace_words(utf8, {"try"}, "IFERR");
+        utf8 = replace_words(utf8, {"catch"}, "THEN");
   
         /*
          We first need to perform pre-parsing to ensure that, in lines such
@@ -913,11 +1001,13 @@ void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile) {
          But we must ignore the line if it's a regex and all @
          */
         
+        
+        
         if (!regex_search(utf8, regex(R"(^ *\b(?:regex|dict) +)"))) {
-            utf8 = regex_replace(utf8, regex(R"(\b(THEN|IFERR|TRY|REPEAT)\b)", rc::icase), "$1\n");
+            utf8 = regex_replace(utf8, regex(R"(\b(THEN|IFERR|REPEAT)\b)", rc::icase), "$1\n");
             utf8 = regex_replace(utf8, regex(R"((; *)(THEN|UNTIL)\b)", rc::icase), "$1\n$2");
             utf8 = regex_replace(utf8, regex(R"(; *\b(ELSE)\b)", rc::icase), ";\n$1\n");
-            utf8 = regex_replace(utf8, regex(R"(; *(END|UNTIL|ELSE|LOCAL|CONST|ENDIF|WEND)\b;)", rc::icase), ";\n$1;");
+            utf8 = regex_replace(utf8, regex(R"(; *(END|UNTIL|ELSE|LOCAL|CONST)\b;)", rc::icase), ";\n$1;");
             utf8 = regex_replace(utf8, regex(R"((.+)\bBEGIN\b)", rc::icase), "$1\nBEGIN");
         }
             

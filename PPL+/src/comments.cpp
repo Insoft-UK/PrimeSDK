@@ -75,3 +75,22 @@ std::string &Comments::restoreComment(std::string &str)
     }
     return str;
 }
+
+std::string Comments::removeTripleSlashComment(const std::string &str) {
+    std::string output = str;
+    
+    size_t pos = output.find("///");
+    if (pos == std::string::npos) return output;
+    
+    std::size_t newline = output.find('\n', pos);
+    if (newline != std::string::npos) {
+        // Remove from '///' up to (but not including) the newline
+        output.erase(pos, newline - pos);
+        return output;
+    }
+    
+    // No newline after '///', remove till end of string
+    output.erase(pos);
+    
+    return output;
+}
