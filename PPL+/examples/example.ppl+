@@ -57,7 +57,9 @@ A =sin(5)*7;
 
 
 #PYTHON hello(a: Alpha, b: Beta, d: Delta)
-altha=int(Alpha)
+import hpprimr as *
+alias alphanumeric as argv[0]
+altha=int(alphanumeric)
 beta=int(Beta)
 delta=int(Delta)
 #END

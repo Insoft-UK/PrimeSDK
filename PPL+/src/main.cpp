@@ -86,7 +86,7 @@ using std::stringstream;
 namespace fs = std::filesystem;
 namespace rc = std::regex_constants;
 
-void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile);
+void translatePPLPlusToPPL(const fs::path& path, ofstream& outfile);
 
 static Preprocessor preprocessor = Preprocessor();
 static Strings strings = Strings();
@@ -96,7 +96,7 @@ static vector<string> operators = { ":=", "==", "▶", "≥", "≤", "≠" };
 // MARK: - Extensions
 
 namespace std::filesystem {
-    std::string expand_tilde(const string &path) {
+    std::string expand_tilde(const string& path) {
         if (!path.empty() && path.starts_with("~")) {
 #ifdef _WIN32
             const char* home = std::getenv("USERPROFILE");
@@ -151,8 +151,7 @@ void terminator() {
 void (*old_terminate)() = std::set_terminate(terminator);
 
 
-string replace_operators(const string &input)
-{
+string replace_operators(const string& input) {
     string output;
     output.reserve(input.size());  // Reserve space to reduce reallocations
 
@@ -188,8 +187,7 @@ string replace_operators(const string &input)
     return output;
 }
 
-string expand_assignment_equals(const string &input)
-{
+string expand_assignment_equals(const string& input) {
     string output;
     output.reserve(input.size() * 2);  // Worst-case growth
 
@@ -215,8 +213,7 @@ string expand_assignment_equals(const string &input)
     return output;
 }
 
-string convert_assign_to_colon_equal(const string &input)
-{
+string convert_assign_to_colon_equal(const string& input) {
     string output;
     output.reserve(input.size() * 2);  // Conservative buffer size
 
@@ -244,7 +241,7 @@ string convert_assign_to_colon_equal(const string &input)
 }
 
 
-string normalize_operators(const string &input) {
+string normalize_operators(const string& input) {
     // List of all operators to normalize
         
         string result;
@@ -280,8 +277,7 @@ string normalize_operators(const string &input) {
         return cleaned;
 }
 
-string fix_unary_minus(const string &input)
-{
+string fix_unary_minus(const string& input) {
     istringstream iss(input);
     vector<string> tokens;
     string token;
@@ -322,8 +318,7 @@ string fix_unary_minus(const string &input)
     return result;
 }
 
-vector<string> split_commas(const string &input)
-{
+vector<string> split_commas(const string& input) {
     vector<string> result;
     stringstream ss(input);
     string token;
@@ -335,8 +330,7 @@ vector<string> split_commas(const string &input)
     return result;
 }
 
-vector<string> split_escaped_commas(const string &input)
-{
+vector<string> split_escaped_commas(const string& input) {
     vector<string> result;
     string token;
     bool escape = false;
@@ -370,7 +364,7 @@ vector<string> split_escaped_commas(const string &input)
     return result;
 }
 
-string process_escapes(const string &input) {
+string process_escapes(const string& input) {
     string result;
     for (size_t i = 0; i < input.length(); ++i) {
         if (input[i] != '\\' || i + 1 == input.length()) {
@@ -401,26 +395,21 @@ string process_escapes(const string &input) {
 }
 
 
-string to_lower(const string &s)
-{
+string to_lower(const string& s) {
     std::string result = s;
     std::transform(result.begin(), result.end(), result.begin(),
                    [](unsigned char c) { return std::tolower(c); });
     return result;
 }
 
-string to_upper(const string &s)
-{
+string to_upper(const string& s) {
     std::string result = s;
     std::transform(result.begin(), result.end(), result.begin(),
                    [](unsigned char c) { return std::toupper(c); });
     return result;
 }
 
-string replace_words(const string& input,
-                          const vector<std::string>& words,
-                          const string& replacement)
-{
+string replace_words(const string& input, const vector<std::string>& words, const string& replacement) {
     // Create lowercase word set
     std::unordered_set<string> wordSet;
     for (const auto& w : words) {
@@ -456,8 +445,7 @@ string replace_words(const string& input,
     return result;
 }
 
-string capitalize_words(const string &input, const std::unordered_set<std::string> &words)
-{
+string capitalize_words(const string& input, const std::unordered_set<std::string>& words) {
     // Create lowercase word set
     std::unordered_set<string> wordset;
     for (const auto& w : words) {
@@ -494,7 +482,7 @@ string capitalize_words(const string &input, const std::unordered_set<std::strin
 }
 
 // MARK: - PPL+ To PPL Translater...
-void reformatPPLLine(string &str) {
+void reformatPPLLine(string& str) {
     regex re;
     
     Strings strings = Strings();
@@ -550,7 +538,7 @@ void reformatPPLLine(string &str) {
 }
 
 
-void translatePPLPlusLine(string &ln, ofstream &outfile) {
+void translatePPLPlusLine(string& ln, ofstream& outfile) {
     regex re;
     smatch match;
     ifstream infile;
@@ -638,8 +626,7 @@ void translatePPLPlusLine(string &ln, ofstream &outfile) {
     
     //MARK: alias parsing
     
-    re = R"(^alias ([A-Za-z_]\w*(?:::[a-zA-Z]\w*)*):=([a-zA-Z][\w→]*(?:\.[a-zA-Z][\w→]*)*);$)";
-//    re = R"(^alias ([A-Za-z_]\w*(?:::[a-zA-Z]\w*)*):=([a-zA-Z\x{7F}-\x{FFFF}][\x{7F}-\x{FFFF}\w]*(?:\.[a-zA-Z\x{7F}-\x{FFFF}][\x{7F}-\x{FFFF}\w]*)*);$)";
+    re = R"(^alias ([A-Za-z_]\w*(?:::[a-zA-Z]\w*)*):=([a-zA-Z→][\w→]*(?:\.[a-zA-Z→][\w→]*)*);$)";
     if (regex_search(ln, match, re)) {
         Aliases::TIdentity identity;
         identity.identifier = match[1].str();
@@ -700,8 +687,7 @@ void translatePPLPlusLine(string &ln, ofstream &outfile) {
 
 
 
-void loadRegexLib(const fs::path path, const bool verbose)
-{
+void loadRegexLib(const fs::path path, const bool verbose) {
     string utf8;
     ifstream infile;
     
@@ -720,8 +706,7 @@ void loadRegexLib(const fs::path path, const bool verbose)
     infile.close();
 }
 
-void loadRegexLibs(const string path, const bool verbose)
-{
+void loadRegexLibs(const string path, const bool verbose) {
     loadRegexLib(path + "/.base.re", verbose);
     
     try {
@@ -738,8 +723,7 @@ void loadRegexLibs(const string path, const bool verbose)
 
 
 
-void embedPPLCode(const string &filepath, ofstream &os)
-{
+void embedPPLCode(const string& filepath, ofstream& os) {
     ifstream is;
     string str;
     
@@ -764,8 +748,7 @@ void embedPPLCode(const string &filepath, ofstream &os)
     is.close();
 }
 
-bool verbose(void)
-{
+bool verbose(void) {
     if (Singleton::shared()->aliases.verbose) return true;
     if (preprocessor.verbose) return true;
     
@@ -785,7 +768,7 @@ bool isPPLBlock(const string str) {
     return str.find("#PPL") != string::npos;
 }
 
-void processPPLBlock(ifstream &infile, ofstream &outfile) {
+void processPPLBlock(ifstream& infile, ofstream& outfile) {
     string str;
     
     Singleton::shared()->incrementLineNumber();
@@ -802,7 +785,7 @@ void processPPLBlock(ifstream &infile, ofstream &outfile) {
     }
 }
 
-void processPythonBlock(ifstream &infile, ofstream &outfile, string &input) {
+void processPythonBlock(ifstream& infile, ofstream& outfile, string& input) {
     regex re;
     string str;
     Aliases aliases;
@@ -823,7 +806,7 @@ void processPythonBlock(ifstream &infile, ofstream &outfile, string &input) {
         Aliases::TIdentity identity = {
             .type = Aliases::Type::Argument
         };
-        for (const string &argument : arguments) {
+        for (const string& argument : arguments) {
             if (index++) input.append(",");
             start = argument.find(':');
             
@@ -841,7 +824,7 @@ void processPythonBlock(ifstream &infile, ofstream &outfile, string &input) {
         
     
     utf::write(input + '\n', outfile);
-    
+    smatch match;
 
     while(getline(infile, str)) {
         if (str.find("#END") != string::npos) {
@@ -850,15 +833,30 @@ void processPythonBlock(ifstream &infile, ofstream &outfile, string &input) {
             return;
         }
         
+        Singleton::shared()->incrementLineNumber();
         str = aliases.resolveAllAliasesInText(str);
+        
+        // alias aliasname as realname
+        re = R"(^ *alias +([A-Za-z_]\w*) *as *([a-zA-Z][\w\[\]]*) *$)";
+        if (regex_search(str, match, re)) {
+            Aliases::TIdentity identity;
+            identity.identifier = match[1].str();
+            identity.real = match[2].str();
+            identity.type = Aliases::Type::Alias;
+            identity.scope = Aliases::Scope::Auto;
+            
+            aliases.append(identity);
+            str = "";
+            continue;
+        }
+        
         str.append("\n");
         utf::write(str, outfile);
-        Singleton::shared()->incrementLineNumber();
     }
 }
 
-void translatePPLPlusToPPL(const fs::path &path, ofstream &outfile) {
-    Singleton &singleton = *Singleton::shared();
+void translatePPLPlusToPPL(const fs::path& path, ofstream& outfile) {
+    Singleton& singleton = *Singleton::shared();
     ifstream infile;
     regex re;
     string utf8;
