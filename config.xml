@@ -1,0 +1,13 @@
+<config>
+<update_server>
+    	<protocol>https</protocol>
+    	<host>updates.moravia-consulting.com</host>
+	<port>80</port>
+	<folder></folder>
+	<file>update.xml</file>
+</update_server>
+<options>
+	<debug>0</debug>
+</options>
+</config>
+
