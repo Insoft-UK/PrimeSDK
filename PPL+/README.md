@@ -111,5 +111,11 @@ This allows you to use = as equality.
 >[!IMPORTANT]
 In PPL+ by default `=` is treated as `:=` were in PPL `=` is treated as `==`
 
+## Alias
+Added support for defining aliases that include a dot (e.g., alias hp::text := HP.Text).
+
+## Libraries
+The **GROB**, **ColorSPace** and **HP**.
+
 >[!NOTE]
 The PPL+ preprocessor (formerly known as P+) is subject to change but aims to maintain some level of compatibility with previous versions.
