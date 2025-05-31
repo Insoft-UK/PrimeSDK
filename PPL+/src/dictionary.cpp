@@ -24,26 +24,26 @@
 
 using ppl_plus::Dictionary;
 
-static void removeUnnecessaryWhitespace(std::string &str) {
-    // Regular expression pattern to match spaces around the specified operators
-    // Operators: {}[]()≤≥≠<>=*/+-▶.,;:!^
-    std::regex re(R"(\s*([{}[\]()≤≥≠<>=*\/+\-▶.,;:!^&|%])\s*)");
-    
-    // Replace matches with the operator and no surrounding spaces
-    str = std::regex_replace(str, re, "$1");
-    
-    auto pos = str.find_last_of("]");
-    if (pos != std::string::npos) str.insert(pos + 1, " ");
-    
-    return;
-}
+//static void removeUnnecessaryWhitespace(std::string &str) {
+//    // Regular expression pattern to match spaces around the specified operators
+//    // Operators: {}[]()≤≥≠<>=*/+-▶.,;:!^
+//    std::regex re(R"(\s*([{}[\]()≤≥≠<>=*\/+\-▶.,;:!^&|%])\s*)");
+//    
+//    // Replace matches with the operator and no surrounding spaces
+//    str = std::regex_replace(str, re, "$1");
+//    
+//    auto pos = str.find_last_of("]");
+//    if (pos != std::string::npos) str.insert(pos + 1, " ");
+//    
+//    return;
+//}
 
 bool Dictionary::isDictionaryDefinition(const std::string &str) {
-    return regex_search(str, std::regex(R"(\bdict +(.+) (@)?([A-Za-z_]\w*(?:::[A-Za-z_]\w*)*);)"));
+    return regex_search(str, std::regex(R"(\bdict +([\w[\],:=#-]+)@?([A-Za-z_]\w*(?:::[A-Za-z_]\w*)*);)"));
 }
 
 void Dictionary::removeDictionaryDefinition(std::string &str) {
-    str = std::regex_replace(str, std::regex(R"(\bdict +(.+) (@)?([A-Za-z_]\w*(?:::[A-Za-z_]\w*)*);)"), "");
+    str = std::regex_replace(str, std::regex(R"(\bdict +([\w[\],:=#-]+)@?([A-Za-z_]\w*(?:::[A-Za-z_]\w*)*);)"), "");
 }
 
 bool Dictionary::proccessDictionaryDefinition(const std::string &str) {
@@ -52,18 +52,18 @@ bool Dictionary::proccessDictionaryDefinition(const std::string &str) {
     std::string code;
     
     code = str;
-    removeUnnecessaryWhitespace(code);
+//    removeUnnecessaryWhitespace(code);
     
     Aliases::TIdentity identity;
     identity.scope = Aliases::Scope::Auto;
     identity.type = Aliases::Type::Alias;
     
-    re = R"(\bdict +(.+) (@)?([A-Za-z_]\w*(?:::[A-Za-z_]\w*)*);)";
+    re = R"(\bdict +([\w[\],:=#-]+)(@)?([A-Za-z_]\w*(?:::[A-Za-z_]\w*)*);)";
     if (regex_search(code, match, re)) {
         
         identity.scope = match[2].matched ? Aliases::Scope::Global : Aliases::Scope::Auto;
 
-        re = R"(([a-zA-Z]\w*(?:(?:[a-zA-Z_]\w*)|(?:::)|\.)*)(?:(\[#?[\dA-F]+(?::-?\d{0,2}[bodh])?(?:,#?[\dA-F]+(?::-?\d{0,2}[bodh])?)*\])|(?:=(#?[\dA-F]+(?::-?\d{0,2}[bodh])?)))?)";
+        re = R"(([a-zA-Z]\w*(?:(?:[a-zA-Z_]\w*)|(?:::)|\.)*)(?:(\[#?[\dA-F]+(?::-?\d{0,2}[bodh])?(?:,#?[\dA-F]+(?::-?\d{0,2}[bodh])?)*\])|(?::=(#?[\dA-F]+(?::-?\d{0,2}[bodh])?)))?)";
         std::string s = match[1].str();
         for (auto it = std::sregex_iterator(s.begin(), s.end(), re); it != std::sregex_iterator(); it++) {
             identity.identifier = match[3].str() + "." + it->str(1);

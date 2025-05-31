@@ -52,7 +52,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-version"
+            argument = "--version"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -64,7 +64,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-help"
+            argument = "--help"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument

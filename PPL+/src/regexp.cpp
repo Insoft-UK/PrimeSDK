@@ -27,7 +27,7 @@
 
 using ppl_plus::Regexp;
 
-bool Regexp::parse(std::string &str) {
+bool Regexp::parse(const std::string &str) {
     std::regex re;
     std::smatch match;
     
@@ -56,7 +56,6 @@ bool Regexp::parse(std::string &str) {
             }
         }
     
-        str = std::string("");
         if (regularExpressionExists(regexp.pattern)) return true;
         
         _regexps.push_back(regexp);

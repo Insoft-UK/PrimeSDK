@@ -30,7 +30,7 @@
 #define kill    KILL
 #define eval    EVAL
 
-dict Width = 320, Height = 240, Top = 0, Middle = 119, Bottom = 239, Left = 0, Centre = 159, Right = 319 @Screen;
+dict Width := 320, Height := 240, Top := 0, Middle := 119, Bottom := 239, Left := 0, Centre := 159, Right := 319 @Screen;
 
 #define MOUSE_X 2
 #define MOUSE_Y 3

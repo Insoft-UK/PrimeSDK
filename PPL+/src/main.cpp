@@ -54,7 +54,7 @@
 #define COMMAND_NAME "ppl+"
 #define INDENT_WIDTH indentation
 
-static unsigned int indentation = 1;
+static unsigned int indentation = 2;
 
 using ppl_plus::Singleton;
 using ppl_plus::Strings;
@@ -91,7 +91,7 @@ void translatePPLPlusToPPL(const fs::path& path, ofstream& outfile);
 static Preprocessor preprocessor = Preprocessor();
 static Strings strings = Strings();
 static string assignment = "=";
-static vector<string> operators = { ":=", "==", "▶", "≥", "≤", "≠" };
+static vector<string> operators = { ":=", "==", "▶", "≥", "≤", "≠", "-", "+", "*", "/" };
 
 // MARK: - Extensions
 
@@ -374,17 +374,22 @@ string process_escapes(const string& input) {
         char next = input[i + 1];
         if (next == 'n') {
             result += '\n';
-            ++i; // skip the next character
+            ++i;
             continue;
         }
         if (next == 's') {
             result += ' ';
-            ++i; // skip the next character
+            ++i;
             continue;
         }
         if (next == 't') {
+            result += (string(4, ' '));
+            ++i;
+            continue;
+        }
+        if (next == 'i') {
             result += (string(INDENT_WIDTH, ' '));
-            ++i; // skip the next character
+            ++i;
             continue;
         }
         result += input[i]; // add the backslash
@@ -481,6 +486,32 @@ string capitalize_words(const string& input, const std::unordered_set<std::strin
     return result;
 }
 
+string insert_space_after_comma(const string& input) {
+    string output;
+    size_t len = input.length();
+
+    for (size_t i = 0; i < len; ++i) {
+        char c = input[i];
+        output += c;
+
+        if (c == ',') {
+            // Skip over any spaces immediately following the comma
+            size_t j = i + 1;
+            while (j < len && isspace(static_cast<unsigned char>(input[j]))) {
+                ++j;
+            }
+
+            // Always insert a single space after a comma
+            output += ' ';
+
+            // Advance `i` past the skipped spaces
+            i = j - 1;
+        }
+    }
+
+    return output;
+}
+
 // MARK: - PPL+ To PPL Translater...
 void reformatPPLLine(string& str) {
     regex re;
@@ -490,6 +521,7 @@ void reformatPPLLine(string& str) {
     
     str = normalize_operators(str);
     str = fix_unary_minus(str);
+    str = insert_space_after_comma(str);
     
     if (Singleton::shared()->scopeDepth > 0) {
         try {
@@ -543,34 +575,30 @@ void translatePPLPlusLine(string& ln, ofstream& outfile) {
     smatch match;
     ifstream infile;
     
-
-    Singleton *singleton = Singleton::shared();
     
     // Remove any leading white spaces before or after.
     trim(ln);
     
-    
-    
+
     if (ln.empty()) {
         ln = "";
         return;
     }
     
     if (ln.substr(0,2) == "//") {
-        ln = ln.insert(0, string(singleton->scopeDepth * INDENT_WIDTH, ' '));
+        ln = ln.insert(0, string(Singleton::shared()->scopeDepth * INDENT_WIDTH, ' '));
         ln += '\n';
         return;
     }
     
-    if (singleton->regexp.parse(ln)) return;
 
     /*
      While parsing the contents, strings may inadvertently undergo parsing, leading
-     to potential disruptions in the string's content.
+     to potential disruptions in the string's content as well as comments.
      
-     To address this issue, we prioritize the preservation of any existing strings.
-     After we prioritize the preservation of any existing strings, we blank out the
-     string/s.
+     To address this issue, we prioritize the preservation of any existing strings
+     and comments. After we prioritize the preservation of any existing strings and
+     comments, we blank out the string/s.
      
      Subsequently, after parsing, any strings that have been blanked out can be
      restored to their original state.
@@ -578,24 +606,33 @@ void translatePPLPlusLine(string& ln, ofstream& outfile) {
     strings.preserveStrings(ln);
     strings.blankOutStrings(ln);
  
-    // Remove any comments.
-    singleton->comments.preserveComment(ln);
-    singleton->comments.removeComment(ln);
+    Singleton::shared()->comments.preserveComment(ln);
+    Singleton::shared()->comments.removeComment(ln);
     
-    ln = normalize_whitespace(ln);
+    ln = clean_whitespace(ln);
 
-    singleton->regexp.resolveAllRegularExpression(ln);
+    
     if (preprocessor.parse(ln)) {
         ln = "";
         return;
     }
-    ln = singleton->aliases.resolveAllAliasesInText(ln);
+    
+    ln = replace_operators(ln);
+    
+    // PPL by default uses := instead of C's = for assignment. Converting all = to PPL style :=
+    if (assignment == "=") {
+        ln = convert_assign_to_colon_equal(ln);
+    } else {
+        ln = expand_assignment_equals(ln);
+    }
+    
+    ln = Singleton::shared()->aliases.resolveAllAliasesInText(ln);
     
     /*
      A code stack provides a convenient way to store code snippets
      that can be retrieved and used later.
      */
-    singleton->codeStack.parse(ln);
+    Singleton::shared()->codeStack.parse(ln);
 
     
     if (Dictionary::isDictionaryDefinition(ln)) {
@@ -613,18 +650,9 @@ void translatePPLPlusLine(string& ln, ofstream& outfile) {
     
     ln = capitalize_words(ln, {"log", "cos", "sin", "tan", "ln", "min", "max"});
     
-    ln = regex_replace(ln, regex(R"(\s*([^\w \s])\s*)"), "$1");
     
-    ln = replace_operators(ln);
     
-    // PPL by default uses := instead of C's = for assignment. Converting all = to PPL style :=
-    if (assignment == "=") {
-        ln = convert_assign_to_colon_equal(ln);
-    } else {
-        ln = expand_assignment_equals(ln);
-    }
-    
-    //MARK: alias parsing
+    //MARK: User Define Alias Parsing
     
     re = R"(^alias ([A-Za-z_]\w*(?:::[a-zA-Z]\w*)*):=([a-zA-Z→][\w→]*(?:\.[a-zA-Z→][\w→]*)*);$)";
     if (regex_search(ln, match, re)) {
@@ -634,7 +662,7 @@ void translatePPLPlusLine(string& ln, ofstream& outfile) {
         identity.type = Aliases::Type::Alias;
         identity.scope = Aliases::Scope::Auto;
         
-        singleton->aliases.append(identity);
+        Singleton::shared()->aliases.append(identity);
         ln = "";
         return;
     }
@@ -644,22 +672,22 @@ void translatePPLPlusLine(string& ln, ofstream& outfile) {
     
     re = R"(\b(BEGIN|IF|FOR|CASE|REPEAT|WHILE|IFERR)\b)";
     for(auto it = sregex_iterator(ln.begin(), ln.end(), re); it != sregex_iterator(); ++it) {
-        singleton->increaseScopeDepth();
+        Singleton::shared()->increaseScopeDepth();
     }
     
     re = R"(\b(END|UNTIL)\b)";
     for(auto it = sregex_iterator(ln.begin(), ln.end(), re); it != sregex_iterator(); ++it) {
-        singleton->decreaseScopeDepth();
-        if (singleton->scopeDepth == 0) {
-            singleton->aliases.removeAllOutOfScopeAliases();
+        Singleton::shared()->decreaseScopeDepth();
+        if (Singleton::shared()->scopeDepth == 0) {
+            Singleton::shared()->aliases.removeAllOutOfScopeAliases();
             ln += '\n';
         }
        
-        singleton->regexp.removeAllOutOfScopeRegexps();
+        Singleton::shared()->regexp.removeAllOutOfScopeRegexps();
     }
     
     
-    if (singleton->scopeDepth == 0) {
+    if (Singleton::shared()->scopeDepth == 0) {
         re = R"(^ *(KS?A?_[A-Z\d][a-z]*) *$)";
         sregex_token_iterator it = sregex_token_iterator {
             ln.begin(), ln.end(), re, {1}
@@ -670,17 +698,15 @@ void translatePPLPlusLine(string& ln, ofstream& outfile) {
         }
     }
     
-    singleton->autoname.parse(ln);
+    Singleton::shared()->autoname.parse(ln);
     Alias::parse(ln);
     Calc::parse(ln);
     
-    
     reformatPPLLine(ln);
-    
     ln = process_escapes(ln);
    
     strings.restoreStrings(ln);
-    singleton->comments.restoreComment(ln);
+    Singleton::shared()->comments.restoreComment(ln);
     
     ln += '\n';
 }
@@ -859,7 +885,7 @@ void translatePPLPlusToPPL(const fs::path& path, ofstream& outfile) {
     Singleton& singleton = *Singleton::shared();
     ifstream infile;
     regex re;
-    string utf8;
+    string input;
     string str;
     smatch match;
 
@@ -872,54 +898,54 @@ void translatePPLPlusToPPL(const fs::path& path, ofstream& outfile) {
         return;
     }
     
-    while (getline(infile, utf8)) {
+    while (getline(infile, input)) {
         /*
          Handle any escape lines `\` by continuing to read line joining them all up as one long line.
          */
         
-        if (!utf8.empty()) {
-            while (utf8.at(utf8.length() - 1) == '\\' && !utf8.empty()) {
-                utf8.resize(utf8.length() - 1);
+        if (!input.empty()) {
+            while (input.at(input.length() - 1) == '\\' && !input.empty()) {
+                input.resize(input.length() - 1);
                 string s;
                 getline(infile, s);
-                utf8.append(s);
+                input.append(s);
                 Singleton::shared()->incrementLineNumber();
                 if (s.empty()) break;
             }
         }
         
-        utf8 = ppl_plus::Comments().removeTripleSlashComment(utf8);
+        input = ppl_plus::Comments().removeTripleSlashComment(input);
         
-        if (utf8.find("#EXIT") != string::npos) {
+        if (input.find("#EXIT") != string::npos) {
             break;
         }
         
         while (preprocessor.disregard == true) {
-            preprocessor.parse(utf8);
+            preprocessor.parse(input);
             Singleton::shared()->incrementLineNumber();
-            getline(infile, utf8);
+            getline(infile, input);
         }
         
-        if (isPythonBlock(utf8)) {
-            processPythonBlock(infile, outfile, utf8);
+        if (isPythonBlock(input)) {
+            processPythonBlock(infile, outfile, input);
             continue;
         }
         
-        if (isPPLBlock(utf8)) {
+        if (isPPLBlock(input)) {
             processPPLBlock(infile, outfile);
             continue;
         }
         
         // Handle `#pragma mode` for PPL+
-        if (utf8.find("#pragma mode") != string::npos) {
+        if (input.find("#pragma mode") != string::npos) {
             if (pragma) {
                 Singleton::shared()->incrementLineNumber();
                 continue;
             }
             pragma = true;
             re = R"(([a-zA-Z]\w*)\(([^()]*)\))";
-            string s = utf8;
-            utf8 = "#pragma mode( ";
+            string s = input;
+            input = "#pragma mode( ";
             for(auto it = sregex_iterator(s.begin(), s.end(), re); it != sregex_iterator(); ++it) {
                 if (it->str(1) == "assignment") {
                     if (it->str(2) != ":=" && it->str(2) != "=") {
@@ -934,23 +960,23 @@ void translatePPLPlusToPPL(const fs::path& path, ofstream& outfile) {
                     continue;
                 }
                 if (it->str(1) == "operators") {
-                    operators = split_escaped_commas(normalize_whitespace(it->str(2)));
+                    operators = split_escaped_commas(clean_whitespace(it->str(2)));
                     continue;
                 }
-                utf8.append(it->str() + " ");
+                input.append(it->str() + " ");
             }
-            utf8.append(")");
+            input.append(")");
             
-            utf::write(utf8 + "\n", outfile);
+            utf::write(input + "\n", outfile);
             Singleton::shared()->incrementLineNumber();
             continue;
         }
         
         
-        if (preprocessor.isQuotedInclude(utf8)) {
+        if (preprocessor.isQuotedInclude(input)) {
             Singleton::shared()->incrementLineNumber();
             
-            string filename = preprocessor.extractIncludeFilename(utf8);
+            string filename = preprocessor.extractIncludeFilename(input);
             if (fs::path(filename).parent_path().empty() && fs::exists(filename) == false) {
                 filename = singleton.getMainSourceDir().string() + "/" + filename;
             }
@@ -966,9 +992,9 @@ void translatePPLPlusToPPL(const fs::path& path, ofstream& outfile) {
             continue;
         }
         
-        if (preprocessor.isAngleInclude(utf8)) {
+        if (preprocessor.isAngleInclude(input)) {
             Singleton::shared()->incrementLineNumber();
-            string filename = preprocessor.extractIncludeFilename(utf8);
+            string filename = preprocessor.extractIncludeFilename(input);
             if (fs::path(filename).extension().empty()) {
                 filename.append(".ppl+");
             }
@@ -985,33 +1011,38 @@ void translatePPLPlusToPPL(const fs::path& path, ofstream& outfile) {
             }
             continue;
         }
+        
+        
+        if (Singleton::shared()->regexp.parse(input)) {
+            input = regex_replace(input, regex(R"(^ *\bregex +([@<>=≠≤≥~])?`([^`]*)`(i)? *(.*)$)"), "");
+        }
+        
+        Singleton::shared()->regexp.resolveAllRegularExpression(input);
     
-        utf8 = replace_words(utf8, {"endif", "wend", "next"}, "END");
-        utf8 = replace_words(utf8, {"try"}, "IFERR");
-        utf8 = replace_words(utf8, {"catch"}, "THEN");
+        /*
+         We need to perform pre-parsing to ensure that, in lines using subtitued
+         PPL+ keywords for likes of END, IFERR and THEN are resolved.
+         */
+        input = replace_words(input, {"endif", "wend", "next"}, "END");
+        input = replace_words(input, {"try"}, "IFERR");
+        input = replace_words(input, {"catch"}, "THEN");
   
         /*
-         We first need to perform pre-parsing to ensure that, in lines such
-         as if condition then statement/s end;, the statement/s and end; are
-         not on the same line. This ensures proper indentation can be applied
-         during the reformatting stage of PPL code.
-         
-         But we must ignore the line if it's a regex and all @
+         We need to perform pre-parsing to ensure that, in lines such as if
+         condition then statement/s end;, the statement/s and end; are not on
+         the same line. This ensures proper indentation can be applied during
+         the reformatting stage of PPL code.
          */
         
+        input = regex_replace(input, regex(R"(\b(THEN|IFERR|REPEAT)\b)", rc::icase), "$1\n");
+        input = regex_replace(input, regex(R"((; *)(THEN|UNTIL)\b)", rc::icase), "$1\n$2");
+        input = regex_replace(input, regex(R"(; *\b(ELSE)\b)", rc::icase), ";\n$1\n");
+        input = regex_replace(input, regex(R"(; *(END|UNTIL|ELSE|LOCAL|CONST)\b;)", rc::icase), ";\n$1;");
+        input = regex_replace(input, regex(R"((.+)\bBEGIN\b)", rc::icase), "$1\nBEGIN");
         
         
-        if (!regex_search(utf8, regex(R"(^ *\b(?:regex|dict) +)"))) {
-            utf8 = regex_replace(utf8, regex(R"(\b(THEN|IFERR|REPEAT)\b)", rc::icase), "$1\n");
-            utf8 = regex_replace(utf8, regex(R"((; *)(THEN|UNTIL)\b)", rc::icase), "$1\n$2");
-            utf8 = regex_replace(utf8, regex(R"(; *\b(ELSE)\b)", rc::icase), ";\n$1\n");
-            utf8 = regex_replace(utf8, regex(R"(; *(END|UNTIL|ELSE|LOCAL|CONST)\b;)", rc::icase), ";\n$1;");
-            utf8 = regex_replace(utf8, regex(R"((.+)\bBEGIN\b)", rc::icase), "$1\nBEGIN");
-        }
-            
-    
         istringstream iss;
-        iss.str(utf8);
+        iss.str(input);
         
         while(getline(iss, str)) {
             translatePPLPlusLine(str, outfile);
@@ -1071,7 +1102,7 @@ void help(void) {
     << "Copyright (C) 2023-" << YEAR << " Insoft. All rights reserved.\n"
     << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n"
     << "\n"
-    << "Usage: " << COMMAND_NAME << " <input-file> [-o <output-file>] [-v <flags>]\n"
+    << "Usage: " << COMMAND_NAME << " <input-file> [-o <output-file>] [-v <flags>] [--utf16-le]\n"
     << "\n"
     << "Options:\n"
     << "  -o <output-file>        Specify the filename for generated PPL code.\n"
@@ -1084,7 +1115,7 @@ void help(void) {
     << "     r                    Regular Expression\n"
     << "\n"
     << "Additional Commands:\n"
-    << "  ansiart {--version | --help}\n"
+    << "  " << COMMAND_NAME << " {--version | --help }\n"
     << "    --version              Display the version information.\n"
     << "    --help                 Show this help message.\n";
 }
@@ -1292,11 +1323,14 @@ int main(int argc, char **argv) {
     } else {
         cout << "Completed in " << fixed << setprecision(2) << elapsed_time / 1e9 << " seconds\n";
     }
-    if (showpath)
-        cout << "UTF-16LE file at \"" << out_filename << "\" succefuly created.\n";
+    if (utf16)
+        cout << "UTF-16LE file ";
     else
-        cout << "UTF-16LE file " << fs::path(out_filename).filename() << " succefuly created.\n";
-    
+        cout << "File ";
+    if (showpath)
+        cout << "at \"" << out_filename << "\" succefuly created.\n";
+    else
+        cout << fs::path(out_filename).filename() << " succefuly created.\n";
             
     return 0;
 }

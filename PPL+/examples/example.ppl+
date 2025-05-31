@@ -22,9 +22,9 @@
 // SOFTWARE.
 #endif
 
-#pragma mode( separator(.,,) integer(h64) assignment(:=) indentation(3) operators(:=,==,▶,≥,≤,≠,-,+,*,/) )
+#pragma mode( separator(.,,) integer(h64) assignment(=) indentation(1) operators(:=,▶) )
 
-A =sin(5)*7;
+A :=sin(5)*7;
 
 #include <cartesian>
 #include <cplang>
@@ -42,7 +42,6 @@ A =sin(5)*7;
 #include <string>
 
 #include "utf16-le.hpprgm"
-
 
 #ifndef __pplplus
  When defining a macro with parameters, issues can arise if an argument
@@ -72,10 +71,13 @@ LOCAL A:=0;
 A=A*-4;
 
 #include <pplang>
-var auto: beta; /// hj hh    hhh
-export pplang(auto: alpha)
+B := ThemeMode.Dark;
+pplang(auto: alpha)
 begin
+    B := ThemeMode.Light;
     var auto: somename;
+    
+    C = {0,1,2,3};
     
     switch A
         case 1 do
@@ -85,6 +87,10 @@ begin
             A - somename => B;
         end;
         default
+    end;
+    
+    case
+        if A >= B then B+1=>B; endif;
     end;
     
     if A <> B and A <= B or B == 0 then return; endif;
@@ -105,8 +111,10 @@ begin
     end;
 end;
 
-export pplang(auto: alpha)
+catalog START(auto: alpha)
 begin
     var auto: yellow;
     var auto: blue;
+    var b = Color.White;
+    blit_c(Color.White);
 end;

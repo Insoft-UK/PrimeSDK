@@ -43,7 +43,7 @@ namespace ppl_plus {
             std::string pathname;   // path and filename that definition accoured
         } TRegexp;
         
-        bool parse(std::string &str);
+        bool parse(const std::string &str);
         void removeAllOutOfScopeRegexps(void);
         void resolveAllRegularExpression(std::string &str);
         
