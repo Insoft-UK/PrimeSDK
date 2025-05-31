@@ -108,6 +108,12 @@ In <b>PPL+</b>, the = operator is treated as := (assignment) by default, whereas
 
 This allows you to use = as equality.
 
+### Alias
+Added support for defining aliases that include a dot (e.g., alias hp::text := HP.Text).
+
+## Libraries
+The **GROB**, **ColorSPace** and **HP**.
+
 >[!IMPORTANT]
 In PPL+ by default `=` is treated as `:=` were in PPL `=` is treated as `==`
 
