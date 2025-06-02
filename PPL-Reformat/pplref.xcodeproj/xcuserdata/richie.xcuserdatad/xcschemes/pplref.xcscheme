@@ -56,15 +56,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/ColorSpace.hpprgm"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/BRICKS.hpprgm"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/Test.hpprgm"
+            argument = "$(PROJECT_DIR)/examples/GROB.prgm"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

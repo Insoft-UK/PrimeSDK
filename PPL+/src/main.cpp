@@ -278,44 +278,35 @@ string normalize_operators(const string& input) {
 }
 
 string fix_unary_minus(const string& input) {
-    istringstream iss(input);
-    vector<string> tokens;
-    string token;
+    const std::string ops = "+-*/=:";
 
-    // Tokenize input by whitespace
-    while (iss >> token) {
-        tokens.push_back(token);
-    }
+    // We only need to check ":=" pair, no need to store more.
+    // Using a simple check instead of unordered_set for this single exception.
+    const std::string exception = ":=";
 
-    vector<string> corrected;
-    for (size_t i = 0; i < tokens.size(); ++i) {
-        if (tokens[i] == "-" && i + 1 < tokens.size()) {
-            const string& next = tokens[i + 1];
+    std::string output;
+    output.reserve(input.size() + 10); // Reserve slightly more for spaces
 
-            // Check if next token is number or identifier
-            if (isdigit(next[0]) || isalpha(next[0])) {
-                // If previous token is an operator or it's the first token
-                if (i == 0 || tokens[i - 1] == ":=" || tokens[i - 1] == "=" ||
-                    tokens[i - 1] == "*" || tokens[i - 1] == "/" || tokens[i - 1] == "+" ||
-                    tokens[i - 1] == "(") {
-                    corrected.push_back("-" + next);
-                    ++i; // Skip next token
-                    continue;
+    for (size_t i = 0; i < input.size(); ++i) {
+        char curr = input[i];
+        output += curr;
+
+        if (i + 1 < input.size()) {
+            char next = input[i + 1];
+
+            if (ops.find(curr) != std::string::npos &&
+                ops.find(next) != std::string::npos &&
+                next == '-') {
+
+                // Check if pair is ":=", skip adding space in that case
+                if (!(curr == exception[0] && next == exception[1])) {
+                    output += ' ';
                 }
             }
         }
-
-        corrected.push_back(tokens[i]);
     }
 
-    // Rebuild string
-    string result;
-    for (const auto& t : corrected) {
-        if (!result.empty()) result += ' ';
-        result += t;
-    }
-
-    return result;
+    return output;
 }
 
 vector<string> split_commas(const string& input) {
@@ -486,27 +477,50 @@ string capitalize_words(const string& input, const std::unordered_set<std::strin
     return result;
 }
 
-string insert_space_after_comma(const string& input) {
-    string output;
+std::string insert_space_after_chars(const std::string& input, const std::unordered_set<char>& chars) {
+    std::string output;
     size_t len = input.length();
 
     for (size_t i = 0; i < len; ++i) {
         char c = input[i];
         output += c;
 
-        if (c == ',') {
-            // Skip over any spaces immediately following the comma
+        if (chars.find(c) != chars.end()) {
             size_t j = i + 1;
-            while (j < len && isspace(static_cast<unsigned char>(input[j]))) {
+
+            // Skip existing spaces
+            while (j < len && std::isspace(static_cast<unsigned char>(input[j]))) {
                 ++j;
             }
 
-            // Always insert a single space after a comma
-            output += ' ';
+            // Insert exactly one space **only if** the next char is not already a space
+            if (i + 1 >= len || input[i + 1] != ' ') {
+                output += ' ';
+            }
 
-            // Advance `i` past the skipped spaces
+            // Skip over any extra spaces already in input
             i = j - 1;
         }
+    }
+
+    return output;
+}
+
+std::string insert_space_before_word_after_closing_paren(const std::string& input) {
+    std::string output;
+    size_t len = input.length();
+
+    for (size_t i = 0; i < len; ++i) {
+        char curr = input[i];
+
+        // Check if current is start of a word and prev is ')'
+        if (i > 0 && std::isalpha(static_cast<unsigned char>(curr)) &&
+            input[i - 1] == ')' &&
+            (i == 1 || input[i - 2] != ' ')) {
+            output += ' ';
+        }
+
+        output += curr;
     }
 
     return output;
@@ -521,7 +535,8 @@ void reformatPPLLine(string& str) {
     
     str = normalize_operators(str);
     str = fix_unary_minus(str);
-    str = insert_space_after_comma(str);
+    str = insert_space_after_chars(str, {','});
+    str = insert_space_before_word_after_closing_paren(str);
     
     if (Singleton::shared()->scopeDepth > 0) {
         try {
@@ -756,7 +771,7 @@ void embedPPLCode(const string& filepath, ofstream& os) {
     fs::path path = filepath;
     is.open(filepath, ios::in);
     if (!is.is_open()) return;
-    if (path.extension() == ".hpprgm" || path.extension() == ".ppl") {
+    if (path.extension() == ".hpprgm" || path.extension() == ".prgm") {
         std::wstring wstr = hpprgm::load(filepath);
         
         if (!wstr.empty()) {
@@ -980,7 +995,7 @@ void translatePPLPlusToPPL(const fs::path& path, ofstream& outfile) {
             if (fs::path(filename).parent_path().empty() && fs::exists(filename) == false) {
                 filename = singleton.getMainSourceDir().string() + "/" + filename;
             }
-            if (fs::path(filename).extension() == ".hpprgm" || fs::path(filename).extension() == ".ppl") {
+            if (fs::path(filename).extension() == ".hpprgm" || fs::path(filename).extension() == ".prgm") {
                 embedPPLCode(filename, outfile);
                 continue;
             }
@@ -996,7 +1011,7 @@ void translatePPLPlusToPPL(const fs::path& path, ofstream& outfile) {
             Singleton::shared()->incrementLineNumber();
             string filename = preprocessor.extractIncludeFilename(input);
             if (fs::path(filename).extension().empty()) {
-                filename.append(".ppl+");
+                filename.append(".prgm+");
             }
             for (fs::path systemIncludePath : preprocessor.systemIncludePath) {
                 if (fs::exists(systemIncludePath.string() + "/" + filename)) {
@@ -1107,7 +1122,6 @@ void help(void) {
     << "Options:\n"
     << "  -o <output-file>        Specify the filename for generated PPL code.\n"
     << "  -v                      Display detailed processing information.\n"
-    << "  --utf16-le              UTF16-LE for .hpprgm file format.\n"
     << "\n"
     << "  Verbose Flags:\n"
     << "     a                    Aliases\n"
@@ -1134,7 +1148,6 @@ int main(int argc, char **argv) {
     bool verbose = false;
     bool showpath = false;
     
-    bool utf16 = false;
     
     string args(argv[0]);
     
@@ -1155,11 +1168,7 @@ int main(int argc, char **argv) {
             continue;
         }
         
-        if ( args == "--utf16-le" ) {
-            utf16 = true;
-            continue;
-        }
-        
+    
         if ( args == "--help" ) {
             help();
             return 0;
@@ -1198,8 +1207,7 @@ int main(int argc, char **argv) {
     
     
     if (!fs::exists(in_filename)) {
-        if (fs::exists(in_filename + ".pp")) in_filename.append(".pp");
-        if (fs::exists(in_filename + ".ppl+")) in_filename.append(".ppl+");
+        if (fs::exists(in_filename + ".prgm+")) in_filename.append(".prgm+");
     }
     if (!fs::exists(in_filename)) {
         error();
@@ -1207,7 +1215,7 @@ int main(int argc, char **argv) {
     }
     
     if (out_filename.empty()) {
-        out_filename = fs::path(in_filename).stem().string() + ".ppl";
+        out_filename = fs::path(in_filename).stem().string() + ".prgm";
     }
     if (fs::path(out_filename).parent_path().empty()) {
         out_filename.insert(0, fs::path(in_filename).parent_path().string() + "/");
@@ -1224,7 +1232,7 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    if (fs::path(out_filename).extension() != ".hpprgm" || utf16) {
+    if (fs::path(out_filename).extension() != ".hpprgm") {
         // The ".ppl" file format requires UTF16-LE.
         outfile.put(0xFF);
         outfile.put(0xFE);
@@ -1260,7 +1268,7 @@ int main(int argc, char **argv) {
     
     translatePPLPlusToPPL(in_filename, outfile);
     
-    if (fs::path(out_filename).extension() == ".hpprgm" && !utf16) {
+    if (fs::path(out_filename).extension() == ".hpprgm") {
         // Get the current file size.
         streampos currentPos = outfile.tellp();
         
@@ -1323,7 +1331,7 @@ int main(int argc, char **argv) {
     } else {
         cout << "Completed in " << fixed << setprecision(2) << elapsed_time / 1e9 << " seconds\n";
     }
-    if (utf16)
+    if (fs::path(out_filename).extension() != ".hpprgm")
         cout << "UTF-16LE file ";
     else
         cout << "File ";

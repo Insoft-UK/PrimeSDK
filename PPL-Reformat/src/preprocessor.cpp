@@ -46,6 +46,8 @@ bool Preprocessor::parse(std::string &str) {
         return true;
     }
     
+    if (str.substr(0,1) == "#") return true;
+    
     return false;
 }
 

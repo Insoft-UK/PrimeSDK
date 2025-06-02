@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -47,6 +47,10 @@
 		13C21F9C2A783D8D0067CE22 /* common.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = common.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		13D73AC62DEE2FAB00F98FEE /* examples */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = examples; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		137FB2822A03B06500AEFDF2 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -65,6 +69,7 @@
 				130842B32DAFD8A600CD8EC4 /* LICENSE.md */,
 				1351CC552BFC0E180073FEDF /* README.md */,
 				137FB2942A046E8E00AEFDF2 /* pplref.entitlements */,
+				13D73AC62DEE2FAB00F98FEE /* examples */,
 				137FB2872A03B06500AEFDF2 /* src */,
 				137FB2862A03B06500AEFDF2 /* Products */,
 			);
@@ -120,7 +125,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 137FB28C2A03B06500AEFDF2 /* Build configuration list for PBXNativeTarget "pplref" */;
 			buildPhases = (
-				1352EC5D2B40B72B003130E4 /* ShellScript */,
 				137FB2812A03B06500AEFDF2 /* Sources */,
 				137FB2822A03B06500AEFDF2 /* Frameworks */,
 				137FB2832A03B06500AEFDF2 /* CopyFiles */,
@@ -165,27 +169,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		1352EC5D2B40B72B003130E4 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "./version_code\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		137FB2812A03B06500AEFDF2 /* Sources */ = {

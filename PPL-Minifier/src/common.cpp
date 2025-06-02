@@ -111,23 +111,54 @@ std::ifstream::pos_type file_size(const std::string& filename)
     return pos;
 }
 
-bool file_exists(const char *filename) {
-    std::ifstream infile;
+
+
+std::string clean_whitespace(const std::string& input) {
+    std::string output;
+    char current = '\0';
     
-    infile.open(filename, std::ios::in);
-    if (infile.is_open()) {
-        infile.close();
-        return true;
+    auto iswordc = [](char c) {
+        return std::isalnum(static_cast<unsigned char>(c)) || c == '_';
+    };
+    
+    for (size_t i = 0; i < input.length(); i++) {
+        if (std::isspace(static_cast<unsigned char>(current))) {
+            if(iswordc(input[i]) && !output.empty() && iswordc(output.back())) {
+                output += ' ';
+            }
+        }
+        current = input[i];
+
+        if (std::isspace(static_cast<unsigned char>(current))) {
+            continue;
+        }
+        output += current;
     }
     
-    return false;
+
+    return output;
 }
 
-bool file_exists(const std::string& filename) {
-    return file_exists(filename.c_str());
+std::string normalize_whitespace(const std::string& input) {
+    std::string output;
+    output.reserve(input.size());  // Optimize memory allocation
+
+    bool in_whitespace = false;
+
+    for (char ch : input) {
+        if (std::isspace(static_cast<unsigned char>(ch))) {
+            if (!in_whitespace) {
+                output += ' ';
+                in_whitespace = true;
+            }
+        } else {
+            output += ch;
+            in_whitespace = false;
+        }
+    }
+
+    return output;
 }
-
-
 
 
 

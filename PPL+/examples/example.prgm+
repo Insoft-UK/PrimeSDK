@@ -78,6 +78,7 @@ begin
     var auto: somename;
     
     C = {0,1,2,3};
+    B = B * -B;
     
     switch A
         case 1 do

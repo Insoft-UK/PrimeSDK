@@ -61,7 +61,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-o example.hpprgm --utf16-le"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--help"

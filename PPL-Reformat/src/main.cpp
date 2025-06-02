@@ -28,7 +28,7 @@
 #include <regex>
 #include <cstring>
 #include <iomanip>
-
+#include <unordered_set>
 #include <sys/time.h>
 
 #include "singleton.hpp"
@@ -47,6 +47,7 @@ using namespace ppl;
 
 static Preprocessor preprocessor = Preprocessor();
 static Strings strings = Strings();
+static std::vector<std::string> operators = { ":=", "==", "▶", "≥", "≤", "≠", "-", "+", "*", "/" };
 
 
 
@@ -57,6 +58,54 @@ void terminator() {
 
 void (*old_terminate)() = std::set_terminate(terminator);
 
+// MARK: - Extensions
+
+namespace std::filesystem {
+    std::filesystem::path expand_tilde(const std::filesystem::path& path) {
+        if (!path.empty() && path.string().starts_with("~")) {
+#ifdef _WIN32
+            const char* home = std::getenv("USERPROFILE");
+#else
+            const char* home = std::getenv("HOME");
+#endif
+            
+            if (home) {
+                return std::filesystem::path(std::string(home) + path.string().substr(1));  // Replace '~' with $HOME
+            }
+        }
+        return path;  // return as-is if no tilde or no HOME
+    }
+}
+
+#if __cplusplus >= 202302L
+    #include <bit>
+    using std::byteswap;
+#elif __cplusplus >= 201103L
+    #include <cstdint>
+    namespace std {
+        template <typename T>
+        T bitswap(T u)
+        {
+            
+            static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
+            
+            union
+            {
+                T u;
+                unsigned char u8[sizeof(T)];
+            } source, dest;
+            
+            source.u = u;
+            
+            for (size_t k = 0; k < sizeof(T); k++)
+                dest.u8[k] = source.u8[sizeof(T) - k - 1];
+            
+            return dest.u;
+        }
+    }
+#else
+    #error "C++11 or newer is required"
+#endif
 
 
 // MARK: - Utills
@@ -117,24 +166,6 @@ std::string utf16_to_utf8(const uint16_t* utf16_str, size_t utf16_size) {
     return utf8_str;
 }
 
-template <typename T>
-T swap_endian(T u)
-{
-    static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
-
-    union
-    {
-        T u;
-        unsigned char u8[sizeof(T)];
-    } source, dest;
-
-    source.u = u;
-
-    for (size_t k = 0; k < sizeof(T); k++)
-        dest.u8[k] = source.u8[sizeof(T) - k - 1];
-
-    return dest.u;
-}
 
 // TODO: .hpprgrm file format detection and handling.
 bool isHPPrgrmFileFormat(std::ifstream& infile)
@@ -211,6 +242,292 @@ std::string base10ToBase32(unsigned int num) {
     return result;
 }
 
+std::string fix_unary_minus(const std::string& input) {
+    const std::string ops = "+-*/=:";
+
+    // We only need to check ":=" pair, no need to store more.
+    // Using a simple check instead of unordered_set for this single exception.
+    const std::string exception = ":=";
+
+    std::string output;
+    output.reserve(input.size() + 10); // Reserve slightly more for spaces
+
+    for (size_t i = 0; i < input.size(); ++i) {
+        char curr = input[i];
+        output += curr;
+
+        if (i + 1 < input.size()) {
+            char next = input[i + 1];
+
+            if (ops.find(curr) != std::string::npos &&
+                ops.find(next) != std::string::npos &&
+                next == '-') {
+
+                // Check if pair is ":=", skip adding space in that case
+                if (!(curr == exception[0] && next == exception[1])) {
+                    output += ' ';
+                }
+            }
+        }
+    }
+
+    return output;
+}
+
+std::string to_lower(const std::string& s) {
+    std::string result = s;
+    std::transform(result.begin(), result.end(), result.begin(),
+                   [](unsigned char c) { return std::tolower(c); });
+    return result;
+}
+
+std::string to_upper(const std::string& s) {
+    std::string result = s;
+    std::transform(result.begin(), result.end(), result.begin(),
+                   [](unsigned char c) { return std::toupper(c); });
+    return result;
+}
+
+std::string replace_operators(const std::string& input) {
+    std::string output;
+    output.reserve(input.size());  // Reserve space to reduce reallocations
+
+    for (std::size_t i = 0; i < input.size(); ++i) {
+        if (i + 1 < input.size()) {
+            // Lookahead for 2-character operators
+            if (input[i] == '>' && input[i + 1] == '=') {
+                output += "≥";
+                ++i;
+                continue;
+            }
+            if (input[i] == '<' && input[i + 1] == '=') {
+                output += "≤";
+                ++i;
+                continue;
+            }
+            if (input[i] == '=' && input[i + 1] == '>') {
+                output += "▶";
+                ++i;
+                continue;
+            }
+            if (input[i] == '<' && input[i + 1] == '>') {
+                output += "≠";
+                ++i;
+                continue;
+            }
+        }
+
+        // Default: copy character
+        output += input[i];
+    }
+
+    return output;
+}
+
+std::string replace_words(const std::string& input, const std::vector<std::string>& words, const std::string& replacement) {
+    // Create lowercase word set
+    std::unordered_set<std::string> wordset;
+    for (const auto& w : words) {
+        wordset.insert(to_lower(w));
+    }
+
+    std::string result;
+    size_t i = 0;
+    
+    while (i < input.size()) {
+        if (!isalpha(static_cast<unsigned char>(input[i])) && input[i] != '_') {
+            result += input[i];
+            ++i;
+            continue;
+        }
+        size_t start = i;
+        
+        while (i < input.size() && (isalpha(static_cast<unsigned char>(input[i])) || input[i] == '_')) {
+            ++i;
+        }
+        
+        std::string word = input.substr(start, i - start);
+        std::string lowerWord = to_lower(word);
+        
+        if (wordset.count(lowerWord)) {
+            result += replacement;
+            continue;
+        }
+        
+        result += word;
+    }
+    
+    return result;
+}
+
+std::string capitalize_words(const std::string& input, const std::unordered_set<std::string>& words) {
+    // Create lowercase word set
+    std::unordered_set<std::string> wordset;
+    for (const auto& w : words) {
+        wordset.insert(to_lower(w));
+    }
+    
+    std::string result;
+    size_t i = 0;
+    
+    while (i < input.size()) {
+        if (!isalpha(static_cast<unsigned char>(input[i])) && input[i] != '_') {
+            result += input[i];
+            ++i;
+            continue;
+        }
+        size_t start = i;
+        
+        while (i < input.size() && (isalpha(static_cast<unsigned char>(input[i])) || input[i] == '_')) {
+            ++i;
+        }
+        
+        std::string word = input.substr(start, i - start);
+        std::string lowercase = to_lower(word);
+        
+        if (wordset.count(lowercase)) {
+            result += to_upper(lowercase);
+            continue;
+        }
+        
+        result += word;
+    }
+    
+    return result;
+}
+
+std::string clean_whitespace(const std::string& input) {
+    std::string output;
+    char current = '\0';
+    
+    auto iswordc = [](char c) {
+        return std::isalnum(static_cast<unsigned char>(c)) || c == '_';
+    };
+    
+    for (size_t i = 0; i < input.length(); i++) {
+        if (std::isspace(static_cast<unsigned char>(current))) {
+            if(iswordc(input[i]) && !output.empty() && iswordc(output.back())) {
+                output += ' ';
+            }
+        }
+        current = input[i];
+
+        if (std::isspace(static_cast<unsigned char>(current))) {
+            continue;
+        }
+        output += current;
+    }
+    
+
+    return output;
+}
+
+std::string normalize_whitespace(const std::string& input) {
+    std::string output;
+    output.reserve(input.size());  // Optimize memory allocation
+
+    bool in_whitespace = false;
+
+    for (char ch : input) {
+        if (std::isspace(static_cast<unsigned char>(ch))) {
+            if (!in_whitespace) {
+                output += ' ';
+                in_whitespace = true;
+            }
+        } else {
+            output += ch;
+            in_whitespace = false;
+        }
+    }
+
+    return output;
+}
+
+std::string normalize_operators(const std::string& input) {
+    // List of all operators to normalize
+    
+    std::string result;
+    size_t i = 0;
+    
+    while (i < input.size()) {
+        bool matched = false;
+        
+        for (const std::string& op : operators) {
+            if (input.compare(i, op.size(), op) == 0) {
+                if (!result.empty() && result.back() != ' ') result += ' ';
+                result += op;
+                i += op.size();
+                if (i < input.size() && input[i] != ' ') result += ' ';
+                matched = true;
+                break;
+            }
+        }
+        
+        if (!matched) {
+            result += input[i++];
+        }
+    }
+    
+    // Final cleanup: collapse multiple spaces
+    std::istringstream iss(result);
+    std::string word, cleaned;
+    while (iss >> word) {
+        if (!cleaned.empty()) cleaned += ' ';
+        cleaned += word;
+    }
+    
+    return cleaned;
+}
+
+std::string insert_space_after_chars(const std::string& input, const std::unordered_set<char>& chars) {
+    std::string output;
+    size_t len = input.length();
+
+    for (size_t i = 0; i < len; ++i) {
+        char c = input[i];
+        output += c;
+
+        if (chars.find(c) != chars.end()) {
+            size_t j = i + 1;
+
+            // Skip existing spaces
+            while (j < len && std::isspace(static_cast<unsigned char>(input[j]))) {
+                ++j;
+            }
+
+            // Insert exactly one space **only if** the next char is not already a space
+            if (i + 1 >= len || input[i + 1] != ' ') {
+                output += ' ';
+            }
+
+            // Skip over any extra spaces already in input
+            i = j - 1;
+        }
+    }
+
+    return output;
+}
+
+std::string insert_space_before_word_after_closing_paren(const std::string& input) {
+    std::string output;
+    size_t len = input.length();
+
+    for (size_t i = 0; i < len; ++i) {
+        char curr = input[i];
+
+        // Check if current is start of a word and prev is ')'
+        if (i > 0 && std::isalpha(static_cast<unsigned char>(curr)) &&
+            input[i - 1] == ')' &&
+            (i == 1 || input[i - 2] != ' ')) {
+            output += ' ';
+        }
+
+        output += curr;
+    }
+
+    return output;
+}
+
 // MARK: - Formatting And Writing
 
 void reformatLine(std::string& ln, std::ofstream& outfile) {
@@ -218,7 +535,6 @@ void reformatLine(std::string& ln, std::ofstream& outfile) {
     std::ifstream infile;
     static std::string indentation("");
     Singleton *singleton = Singleton::shared();
-
     
     if (preprocessor.python) {
         // We're presently handling Python code.
@@ -234,7 +550,8 @@ void reformatLine(std::string& ln, std::ofstream& outfile) {
             return;
         }
         
-        ln = std::string("");
+//        ln = std::string("");
+        ln += '\n';
         return;
     }
     
@@ -252,7 +569,6 @@ void reformatLine(std::string& ln, std::ofstream& outfile) {
     trim(ln);
     
     if (ln.length() < 1) {
-        ln = std::string("");
         return;
     }
     
@@ -260,38 +576,21 @@ void reformatLine(std::string& ln, std::ofstream& outfile) {
     singleton->comments.preserveComment(ln);
     singleton->comments.removeComment(ln);
     
-    ln = removeWhitespaceAroundOperators(ln);
     
-    ln = regex_replace(ln, std::regex(R"(>=)"), "≥");
-    ln = regex_replace(ln, std::regex(R"(<=)"), "≤");
-    ln = regex_replace(ln, std::regex(R"(<>)"), "≠");
-
-    ln = regex_replace(ln, std::regex(R"(,)"), ", ");
-    ln = regex_replace(ln, std::regex(R"(^ +(\} *;))"), "$1\n");
     
-    /*
-     To prevent correcting over-modifications, first replace all double `==` with a single `=`.
-     
-     Converting standalone `=` to `==` initially can lead to unintended changes like `<=`, `>=`,
-     `:=`, and `==` turning into `<==`, `>==`, `:==`, and `===`.
-     
-     By first reverting all double `==` back to a single `=`, and ensuring that only standalone
-     `=` or `:=` with surrounding whitespace are targeted, we can then safely convert `=` to `==`
-     without affecting other operators.
-     */
-    ln = regex_replace(ln, std::regex(R"(==)"), "=");
-
-    // Ensuring that standalone `≥`, `≤`, `≠`, `=`, `:=`, `+`, `-`, `*` and `/` have surrounding whitespace.
-    re = R"(≥|≤|≠|=|:=|\+|-|\*|\/)";
-    ln = regex_replace(ln, re, " $0 ");
-    
-    re = R"(([≥≤≠=\+|\-|\*|\/]) +- +)";
-    ln = regex_replace(ln, re, "$1 -");
-    
-    if (!regex_search(ln, std::regex(R"(LOCAL [A-Za-z]\w* = )"))) {
-        // We can now safely convert `=` to `==` without affecting other operators.
-        ln = regex_replace(ln, std::regex(R"( = )"), " == ");
-    }
+    ln = capitalize_words(ln, {
+        "begin", "end", "return", "kill", "if", "then", "else", "xor", "or", "and", "not",
+        "case", "default", "iferr", "ifte", "for", "from", "step", "downto", "to", "do",
+        "while", "repeat", "until", "break", "continue", "export", "const", "local", "key"
+    });
+    ln = capitalize_words(ln, {"log", "cos", "sin", "tan", "ln", "min", "max"});
+    ln = replace_words(ln, {"FROM"}, ":=");
+    ln = clean_whitespace(ln);
+    ln = replace_operators(ln);
+    ln = fix_unary_minus(ln);
+    ln = normalize_operators(ln);
+    ln = insert_space_after_chars(ln, {',', ';'});
+    ln = insert_space_before_word_after_closing_paren(ln);
     
     
     re = std::regex(R"(\b(?:BEGIN|IF|CASE|FOR|WHILE|REPEAT)\b)", std::regex_constants::icase);
@@ -322,12 +621,14 @@ void reformatLine(std::string& ln, std::ofstream& outfile) {
     singleton->comments.restoreComment(ln);
     rtrim(ln);
     
-    if (Singleton::Scope::Global == singleton->scope) {
+    if (Singleton::shared()->nestingLevel == 1) {
         ln = regex_replace(ln, std::regex(R"(END;)"), "$0\n");
     }
     
-    ln = regex_replace(ln, std::regex(R"(// *-+$)"), "// MARK: -");
-    ln = regex_replace(ln, std::regex(R"( +(// *.+))"), "\n" + std::string(Singleton::shared()->nestingLevel * INDENT_WIDTH, ' ') + "$1");
+    if (Singleton::shared()->nestingLevel == 0 && ln != "END;") {
+        ln = ln.insert(0, "\n");
+    }
+    
     ln = regex_replace(ln, std::regex(R"(^ *(\[|\d))"), std::string((Singleton::shared()->nestingLevel + 1) * INDENT_WIDTH, ' ') + "$1");
     
     ln += "\n";
@@ -496,10 +797,18 @@ int main(int argc, char **argv) {
     
     info();
     
-    out_filename = in_filename;
-    if (out_filename.rfind(".")) {
-        out_filename.replace(out_filename.rfind("."), out_filename.length() - out_filename.rfind("."), "-ref.hpprgm");
+    std::filesystem::path path = in_filename;
+    path = std::filesystem::expand_tilde(path);
+    
+    if (path.extension().empty()) {
+        path.append(".prgm");
     }
+    if (!std::filesystem::exists(path) || path.extension() == ".hpprgm") {
+        error();
+        return 0;
+    }
+    
+    out_filename = path.parent_path().string() + "/" + path.stem().string() + "-ref.prgm";
     
     std::ofstream outfile;
     outfile.open(out_filename, std::ios::out | std::ios::binary);
@@ -518,9 +827,7 @@ int main(int argc, char **argv) {
         return 0;
     }
     
-    // The "hpprgm" file format requires UTF-16LE.
-    
-    
+    // The "prgm" file format requires UTF-16LE
     outfile.put(0xFF);
     outfile.put(0xFE);
     

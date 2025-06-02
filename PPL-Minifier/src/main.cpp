@@ -29,6 +29,7 @@
 #include <regex>
 #include <cstring>
 #include <iomanip>
+#include <unordered_set>
 
 #include <sys/time.h>
 
@@ -56,6 +57,55 @@ void (*old_terminate)() = std::set_terminate(terminator);
 
 
 void preProcess(std::string &ln, std::ofstream &outfile);
+
+// MARK: - Extensions
+
+namespace std::filesystem {
+    std::filesystem::path expand_tilde(const std::filesystem::path& path) {
+        if (!path.empty() && path.string().starts_with("~")) {
+#ifdef _WIN32
+            const char* home = std::getenv("USERPROFILE");
+#else
+            const char* home = std::getenv("HOME");
+#endif
+            
+            if (home) {
+                return std::filesystem::path(std::string(home) + path.string().substr(1));  // Replace '~' with $HOME
+            }
+        }
+        return path;  // return as-is if no tilde or no HOME
+    }
+}
+
+#if __cplusplus >= 202302L
+    #include <bit>
+    using std::byteswap;
+#elif __cplusplus >= 201103L
+    #include <cstdint>
+    namespace std {
+        template <typename T>
+        T bitswap(T u)
+        {
+            
+            static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
+            
+            union
+            {
+                T u;
+                unsigned char u8[sizeof(T)];
+            } source, dest;
+            
+            source.u = u;
+            
+            for (size_t k = 0; k < sizeof(T); k++)
+                dest.u8[k] = source.u8[sizeof(T) - k - 1];
+            
+            return dest.u;
+        }
+    }
+#else
+    #error "C++11 or newer is required"
+#endif
 
 // MARK: - Utills
 
@@ -176,17 +226,6 @@ bool isUTF16le(std::ifstream &infile)
     return false;
 }
 
-// Function to remove whitespaces around specific operators using regular expressions
-std::string removeWhitespaceAroundOperators(const std::string& str) {
-    // Regular expression pattern to match spaces around the specified operators
-    // Operators: {}[]()≤≥≠<>=*/+-▶.,;:!^
-    std::regex re(R"(\s*([{}[\]()≤≥≠<>=*/+\-▶.,;:!^])\s*)");
-
-    // Replace matches with the operator and no surrounding spaces
-    std::string result = std::regex_replace(str, re, "$1");
-
-    return result;
-}
 
 std::string base10ToBase32(unsigned int num) {
     if (num == 0) {
@@ -206,6 +245,165 @@ std::string base10ToBase32(unsigned int num) {
     // The digits are accumulated in reverse order, so reverse the result string
     std::reverse(result.begin(), result.end());
 
+    return result;
+}
+
+std::string fix_unary_minus(const std::string& input) {
+    const std::string ops = "+-*/=:";
+
+    // We only need to check ":=" pair, no need to store more.
+    // Using a simple check instead of unordered_set for this single exception.
+    const std::string exception = ":=";
+
+    std::string output;
+    output.reserve(input.size() + 10); // Reserve slightly more for spaces
+
+    for (size_t i = 0; i < input.size(); ++i) {
+        char curr = input[i];
+        output += curr;
+
+        if (i + 1 < input.size()) {
+            char next = input[i + 1];
+
+            if (ops.find(curr) != std::string::npos &&
+                ops.find(next) != std::string::npos &&
+                next == '-') {
+
+                // Check if pair is ":=", skip adding space in that case
+                if (!(curr == exception[0] && next == exception[1])) {
+                    output += ' ';
+                }
+            }
+        }
+    }
+
+    return output;
+}
+
+std::string to_lower(const std::string& s) {
+    std::string result = s;
+    std::transform(result.begin(), result.end(), result.begin(),
+                   [](unsigned char c) { return std::tolower(c); });
+    return result;
+}
+
+std::string to_upper(const std::string& s) {
+    std::string result = s;
+    std::transform(result.begin(), result.end(), result.begin(),
+                   [](unsigned char c) { return std::toupper(c); });
+    return result;
+}
+
+std::string replace_operators(const std::string& input) {
+    std::string output;
+    output.reserve(input.size());  // Reserve space to reduce reallocations
+
+    for (std::size_t i = 0; i < input.size(); ++i) {
+        if (i + 1 < input.size()) {
+            // Lookahead for 2-character operators
+            if (input[i] == '>' && input[i + 1] == '=') {
+                output += "≥";
+                ++i;
+                continue;
+            }
+            if (input[i] == '<' && input[i + 1] == '=') {
+                output += "≤";
+                ++i;
+                continue;
+            }
+            if (input[i] == '=' && input[i + 1] == '>') {
+                output += "▶";
+                ++i;
+                continue;
+            }
+            if (input[i] == '<' && input[i + 1] == '>') {
+                output += "≠";
+                ++i;
+                continue;
+            }
+            if (input[i] == '=' && input[i + 1] == '=') {
+                output += "=";
+                ++i;
+                continue;
+            }
+        }
+
+        // Default: copy character
+        output += input[i];
+    }
+
+    return output;
+}
+
+std::string replace_words(const std::string& input, const std::vector<std::string>& words, const std::string& replacement) {
+    // Create lowercase word set
+    std::unordered_set<std::string> wordset;
+    for (const auto& w : words) {
+        wordset.insert(to_lower(w));
+    }
+
+    std::string result;
+    size_t i = 0;
+    
+    while (i < input.size()) {
+        if (!isalpha(static_cast<unsigned char>(input[i])) && input[i] != '_') {
+            result += input[i];
+            ++i;
+            continue;
+        }
+        size_t start = i;
+        
+        while (i < input.size() && (isalpha(static_cast<unsigned char>(input[i])) || input[i] == '_')) {
+            ++i;
+        }
+        
+        std::string word = input.substr(start, i - start);
+        std::string lowerWord = to_lower(word);
+        
+        if (wordset.count(lowerWord)) {
+            result += replacement;
+            continue;
+        }
+        
+        result += word;
+    }
+    
+    return result;
+}
+
+std::string capitalize_words(const std::string& input, const std::unordered_set<std::string>& words) {
+    // Create lowercase word set
+    std::unordered_set<std::string> wordset;
+    for (const auto& w : words) {
+        wordset.insert(to_lower(w));
+    }
+    
+    std::string result;
+    size_t i = 0;
+    
+    while (i < input.size()) {
+        if (!isalpha(static_cast<unsigned char>(input[i])) && input[i] != '_') {
+            result += input[i];
+            ++i;
+            continue;
+        }
+        size_t start = i;
+        
+        while (i < input.size() && (isalpha(static_cast<unsigned char>(input[i])) || input[i] == '_')) {
+            ++i;
+        }
+        
+        std::string word = input.substr(start, i - start);
+        std::string lowercase = to_lower(word);
+        
+        if (wordset.count(lowercase)) {
+            result += to_upper(lowercase);
+            continue;
+        }
+        
+        result += word;
+    }
+    
     return result;
 }
 
@@ -263,12 +461,16 @@ void minifieLine(std::string &ln, std::ofstream &outfile) {
         return;
     }
     
-    ln = removeWhitespaceAroundOperators(ln);
-    
-    ln = regex_replace(ln, std::regex(R"(>=)"), "≥");
-    ln = regex_replace(ln, std::regex(R"(<=)"), "≤");
-    ln = regex_replace(ln, std::regex(R"(<>)"), "≠");
-    ln = regex_replace(ln, std::regex(R"(==)"), "=");
+    ln = capitalize_words(ln, {
+        "begin", "end", "return", "kill", "if", "then", "else", "xor", "or", "and", "not",
+        "case", "default", "iferr", "ifte", "for", "from", "step", "downto", "to", "do",
+        "while", "repeat", "until", "break", "continue", "export", "const", "local", "key"
+    });
+    ln = capitalize_words(ln, {"log", "cos", "sin", "tan", "ln", "min", "max"});
+    ln = replace_words(ln, {"FROM"}, ":=");
+    ln = clean_whitespace(ln);
+    ln = replace_operators(ln);
+    ln = fix_unary_minus(ln);
     
     re = std::regex(R"(\b(?:BEGIN|IF|CASE|FOR|WHILE|REPEAT|FOR|WHILE|REPEAT)\b)", std::regex_constants::icase);
     for(auto it = std::sregex_iterator(ln.begin(), ln.end(), re); it != std::sregex_iterator(); ++it) {
@@ -290,9 +492,6 @@ void minifieLine(std::string &ln, std::ofstream &outfile) {
     
     if (singleton->scope == Singleton::Scope::Global) {
         identity.scope = Aliases::Scope::Global;
-        
-        // LOCAL
-        ln = regex_replace(ln, std::regex(R"(\bLOCAL +)", std::regex_constants::icase), "");
         
         // Function
         re = R"(^([A-Za-z]\w*)\(([\w,]*)\);?$)";
@@ -327,11 +526,13 @@ void minifieLine(std::string &ln, std::ofstream &outfile) {
         // Global Variable
         re = R"(\b(?:LOCAL )?([A-Za-z]\w*)(?::=.*);)";
         if (regex_search(ln, match, re)) {
-            identity.type = Aliases::Type::Variable;
-            identity.identifier = match.str(1);
-            identity.real = "g" + base10ToBase32(++globalVariableAliasCount);
-            
-            singleton->aliases.append(identity);
+            if (match.str(1).length() > 3) {
+                identity.type = Aliases::Type::Variable;
+                identity.identifier = match.str(1);
+                identity.real = "g" + base10ToBase32(++globalVariableAliasCount);
+                
+                singleton->aliases.append(identity);
+            }
         }
     }
     
@@ -550,10 +751,18 @@ int main(int argc, char **argv) {
     
     info();
     
-    out_filename = in_filename;
-    if (out_filename.rfind(".")) {
-        out_filename.replace(out_filename.rfind("."), out_filename.length() - out_filename.rfind("."), "-min.hpprgm");
+    std::filesystem::path path = in_filename;
+    path = std::filesystem::expand_tilde(path);
+    
+    if (path.extension().empty()) {
+        path.append(".prgm");
     }
+    if (!std::filesystem::exists(path) || path.extension() == ".hpprgm") {
+        error();
+        return 0;
+    }
+    
+    out_filename = path.parent_path().string() + "/" + path.stem().string() + "-min.prgm";
     
     std::ofstream outfile;
     outfile.open(out_filename, std::ios::out | std::ios::binary);

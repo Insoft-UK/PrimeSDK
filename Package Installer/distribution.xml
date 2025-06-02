@@ -1,18 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <installer-gui-script minSpecVersion="1">
     <title>PrimeSDK</title>
-    <background
-        file="background.png"
-        file-2x="background-2x.png"
-        alignment="center"
-        scaling="proportional"/>
-    <background-darkAqua
-        file="background.png"
-        file-2x="background-2x.png"
-        alignment="center"
-        scaling="proportional"/>
-    <welcome file="welcome.rtf"/>
-    <license file="license.rtf"/>
+    <options customize="allow" rootVolumeOnly="true" hostArchitectures="i386,arm64"/>
+    <background file="background.tif" alignment="topleft" scaling="none"/>
+    <welcome file="en.lproj/Welcome.rtf" mime-type="text/rtf" uti="public.rtf"/>
+    <license file="en.lproj/License.rtf" mime-type="text/rtf" uti="public.rtf"/>
     <choices-outline>
         <line choice="default"/>
     </choices-outline>
