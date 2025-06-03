@@ -115,7 +115,10 @@ In PPL+ by default `=` is treated as `:=` were in PPL `=` is treated as `==`
 Added support for defining aliases that include a dot (e.g., alias hp::text := HP.Text).
 
 ## Libraries
-The **GROB**, **ColorSPace** and **HP**.
+**GROB**, **ColorSPace** and **HP**.
+-**GROB:** Converts invalid 1, 4, or 8 bit GROB images into valid 16 or 32 bit GROB format for use on the HP Prime.
+-**ColorSpace:** A collection of functions for working with color spaces beyond the default RGB, allowing support for alternative color models.
+-**HP:** It’s a collection of handy utility functions, such as defining a screen area and checking whether a user has tapped within it useful for implementing UI elements.
 
 >[!NOTE]
 The PPL+ preprocessor (formerly known as P+) is subject to change but aims to maintain some level of compatibility with previous versions.
