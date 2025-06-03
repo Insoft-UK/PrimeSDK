@@ -131,7 +131,7 @@ bool Preprocessor::isAngleInclude(const std::string &str)
     return i < str.size() && str[i] == '>';
 }
 
-std::string Preprocessor::extractIncludeFilename(const std::string &str)
+std::filesystem::path Preprocessor::extractIncludePath(const std::string &str)
 {
     size_t i = 0;
 
@@ -161,7 +161,10 @@ std::string Preprocessor::extractIncludeFilename(const std::string &str)
 
     if (i >= str.size()) return ""; // No closing delimiter
 
-    return str.substr(start, i - start);
+    std::filesystem::path path;
+    path = str.substr(start, i - start);
+    
+    return path;
 }
 
 bool Preprocessor::parse(std::string &str)

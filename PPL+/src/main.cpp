@@ -64,39 +64,25 @@ using ppl_plus::Calc;
 using ppl_plus::Dictionary;
 using ppl_plus::Preprocessor;
 
-using std::cout;
-using std::string;
-using std::ofstream;
-using std::ifstream;
-using std::regex;
-using std::smatch;
+
 using std::regex_replace;
 using std::sregex_iterator;
 using std::sregex_token_iterator;
-using std::to_string;
-using std::fixed;
-using std::ios;
-using std::setprecision;
-using std::istringstream;
-using std::streampos;
-using std::getenv;
-using std::vector;
-using std::stringstream;
 
 namespace fs = std::filesystem;
 namespace rc = std::regex_constants;
 
-void translatePPLPlusToPPL(const fs::path& path, ofstream& outfile);
+void translatePPLPlusToPPL(const fs::path& path, std::ofstream& outfile);
 
 static Preprocessor preprocessor = Preprocessor();
 static Strings strings = Strings();
-static string assignment = "=";
-static vector<string> operators = { ":=", "==", "▶", "≥", "≤", "≠", "-", "+", "*", "/" };
+static std::string assignment = "=";
+static std::vector<std::string> operators = { ":=", "==", "▶", "≥", "≤", "≠", "-", "+", "*", "/" };
 
 // MARK: - Extensions
 
 namespace std::filesystem {
-    std::string expand_tilde(const string& path) {
+    std::string expand_tilde(const std::string& path) {
         if (!path.empty() && path.starts_with("~")) {
 #ifdef _WIN32
             const char* home = std::getenv("USERPROFILE");
@@ -105,7 +91,7 @@ namespace std::filesystem {
 #endif
             
             if (home) {
-                return string(home) + path.substr(1);  // Replace '~' with $HOME
+                return std::string(home) + path.substr(1);  // Replace '~' with $HOME
             }
         }
         return path;  // return as-is if no tilde or no HOME
@@ -145,14 +131,74 @@ namespace std::filesystem {
 // MARK: - Other
 
 void terminator() {
-    cout << MessageType::CriticalError << "An internal pre-processing problem occurred. Please review the syntax before this point.\n";
+    std::cout << MessageType::CriticalError << "An internal pre-processing problem occurred. Please review the syntax before this point.\n";
     exit(0);
 }
 void (*old_terminate)() = std::set_terminate(terminator);
 
+/**
+ * @brief Cleans up whitespace in a string while preserving word separation.
+ *
+ * This function removes all unnecessary whitespace characters (spaces, tabs, newlines, etc.)
+ * from the input string. It ensures that only a single space is inserted between consecutive
+ * word characters (letters, digits, or underscores) when needed to maintain logical separation.
+ *
+ * Non-word characters (such as punctuation) are not separated by spaces, and leading/trailing
+ * whitespace is removed.
+ *
+ * @param input The input string to be cleaned.
+ * @return A new string with cleaned and normalized whitespace.
+ *
+ * @note This is useful for normalizing input for parsers, code formatters, or text display
+ *       where compact and readable word separation is desired.
+ */
+std::string cleanWhitespace(const std::string& input) {
+    std::string output;
+    char current = '\0';
+    
+    auto iswordc = [](char c) {
+        return std::isalnum(static_cast<unsigned char>(c)) || c == '_';
+    };
+    
+    for (size_t i = 0; i < input.length(); i++) {
+        if (std::isspace(static_cast<unsigned char>(current))) {
+            if(iswordc(input[i]) && !output.empty() && iswordc(output.back())) {
+                output += ' ';
+            }
+        }
+        current = input[i];
 
-string replace_operators(const string& input) {
-    string output;
+        if (std::isspace(static_cast<unsigned char>(current))) {
+            continue;
+        }
+        output += current;
+    }
+    
+
+    return output;
+}
+
+/**
+ * @brief Replaces common two-character operators with their symbolic Unicode equivalents.
+ *
+ * This function scans the input string and replaces specific two-character operator
+ * sequences with their corresponding Unicode symbols:
+ *
+ * - `>=` becomes `≥`
+ * - `<=` becomes `≤`
+ * - `=>` becomes `▶`
+ * - `<>` becomes `≠`
+ *
+ * All other characters are copied as-is.
+ *
+ * @param input The input string potentially containing ASCII operator sequences.
+ * @return A new string with supported operators replaced by Unicode symbols.
+ *
+ * @note Useful for rendering more readable mathematical or logical expressions in UI output,
+ *       documents, or educational tools.
+ */
+std::string replaceOperators(const std::string& input) {
+    std::string output;
     output.reserve(input.size());  // Reserve space to reduce reallocations
 
     for (std::size_t i = 0; i < input.size(); ++i) {
@@ -187,8 +233,27 @@ string replace_operators(const string& input) {
     return output;
 }
 
-string expand_assignment_equals(const string& input) {
-    string output;
+/**
+ * @brief Expands single `=` characters into `==` for comparison, preserving special cases.
+ *
+ * This function processes an input string and replaces single `=` characters with `==`,
+ * which is commonly used for comparison in many programming languages. It handles the
+ * following exceptions:
+ *
+ * - `:=` (colon-equals) is left unchanged, as it may represent assignment in some languages.
+ * - `==` is preserved and not duplicated.
+ *
+ * This is useful for transforming assignment-style expressions into comparison-style
+ * expressions for parsing or analysis.
+ *
+ * @param input The input string containing `=` characters.
+ * @return A new string with applicable `=` characters expanded to `==`.
+ *
+ * @note This function assumes a language syntax where `==` is the comparison operator and
+ *       `:=` has a distinct meaning. It does not perform full syntax validation.
+ */
+std::string expandAssignmentEquals(const std::string& input) {
+    std::string output;
     output.reserve(input.size() * 2);  // Worst-case growth
 
     for (size_t i = 0; i < input.size(); ++i) {
@@ -213,8 +278,25 @@ string expand_assignment_equals(const string& input) {
     return output;
 }
 
-string convert_assign_to_colon_equal(const string& input) {
-    string output;
+/**
+ * @brief Converts single assignment `=` operators to `:=`, preserving comparison and existing assignment syntax.
+ *
+ * This function scans the input string and replaces standalone `=` characters with `:=`,
+ * often used in languages like Pascal or certain calculators to represent assignment.
+ * It carefully handles the following cases:
+ *
+ * - `==` (equality comparison) is preserved and not modified.
+ * - `:=` (already valid assignment syntax) is left unchanged.
+ * - Any other standalone `=` is converted to `:=`.
+ *
+ * @param input The input string potentially containing assignment or comparison operators.
+ * @return A new string with appropriate `=` characters converted to `:=`.
+ *
+ * @note Useful for translating code or expressions from languages that use `=` for assignment
+ *       into those that use `:=`, while avoiding accidental changes to comparison or already-valid syntax.
+ */
+std::string convert_assign_to_colon_equal(const std::string& input) {
+    std::string output;
     output.reserve(input.size() * 2);  // Conservative buffer size
 
     for (size_t i = 0; i < input.size(); ++i) {
@@ -240,17 +322,36 @@ string convert_assign_to_colon_equal(const string& input) {
     return output;
 }
 
-
-string normalize_operators(const string& input) {
+/**
+ * @brief Normalizes spacing around operators in a string.
+ *
+ * This function ensures that operators from a predefined list are properly spaced
+ * within the input string. It scans the string, identifies any known operators,
+ * and inserts spaces before and after them if needed to ensure consistent formatting.
+ *
+ * After operator normalization, the function also removes any extra or redundant
+ * whitespace, ensuring clean and readable output.
+ *
+ * @param input The input string that may contain operators with inconsistent spacing.
+ * @return A new string with operators consistently spaced and extraneous whitespace removed.
+ *
+ * @note The function relies on a global or external list of `operators` (std::vector<std::string>)
+ *       to define which sequences are considered operators.
+ *
+ * Example usage:
+ * // Given operators = { "+", "-", "*", "/", "==", ">=", "<=", "=" };
+ * normalizeOperators("a+  b==c") returns "a + b == c"
+ */
+std::string normalizeOperators(const std::string& input) {
     // List of all operators to normalize
         
-        string result;
+        std::string result;
         size_t i = 0;
 
         while (i < input.size()) {
             bool matched = false;
 
-            for (const string& op : operators) {
+            for (const std::string& op : operators) {
                 if (input.compare(i, op.size(), op) == 0) {
                     if (!result.empty() && result.back() != ' ') result += ' ';
                     result += op;
@@ -267,8 +368,8 @@ string normalize_operators(const string& input) {
         }
 
         // Final cleanup: collapse multiple spaces
-        istringstream iss(result);
-        string word, cleaned;
+        std::istringstream iss(result);
+        std::string word, cleaned;
         while (iss >> word) {
             if (!cleaned.empty()) cleaned += ' ';
             cleaned += word;
@@ -277,7 +378,29 @@ string normalize_operators(const string& input) {
         return cleaned;
 }
 
-string fix_unary_minus(const string& input) {
+/**
+ * @brief Inserts a space after operator characters when followed by a unary minus,
+ *        except in the case of the assignment operator `:=`.
+ *
+ * This function scans the input string and ensures that a space is inserted between
+ * consecutive operator characters when the second is a minus (`-`). This helps
+ * disambiguate unary minus usage in expressions like `a*-b`, transforming it to `a* -b`.
+ *
+ * A special exception is made for the `:=` operator, which is preserved without
+ * inserting a space.
+ *
+ * @param input The input string potentially containing unary minus after operators.
+ * @return A new string with appropriate spaces inserted to clarify unary minus usage.
+ *
+ * @note This function assumes a fixed set of operator characters: `+`, `-`, `*`, `/`, `=`, and `:`.
+ *       It is particularly useful for preprocessing mathematical expressions to improve readability
+ *       or prepare them for parsing.
+ *
+ * Example usage:
+ * fixUnaryMinus("a*-b") returns "a* -b"
+ * fixUnaryMinus("x:=y") returns "x:=y"
+ */
+std::string fixUnaryMinus(const std::string& input) {
     const std::string ops = "+-*/=:";
 
     // We only need to check ":=" pair, no need to store more.
@@ -309,10 +432,27 @@ string fix_unary_minus(const string& input) {
     return output;
 }
 
-vector<string> split_commas(const string& input) {
-    vector<string> result;
-    stringstream ss(input);
-    string token;
+/**
+ * @brief Splits a string into a vector of substrings using commas as delimiters.
+ *
+ * This function tokenizes the input string based on commas (`,`) and returns
+ * a vector containing each separated segment as an individual string.
+ * Empty tokens between consecutive commas are preserved.
+ *
+ * @param input The input string to be split.
+ * @return A vector of substrings split at each comma.
+ *
+ * @note Leading or trailing whitespace within tokens is not trimmed.
+ *       Use additional processing if whitespace cleanup is needed.
+ *
+ * Example usage:
+ * splitCommas("a,b,c") returns {"a", "b", "c"}
+ * splitCommas("one,,three") returns {"one", "", "three"}
+ */
+std::vector<std::string> splitCommas(const std::string& input) {
+    std::vector<std::string> result;
+    std::stringstream ss(input);
+    std::string token;
 
     while (getline(ss, token, ',')) {
         result.push_back(token);
@@ -321,9 +461,31 @@ vector<string> split_commas(const string& input) {
     return result;
 }
 
-vector<string> split_escaped_commas(const string& input) {
-    vector<string> result;
-    string token;
+/**
+ * @brief Splits a string into substrings at commas, supporting escaped commas.
+ *
+ * This function tokenizes the input string by commas (`,`) while allowing
+ * commas to be escaped using a backslash (`\\`). Escaped commas are treated
+ * as literal characters and are included in the resulting token rather than
+ * splitting the string at that point.
+ *
+ * - A sequence like `\\,` becomes a literal comma in the result.
+ * - Other escape sequences (e.g. `\\n`) are preserved with the backslash.
+ *
+ * @param input The input string to be split.
+ * @return A vector of strings split on unescaped commas.
+ *
+ * @note This function does not handle more advanced escaping rules like double escaping (`\\\\,`),
+ *       and does not trim whitespace around tokens.
+ *
+ * Example usage:
+ * splitEscapedCommas("one,two,three") returns {"one", "two", "three"}
+ * splitEscapedCommas("one\\,with\\,commas,two") returns {"one,with,commas", "two"}
+ * splitEscapedCommas("escaped\\\\slash,test") returns {"escaped\\slash", "test"}
+ */
+std::vector<std::string> splitEscapedCommas(const std::string& input) {
+    std::vector<std::string> result;
+    std::string token;
     bool escape = false;
 
     for (size_t i = 0; i < input.size(); ++i) {
@@ -355,8 +517,30 @@ vector<string> split_escaped_commas(const string& input) {
     return result;
 }
 
-string process_escapes(const string& input) {
-    string result;
+/**
+ * @brief Processes escape sequences in a string and replaces them with corresponding characters.
+ *
+ * This function scans the input string for backslash-prefixed escape sequences and replaces
+ * them with their corresponding characters or strings. Supported escape sequences include:
+ *
+ * - `\\n` → newline character (`\n`)
+ * - `\\s` → space (`' '`)
+ * - `\\t` → tab-like spacing (4 spaces)
+ * - `\\i` → indentation (number of spaces defined by `INDENT_WIDTH`)
+ *
+ * Unrecognized escape sequences are preserved as-is (i.e., the backslash and the following character).
+ *
+ * @param input The input string potentially containing escape sequences.
+ * @return A new string with escape sequences expanded into their corresponding characters.
+ *
+ * @note The `INDENT_WIDTH` constant must be defined elsewhere in the code to specify how many spaces `\\i` produces.
+ *
+ * Example usage:
+ * processEscapes("Line\\nIndented\\iText") might return:
+ * "Line\nIndented    Text" (with spaces determined by `INDENT_WIDTH`)
+ */
+std::string processEscapes(const std::string& input) {
+    std::string result;
     for (size_t i = 0; i < input.length(); ++i) {
         if (input[i] != '\\' || i + 1 == input.length()) {
             result += input[i];
@@ -374,12 +558,12 @@ string process_escapes(const string& input) {
             continue;
         }
         if (next == 't') {
-            result += (string(4, ' '));
+            result += (std::string(4, ' '));
             ++i;
             continue;
         }
         if (next == 'i') {
-            result += (string(INDENT_WIDTH, ' '));
+            result += (std::string(INDENT_WIDTH, ' '));
             ++i;
             continue;
         }
@@ -391,23 +575,73 @@ string process_escapes(const string& input) {
 }
 
 
-string to_lower(const string& s) {
+/**
+ * @brief Converts all characters in a string to lowercase.
+ *
+ * This function takes an input string and returns a new string
+ * with every character converted to its lowercase equivalent,
+ * using the standard C locale rules.
+ *
+ * @param s The input string to convert.
+ * @return A new string with all characters in lowercase.
+ *
+ * @note The conversion uses `std::tolower` with `unsigned char` casting to
+ *       avoid undefined behavior for negative `char` values.
+ *
+ * Example usage:
+ * to_lower("Hello World!") returns "hello world!"
+ */
+std::string to_lower(const std::string& s) {
     std::string result = s;
     std::transform(result.begin(), result.end(), result.begin(),
                    [](unsigned char c) { return std::tolower(c); });
     return result;
 }
 
-string to_upper(const string& s) {
+/**
+ * @brief Converts all characters in a string to uppercase.
+ *
+ * This function takes an input string and returns a new string
+ * with every character converted to its uppercase equivalent,
+ * using the standard C locale rules.
+ *
+ * @param s The input string to convert.
+ * @return A new string with all characters in uppercase.
+ *
+ * @note The conversion uses `std::toupper` with `unsigned char` casting to
+ *       avoid undefined behavior for negative `char` values.
+ *
+ * Example usage:
+ * to_upper("Hello World!") returns "HELLO WORLD!"
+ */
+std::string to_upper(const std::string& s) {
     std::string result = s;
     std::transform(result.begin(), result.end(), result.begin(),
                    [](unsigned char c) { return std::toupper(c); });
     return result;
 }
 
-string replace_words(const string& input, const vector<std::string>& words, const string& replacement) {
+/**
+ * @brief Replaces specified words in a string with a given replacement string.
+ *
+ * This function scans the input string and replaces all occurrences of words
+ * found in the provided list (case-insensitive) with the specified replacement string.
+ * Words are defined as sequences of alphabetic characters and underscores (`_`).
+ * Non-word characters are preserved as-is.
+ *
+ * @param input The input string to process.
+ * @param words A vector of words to be replaced (case-insensitive).
+ * @param replacement The string to replace each matched word with.
+ * @return A new string with the specified words replaced.
+ *
+ * @note Matching is case-insensitive. The function treats underscores as part of words.
+ *
+ * @example
+ * replace_words("Hello world_123", {"world_123"}, "Earth") returns "Hello Earth"
+ */
+std::string replace_words(const std::string& input, const std::vector<std::string>& words, const std::string& replacement) {
     // Create lowercase word set
-    std::unordered_set<string> wordSet;
+    std::unordered_set<std::string> wordSet;
     for (const auto& w : words) {
         wordSet.insert(to_lower(w));
     }
@@ -427,8 +661,8 @@ string replace_words(const string& input, const vector<std::string>& words, cons
             ++i;
         }
         
-        string word = input.substr(start, i - start);
-        string lowerWord = to_lower(word);
+        std::string word = input.substr(start, i - start);
+        std::string lowerWord = to_lower(word);
         
         if (wordSet.count(lowerWord)) {
             result += replacement;
@@ -441,14 +675,31 @@ string replace_words(const string& input, const vector<std::string>& words, cons
     return result;
 }
 
-string capitalize_words(const string& input, const std::unordered_set<std::string>& words) {
+/**
+ * @brief Capitalizes specified words in a string by converting them to uppercase.
+ *
+ * This function scans the input string and converts to uppercase all occurrences
+ * of words found in the provided set (case-insensitive). Words are defined as
+ * sequences of alphabetic characters and underscores (`_`). Non-word characters
+ * are preserved as-is.
+ *
+ * @param input The input string to process.
+ * @param words An unordered set of words to capitalize (case-insensitive).
+ * @return A new string with the specified words converted to uppercase.
+ *
+ * @note Matching is case-insensitive. The function treats underscores as part of words.
+ *
+ * Example usage:
+ * capitalizeWords("hello world_test", {"world_test"}) returns "hello WORLD_TEST"
+ */
+std::string capitalizeWords(const std::string& input, const std::unordered_set<std::string>& words) {
     // Create lowercase word set
-    std::unordered_set<string> wordset;
+    std::unordered_set<std::string> wordset;
     for (const auto& w : words) {
         wordset.insert(to_lower(w));
     }
     
-    string result;
+    std::string result;
     size_t i = 0;
     
     while (i < input.size()) {
@@ -463,8 +714,8 @@ string capitalize_words(const string& input, const std::unordered_set<std::strin
             ++i;
         }
         
-        string word = input.substr(start, i - start);
-        string lowercase = to_lower(word);
+        std::string word = input.substr(start, i - start);
+        std::string lowercase = to_lower(word);
         
         if (wordset.count(lowercase)) {
             result += to_upper(lowercase);
@@ -477,6 +728,24 @@ string capitalize_words(const string& input, const std::unordered_set<std::strin
     return result;
 }
 
+/**
+ * @brief Inserts a single space after specified characters in a string.
+ *
+ * This function scans the input string and ensures that after every character
+ * found in the provided set, there is exactly one space inserted. If spaces
+ * already exist immediately after such characters, they are collapsed to a
+ * single space. If there is no space, one is added.
+ *
+ * @param input The input string to process.
+ * @param chars An unordered set of characters after which to insert a space.
+ * @return A new string with spaces inserted as specified.
+ *
+ * @note Existing whitespace sequences following the specified characters are
+ *       replaced with a single space.
+ *
+ * Example usage:
+ * insert_space_after_chars("a,b;c", {',', ';'}) returns "a, b; c"
+ */
 std::string insert_space_after_chars(const std::string& input, const std::unordered_set<char>& chars) {
     std::string output;
     size_t len = input.length();
@@ -506,6 +775,20 @@ std::string insert_space_after_chars(const std::string& input, const std::unorde
     return output;
 }
 
+/**
+ * @brief Inserts a space before a word that immediately follows a closing parenthesis without a space.
+ *
+ * This function scans the input string and inserts a space before any alphabetic character
+ * that directly follows a closing parenthesis `')'` when there is no space in between.
+ * This helps separate words that start immediately after a closing parenthesis.
+ *
+ * @param input The input string to process.
+ * @return A new string with spaces inserted before words following a closing parenthesis.
+ *
+ * Example usage:
+ * insert_space_before_word_after_closing_paren("foo(bar)baz") returns "foo(bar) baz"
+ * insert_space_before_word_after_closing_paren("foo(bar) baz") returns "foo(bar) baz"
+ */
 std::string insert_space_before_word_after_closing_paren(const std::string& input) {
     std::string output;
     size_t len = input.length();
@@ -527,49 +810,49 @@ std::string insert_space_before_word_after_closing_paren(const std::string& inpu
 }
 
 // MARK: - PPL+ To PPL Translater...
-void reformatPPLLine(string& str) {
-    regex re;
+void reformatPPLLine(std::string& str) {
+    std::regex re;
     
     Strings strings = Strings();
     strings.preserveStrings(str);
     
-    str = normalize_operators(str);
-    str = fix_unary_minus(str);
+    str = normalizeOperators(str);
+    str = fixUnaryMinus(str);
     str = insert_space_after_chars(str, {','});
     str = insert_space_before_word_after_closing_paren(str);
     
     if (Singleton::shared()->scopeDepth > 0) {
         try {
-            if (!regex_search(str, regex(R"(\b(BEGIN|IF|CASE|REPEAT|WHILE|FOR|ELSE|IFERR)\b)"))) {
-                str.insert(0, string(Singleton::shared()->scopeDepth * INDENT_WIDTH, ' '));
+            if (!regex_search(str, std::regex(R"(\b(BEGIN|IF|CASE|REPEAT|WHILE|FOR|ELSE|IFERR)\b)"))) {
+                str.insert(0, std::string(Singleton::shared()->scopeDepth * INDENT_WIDTH, ' '));
             } else {
-                str.insert(0, string((Singleton::shared()->scopeDepth - 1) * INDENT_WIDTH, ' '));
+                str.insert(0, std::string((Singleton::shared()->scopeDepth - 1) * INDENT_WIDTH, ' '));
             }
         }
         catch (...) {
-            cout << MessageType::CriticalError << "'" << str << "'\n";
+            std::cout << MessageType::CriticalError << "'" << str << "'\n";
             exit(0);
         }
         
         
-        re = regex(R"(^ *(THEN)\b)", rc::icase);
-        str = regex_replace(str, re, string((Singleton::shared()->scopeDepth - 1) * INDENT_WIDTH, ' ') + "$1");
+        re = std::regex(R"(^ *(THEN)\b)", rc::icase);
+        str = regex_replace(str, re, std::string((Singleton::shared()->scopeDepth - 1) * INDENT_WIDTH, ' ') + "$1");
         
       
-        if (regex_search(str, regex(R"(\bEND;$)"))) {
-            str = regex_replace(str, regex(R"(;(.+))"), ";\n" + string((Singleton::shared()->scopeDepth - 1) * INDENT_WIDTH, ' ') + "$1");
+        if (regex_search(str, std::regex(R"(\bEND;$)"))) {
+            str = regex_replace(str, std::regex(R"(;(.+))"), ";\n" + std::string((Singleton::shared()->scopeDepth - 1) * INDENT_WIDTH, ' ') + "$1");
         } else {
-            str = regex_replace(str, regex(R"(; *(.+))"), "; $1");
+            str = regex_replace(str, std::regex(R"(; *(.+))"), "; $1");
         }
     }
     
     if (Singleton::shared()->scopeDepth == 0) {
-        str = regex_replace(str, regex(R"(END;)"), "$0\n");
-        str = regex_replace(str, regex(R"(LOCAL )"), "");
+        str = regex_replace(str, std::regex(R"(END;)"), "$0\n");
+        str = regex_replace(str, std::regex(R"(LOCAL )"), "");
     }
     
     
-    str = regex_replace(str, regex(R"(([)};])([A-Z]))"), "$1 $2");
+    str = regex_replace(str, std::regex(R"(([)};])([A-Z]))"), "$1 $2");
     
     re = R"(([^a-zA-Z ])(BEGIN|END|RETURN|KILL|IF|THEN|ELSE|XOR|OR|AND|NOT|CASE|DEFAULT|IFERR|IFTE|FOR|FROM|STEP|DOWNTO|TO|DO|WHILE|REPEAT|UNTIL|BREAK|CONTINUE|EXPORT|CONST|LOCAL|KEY))";
     str = regex_replace(str, re, "$1 $2");
@@ -585,25 +868,24 @@ void reformatPPLLine(string& str) {
 }
 
 
-void translatePPLPlusLine(string& ln, ofstream& outfile) {
-    regex re;
-    smatch match;
-    ifstream infile;
-    
+std::string translatePPLPlusLine(const std::string& input, std::ofstream& outfile) {
+    std::regex re;
+    std::smatch match;
+    std::ifstream infile;
+    std::string output = input;
     
     // Remove any leading white spaces before or after.
-    trim(ln);
+    trim(output);
     
 
-    if (ln.empty()) {
-        ln = "";
-        return;
+    if (output.empty()) {
+        return output;
     }
     
-    if (ln.substr(0,2) == "//") {
-        ln = ln.insert(0, string(Singleton::shared()->scopeDepth * INDENT_WIDTH, ' '));
-        ln += '\n';
-        return;
+    if (output.substr(0,2) == "//") {
+        output = output.insert(0, std::string(Singleton::shared()->scopeDepth * INDENT_WIDTH, ' '));
+        output += '\n';
+        return output;
     }
     
 
@@ -618,59 +900,59 @@ void translatePPLPlusLine(string& ln, ofstream& outfile) {
      Subsequently, after parsing, any strings that have been blanked out can be
      restored to their original state.
      */
-    strings.preserveStrings(ln);
-    strings.blankOutStrings(ln);
+    strings.preserveStrings(output);
+    strings.blankOutStrings(output);
  
-    Singleton::shared()->comments.preserveComment(ln);
-    Singleton::shared()->comments.removeComment(ln);
+    Singleton::shared()->comments.preserveComment(output);
+    Singleton::shared()->comments.removeComment(output);
     
-    ln = clean_whitespace(ln);
+    output = cleanWhitespace(output);
 
     
-    if (preprocessor.parse(ln)) {
-        ln = "";
-        return;
+    if (preprocessor.parse(output)) {
+        output = "";
+        return output;
     }
     
-    ln = replace_operators(ln);
+    output = replaceOperators(output);
     
     // PPL by default uses := instead of C's = for assignment. Converting all = to PPL style :=
     if (assignment == "=") {
-        ln = convert_assign_to_colon_equal(ln);
+        output = convert_assign_to_colon_equal(output);
     } else {
-        ln = expand_assignment_equals(ln);
+        output = expandAssignmentEquals(output);
     }
     
-    ln = Singleton::shared()->aliases.resolveAllAliasesInText(ln);
+    output = Singleton::shared()->aliases.resolveAllAliasesInText(output);
     
     /*
      A code stack provides a convenient way to store code snippets
      that can be retrieved and used later.
      */
-    Singleton::shared()->codeStack.parse(ln);
+    Singleton::shared()->codeStack.parse(output);
 
     
-    if (Dictionary::isDictionaryDefinition(ln)) {
-        Dictionary::proccessDictionaryDefinition(ln);
-        Dictionary::removeDictionaryDefinition(ln);
+    if (Dictionary::isDictionaryDefinition(output)) {
+        Dictionary::proccessDictionaryDefinition(output);
+        Dictionary::removeDictionaryDefinition(output);
     }
-    if (ln.empty()) return;
+    if (output.empty()) return output;
     
     // Keywords
-    ln = capitalize_words(ln, {
+    output = capitalizeWords(output, {
         "begin", "end", "return", "kill", "if", "then", "else", "xor", "or", "and", "not",
         "case", "default", "iferr", "ifte", "for", "from", "step", "downto", "to", "do",
         "while", "repeat", "until", "break", "continue", "export", "const", "local", "key"
     });
     
-    ln = capitalize_words(ln, {"log", "cos", "sin", "tan", "ln", "min", "max"});
+    output = capitalizeWords(output, {"log", "cos", "sin", "tan", "ln", "min", "max"});
     
     
     
     //MARK: User Define Alias Parsing
     
     re = R"(^alias ([A-Za-z_]\w*(?:::[a-zA-Z]\w*)*):=([a-zA-Z→][\w→]*(?:\.[a-zA-Z→][\w→]*)*);$)";
-    if (regex_search(ln, match, re)) {
+    if (regex_search(output, match, re)) {
         Aliases::TIdentity identity;
         identity.identifier = match[1].str();
         identity.real = match[2].str();
@@ -678,24 +960,23 @@ void translatePPLPlusLine(string& ln, ofstream& outfile) {
         identity.scope = Aliases::Scope::Auto;
         
         Singleton::shared()->aliases.append(identity);
-        ln = "";
-        return;
+        output = "";
+        return output;
     }
     
-    //MARK: -
-    
+   
     
     re = R"(\b(BEGIN|IF|FOR|CASE|REPEAT|WHILE|IFERR)\b)";
-    for(auto it = sregex_iterator(ln.begin(), ln.end(), re); it != sregex_iterator(); ++it) {
+    for(auto it = sregex_iterator(output.begin(), output.end(), re); it != sregex_iterator(); ++it) {
         Singleton::shared()->increaseScopeDepth();
     }
     
     re = R"(\b(END|UNTIL)\b)";
-    for(auto it = sregex_iterator(ln.begin(), ln.end(), re); it != sregex_iterator(); ++it) {
+    for(auto it = sregex_iterator(output.begin(), output.end(), re); it != sregex_iterator(); ++it) {
         Singleton::shared()->decreaseScopeDepth();
         if (Singleton::shared()->scopeDepth == 0) {
             Singleton::shared()->aliases.removeAllOutOfScopeAliases();
-            ln += '\n';
+            output += '\n';
         }
        
         Singleton::shared()->regexp.removeAllOutOfScopeRegexps();
@@ -705,39 +986,41 @@ void translatePPLPlusLine(string& ln, ofstream& outfile) {
     if (Singleton::shared()->scopeDepth == 0) {
         re = R"(^ *(KS?A?_[A-Z\d][a-z]*) *$)";
         sregex_token_iterator it = sregex_token_iterator {
-            ln.begin(), ln.end(), re, {1}
+            output.begin(), output.end(), re, {1}
         };
         if (it != sregex_token_iterator()) {
-            string s = *it;
-            ln = "KEY " + s + "()";
+            std::string s = *it;
+            output = "KEY " + s + "()";
         }
     }
     
-    Singleton::shared()->autoname.parse(ln);
-    Alias::parse(ln);
-    Calc::parse(ln);
+    Singleton::shared()->autoname.parse(output);
+    Alias::parse(output);
+    Calc::parse(output);
     
-    reformatPPLLine(ln);
-    ln = process_escapes(ln);
+    reformatPPLLine(output);
+    output = processEscapes(output);
    
-    strings.restoreStrings(ln);
-    Singleton::shared()->comments.restoreComment(ln);
+    strings.restoreStrings(output);
+    Singleton::shared()->comments.restoreComment(output);
     
-    ln += '\n';
+    
+    output += '\n';
+    return output;
 }
 
 
 
 void loadRegexLib(const fs::path path, const bool verbose) {
-    string utf8;
-    ifstream infile;
+    std::string utf8;
+    std::ifstream infile;
     
     infile.open(path, std::ios::in);
     if (!infile.is_open()) {
         return;
     }
     
-    if (verbose) cout << "Library " << (path.filename() == ".base.re" ? "base" : path.stem()) << " successfully loaded.\n";
+    if (verbose) std::cout << "Library " << (path.filename() == ".base.re" ? "base" : path.stem()) << " successfully loaded.\n";
     
     while (getline(infile, utf8)) {
         utf8.insert(0, "regex ");
@@ -747,7 +1030,7 @@ void loadRegexLib(const fs::path path, const bool verbose) {
     infile.close();
 }
 
-void loadRegexLibs(const string path, const bool verbose) {
+void loadRegexLibs(const std::string path, const bool verbose) {
     loadRegexLib(path + "/.base.re", verbose);
     
     try {
@@ -764,19 +1047,19 @@ void loadRegexLibs(const string path, const bool verbose) {
 
 
 
-void embedPPLCode(const string& filepath, ofstream& os) {
-    ifstream is;
-    string str;
+void embedPPLCode(const std::string& filepath, std::ofstream& os) {
+    std::ifstream is;
+    std::string str;
     
     fs::path path = filepath;
-    is.open(filepath, ios::in);
+    is.open(filepath, std::ios::in);
     if (!is.is_open()) return;
     if (path.extension() == ".hpprgm" || path.extension() == ".prgm") {
         std::wstring wstr = hpprgm::load(filepath);
         
         if (!wstr.empty()) {
             str = utf::to_utf8(wstr);
-            str = regex_replace(str, regex(R"(^ *#pragma mode *\(.+\) *\n+)"), "");
+            str = regex_replace(str, std::regex(R"(^ *#pragma mode *\(.+\) *\n+)"), "");
             utf::write(str, os);
             is.close();
             return;
@@ -801,21 +1084,21 @@ enum BlockType
     BlockType_Python, BlockType_PPL, BlockType_PrimePlus
 };
 
-bool isPythonBlock(const string str) {
-    return str.find("#PYTHON") != string::npos;
+bool isPythonBlock(const std::string str) {
+    return str.find("#PYTHON") != std::string::npos;
 }
 
-bool isPPLBlock(const string str) {
-    return str.find("#PPL") != string::npos;
+bool isPPLBlock(const std::string str) {
+    return str.find("#PPL") != std::string::npos;
 }
 
-void processPPLBlock(ifstream& infile, ofstream& outfile) {
-    string str;
+void processPPLBlock(std::ifstream& infile, std::ofstream& outfile) {
+    std::string str;
     
     Singleton::shared()->incrementLineNumber();
     
     while(getline(infile, str)) {
-        if (str.find("#END") != string::npos) {
+        if (str.find("#END") != std::string::npos) {
             Singleton::shared()->incrementLineNumber();
             return;
         }
@@ -826,35 +1109,35 @@ void processPPLBlock(ifstream& infile, ofstream& outfile) {
     }
 }
 
-void processPythonBlock(ifstream& infile, ofstream& outfile, string& input) {
-    regex re;
-    string str;
+void processPythonBlock(std::ifstream& infile, std::ofstream& outfile, std::string& input) {
+    std::regex re;
+    std::string str;
     Aliases aliases;
     aliases.verbose = Singleton::shared()->aliases.verbose;
     
     Singleton::shared()->incrementLineNumber();
     
-    input = clean_whitespace(input);
+    input = cleanWhitespace(input);
 
     size_t start = input.find('(');
     size_t end = input.find(')', start);
         
-    if (start != string::npos && end != string::npos && end > start) {
-        vector<string> arguments = split_commas(input.substr(start + 1, end - start - 1));
+    if (start != std::string::npos && end != std::string::npos && end > start) {
+        std::vector<std::string> arguments = splitCommas(input.substr(start + 1, end - start - 1));
         input = "#PYTHON (";
-        int index = 0;
+        int index = 0, n = 0;
         
         Aliases::TIdentity identity = {
             .type = Aliases::Type::Argument
         };
-        for (const string& argument : arguments) {
+        for (const std::string& argument : arguments) {
             if (index++) input.append(",");
             start = argument.find(':');
             
-            if (start != string::npos) {
+            if (start != std::string::npos) {
                 input.append(argument.substr(0, start));
                 identity.identifier = argument.substr(start + 1, argument.length() - start - 1);
-                identity.real = "argv[" + to_string(index) + "]";
+                identity.real = "argv[" + std::to_string(++n) + "]";
                 aliases.append(identity);
                 continue;
             }
@@ -865,10 +1148,10 @@ void processPythonBlock(ifstream& infile, ofstream& outfile, string& input) {
         
     
     utf::write(input + '\n', outfile);
-    smatch match;
+    std::smatch match;
 
     while(getline(infile, str)) {
-        if (str.find("#END") != string::npos) {
+        if (str.find("#END") != std::string::npos) {
             utf::write("#END\n", outfile);
             Singleton::shared()->incrementLineNumber();
             return;
@@ -896,19 +1179,20 @@ void processPythonBlock(ifstream& infile, ofstream& outfile, string& input) {
     }
 }
 
-void translatePPLPlusToPPL(const fs::path& path, ofstream& outfile) {
+void translatePPLPlusToPPL(const fs::path& path, std::ofstream& outfile) {
     Singleton& singleton = *Singleton::shared();
-    ifstream infile;
-    regex re;
-    string input;
-    string str;
-    smatch match;
+    std::ifstream infile;
+    std::regex re;
+    std::string input;
+//    std::string str;
+    std::string output;
+    std::smatch match;
 
     bool pragma = false;
     
     singleton.pushPath(path);
     
-    infile.open(path,ios::in);
+    infile.open(path,std::ios::in);
     if (!infile.is_open()) {
         return;
     }
@@ -921,7 +1205,7 @@ void translatePPLPlusToPPL(const fs::path& path, ofstream& outfile) {
         if (!input.empty()) {
             while (input.at(input.length() - 1) == '\\' && !input.empty()) {
                 input.resize(input.length() - 1);
-                string s;
+                std::string s;
                 getline(infile, s);
                 input.append(s);
                 Singleton::shared()->incrementLineNumber();
@@ -931,7 +1215,7 @@ void translatePPLPlusToPPL(const fs::path& path, ofstream& outfile) {
         
         input = ppl_plus::Comments().removeTripleSlashComment(input);
         
-        if (input.find("#EXIT") != string::npos) {
+        if (input.find("#EXIT") != std::string::npos) {
             break;
         }
         
@@ -952,19 +1236,19 @@ void translatePPLPlusToPPL(const fs::path& path, ofstream& outfile) {
         }
         
         // Handle `#pragma mode` for PPL+
-        if (input.find("#pragma mode") != string::npos) {
+        if (input.find("#pragma mode") != std::string::npos) {
             if (pragma) {
                 Singleton::shared()->incrementLineNumber();
                 continue;
             }
             pragma = true;
             re = R"(([a-zA-Z]\w*)\(([^()]*)\))";
-            string s = input;
+            std::string s = input;
             input = "#pragma mode( ";
             for(auto it = sregex_iterator(s.begin(), s.end(), re); it != sregex_iterator(); ++it) {
                 if (it->str(1) == "assignment") {
                     if (it->str(2) != ":=" && it->str(2) != "=") {
-                        cout << MessageType::Warning << "#pragma mode: for '" << it->str() << "' invalid.\n";
+                        std::cout << MessageType::Warning << "#pragma mode: for '" << it->str() << "' invalid.\n";
                     }
                     if (it->str(2) == ":=") assignment = ":=";
                     if (it->str(2) == "=") assignment = "=";
@@ -975,7 +1259,7 @@ void translatePPLPlusToPPL(const fs::path& path, ofstream& outfile) {
                     continue;
                 }
                 if (it->str(1) == "operators") {
-                    operators = split_escaped_commas(clean_whitespace(it->str(2)));
+                    operators = splitEscapedCommas(cleanWhitespace(it->str(2)));
                     continue;
                 }
                 input.append(it->str() + " ");
@@ -991,45 +1275,45 @@ void translatePPLPlusToPPL(const fs::path& path, ofstream& outfile) {
         if (preprocessor.isQuotedInclude(input)) {
             Singleton::shared()->incrementLineNumber();
             
-            string filename = preprocessor.extractIncludeFilename(input);
-            if (fs::path(filename).parent_path().empty() && fs::exists(filename) == false) {
-                filename = singleton.getMainSourceDir().string() + "/" + filename;
+            std::filesystem::path path = preprocessor.extractIncludePath(input);
+            if (path.parent_path().empty() && fs::exists(path) == false) {
+                path = singleton.getMainSourceDir().string() + "/" + path.filename().string();
             }
-            if (fs::path(filename).extension() == ".hpprgm" || fs::path(filename).extension() == ".prgm") {
-                embedPPLCode(filename, outfile);
+            if (path.extension() == ".hpprgm" || path.extension() == ".prgm") {
+                embedPPLCode(path.string(), outfile);
                 continue;
             }
-            if (!(fs::exists(filename))) {
-                cout << MessageType::Verbose << fs::path(filename).filename() << " file not found\n";
+            if (!(fs::exists(path))) {
+                std::cout << MessageType::Verbose << path.filename() << " file not found\n";
             } else {
-                translatePPLPlusToPPL(filename, outfile);
+                translatePPLPlusToPPL(path.string(), outfile);
             }
             continue;
         }
         
         if (preprocessor.isAngleInclude(input)) {
             Singleton::shared()->incrementLineNumber();
-            string filename = preprocessor.extractIncludeFilename(input);
-            if (fs::path(filename).extension().empty()) {
-                filename.append(".prgm+");
+            std::filesystem::path path = preprocessor.extractIncludePath(input);
+            if (path.extension().empty()) {
+                path.replace_extension(".prgm+");
             }
             for (fs::path systemIncludePath : preprocessor.systemIncludePath) {
-                if (fs::exists(systemIncludePath.string() + "/" + filename)) {
-                    filename = systemIncludePath.string() + "/" + filename;
+                if (fs::exists(systemIncludePath.string() + "/" + path.filename().string())) {
+                    path = systemIncludePath.string() + "/" + path.filename().string();
                     break;
                 }
             }
-            if (!(fs::exists(filename))) {
-                cout << MessageType::Verbose << fs::path(filename).filename() << " file not found\n";
+            if (!(fs::exists(path))) {
+                std::cout << MessageType::Verbose << path.filename() << " file not found\n";
             } else {
-                translatePPLPlusToPPL(filename, outfile);
+                translatePPLPlusToPPL(path.string(), outfile);
             }
             continue;
         }
         
         
         if (Singleton::shared()->regexp.parse(input)) {
-            input = regex_replace(input, regex(R"(^ *\bregex +([@<>=≠≤≥~])?`([^`]*)`(i)? *(.*)$)"), "");
+            input = regex_replace(input, std::regex(R"(^ *\bregex +([@<>=≠≤≥~])?`([^`]*)`(i)? *(.*)$)"), "");
         }
         
         Singleton::shared()->regexp.resolveAllRegularExpression(input);
@@ -1049,25 +1333,25 @@ void translatePPLPlusToPPL(const fs::path& path, ofstream& outfile) {
          the reformatting stage of PPL code.
          */
         
-        input = regex_replace(input, regex(R"(\b(THEN|IFERR|REPEAT)\b)", rc::icase), "$1\n");
-        input = regex_replace(input, regex(R"((; *)(THEN|UNTIL)\b)", rc::icase), "$1\n$2");
-        input = regex_replace(input, regex(R"(; *\b(ELSE)\b)", rc::icase), ";\n$1\n");
-        input = regex_replace(input, regex(R"(; *(END|UNTIL|ELSE|LOCAL|CONST)\b;)", rc::icase), ";\n$1;");
-        input = regex_replace(input, regex(R"((.+)\bBEGIN\b)", rc::icase), "$1\nBEGIN");
+        input = regex_replace(input, std::regex(R"(\b(THEN|IFERR|REPEAT)\b)", rc::icase), "$1\n");
+        input = regex_replace(input, std::regex(R"((; *)(THEN|UNTIL)\b)", rc::icase), "$1\n$2");
+        input = regex_replace(input, std::regex(R"(; *\b(ELSE)\b)", rc::icase), ";\n$1\n");
+        input = regex_replace(input, std::regex(R"(; *(END|UNTIL|ELSE|LOCAL|CONST)\b;)", rc::icase), ";\n$1;");
+        input = regex_replace(input, std::regex(R"((.+)\bBEGIN\b)", rc::icase), "$1\nBEGIN");
         
         
-        istringstream iss;
+        std::istringstream iss;
         iss.str(input);
+        std::string str;
         
         while(getline(iss, str)) {
-            translatePPLPlusLine(str, outfile);
-            utf::write(str, outfile);
+            output.append(translatePPLPlusLine(str, outfile));
         }
-        
         
         Singleton::shared()->incrementLineNumber();
     }
     
+    utf::write(output, outfile);
     
     infile.close();
     singleton.popPath();
@@ -1077,7 +1361,7 @@ void translatePPLPlusToPPL(const fs::path& path, ofstream& outfile) {
 // MARK: - Command Line
 void version(void) {
     using namespace std;
-    cout
+    std::cout
     << "Copyright (C) 2023-" << YEAR << " Insoft. All rights reserved.\n"
     << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n"
     << "Built on: " << DATE << "\n"
@@ -1086,13 +1370,13 @@ void version(void) {
 }
 
 void error(void) {
-    cout << COMMAND_NAME << ": try '" << COMMAND_NAME << " --help' for more information\n";
+    std::cout << COMMAND_NAME << ": try '" << COMMAND_NAME << " --help' for more information\n";
     exit(0);
 }
 
 void info(void) {
     using namespace std;
-    cout
+    std::cout
     << "          ***********     \n"
     << "        ************      \n"
     << "      ************        \n"
@@ -1108,12 +1392,12 @@ void info(void) {
     << "      ************        \n"
     << "    ************          \n\n"
     << "Copyright (C) 2023-" << YEAR << " Insoft. All rights reserved.\n"
-    << "Insoft PPL+" << string(YEAR).substr(2) << " Pre-Processor for PPL\n\n";
+    << "Insoft PPL+" << std::string(YEAR).substr(2) << " Pre-Processor for PPL\n\n";
 }
 
 void help(void) {
     using namespace std;
-    cout
+    std::cout
     << "Copyright (C) 2023-" << YEAR << " Insoft. All rights reserved.\n"
     << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n"
     << "\n"
@@ -1138,7 +1422,7 @@ void help(void) {
 // MARK: - Main
 int main(int argc, char **argv) {
     
-    string in_filename, out_filename;
+    std::string in_filename, out_filename;
     
     if (argc == 1) {
         error();
@@ -1149,7 +1433,7 @@ int main(int argc, char **argv) {
     bool showpath = false;
     
     
-    string args(argv[0]);
+    std::string args(argv[0]);
     
     for (int n = 1; n < argc; n++) {
         args = argv[n];
@@ -1182,10 +1466,10 @@ int main(int argc, char **argv) {
         
         
         if (args.starts_with("-v=")) {
-            if (args.find("a") != string::npos) Singleton::shared()->aliases.verbose = true;
-            if (args.find("p") != string::npos) preprocessor.verbose = true;
-            if (args.find("r") != string::npos) Singleton::shared()->regexp.verbose = true;
-            if (args.find("l") != string::npos) verbose = true;
+            if (args.find("a") != std::string::npos) Singleton::shared()->aliases.verbose = true;
+            if (args.find("p") != std::string::npos) preprocessor.verbose = true;
+            if (args.find("r") != std::string::npos) Singleton::shared()->regexp.verbose = true;
+            if (args.find("l") != std::string::npos) verbose = true;
                 
             continue;
         }
@@ -1201,7 +1485,7 @@ int main(int argc, char **argv) {
         }
         
         in_filename = fs::expand_tilde(argv[n]);
-        regex re(R"(.\w*$)");
+        std::regex re(R"(.\w*$)");
     }
     
     
@@ -1224,8 +1508,8 @@ int main(int argc, char **argv) {
     info();
     
     
-    ofstream outfile;
-    outfile.open(out_filename, ios::out | ios::binary);
+    std::ofstream outfile;
+    outfile.open(out_filename, std::ios::out | std::ios::binary);
     if(!outfile.is_open())
     {
         error();
@@ -1237,7 +1521,7 @@ int main(int argc, char **argv) {
         outfile.put(0xFF);
         outfile.put(0xFE);
     } else {
-        outfile.seekp(20, ios::beg);
+        outfile.seekp(20, std::ios::beg);
     }
     
       
@@ -1245,7 +1529,7 @@ int main(int argc, char **argv) {
     // Start measuring time
     Timer timer;
     
-    string str;
+    std::string str;
     
     str = "#define __pplplus";
     preprocessor.parse(str);
@@ -1253,10 +1537,10 @@ int main(int argc, char **argv) {
     str = R"(#define __LIST_LIMIT 10000)";
     preprocessor.parse(str);
     
-    str = R"(#define __VERSION )" + to_string(NUMERIC_BUILD / 100);
+    str = R"(#define __VERSION )" + std::to_string(NUMERIC_BUILD / 100);
     preprocessor.parse(str);
     
-    str = R"(#define __NUMERIC_BUILD )" + to_string(NUMERIC_BUILD);
+    str = R"(#define __NUMERIC_BUILD )" + std::to_string(NUMERIC_BUILD);
     preprocessor.parse(str);
     
 #ifdef DEBUG
@@ -1270,13 +1554,13 @@ int main(int argc, char **argv) {
     
     if (fs::path(out_filename).extension() == ".hpprgm") {
         // Get the current file size.
-        streampos currentPos = outfile.tellp();
+        std::streampos currentPos = outfile.tellp();
         
         // Code size will be the current filesize - the header size + the two aditional bytes.
         uint32_t codeSize = static_cast<uint32_t>(currentPos) - 20 + 2;
 
         // Seek to the beginning to write the header.
-        outfile.seekp(0, ios::beg);
+        outfile.seekp(0, std::ios::beg);
 
         // HEADER
         /**
@@ -1310,14 +1594,14 @@ int main(int argc, char **argv) {
         /**
          0x0004-0x----: Code in UTF-16 LE until 00 00
          */
-        outfile.seekp(0, ios::end);
+        outfile.seekp(0, std::ios::end);
         outfile.put(0x00);
         outfile.put(0x00);
     }
     outfile.close();
     
     if (hasErrors() == true) {
-        cout << ANSI::Red << "ERRORS!" << ANSI::Default << "\n";
+        std::cout << ANSI::Red << "ERRORS!" << ANSI::Default << "\n";
         remove(out_filename.c_str());
         return 0;
     }
@@ -1327,18 +1611,18 @@ int main(int argc, char **argv) {
     
     // Display elasps time in secononds.
     if (elapsed_time / 1e9 < 1.0) {
-        cout << "Completed in " << fixed << setprecision(2) << elapsed_time / 1e6 << " milliseconds\n";
+        std::cout << "Completed in " << std::fixed << std::setprecision(2) << elapsed_time / 1e6 << " milliseconds\n";
     } else {
-        cout << "Completed in " << fixed << setprecision(2) << elapsed_time / 1e9 << " seconds\n";
+        std::cout << "Completed in " << std::fixed << std::setprecision(2) << elapsed_time / 1e9 << " seconds\n";
     }
     if (fs::path(out_filename).extension() != ".hpprgm")
-        cout << "UTF-16LE file ";
+        std::cout << "UTF-16LE file ";
     else
-        cout << "File ";
+        std::cout << "File ";
     if (showpath)
-        cout << "at \"" << out_filename << "\" succefuly created.\n";
+        std::cout << "at \"" << out_filename << "\" succefuly created.\n";
     else
-        cout << fs::path(out_filename).filename() << " succefuly created.\n";
+        std::cout << fs::path(out_filename).filename() << " succefuly created.\n";
             
     return 0;
 }

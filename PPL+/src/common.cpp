@@ -123,33 +123,7 @@ int countLeadingCharacters(const std::string &str, const char character) {
 
 
 
-std::string clean_whitespace(const std::string& input) {
-    std::string output;
-    char current = '\0';
-    
-    auto iswordc = [](char c) {
-        return std::isalnum(static_cast<unsigned char>(c)) || c == '_';
-    };
-    
-    for (size_t i = 0; i < input.length(); i++) {
-        if (std::isspace(static_cast<unsigned char>(current))) {
-            if(iswordc(input[i]) && !output.empty() && iswordc(output.back())) {
-                output += ' ';
-            }
-        }
-        current = input[i];
-
-        if (std::isspace(static_cast<unsigned char>(current))) {
-            continue;
-        }
-        output += current;
-    }
-    
-
-    return output;
-}
-
-std::string normalize_whitespace(const std::string& input) {
+std::string normalizeWhitespace(const std::string& input) {
     std::string output;
     output.reserve(input.size());  // Optimize memory allocation
 

@@ -22,9 +22,7 @@
 // SOFTWARE.
 #endif
 
-#pragma mode( separator(.,,) integer(h64) assignment(=) indentation(1) operators(:=,▶) )
-
-A :=sin(5)*7;
+#pragma mode( separator(.,,) integer(h64) assignment(=) indentation(1) operators(▶,*,/,-,+) )
 
 #include <cartesian>
 #include <cplang>
@@ -41,7 +39,7 @@ A :=sin(5)*7;
 #include <prime>
 #include <string>
 
-#include "utf16-le.hpprgm"
+#include "utf16-le.prgm"
 
 #ifndef __pplplus
  When defining a macro with parameters, issues can arise if an argument
@@ -55,10 +53,12 @@ A :=sin(5)*7;
 #define COPYWRITE "Copyright (c) 2023-2025 Insoft. All rights reserved."
 
 
-#PYTHON hello(a: Alpha, b: Beta, d: Delta)
+#PYTHON hello(a, b: Beta, d: Delta)
 import hpprimr as *
-alias alphanumeric as argv[0]
-altha=int(alphanumeric)
+import sys as *
+
+alias Alpha as argv[0]
+altha=int(Alpha)
 beta=int(Beta)
 delta=int(Delta)
 #END
@@ -69,6 +69,8 @@ LOCAL A:=0;
 #END
 
 A=A*-4;
+
+\`8+5*6`=>7;
 
 #include <pplang>
 B := ThemeMode.Dark;

@@ -42,7 +42,7 @@ namespace ppl_plus {
         bool isIncludeLine(const std::string &str);
         bool isQuotedInclude(const std::string &str);
         bool isAngleInclude(const std::string &str);
-        std::string extractIncludeFilename(const std::string &str);
+        std::filesystem::path extractIncludePath(const std::string &str);
         bool parse(std::string &str);
         
         Preprocessor() {
