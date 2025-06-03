@@ -29,7 +29,7 @@
 #include <regex>
 #include <sstream>
 
-using ppl_plus::Aliases;
+using pplplus::Aliases;
 
 //MARK: - Functions
 

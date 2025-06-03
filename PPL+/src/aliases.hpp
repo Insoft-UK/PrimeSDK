@@ -30,7 +30,7 @@
 #include <stdint.h>
 #include <fstream>
 
-namespace ppl_plus {
+namespace pplplus {
     class Aliases {
     public:
         enum class Type {

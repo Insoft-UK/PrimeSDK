@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		130342CA2A7AD8E800142B74 /* auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 130342C82A7AD8E800142B74 /* auto.cpp */; };
 		1308E8F62AC48F20001EEC82 /* singleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1308E8F42AC48F20001EEC82 /* singleton.cpp */; };
-		1308E8F92AC6FCC5001EEC82 /* comments.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1308E8F72AC6FCC5001EEC82 /* comments.cpp */; };
 		134778C22DDD22A4009EB2C8 /* hpprgm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134778C12DDD22A4009EB2C8 /* hpprgm.cpp */; };
 		134779A52DE5F117009EB2C8 /* utf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 134779A42DE5F117009EB2C8 /* utf.cpp */; };
 		1351CC532BF530CE0073FEDF /* calc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1351CC512BF530CE0073FEDF /* calc.cpp */; };
@@ -41,8 +40,6 @@
 		130342C92A7AD8E800142B74 /* auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = auto.hpp; sourceTree = "<group>"; };
 		1308E8F42AC48F20001EEC82 /* singleton.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = singleton.cpp; sourceTree = "<group>"; };
 		1308E8F52AC48F20001EEC82 /* singleton.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = singleton.hpp; sourceTree = "<group>"; };
-		1308E8F72AC6FCC5001EEC82 /* comments.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = comments.cpp; sourceTree = "<group>"; };
-		1308E8F82AC6FCC5001EEC82 /* comments.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = comments.hpp; sourceTree = "<group>"; };
 		13166E852BA12E5E00D1E6F0 /* examples */ = {isa = PBXFileReference; lastKnownFileType = folder; path = examples; sourceTree = "<group>"; };
 		134778C02DDD22A4009EB2C8 /* hpprgm.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = hpprgm.hpp; sourceTree = "<group>"; };
 		134778C12DDD22A4009EB2C8 /* hpprgm.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = hpprgm.cpp; sourceTree = "<group>"; };
@@ -145,7 +142,6 @@
 				13C21F982A7829C80067CE22 /* preprocessor.cpp */,
 				13C21FB22A7892540067CE22 /* alias.cpp */,
 				13F1D8812AB6185400EF623A /* aliases.cpp */,
-				1308E8F72AC6FCC5001EEC82 /* comments.cpp */,
 				13B13C2F2B66C2F000F9BCBB /* strings.cpp */,
 				136E64532D35B0980054E0CC /* regexp.cpp */,
 				136E645A2D3964A90054E0CC /* dictionary.cpp */,
@@ -162,7 +158,6 @@
 				13C21F992A7829C80067CE22 /* preprocessor.hpp */,
 				13C21FB32A7892540067CE22 /* alias.hpp */,
 				13F1D8822AB6185400EF623A /* aliases.hpp */,
-				1308E8F82AC6FCC5001EEC82 /* comments.hpp */,
 				13B13C302B66C2F000F9BCBB /* strings.hpp */,
 				136E64522D35B0980054E0CC /* regexp.hpp */,
 				136E64592D3964A90054E0CC /* dictionary.hpp */,
@@ -241,7 +236,6 @@
 				130342CA2A7AD8E800142B74 /* auto.cpp in Sources */,
 				13F1D8832AB6185400EF623A /* aliases.cpp in Sources */,
 				1308E8F62AC48F20001EEC82 /* singleton.cpp in Sources */,
-				1308E8F92AC6FCC5001EEC82 /* comments.cpp in Sources */,
 				134778C22DDD22A4009EB2C8 /* hpprgm.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

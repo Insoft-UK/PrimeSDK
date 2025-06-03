@@ -29,7 +29,7 @@
 
 #include "singleton.hpp"
 
-namespace ppl_plus {
+namespace pplplus {
     class Dictionary {
     public:
         static bool isDictionaryDefinition(const std::string &str);

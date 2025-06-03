@@ -25,7 +25,7 @@
 
 #include <stack>
 
-namespace ppl_plus {
+namespace pplplus {
     class CodeStack {
     public:
         bool parse(std::string &str);

@@ -31,7 +31,7 @@
 #include <iomanip>
 #include <cmath>
 
-using ppl_plus::Calc;
+using pplplus::Calc;
 
 using std::cout;
 using std::string;

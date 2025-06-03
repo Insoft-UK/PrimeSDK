@@ -23,7 +23,7 @@
 
 #include "singleton.hpp"
 
-using ppl_plus::Singleton;
+using pplplus::Singleton;
 
 // Define the static Singleton pointer
 Singleton *Singleton::_shared = NULL;

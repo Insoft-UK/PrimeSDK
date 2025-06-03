@@ -27,7 +27,7 @@
 #include <vector>
 #include <regex>
 
-namespace ppl_plus {
+namespace pplplus {
     class Regexp {
     public:
         bool verbose = false;

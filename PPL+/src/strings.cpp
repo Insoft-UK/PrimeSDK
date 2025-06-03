@@ -23,9 +23,9 @@
 #include "strings.hpp"
 #include <regex>
 
-using ppl_plus::Strings;
+using pplplus::Strings;
 
-void Strings::preserveStrings(const std::string &str) {
+void Strings::preserveStrings(const std::string& str) {
     std::regex re;
     
     re = R"("[^"]*")";
@@ -34,18 +34,18 @@ void Strings::preserveStrings(const std::string &str) {
     }
 }
 
-void Strings::blankOutStrings(std::string &str) {
+std::string Strings::blankOutStrings(const std::string &str) {
     std::regex re;
     
     re = R"("[^"]*")";
-    str = regex_replace(str, re, R"("")");
+    return regex_replace(str, re, R"("")");
 }
 
-void Strings::restoreStrings(std::string &str) {
+std::string Strings::restoreStrings(const std::string& str) {
     const std::regex re(R"("[^"]*")");
 
     // If there are no preserved strings, return early
-    if (_preservedStrings.empty()) return;
+    if (_preservedStrings.empty()) return str;
 
     std::string result;
     auto inserter = std::back_inserter(result);
@@ -76,14 +76,14 @@ void Strings::restoreStrings(std::string &str) {
     }
 
     // Update the input string with the modified result
-    str = result;
+    return result;
 }
 
-void Strings::restoreStringsAndRetain(std::string &str) {
+std::string Strings::restoreStringsAndRetain(const std::string& str) {
     const std::regex re(R"("[^"]*")");
 
     // If there are no preserved strings, return early
-    if (_preservedStrings.empty()) return;
+    if (_preservedStrings.empty()) return str;
 
     std::string result;
     auto inserter = std::back_inserter(result);
@@ -116,5 +116,5 @@ void Strings::restoreStringsAndRetain(std::string &str) {
     }
 
     // Update the input string with the modified result
-    str = result;
+    return result;
 }

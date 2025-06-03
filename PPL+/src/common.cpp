@@ -29,7 +29,7 @@
 #include <regex>
 
 
-using ppl_plus::Singleton;
+using pplplus::Singleton;
 
 static bool _failed = false;
 

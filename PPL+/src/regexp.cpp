@@ -25,7 +25,7 @@
 #include "singleton.hpp"
 #include "calc.hpp"
 
-using ppl_plus::Regexp;
+using pplplus::Regexp;
 
 bool Regexp::parse(const std::string &str) {
     std::regex re;

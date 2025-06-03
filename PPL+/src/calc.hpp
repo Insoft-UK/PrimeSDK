@@ -30,7 +30,7 @@
 #include <unordered_map>
 #include <stdint.h>
 
-namespace ppl_plus {
+namespace pplplus {
     class Calc {
     public:
         static bool evaluateMathExpression(std::string &str);

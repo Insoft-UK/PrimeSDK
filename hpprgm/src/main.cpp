@@ -196,10 +196,10 @@ int main(int argc, const char **argv)
     }
     
     /*
-     If the output file does not have an extension, a default .ppl is applied.
+     If the output file does not have an extension, a default .prgm is applied.
      */
     if (std::filesystem::path(out_filename).extension().empty()) {
-        out_filename.append(".ppl");
+        out_filename.append(".prgm");
     }
 
     /*

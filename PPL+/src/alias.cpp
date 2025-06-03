@@ -27,9 +27,9 @@
 #include <sstream>
 #include <regex>
 
-using ppl_plus::Alias;
-using ppl_plus::Aliases;
-using ppl_plus::Singleton;
+using pplplus::Alias;
+using pplplus::Aliases;
+using pplplus::Singleton;
 
 static Singleton *singleton = Singleton::shared();
 

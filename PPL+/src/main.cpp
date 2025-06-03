@@ -46,7 +46,6 @@
 #include "calc.hpp"
 #include "hpprgm.hpp"
 #include "utf.hpp"
-#include "comments.hpp"
 
 #include "../version_code.h"
 
@@ -56,14 +55,13 @@
 
 static unsigned int indentation = 2;
 
-using ppl_plus::Singleton;
-using ppl_plus::Strings;
-using ppl_plus::Aliases;
-using ppl_plus::Alias;
-using ppl_plus::Calc;
-using ppl_plus::Dictionary;
-using ppl_plus::Preprocessor;
-
+using pplplus::Singleton;
+using pplplus::Strings;
+using pplplus::Aliases;
+using pplplus::Alias;
+using pplplus::Calc;
+using pplplus::Dictionary;
+using pplplus::Preprocessor;
 
 using std::regex_replace;
 using std::sregex_iterator;
@@ -71,8 +69,6 @@ using std::sregex_token_iterator;
 
 namespace fs = std::filesystem;
 namespace rc = std::regex_constants;
-
-void translatePPLPlusToPPL(const fs::path& path, std::ofstream& outfile);
 
 static Preprocessor preprocessor = Preprocessor();
 static Strings strings = Strings();
@@ -135,6 +131,8 @@ void terminator() {
     exit(0);
 }
 void (*old_terminate)() = std::set_terminate(terminator);
+
+// MARK: - Helper Functions
 
 /**
  * @brief Cleans up whitespace in a string while preserving word separation.
@@ -295,7 +293,7 @@ std::string expandAssignmentEquals(const std::string& input) {
  * @note Useful for translating code or expressions from languages that use `=` for assignment
  *       into those that use `:=`, while avoiding accidental changes to comparison or already-valid syntax.
  */
-std::string convert_assign_to_colon_equal(const std::string& input) {
+std::string convertAssignToColonEqual(const std::string& input) {
     std::string output;
     output.reserve(input.size() * 2);  // Conservative buffer size
 
@@ -588,10 +586,10 @@ std::string processEscapes(const std::string& input) {
  * @note The conversion uses `std::tolower` with `unsigned char` casting to
  *       avoid undefined behavior for negative `char` values.
  *
- * Example usage:
- * to_lower("Hello World!") returns "hello world!"
+ * Example:
+ * toLower("Hello World!") returns "hello world!"
  */
-std::string to_lower(const std::string& s) {
+std::string toLower(const std::string& s) {
     std::string result = s;
     std::transform(result.begin(), result.end(), result.begin(),
                    [](unsigned char c) { return std::tolower(c); });
@@ -611,10 +609,10 @@ std::string to_lower(const std::string& s) {
  * @note The conversion uses `std::toupper` with `unsigned char` casting to
  *       avoid undefined behavior for negative `char` values.
  *
- * Example usage:
- * to_upper("Hello World!") returns "HELLO WORLD!"
+ * Example:
+ * toUpper("Hello World!") returns "HELLO WORLD!"
  */
-std::string to_upper(const std::string& s) {
+std::string toUpper(const std::string& s) {
     std::string result = s;
     std::transform(result.begin(), result.end(), result.begin(),
                    [](unsigned char c) { return std::toupper(c); });
@@ -636,14 +634,14 @@ std::string to_upper(const std::string& s) {
  *
  * @note Matching is case-insensitive. The function treats underscores as part of words.
  *
- * @example
- * replace_words("Hello world_123", {"world_123"}, "Earth") returns "Hello Earth"
+ * Example"
+ *   replaceWords("Hello world_123", {"world_123"}, "Earth") returns "Hello Earth"
  */
-std::string replace_words(const std::string& input, const std::vector<std::string>& words, const std::string& replacement) {
+std::string replaceWords(const std::string& input, const std::vector<std::string>& words, const std::string& replacement) {
     // Create lowercase word set
     std::unordered_set<std::string> wordSet;
     for (const auto& w : words) {
-        wordSet.insert(to_lower(w));
+        wordSet.insert(toLower(w));
     }
 
     std::string result;
@@ -662,9 +660,9 @@ std::string replace_words(const std::string& input, const std::vector<std::strin
         }
         
         std::string word = input.substr(start, i - start);
-        std::string lowerWord = to_lower(word);
+        std::string lowercase = toLower(word);
         
-        if (wordSet.count(lowerWord)) {
+        if (wordSet.count(lowercase)) {
             result += replacement;
             continue;
         }
@@ -694,9 +692,9 @@ std::string replace_words(const std::string& input, const std::vector<std::strin
  */
 std::string capitalizeWords(const std::string& input, const std::unordered_set<std::string>& words) {
     // Create lowercase word set
-    std::unordered_set<std::string> wordset;
+    std::unordered_set<std::string> wordSet;
     for (const auto& w : words) {
-        wordset.insert(to_lower(w));
+        wordSet.insert(toLower(w));
     }
     
     std::string result;
@@ -715,10 +713,10 @@ std::string capitalizeWords(const std::string& input, const std::unordered_set<s
         }
         
         std::string word = input.substr(start, i - start);
-        std::string lowercase = to_lower(word);
+        std::string lowercase = toLower(word);
         
-        if (wordset.count(lowercase)) {
-            result += to_upper(lowercase);
+        if (wordSet.count(lowercase)) {
+            result += toUpper(lowercase);
             continue;
         }
         
@@ -744,9 +742,9 @@ std::string capitalizeWords(const std::string& input, const std::unordered_set<s
  *       replaced with a single space.
  *
  * Example usage:
- * insert_space_after_chars("a,b;c", {',', ';'}) returns "a, b; c"
+ * insertSpaceAfterChars("a,b;c", {',', ';'}) returns "a, b; c"
  */
-std::string insert_space_after_chars(const std::string& input, const std::unordered_set<char>& chars) {
+std::string insertSpaceAfterChars(const std::string& input, const std::unordered_set<char>& chars) {
     std::string output;
     size_t len = input.length();
 
@@ -786,10 +784,10 @@ std::string insert_space_after_chars(const std::string& input, const std::unorde
  * @return A new string with spaces inserted before words following a closing parenthesis.
  *
  * Example usage:
- * insert_space_before_word_after_closing_paren("foo(bar)baz") returns "foo(bar) baz"
- * insert_space_before_word_after_closing_paren("foo(bar) baz") returns "foo(bar) baz"
+ * insertSpaceAfterClosingParen("foo(bar)baz") returns "foo(bar) baz"
+ * insertSpaceAfterClosingParen("foo(bar) baz") returns "foo(bar) baz"
  */
-std::string insert_space_before_word_after_closing_paren(const std::string& input) {
+std::string insertSpaceAfterClosingParen(const std::string& input) {
     std::string output;
     size_t len = input.length();
 
@@ -809,17 +807,119 @@ std::string insert_space_before_word_after_closing_paren(const std::string& inpu
     return output;
 }
 
+/**
+ * @brief Extracts a single-line PPL comment from a given string.
+ *
+ * This function searches for the occurrence of a PPL  comment
+ * marker (`//`) in the input string and returns the comment, excluding the `//`.
+ * If no comment is found, an empty string is returned.
+ *
+ * @param str The input string potentially containing a PPL comment.
+ * @return The extracted comment starting with `//`, or an empty string if none is found.
+ */
+std::string extractComment(const std::string &str) {
+    std::string output;
+    size_t pos = str.find("//");
+    
+    if (pos != std::string::npos) {
+        output = str.substr(pos + 2, str.length() - pos - 2);
+        trim(output);
+    }
+    return output;
+}
+
+/**
+ * @brief Removes a PPL single-line comment from a line of source code.
+ *
+ * This function scans a string representing a line of PPL (HP Prime Programming Language)
+ * source code and removes any single-line comment starting with `//`.
+ * If no comment is found, the original string is returned unchanged.
+ *
+ * @param str A line of PPL source code.
+ * @return The input line without the `//` comment, if present.
+ *
+ */
+
+std::string removeComment(const std::string& str) {
+    std::string output = str;
+    size_t pos = str.find("//");
+    if (pos != std::string::npos) {
+        output.resize(pos);
+    }
+    
+    return output;
+}
+
+/**
+ * @brief Removes a triple-slash (`///`) comment from a line of source code.
+ *
+ * This function searches for the first occurrence of a `///` comment in the input
+ * string and removes the comment portion. If a newline follows the comment, only the
+ * comment part up to the newline is removed; otherwise, the remainder of the string
+ * is removed. This is useful for stripping documentation-style comments (e.g., in PPL or C++).
+ *
+ * @param str A string potentially containing a `///` comment.
+ * @return A copy of the input string with the `///` comment removed.
+ *
+ * @note This function does not remove standard `//` comments or handle multiline block comments.
+ */
+std::string removeTripleSlashComment(const std::string& str) {
+    std::string output = str;
+    
+    size_t pos = output.find("///");
+    if (pos == std::string::npos) return output;
+    
+    std::size_t newline = output.find('\n', pos);
+    if (newline != std::string::npos) {
+        // Remove from '///' up to (but not including) the newline
+        output.erase(pos, newline - pos);
+        return output;
+    }
+    
+    // No newline after '///', remove till end of string
+    output.erase(pos);
+    
+    return output;
+}
+
+/**
+ * @brief Appends a comment to a line of code, ensuring proper spacing.
+ *
+ * Adds a PPL single-line comment (`// comment`) to the end of the given string,
+ * making sure the comment starts with exactly one space after the last non-whitespace
+ * character in the code.
+ *
+ * @param line The base line of code (without comment).
+ * @param comment The comment text (without the leading slashes).
+ * @return A new string with the comment appended properly.
+ */
+std::string applyComment(const std::string& line, const std::string& comment) {
+    std::string trimmed = line;
+
+    // Remove any trailing whitespace from the code line
+    while (!trimmed.empty() && std::isspace(static_cast<unsigned char>(trimmed.back()))) {
+        trimmed.pop_back();
+    }
+
+    // Append space + comment
+    return trimmed + " // " + comment;
+}
+
 // MARK: - PPL+ To PPL Translater...
 void reformatPPLLine(std::string& str) {
     std::regex re;
     
     Strings strings = Strings();
     strings.preserveStrings(str);
+    str = strings.blankOutStrings(str);
+    
+    std::string comment = extractComment(str);
+    
     
     str = normalizeOperators(str);
     str = fixUnaryMinus(str);
-    str = insert_space_after_chars(str, {','});
-    str = insert_space_before_word_after_closing_paren(str);
+    str = insertSpaceAfterChars(str, {','});
+    str = insertSpaceAfterClosingParen(str);
     
     if (Singleton::shared()->scopeDepth > 0) {
         try {
@@ -864,7 +964,8 @@ void reformatPPLLine(std::string& str) {
     str = regex_replace(str, re, "$1$2");
     
     
-    strings.restoreStrings(str);
+    str = strings.restoreStrings(str);
+    if (comment.length()) str = applyComment(str, comment);
 }
 
 
@@ -901,10 +1002,10 @@ std::string translatePPLPlusLine(const std::string& input, std::ofstream& outfil
      restored to their original state.
      */
     strings.preserveStrings(output);
-    strings.blankOutStrings(output);
+    output = strings.blankOutStrings(output);
  
-    Singleton::shared()->comments.preserveComment(output);
-    Singleton::shared()->comments.removeComment(output);
+    std::string comment = extractComment(output);
+    output = removeComment(output);
     
     output = cleanWhitespace(output);
 
@@ -918,7 +1019,7 @@ std::string translatePPLPlusLine(const std::string& input, std::ofstream& outfil
     
     // PPL by default uses := instead of C's = for assignment. Converting all = to PPL style :=
     if (assignment == "=") {
-        output = convert_assign_to_colon_equal(output);
+        output = convertAssignToColonEqual(output);
     } else {
         output = expandAssignmentEquals(output);
     }
@@ -946,8 +1047,7 @@ std::string translatePPLPlusLine(const std::string& input, std::ofstream& outfil
     });
     
     output = capitalizeWords(output, {"log", "cos", "sin", "tan", "ln", "min", "max"});
-    
-    
+
     
     //MARK: User Define Alias Parsing
     
@@ -1001,8 +1101,9 @@ std::string translatePPLPlusLine(const std::string& input, std::ofstream& outfil
     reformatPPLLine(output);
     output = processEscapes(output);
    
-    strings.restoreStrings(output);
-    Singleton::shared()->comments.restoreComment(output);
+    output = strings.restoreStrings(output);
+    
+    if (comment.length()) output = applyComment(output, comment);
     
     
     output += '\n';
@@ -1213,7 +1314,7 @@ void translatePPLPlusToPPL(const fs::path& path, std::ofstream& outfile) {
             }
         }
         
-        input = ppl_plus::Comments().removeTripleSlashComment(input);
+        input = removeTripleSlashComment(input);
         
         if (input.find("#EXIT") != std::string::npos) {
             break;
@@ -1322,9 +1423,9 @@ void translatePPLPlusToPPL(const fs::path& path, std::ofstream& outfile) {
          We need to perform pre-parsing to ensure that, in lines using subtitued
          PPL+ keywords for likes of END, IFERR and THEN are resolved.
          */
-        input = replace_words(input, {"endif", "wend", "next"}, "END");
-        input = replace_words(input, {"try"}, "IFERR");
-        input = replace_words(input, {"catch"}, "THEN");
+        input = replaceWords(input, {"endif", "wend", "next"}, "END");
+        input = replaceWords(input, {"try"}, "IFERR");
+        input = replaceWords(input, {"catch"}, "THEN");
   
         /*
          We need to perform pre-parsing to ensure that, in lines such as if

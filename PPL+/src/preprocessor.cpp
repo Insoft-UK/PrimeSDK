@@ -31,8 +31,8 @@
 #include <fstream>
 #include <cctype>
 
-using ppl_plus::Preprocessor;
-using ppl_plus::Singleton;
+using pplplus::Preprocessor;
+using pplplus::Singleton;
 
 static Singleton *_singleton  = Singleton::shared();
 

@@ -144,7 +144,7 @@ void help(void)
     std::cout << "  -c <columns>               Number of columns.\n";
     std::cout << "  -n <name>                  Custom name.\n";
     std::cout << "  -G<1-9>                    Graphic object G1-G9 to use if file is an image.\n";
-    std::cout << "  --ppl                      Wrap PPL code between #PPL...#END\n";
+    std::cout << "  --pragma                   Include \"#pragma mode( separator(.,;) integer(h64) )\" line.\n";
     std::cout << "  --endian <le|be>           Endianes le(default).\n";
     std::cout << "\n";
     std::cout << "Additional Commands:\n";
@@ -184,7 +184,7 @@ void saveAs(const std::string &filename, const std::string& str) {
     bool utf16le = false;
     std::string extension = std::filesystem::path(filename).extension();
     
-    if (extension == ".hpprgm" || extension == ".ppl") utf16le = true;
+    if (extension == ".prgm" || extension == ".ppl") utf16le = true;
     
     if (utf16le) {
         outfile.put(0xFF);
@@ -237,8 +237,10 @@ int main(int argc, const char * argv[]) {
     std::string in_filename, out_filename, prefix, sufix, name;
     int columns = 8;
     std::string grob("G0");
-    bool pplus = false;
     bool le = true;
+    
+    std::string utf8;
+    std::ostringstream os;
 
     if ( argc == 1 )
     {
@@ -256,7 +258,7 @@ int main(int argc, const char * argv[]) {
             }
             out_filename = argv[n + 1];
             out_filename = expandTilde(out_filename);
-            if (std::filesystem::path(out_filename).extension().empty()) out_filename.append(".ppl");
+            if (std::filesystem::path(out_filename).extension().empty()) out_filename.append(".prgm");
     
             n++;
             continue;
@@ -273,8 +275,8 @@ int main(int argc, const char * argv[]) {
             return 0;
         }
         
-        if (args == "--ppl") {
-            pplus = true;
+        if (args == "--pragma") {
+            utf8.append("#pragma mode( separator(.,;) integer(h64) )\n\n");
             continue;
         }
         
@@ -336,7 +338,7 @@ int main(int argc, const char * argv[]) {
     
     if (out_filename.empty()) {
         std::filesystem::path path = std::filesystem::path(in_filename);
-        out_filename = path.parent_path().string() + "/" + path.stem().string() + ".ppl";
+        out_filename = path.parent_path().string() + "/" + path.stem().string() + ".prgm";
     }
     
     if (name.empty()) {
@@ -416,22 +418,16 @@ int main(int argc, const char * argv[]) {
 
     if (columns < 1) columns = 1;
     
-    
-    std::string utf8;
-    std::ostringstream os;
-    utf8.append("#pragma mode( separator(.,;) integer(h64) )\n\n");
-    if (pplus) utf8.append("#PPL\n");
-    
-    
+
     switch (bitmap.bpp) {
         case 0:
-            utf8 += "LOCAL " + name + ":= {" + ppl(bitmap.bytes.data(), lengthInBytes, columns, le) + "};\n";
+            utf8 += name + ":= {" + ppl(bitmap.bytes.data(), lengthInBytes, columns, le) + "};\n";
             break;
             
         case 1:
         case 4:
         case 8:
-            os << "LOCAL " << name << " := {\n";
+            os << name << " := {\n";
             os << "  {\n" << ppl(bitmap.bytes.data(), lengthInBytes, columns, le) << "\n  },\n";
             os << "  { " << std::dec << bitmap.width << ", " << bitmap.height << " },\n";
             
@@ -446,22 +442,21 @@ int main(int argc, const char * argv[]) {
                 if (i % 16 == 0 && i) os << "\n    ";
                 os << "#" << std::uppercase << std::hex << std::setfill('0') << std::setw(6) << color << ":32h";
             }
-            os << "\n  }\n};\n\n";
+            os << "\n  }\n};\n";
             
-            os << "GROB.Image(" << grob << ", " << name << ");\n";
+            if (grob != "G0") os << "\nGROB.Image(" << grob << ", " << name << ");\n";
             utf8.append(os.str());
             break;
         
             
         default:
-            os << "LOCAL " << name << " := {\n";
+            os << name << " := {\n";
             os << "  {\n" << ppl(bitmap.bytes.data(), lengthInBytes, columns, le) << "\n  },\n";
-            os << "  { " << std::dec << bitmap.width << ", " << bitmap.height << " };\n}\n\n";
-            os << "GROB.Image(" << grob << ", " << name << ");\n";
+            os << "  { " << std::dec << bitmap.width << ", " << bitmap.height << " };\n}\n";
+            if (grob != "G0") os << "\nGROB.Image(" << grob << ", " << name << ");\n";
             utf8.append(os.str());
             break;
     }
-    if (pplus) utf8.append("#END\n");
     
     saveAs(out_filename, utf8);
     

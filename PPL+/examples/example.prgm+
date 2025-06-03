@@ -50,7 +50,7 @@
 #endif
 
 #define MacroList(i)      L$1
-#define COPYWRITE "Copyright (c) 2023-2025 Insoft. All rights reserved."
+#define COPYWRITE "Copyright (c) 2023-2025 => Insoft. All rights reserved."
 
 
 #PYTHON hello(a, b: Beta, d: Delta)
@@ -63,14 +63,11 @@ beta=int(Beta)
 delta=int(Delta)
 #END
 
-
+CR = COPYWRITE; // Comment will not be => effected.
 #PPL
 LOCAL A:=0;
 #END
 
-A=A*-4;
-
-\`8+5*6`=>7;
 
 #include <pplang>
 B := ThemeMode.Dark;
@@ -83,6 +80,7 @@ begin
     B = B * -B;
     
     switch A
+    // H
         case 1 do
             A + somename => B;
         end;

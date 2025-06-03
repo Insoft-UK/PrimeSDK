@@ -28,19 +28,17 @@
 #include <vector>
 #include "aliases.hpp"
 #include "auto.hpp"
-#include "comments.hpp"
 #include "common.hpp"
 #include "regexp.hpp"
 #include "code_stack.hpp"
 
-namespace ppl_plus {
+namespace pplplus {
     
     class Singleton {
         
     public:
         Aliases aliases;
         Auto autoname;
-        Comments comments;
         Regexp regexp;
         CodeStack codeStack;
         

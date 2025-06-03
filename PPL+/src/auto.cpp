@@ -27,7 +27,7 @@
 #include <regex>
 #include "singleton.hpp"
 
-using namespace ppl_plus;
+using pplplus::Auto;
 
 static std::string base10ToBase32(unsigned int num) {
     if (num == 0) {

@@ -27,13 +27,13 @@
 #include <iostream>
 #include <list>
 
-namespace ppl_plus {
+namespace pplplus {
     class Strings {
     public:
-        void preserveStrings(const std::string &str);
-        void blankOutStrings(std::string &str);
-        void restoreStrings(std::string &str);
-        void restoreStringsAndRetain(std::string &str);
+        void preserveStrings(const std::string& str);
+        std::string blankOutStrings(const std::string& str);
+        std::string restoreStrings(const std::string& str);
+        std::string restoreStringsAndRetain(const std::string& str);
     private:
         std::list<std::string> _preservedStrings;
     };

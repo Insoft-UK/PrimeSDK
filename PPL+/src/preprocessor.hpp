@@ -27,7 +27,7 @@
 #include "aliases.hpp"
 #include <fstream>
 
-namespace ppl_plus {
+namespace pplplus {
     class Preprocessor {
     public:
         std::string filename;

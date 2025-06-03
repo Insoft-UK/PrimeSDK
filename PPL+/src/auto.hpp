@@ -26,7 +26,7 @@
 
 #include <iostream>
 
-namespace ppl_plus {
+namespace pplplus {
 
 class Auto {
 public:
