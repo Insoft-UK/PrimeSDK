@@ -50,7 +50,8 @@
 #endif
 
 #define MacroList(i)      L$1
-#define COPYWRITE "Copyright (c) 2023-2025 => Insoft. All rights reserved."
+#define COPYWRITE "Copyright (c) 2023-2025  =>  Insoft. All rights reserved."
+#define NUMBER 123
 
 
 #PYTHON hello(a, b: Beta, d: Delta)
@@ -68,6 +69,8 @@ CR = COPYWRITE; // Comment will not be => effected.
 LOCAL A:=0;
 #END
 
+B:={"Hel \"   p", "if B    <= 6"};
+C:=COPYWRITE;
 
 #include <pplang>
 B := ThemeMode.Dark;

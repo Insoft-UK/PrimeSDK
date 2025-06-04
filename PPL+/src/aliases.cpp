@@ -25,7 +25,6 @@
 #include "common.hpp"
 
 #include "singleton.hpp"
-#include "strings.hpp"
 #include <regex>
 #include <sstream>
 
@@ -39,6 +38,115 @@ static bool compareInterval(Aliases::TIdentity i1, Aliases::TIdentity i2) {
 
 static bool compareIntervalString(std::string i1, std::string i2) {
     return (i1.length() > i2.length());
+}
+
+/**
+ * @brief Extracts and preserves all double-quoted substrings from the input string.
+ *
+ * Handles escaped quotes (e.g., \" inside quoted text) and does not use regex.
+ *
+ * @param str The input string.
+ * @return std::list<std::string> A list of quoted substrings, including the quote characters.
+ */
+static std::list<std::string> preserveStrings(const std::string& str) {
+    std::list<std::string> strings;
+    bool inQuotes = false;
+    std::string current;
+    
+    for (size_t i = 0; i < str.size(); ++i) {
+        char c = str[i];
+
+        if (!inQuotes) {
+            if (c == '"') {
+                inQuotes = true;
+                current.clear();
+                current += c;  // start quote
+            }
+        } else {
+            current += c;
+
+            if (c == '"' && (i == 0 || str[i - 1] != '\\')) {
+                // End of quoted string (unescaped quote)
+                inQuotes = false;
+                strings.push_back(current);
+            }
+        }
+    }
+
+    return strings;
+}
+/**
+ * @brief Replaces all double-quoted substrings in the input string with "".
+ *
+ * Handles escaped quotes (e.g., \" inside strings) and does not use regex.
+ *
+ * @param str The input string to process.
+ * @return std::string A new string with quoted substrings replaced by "".
+ */
+static std::string blankOutStrings(const std::string& str) {
+    std::string result;
+    bool inQuotes = false;
+    size_t start = 0;
+
+    for (size_t i = 0; i < str.length(); ++i) {
+        // Start of quoted string
+        if (!inQuotes && str[i] == '"') {
+            inQuotes = true;
+            result.append(str, start, i - start);  // Append text before quote
+            start = i; // mark quote start
+        }
+        // Inside quoted string
+        else if (inQuotes && str[i] == '"' && (i == 0 || str[i - 1] != '\\')) {
+            // End of quoted string
+            inQuotes = false;
+            result += "\"\"";  // Replace quoted string with empty quotes
+            start = i + 1;     // Next copy chunk starts after closing quote
+        }
+    }
+
+    // Append remaining text after last quoted section
+    if (start < str.size()) {
+        result.append(str, start, str.size() - start);
+    }
+
+    return result;
+}
+
+/**
+ * @brief Restores quoted strings into a string that had them blanked out.
+ *
+ * @param str The string with blanked-out quoted substrings (e.g., `""`).
+ * @param strings A list of original quoted substrings, in the order they appeared.
+ * @return std::string A new string with the original quoted substrings restored.
+ */
+static std::string restoreStrings(const std::string& str, std::list<std::string>& strings) {
+    static const std::regex re(R"("[^"]*")");
+
+    if (strings.empty()) return str;
+
+    std::string result;
+    std::size_t lastPos = 0;
+
+    auto stringIt = strings.begin();
+    for (auto it = std::sregex_iterator(str.begin(), str.end(), re);
+         it != std::sregex_iterator() && stringIt != strings.end(); ++it, ++stringIt)
+    {
+        const std::smatch& match = *it;
+
+        // Append the part before the match
+        result.append(str, lastPos, match.position() - lastPos);
+
+        // Append the preserved quoted string
+        result.append(*stringIt);
+
+        // Update the last position
+        lastPos = match.position() + match.length();
+    }
+
+    // Append the remaining part of the string after the last match
+    result.append(str, lastPos, std::string::npos);
+
+    return result;
 }
 
 //MARK: - Public Methods
@@ -193,9 +301,8 @@ std::string Aliases::resolveAllAliasesInText(const std::string &str) {
     
     
         
-    Strings strings;
-    strings.preserveStrings(s);
-    strings.blankOutStrings(s);
+    auto strings = preserveStrings(s);
+    s = blankOutStrings(s);
     
     for (auto it = _identities.begin(); it != _identities.end(); ++it) {
         if ('`' == it->identifier.at(0) && '`' == it->identifier.at(it->identifier.length() - 1)) {
@@ -224,7 +331,7 @@ std::string Aliases::resolveAllAliasesInText(const std::string &str) {
         if (!regex_search(s, re)) continue;
         s = regex_replace(s, re, it->real);
     }
-    strings.restoreStrings(s);
+    s = restoreStrings(s, strings);
     
     if (s != str) {
         s = resolveAllAliasesInText(s);

@@ -42,7 +42,7 @@
 #include "preprocessor.hpp"
 #include "dictionary.hpp"
 #include "alias.hpp"
-#include "strings.hpp"
+//#include "strings.hpp"
 #include "calc.hpp"
 #include "hpprgm.hpp"
 #include "utf.hpp"
@@ -56,7 +56,7 @@
 static unsigned int indentation = 2;
 
 using pplplus::Singleton;
-using pplplus::Strings;
+//using pplplus::Strings;
 using pplplus::Aliases;
 using pplplus::Alias;
 using pplplus::Calc;
@@ -71,7 +71,7 @@ namespace fs = std::filesystem;
 namespace rc = std::regex_constants;
 
 static Preprocessor preprocessor = Preprocessor();
-static Strings strings = Strings();
+//static Strings strings = Strings();
 static std::string assignment = "=";
 static std::vector<std::string> operators = { ":=", "==", "▶", "≥", "≤", "≠", "-", "+", "*", "/" };
 
@@ -905,13 +905,122 @@ std::string applyComment(const std::string& line, const std::string& comment) {
     return trimmed + " // " + comment;
 }
 
+
+/**
+ * @brief Extracts and preserves all double-quoted substrings from the input string.
+ *
+ * Handles escaped quotes (e.g., \" inside quoted text) and does not use regex.
+ *
+ * @param str The input string.
+ * @return std::list<std::string> A list of quoted substrings, including the quote characters.
+ */
+std::list<std::string> preserveStrings(const std::string& str) {
+    std::list<std::string> strings;
+    bool inQuotes = false;
+    std::string current;
+    
+    for (size_t i = 0; i < str.size(); ++i) {
+        char c = str[i];
+
+        if (!inQuotes) {
+            if (c == '"') {
+                inQuotes = true;
+                current.clear();
+                current += c;  // start quote
+            }
+        } else {
+            current += c;
+
+            if (c == '"' && (i == 0 || str[i - 1] != '\\')) {
+                // End of quoted string (unescaped quote)
+                inQuotes = false;
+                strings.push_back(current);
+            }
+        }
+    }
+
+    return strings;
+}
+/**
+ * @brief Replaces all double-quoted substrings in the input string with "".
+ *
+ * Handles escaped quotes (e.g., \" inside strings) and does not use regex.
+ *
+ * @param str The input string to process.
+ * @return std::string A new string with quoted substrings replaced by "".
+ */
+std::string blankOutStrings(const std::string& str) {
+    std::string result;
+    bool inQuotes = false;
+    size_t start = 0;
+
+    for (size_t i = 0; i < str.length(); ++i) {
+        // Start of quoted string
+        if (!inQuotes && str[i] == '"') {
+            inQuotes = true;
+            result.append(str, start, i - start);  // Append text before quote
+            start = i; // mark quote start
+        }
+        // Inside quoted string
+        else if (inQuotes && str[i] == '"' && (i == 0 || str[i - 1] != '\\')) {
+            // End of quoted string
+            inQuotes = false;
+            result += "\"\"";  // Replace quoted string with empty quotes
+            start = i + 1;     // Next copy chunk starts after closing quote
+        }
+    }
+
+    // Append remaining text after last quoted section
+    if (start < str.size()) {
+        result.append(str, start, str.size() - start);
+    }
+
+    return result;
+}
+
+/**
+ * @brief Restores quoted strings into a string that had them blanked out.
+ *
+ * @param str The string with blanked-out quoted substrings (e.g., `""`).
+ * @param strings A list of original quoted substrings, in the order they appeared.
+ * @return std::string A new string with the original quoted substrings restored.
+ */
+std::string restoreStrings(const std::string& str, std::list<std::string>& strings) {
+    static const std::regex re(R"("[^"]*")");
+
+    if (strings.empty()) return str;
+
+    std::string result;
+    std::size_t lastPos = 0;
+
+    auto stringIt = strings.begin();
+    for (auto it = std::sregex_iterator(str.begin(), str.end(), re);
+         it != std::sregex_iterator() && stringIt != strings.end(); ++it, ++stringIt)
+    {
+        const std::smatch& match = *it;
+
+        // Append the part before the match
+        result.append(str, lastPos, match.position() - lastPos);
+
+        // Append the preserved quoted string
+        result.append(*stringIt);
+
+        // Update the last position
+        lastPos = match.position() + match.length();
+    }
+
+    // Append the remaining part of the string after the last match
+    result.append(str, lastPos, std::string::npos);
+
+    return result;
+}
+
 // MARK: - PPL+ To PPL Translater...
 void reformatPPLLine(std::string& str) {
     std::regex re;
     
-    Strings strings = Strings();
-    strings.preserveStrings(str);
-    str = strings.blankOutStrings(str);
+    auto strings = preserveStrings(str);
+    str = blankOutStrings(str);
     
     std::string comment = extractComment(str);
     
@@ -963,8 +1072,7 @@ void reformatPPLLine(std::string& str) {
     re = R"(([a-zA-Z]) +([{(]))";
     str = regex_replace(str, re, "$1$2");
     
-    
-    str = strings.restoreStrings(str);
+    str = restoreStrings(str, strings);
     if (comment.length()) str = applyComment(str, comment);
 }
 
@@ -977,6 +1085,11 @@ std::string translatePPLPlusLine(const std::string& input, std::ofstream& outfil
     
     // Remove any leading white spaces before or after.
     trim(output);
+    
+    if (preprocessor.parse(output)) {
+        output = "";
+        return output;
+    }
     
 
     if (output.empty()) {
@@ -1001,20 +1114,13 @@ std::string translatePPLPlusLine(const std::string& input, std::ofstream& outfil
      Subsequently, after parsing, any strings that have been blanked out can be
      restored to their original state.
      */
-    strings.preserveStrings(output);
-    output = strings.blankOutStrings(output);
+    auto strings = preserveStrings(output);
+    output = blankOutStrings(output);
  
     std::string comment = extractComment(output);
     output = removeComment(output);
     
     output = cleanWhitespace(output);
-
-    
-    if (preprocessor.parse(output)) {
-        output = "";
-        return output;
-    }
-    
     output = replaceOperators(output);
     
     // PPL by default uses := instead of C's = for assignment. Converting all = to PPL style :=
@@ -1101,7 +1207,7 @@ std::string translatePPLPlusLine(const std::string& input, std::ofstream& outfil
     reformatPPLLine(output);
     output = processEscapes(output);
    
-    output = strings.restoreStrings(output);
+    output = restoreStrings(output, strings);
     
     if (comment.length()) output = applyComment(output, comment);
     
