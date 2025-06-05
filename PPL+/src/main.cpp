@@ -1711,6 +1711,7 @@ int main(int argc, char **argv) {
     if (fs::path(out_filename).parent_path().empty()) {
         out_filename.insert(0, fs::path(in_filename).parent_path().string() + "/");
     }
+    out_filename = fs::expand_tilde(out_filename);
     
     info();
     

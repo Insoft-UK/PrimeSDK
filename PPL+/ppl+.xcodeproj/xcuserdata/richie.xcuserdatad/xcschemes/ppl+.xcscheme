@@ -60,8 +60,8 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-o example.hpprgm --utf16-le"
-            isEnabled = "NO">
+            argument = "-o ~/Documents/HP\ Prime/Calculators/Prime/example.hpprgm"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--help"

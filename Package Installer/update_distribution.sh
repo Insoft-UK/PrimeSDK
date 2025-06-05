@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Calculate total size in KB of package-root, scripts, and Resources
-PKG_SIZE=$(du -sk package-root/ scripts/ Resources/ 2>/dev/null | awk '{total += $1} END {print total}')
+PKG_SIZE=$(du -sk package-root/ scripts/ resources/ 2>/dev/null | awk '{total += $1} END {print total}')
 
 # Check if PKG_SIZE was successfully calculated
 if [ -z "$PKG_SIZE" ]; then
