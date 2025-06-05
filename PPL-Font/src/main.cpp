@@ -230,8 +230,10 @@ static bool parseHAdafruitFont(const std::string &filename, TAdafruitFont &font)
         return false;
     }
     
+    utf8 = std::regex_replace(utf8, std::regex(R"(\bunsigned char\b)"), "uint8_t");
+    
     std::smatch match;
-    std::regex_search(utf8, match, std::regex(R"(const (?:unsigned char|uint8_t) \w+\[\] PROGMEM = \{([^}]*))"));
+    std::regex_search(utf8, match, std::regex(R"(const uint8_t \w+\[\] PROGMEM = \{([^}]*))"));
     if (match[1].matched) {
         auto s = match.str(1);
         while (std::regex_search(s, match, std::regex(R"((?:0x)?[\d[a-fA-F]{1,2})"))) {
@@ -458,11 +460,11 @@ int main(int argc, const char **argv)
      If the output file does not have an extension, a default is applied based on
      the input file’s extension:
      
-     • For an input file with a .h extension, the default output extension is .hpprgm.
+     • For an input file with a .h extension, the default output extension is .prgm.
      • For an input file with a .hpprgm extension, the default output extension is .h.
      */
     if (std::filesystem::path(out_filename).extension().empty()) {
-        out_filename.append(".hpprgm");
+        out_filename.append(".prgm");
     }
     
     std::string out_extension = std::filesystem::path(out_filename).extension();
@@ -490,7 +492,7 @@ int main(int argc, const char **argv)
      otherwise, the process is halted and an error is reported to the user.
      */
     if (in_extension == ".h") {
-        if (out_extension == ".hpprgm") {
+        if (out_extension == ".prgm" || out_extension == ".hpprgm") {
             convertAdafruitFontToHpprgm(in_filename, out_filename, name);
             std::cout << "Adafruit GFX Font for HP Prime " << std::filesystem::path(out_filename).filename() << " has been succefuly created.\n";
             return 0;
