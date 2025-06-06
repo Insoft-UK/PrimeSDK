@@ -6,13 +6,13 @@ if A >= B then
   statement/s
 else
   statement/s
-endif; // or PPL 'end;'
+endif; // or PPL 'END;'
 ```
 
 ## switch
 ```
-switch A
-  case 1 do
+switch A // PPL 'CASE'
+  case 1 do // PPL 'IF A==1 THEN'
   end;
 default
 end;
@@ -21,7 +21,7 @@ end;
 ## while...wend
 ```
 while A <> 0
-wend; // or PPL 'end;'
+wend; // or PPL 'END;'
 ```
 
 ## try...catch
