@@ -53,9 +53,9 @@ begin
     return CHAR(ifte(h<10,48,55) + h) + CHAR(ifte(l<10,48,55) + l);
 end;
 
-DrawTextCentered(auto:string, auto:atX, auto:ofY, auto:fontSize)
+DrawTextCentered(s:string, x:atX, y:ofY, fs:fontSize)
 begin
-    local auto:size;
+    local sz:size;
     dict Size size;
  
     size = TEXTSIZE(string, fontSize);
@@ -313,7 +313,7 @@ begin
     colorsV = hsv[3];
 end;
 
-Colors::AdjHue(d:delta)
+Colors::AdjHue(d: delta)
 begin
     colorsH = colorsH + delta;
     colorsH = IP(MIN(MAX(colorsH, 0), 360));
@@ -321,7 +321,7 @@ begin
     Colors::UpdateRGB;
 end;
 
-Colors::AdjSaturation(d:delta)
+Colors::AdjSaturation(d: delta)
 begin
     colorsS = colorsS + delta;
     colorsS = IP(MIN(MAX(colorsS, 0), 100));

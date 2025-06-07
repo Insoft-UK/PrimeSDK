@@ -33,8 +33,8 @@
 namespace pplplus {
     class Calc {
     public:
-        static bool evaluateMathExpression(std::string &str);
-        static bool parse(std::string &str);
+        static std::string evaluateMathExpression(const std::string& str);
+        static std::string parse(const std::string& str);
     };
 }
 

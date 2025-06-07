@@ -24,21 +24,6 @@
 
 #pragma mode( separator(.,,) integer(h64) assignment(=) indentation(1) operators(▶,*,/,-,+) )
 
-#include <cartesian>
-#include <cplang>
-#include <cspace>
-#include <dictionary>
-#include <grob>
-#include <hp>
-#include <hpfont>
-#include <integer>
-#include <io>
-#include <matrix>
-#include <pixel>
-#include <pplang>
-#include <prime>
-#include <string>
-
 
 #ifndef __pplplus
  When defining a macro with parameters, issues can arise if an argument
@@ -52,31 +37,46 @@
 #define COPYWRITE "Copyright (c) 2023-2025  =>  Insoft. All rights reserved."
 #define NUMBER 123
 
-B := ThemeMode.Dark;
-pplang::pplplus(a: alpha)
+#ifdef __pplplus
+var a;
+90=>a;
+#else
+var b;
+98=>b;
+#endif
+
+
+
+alias::name(a: alpha, b: beta)
 begin
-    B = ThemeMode.Light;
-    var n: somename;
+    dict New := 0, Complete := 1, Drag := 2, Stretch := 3, Rotate := 4, LongClick := 5 MouseType;
     
-    C = {0,1,2,3};
-    B * -B => B;
+    beta = MouseType.Drag;
+    alpha * \`98 + 1 * 2` => alpha;
+    if alpha > 0 then
+        var d: delta;
+        case
+            if alpha >= beta then
+                delta = a * b;
+            endif;
+        end;
     
-    switch A
-    // H
+        delta => beta;
+    endif;
+    
+    switch alpha
         case 1 do
-            A + somename => B;
+            alpha + beta => beta;
         end;
         case 2 do
-            A - somename => B;
+            alpha - beta => beta;
         end;
         default
     end;
     
-    case
-        if A >= B then B+1=>B; endif;
-    end;
     
-    if A <> B and A <= B or B == 0 then return; endif;
+    
+    if alpha <> beta and delta <= beta or beta == 0 then return; endif;
     
     while true do
         a+1 => A;
@@ -94,11 +94,3 @@ begin
     end;
 end;
 
-catalog START(auto: alpha)
-begin
-    var auto: yellow;
-    var auto: blue;
-    var b = Color.White;
-    blit_c(Color.White);
-    pplang::pplplus();
-end;

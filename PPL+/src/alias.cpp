@@ -43,18 +43,18 @@ static void parseAlias(const std::string &str, Aliases::TIdentity &identity) {
             1 name
             2 alias::name
      */
-    re = R"(([a-zA-Z]\w*):(@)?([a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*))";
+    re = R"(([a-zA-Z]\w*):([a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*))";
     
     if (regex_search(str, matches, re)) {
         identity.real = matches[1].str();
-        identity.scope = matches[2].matched ? Aliases::Scope::Global : Aliases::Scope::Auto;
-        identity.identifier = matches[3].str();
+        identity.scope = Singleton::shared()->scopeDepth;
+        identity.identifier = matches[2].str();
         singleton->aliases.append(identity);
     }
 }
 
 static void parseAliases(const std::string &str, Aliases::TIdentity &identity) {
-    std::regex re(R"([a-zA-Z]\w*:@?[a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*)");
+    std::regex re(R"([a-zA-Z]\w*:[a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*)");
     
     for(std::sregex_iterator it = std::sregex_iterator(str.begin(), str.end(), re); it != std::sregex_iterator(); ++it) {
         parseAlias(it->str(), identity);
@@ -63,30 +63,31 @@ static void parseAliases(const std::string &str, Aliases::TIdentity &identity) {
 
 static void parseFunctionName(const std::string &str) {
     Aliases::TIdentity identity;
-    identity.scope = Aliases::Scope::Global;
+    identity.scope = 0;
     identity.type = Aliases::Type::Function;
     parseAlias(str, identity);
 }
 
 static void parseParameters(const std::string &str) {
     Aliases::TIdentity identity;
-    identity.scope = Aliases::Scope::Local;
+    identity.scope = 1;
     identity.type = Aliases::Type::Argument;
     parseAliases(str, identity);
 }
 
 static void parseVariables(const std::string &str) {
     Aliases::TIdentity identity;
-    identity.scope = Aliases::Scope::Auto;
+    identity.scope = Singleton::shared()->scopeDepth;
     identity.type = Aliases::Type::Variable;
     parseAliases(str, identity);
 }
 
-bool Alias::parse(std::string &str) {
+std::string Alias::parse(const std::string &str) {
     std::string s;
     std::regex re;
     std::smatch matches;
     std::ostringstream os;
+    std::string output = str;
     
     bool parsed = false;
     
@@ -97,7 +98,7 @@ bool Alias::parse(std::string &str) {
          1 name:alias::name
          2 p1,p2:alias,a:alias
          */
-        re = std::regex(R"(^(?:EXPORT )?((?:[a-zA-Z]\w*:)?@?[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)\(((?:[a-zA-Z]\w*(?::[a-zA-Z_]\w*)?)(?:,(?:[a-zA-Z]\w*(?::[a-zA-Z_]\w*)?))*)\)$)", std::regex_constants::icase);
+        re = std::regex(R"(^(?:EXPORT )?((?:[a-zA-Z]\w*:)?[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)\(((?:[a-zA-Z]\w*(?::[a-zA-Z_]\w*)?)(?:,(?:[a-zA-Z]\w*(?::[a-zA-Z_]\w*)?))*)\)$)", std::regex_constants::icase);
         
         if (regex_search(str, matches, re)) {
             parseFunctionName(matches[1].str());
@@ -121,10 +122,10 @@ bool Alias::parse(std::string &str) {
         }
     }
     
-    if (!parsed) return false;
+    if (!parsed) return output;
     
     // Now that all aliases, if any, have been parsed, we can remove the :alias from the code.
-    str = regex_replace(str, std::regex(R"(([a-zA-Z]\w*):@?[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)"), "$1");
+    output = regex_replace(str, std::regex(R"(([a-zA-Z]\w*):[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)"), "$1");
     
-    return true;
+    return output;
 }

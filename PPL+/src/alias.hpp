@@ -29,7 +29,7 @@
 namespace pplplus {
     class Alias {
     public:
-        static bool parse(std::string &str);
+        static std::string parse(const std::string &str);
     };
 }
 

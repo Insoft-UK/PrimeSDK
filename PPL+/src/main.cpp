@@ -56,7 +56,6 @@
 static unsigned int indentation = 2;
 
 using pplplus::Singleton;
-//using pplplus::Strings;
 using pplplus::Aliases;
 using pplplus::Alias;
 using pplplus::Calc;
@@ -71,7 +70,6 @@ namespace fs = std::filesystem;
 namespace rc = std::regex_constants;
 
 static Preprocessor preprocessor = Preprocessor();
-//static Strings strings = Strings();
 static std::string assignment = "=";
 static std::vector<std::string> operators = { ":=", "==", "▶", "≥", "≤", "≠", "-", "+", "*", "/" };
 
@@ -1086,11 +1084,7 @@ std::string translatePPLPlusLine(const std::string& input, std::ofstream& outfil
     // Remove any leading white spaces before or after.
     trim(output);
     
-    if (preprocessor.parse(output)) {
-        output = "";
-        return output;
-    }
-    
+    output = preprocessor.parse(output);
 
     if (output.empty()) {
         return output;
@@ -1141,7 +1135,7 @@ std::string translatePPLPlusLine(const std::string& input, std::ofstream& outfil
     
     if (Dictionary::isDictionaryDefinition(output)) {
         Dictionary::proccessDictionaryDefinition(output);
-        Dictionary::removeDictionaryDefinition(output);
+        output = Dictionary::removeDictionaryDefinition(output);
     }
     if (output.empty()) return output;
     
@@ -1163,7 +1157,7 @@ std::string translatePPLPlusLine(const std::string& input, std::ofstream& outfil
         identity.identifier = match[1].str();
         identity.real = match[2].str();
         identity.type = Aliases::Type::Alias;
-        identity.scope = Aliases::Scope::Auto;
+        identity.scope = -1;
         
         Singleton::shared()->aliases.append(identity);
         output = "";
@@ -1181,10 +1175,10 @@ std::string translatePPLPlusLine(const std::string& input, std::ofstream& outfil
     for(auto it = sregex_iterator(output.begin(), output.end(), re); it != sregex_iterator(); ++it) {
         Singleton::shared()->decreaseScopeDepth();
         if (Singleton::shared()->scopeDepth == 0) {
-            Singleton::shared()->aliases.removeAllOutOfScopeAliases();
             output += '\n';
         }
        
+        Singleton::shared()->aliases.removeAllOutOfScopeAliases();
         Singleton::shared()->regexp.removeAllOutOfScopeRegexps();
     }
     
@@ -1200,9 +1194,9 @@ std::string translatePPLPlusLine(const std::string& input, std::ofstream& outfil
         }
     }
     
-    Singleton::shared()->autoname.parse(output);
-    Alias::parse(output);
-    Calc::parse(output);
+    output = Singleton::shared()->autoname.parse(output);
+    output = Alias::parse(output);
+    output = Calc::parse(output);
     
     reformatPPLLine(output);
     output = processEscapes(output);
@@ -1375,7 +1369,7 @@ void processPythonBlock(std::ifstream& infile, std::ofstream& outfile, std::stri
             identity.identifier = match[1].str();
             identity.real = match[2].str();
             identity.type = Aliases::Type::Alias;
-            identity.scope = Aliases::Scope::Auto;
+            identity.scope = -1;
             
             aliases.append(identity);
             str = "";
@@ -1392,7 +1386,6 @@ void translatePPLPlusToPPL(const fs::path& path, std::ofstream& outfile) {
     std::ifstream infile;
     std::regex re;
     std::string input;
-//    std::string str;
     std::string output;
     std::smatch match;
 
@@ -1428,7 +1421,7 @@ void translatePPLPlusToPPL(const fs::path& path, std::ofstream& outfile) {
         }
         
         while (preprocessor.disregard == true) {
-            preprocessor.parse(input);
+            input = preprocessor.parse(input);
             Singleton::shared()->incrementLineNumber();
             getline(infile, input);
         }

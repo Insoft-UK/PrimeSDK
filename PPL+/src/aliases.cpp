@@ -167,9 +167,11 @@ bool Aliases::append(const TIdentity &idty) {
         identity.message.insert(0, ", ");
     }
     
-    if (Scope::Auto == identity.scope) {
-        identity.scope = singleton->scopeDepth == 0 ? Aliases::Scope::Global : Aliases::Scope::Local;
+    if (identity.scope == -1) {
+        identity.scope = Singleton::shared()->scopeDepth;
     }
+    
+    if (identity.type == Type::Argument) identity.scope = 1;
     
     std::string filename = Singleton::shared()->currentSourceFilePath().filename().string();
     
@@ -200,7 +202,7 @@ bool Aliases::append(const TIdentity &idty) {
     if (verbose) std::cout
         << MessageType::Verbose
         << "defined "
-        << (Scope::Local == identity.scope ? ANSI::Default + ANSI::Bold + "local" + ANSI::Default + " " : "")
+        << (identity.scope > 0 ? ANSI::Default + ANSI::Bold + "local" + ANSI::Default + " " : "")
         << (Type::Unknown == identity.type ? "alias " : "")
         << (Type::Macro == identity.type ? "macro " : "")
         << (Type::Alias == identity.type ? "alias " : "")
@@ -215,7 +217,7 @@ bool Aliases::append(const TIdentity &idty) {
 
 void Aliases::removeAllOutOfScopeAliases() {
     for (auto it = _identities.begin(); it != _identities.end(); ++it) {
-        if (it->scope == Scope::Local) {
+        if (it->scope > Singleton::shared()->scopeDepth) {
             if (verbose) std::cout
                 << MessageType::Verbose
                 << "removed " << ANSI::Default << ANSI::Bold << "local" << ANSI::Default << " "
@@ -350,7 +352,7 @@ void Aliases::remove(const std::string &identifier) {
             if (verbose) std::cout
                 << MessageType::Verbose
                 << "removed "
-                << (Scope::Local == it->scope ? ANSI::Default + ANSI::Bold + "local " + ANSI::Default : "")
+                << (it->scope > 0 ? ANSI::Default + ANSI::Bold + "local " + ANSI::Default : "")
                 << (Type::Unknown == it->type ? "alias " : "")
                 << (Type::Macro == it->type ? "macro " : "")
                 << (Type::Alias == it->type ? "alias " : "")

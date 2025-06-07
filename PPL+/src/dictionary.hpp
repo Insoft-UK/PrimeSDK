@@ -32,9 +32,9 @@
 namespace pplplus {
     class Dictionary {
     public:
-        static bool isDictionaryDefinition(const std::string &str);
-        static void removeDictionaryDefinition(std::string &str);
-        static bool proccessDictionaryDefinition(const std::string &str);
+        static bool isDictionaryDefinition(const std::string& str);
+        static std::string removeDictionaryDefinition(const std::string& str);
+        static bool proccessDictionaryDefinition(const std::string& str);
         
     private:
     };

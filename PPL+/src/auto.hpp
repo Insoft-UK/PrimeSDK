@@ -30,7 +30,7 @@ namespace pplplus {
 
 class Auto {
 public:
-    bool parse(std::string &str);
+    std::string parse(const std::string &str);
 private:
     unsigned _count = 0;
 };

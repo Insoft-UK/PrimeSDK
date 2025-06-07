@@ -167,8 +167,7 @@ std::filesystem::path Preprocessor::extractIncludePath(const std::string &str)
     return path;
 }
 
-bool Preprocessor::parse(std::string &str)
-{
+std::string Preprocessor::parse(const std::string& str) {
     std::string s;
     std::regex re;
     std::smatch match;
@@ -194,15 +193,15 @@ bool Preprocessor::parse(std::string &str)
             strip(identity.parameters);
             identity.real = match[3].str();
             
-            identity.scope = Aliases::Scope::Global;
+            identity.scope = 0;
             identity.type = Aliases::Type::Macro;
             
             identity.real = _singleton->aliases.resolveAllAliasesInText(identity.real);
-            Calc::evaluateMathExpression(identity.real);
+            identity.real = Calc::evaluateMathExpression(identity.real);
             
             if (verbose) std::cout << MessageType::Verbose << "#define '" << identity.identifier << (identity.real.empty() ? "" : "' as '" + identity.real + "'") << "'\n";
             _singleton->aliases.append(identity);
-            return true;
+            return "";
         }
  
         /*
@@ -214,7 +213,7 @@ bool Preprocessor::parse(std::string &str)
         if (std::regex_search(str, match, re)) {
             if (verbose) std::cout << MessageType::Verbose << "#undef '" << *it << "'\n";
             _singleton->aliases.remove(match[1].str());
-            return true;
+            return "";
         }
         
 
@@ -229,7 +228,7 @@ bool Preprocessor::parse(std::string &str)
             identity.identifier = match[1].str();
             if (verbose) std::cout << MessageType::Verbose << "#ifdef '" << identity.identifier << "' result was " << (!disregard ? "true" : "false") << '\n';
             disregard = !_singleton->aliases.identifierExists(identity.identifier);
-            return true;
+            return "";
         }
         
         /*
@@ -243,14 +242,14 @@ bool Preprocessor::parse(std::string &str)
             
             if (verbose) std::cout << MessageType::Verbose << "#ifndef '" << identity.identifier << "' result was " << (!disregard ? "true" : "false") << '\n';
             disregard = _singleton->aliases.identifierExists(identity.identifier);
-            return true;
+            return "";
         }
         
         
         re = R"(^ *#if +([A-Za-z_]\w*) *(==|!=|>=|<=|>|<) *(.+)$)";
         if (std::regex_search(str, match, re)) {
             identity = _singleton->aliases.getIdentity(match[1].str());
-            if (identity.identifier.empty()) return true;
+            if (identity.identifier.empty()) return "";
             std::string op = match[2].str();
             std::string real = match[3].str();
             
@@ -262,25 +261,21 @@ bool Preprocessor::parse(std::string &str)
             if (op == ">" && op >= identity.real) disregard = false;
             if (op == "<" && op <= identity.real) disregard = false;
             
-            return true;
+            return "";
         }
     }
     
     if (regex_search(str, std::regex(R"(^ *#else\b *((\/\/.*)|)$)"))) {
-        disregard = !disregard;return true;
+        disregard = !disregard;
     }
     
-    if (regex_search(str, std::regex(R"(^ *#end(if)?\b *((\/\/.*)|)$)"))) {
+    if (regex_search(str, std::regex(R"(#end(if)?\b)"))) {
         disregard = false;
-        return true;
     }
     
-    
-    if (regex_search(str, std::regex(R"(^ *#)"))) {
-        str = "";
-    }
+    if (str.starts_with("#")) return "";
 
-    return false;
+    return str;
 }
 
 

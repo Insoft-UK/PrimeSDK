@@ -65,23 +65,25 @@ static bool isValidPPLName(const std::string name) {
     return true;
 }
 
-bool Auto::parse(std::string &str) {
+std::string Auto::parse(const std::string& str) {
     std::smatch matches;
     std::regex re;
     
     if (Singleton::shared()->scopeDepth == 0) {
-        re = std::regex(R"((?:EXPORT )?(?:([a-zA-Z]\w*):)?(@?[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)\(((?:[a-zA-Z]\w*(?::[a-zA-Z_]\w*)?)(?:,(?:[a-zA-Z]\w*(?::[a-zA-Z_]\w*)?))*)\))", std::regex_constants::icase);
+        re = std::regex(R"((?:EXPORT )?(?:([a-zA-Z]\w*):)?(@?[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)\(((?:[a-zA-Z]\w*(?::[a-zA-Z_]\w*)?)(?:,(?:[a-zA-Z]\w*(?::[a-zA-Z_]\w*)?))*)?\))", std::regex_constants::icase);
         if (regex_search(str, matches, re)) {
             if (matches.str(1).empty()) {
-                if (isValidPPLName(matches.str(2))) return true;
+                if (isValidPPLName(matches.str(2))) return str;
                 
                 while (Singleton::shared()->aliases.realExists("fn" + base10ToBase32(++_count)));
-                str.insert(matches.position(2),  "fn" + base10ToBase32(_count) + ":");
+                std::string output = str;
+                output.insert(matches.position(2),  "fn" + base10ToBase32(_count) + ":");
+                return output;
             }
         }
     }
     
-    return true;
+    return str;
 }
 
 

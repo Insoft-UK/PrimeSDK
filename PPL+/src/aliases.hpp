@@ -42,18 +42,19 @@ namespace pplplus {
             Variable
         };
         
-        enum class Scope {
-            Auto   = 0,
-            Global = 1,
-            Local  = 2
-        };
+//        enum class Scope {
+//            Auto   = 0,
+//            Global = 1,
+//            Local  = 2
+//        };
         
         typedef struct TIdentity {
             std::string identifier;
             std::string real;
             std::string parameters; // used by macros
             Type type;
-            Scope scope;
+//            Scope scope;
+            int scope;
             long line;              // line that definition accoured;
             std::filesystem::path path;   // path and filename that definition accoured
             bool deprecated = false;

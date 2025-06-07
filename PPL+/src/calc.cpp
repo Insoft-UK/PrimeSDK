@@ -294,12 +294,11 @@ static void convertPPLStyleNumbersToBase10(std::string& str) {
 
 // MARK: - Public Methods
 
-bool Calc::evaluateMathExpression(std::string& str)
-{
+std::string Calc::evaluateMathExpression(const std::string& str) {
     std::regex re;
     std::smatch match;
     
-    if (!isExpresionValid(str)) return false;
+    if (!isExpresionValid(str)) return str;
     
     std::string expression = str;
     convertPPLStyleNumbersToBase10(expression);
@@ -319,16 +318,14 @@ bool Calc::evaluateMathExpression(std::string& str)
     if (expression.at(expression.length() - 1) == '.') {
         expression.resize(expression.length() - 1);
     }
-    str = expression;
     
-    return true;
+    return expression;
 }
 
-bool Calc::parse(std::string& str)
-{
+std::string Calc::parse(const std::string& str) {
     std::regex re;
     std::smatch match;
-    
+    std::string newstr = str;
     
     
     re = R"(\\( *\d{1,2}|F|C|R)?(?:\[|`)(.*)(?:\]|`))";
@@ -399,11 +396,11 @@ bool Calc::parse(std::string& str)
         }
         
         
-        str = str.replace(match.position(), match.length(), s);
-        return true;
+        newstr = newstr.replace(match.position(), match.length(), s);
+        return newstr;
     }
 
-    return false;
+    return str;
 }
 
 

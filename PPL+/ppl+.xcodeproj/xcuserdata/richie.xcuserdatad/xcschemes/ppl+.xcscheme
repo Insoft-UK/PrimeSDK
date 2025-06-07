@@ -69,10 +69,10 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--path"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/private/tmp/PrimeSDK/Examples/Colors/src/main.prgm+ -o $(PROJECT_DIR)/examples/Colors"
+            argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/private/tmp/PrimeSDK/Examples/Colors/src/main.prgm+ -o $(PROJECT_DIR)/examples/Colors.prgm"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument

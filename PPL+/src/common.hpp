@@ -65,7 +65,7 @@ namespace ANSI {
     const std::string Green = "\e[38;5;34m";
     const std::string Red = "\e[38;5;160m";
     const std::string Orange = "\e[38;5;208m";
-    const std::string Yellow = "\e[38;5;220";
+    const std::string Yellow = "\e[38;5;220m";
     const std::string Purpel = "\e[38;5;125m";
     const std::string Blue = "\e[38;5;38m";
 #endif
