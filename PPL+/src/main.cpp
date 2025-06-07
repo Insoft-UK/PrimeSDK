@@ -1294,69 +1294,71 @@ bool isPPLBlock(const std::string str) {
     return str.find("#PPL") != std::string::npos;
 }
 
-void processPPLBlock(std::ifstream& infile, std::ofstream& outfile) {
+std::string processPPLBlock(std::ifstream& infile) {
     std::string str;
+    std::string output;
     
     Singleton::shared()->incrementLineNumber();
     
     while(getline(infile, str)) {
         if (str.find("#END") != std::string::npos) {
             Singleton::shared()->incrementLineNumber();
-            return;
+            return output;
         }
         
-        str.append("\n");
-        utf::write(str, outfile);
+        output += str + '\n';
         Singleton::shared()->incrementLineNumber();
     }
+    return str;
 }
 
-void processPythonBlock(std::ifstream& infile, std::ofstream& outfile, std::string& input) {
+std::string processPythonBlock(std::ifstream& infile, const std::string& input) {
     std::regex re;
     std::string str;
+    std::string output;
+    std::smatch match;
+    
     Aliases aliases;
     aliases.verbose = Singleton::shared()->aliases.verbose;
     
     Singleton::shared()->incrementLineNumber();
     
-    input = cleanWhitespace(input);
+    str = cleanWhitespace(input);
 
-    size_t start = input.find('(');
-    size_t end = input.find(')', start);
+    size_t start = str.find('(');
+    size_t end = str.find(')', start);
         
     if (start != std::string::npos && end != std::string::npos && end > start) {
         std::vector<std::string> arguments = splitCommas(input.substr(start + 1, end - start - 1));
-        input = "#PYTHON (";
+        output = "#PYTHON (";
         int index = 0, n = 0;
         
         Aliases::TIdentity identity = {
             .type = Aliases::Type::Argument
         };
         for (const std::string& argument : arguments) {
-            if (index++) input.append(",");
+            if (index++) output.append(",");
             start = argument.find(':');
             
             if (start != std::string::npos) {
-                input.append(argument.substr(0, start));
+                output.append(argument.substr(0, start));
                 identity.identifier = argument.substr(start + 1, argument.length() - start - 1);
-                identity.real = "argv[" + std::to_string(++n) + "]";
+                identity.real = "argv[" + std::to_string(n++) + "]";
                 aliases.append(identity);
                 continue;
             }
-            input.append(argument);
+            output.append(argument);
         }
-        input.append(")");
+        output.append(")\n");
     }
         
     
-    utf::write(input + '\n', outfile);
-    std::smatch match;
 
     while(getline(infile, str)) {
         if (str.find("#END") != std::string::npos) {
-            utf::write("#END\n", outfile);
+            output += "#END\n";
             Singleton::shared()->incrementLineNumber();
-            return;
+            return output;
         }
         
         Singleton::shared()->incrementLineNumber();
@@ -1376,9 +1378,9 @@ void processPythonBlock(std::ifstream& infile, std::ofstream& outfile, std::stri
             continue;
         }
         
-        str.append("\n");
-        utf::write(str, outfile);
+        output += str + '\n';
     }
+    return output;
 }
 
 void translatePPLPlusToPPL(const fs::path& path, std::ofstream& outfile) {
@@ -1427,12 +1429,12 @@ void translatePPLPlusToPPL(const fs::path& path, std::ofstream& outfile) {
         }
         
         if (isPythonBlock(input)) {
-            processPythonBlock(infile, outfile, input);
+            output += processPythonBlock(infile, input);
             continue;
         }
         
         if (isPPLBlock(input)) {
-            processPPLBlock(infile, outfile);
+            output += processPPLBlock(infile);
             continue;
         }
         
@@ -1517,8 +1519,11 @@ void translatePPLPlusToPPL(const fs::path& path, std::ofstream& outfile) {
             input = regex_replace(input, std::regex(R"(^ *\bregex +([@<>=≠≤≥~])?`([^`]*)`(i)? *(.*)$)"), "");
         }
         
+        auto strings = preserveStrings(input);
+        input = blankOutStrings(input);
         Singleton::shared()->regexp.resolveAllRegularExpression(input);
-    
+        input = restoreStrings(input, strings);
+        
         /*
          We need to perform pre-parsing to ensure that, in lines using subtitued
          PPL+ keywords for likes of END, IFERR and THEN are resolved.

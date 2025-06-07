@@ -30,7 +30,7 @@
 #define Colors paper[1], ink[2]
 #define Cell column[1], row[2], actinideElementName[3], colorIndex[4], elementAtomicNumber[5], chemicalElementName[6]
 
-LOCAL auto: periodicTable := {
+g1: periodicTable := {
 #PPL
     {1,1,"H",1,1,"Hydrogen",1.00794,0.0899_g/1_cm^3,13.81_K,20.28_K,2.08_Å,14.304_J/(1_g*1_K),"1","1s1",2.1,14.1_cm^3/1_mol,13.598,0.1815_W/(1_m*1_K)},
     {18,1,"He",5,2,"Helium",4.0026,0.1785_g/1_cm^3,0.95_K,4.216_K,"n/a",5.193_J/(1_g*1_K),"n/a","1s2",0,31.8_cm^3/1_mol,24.587,0.152_W/(1_m*1_K)},
@@ -154,9 +154,9 @@ LOCAL auto: periodicTable := {
 };
 
 
-auto: periodicExtendedDisplayUsed := CONCAT(4,MAKELIST(X,X,7,18));
+g2: periodicExtendedDisplayUsed := CONCAT(4,MAKELIST(X,X,7,18));
 
-auto: periodicExtendedDisplayNames := {
+g3: periodicExtendedDisplayNames := {
     "Group",
     "Atomic Weight",
     "Density",
@@ -172,7 +172,7 @@ auto: periodicExtendedDisplayNames := {
     "Thermal Conductivity"
 };
     
-LOCAL auto: periodicColorTable := {
+g4: periodicColorTable := {
     {RGB(226,238,254), RGB(0,96,236)},
     {RGB(215,248,255), RGB(0,117,139)},
     {RGB(255,231,231), RGB(216,0,35)},
@@ -185,9 +185,9 @@ LOCAL auto: periodicColorTable := {
     {RGB(231,231,234), RGB(63,55,78)}
 };
     
-auto: periodicChemicalGroups := {"Nonmetal", "Alkali Metal", "Alkaline Earth Metal", "Halogen", "Noble Gas", "Metalliod", "Post-Transition Metal", "Transition Metal", "Lanthanoid", "Actinoid"};
-auto: periodicColumn := 1;
-auto: periodicRow := 1;
+g5: periodicChemicalGroups := {"Nonmetal", "Alkali Metal", "Alkaline Earth Metal", "Halogen", "Noble Gas", "Metalliod", "Post-Transition Metal", "Transition Metal", "Lanthanoid", "Actinoid"};
+g6: periodicColumn := 1;
+g7: periodicRow := 1;
 
 Periodic::RenderCell(c: cell)
 BEGIN
@@ -219,7 +219,7 @@ BEGIN
     TEXTOUT_P(cell.actinideElementName, G1, x1 + 2, y1 + 4, 1, colors.ink);
 END;
 
-auto: Periodic::DisplayLine(c: cell, I: index)
+Periodic::DisplayLine(c: cell, I: index)
 BEGIN
     IF index>=14 THEN
         RETURN;
@@ -344,11 +344,11 @@ BEGIN
     END;
 END;
 
-auto: Periodic::OnKeyPress(k: keyPressed)
+Periodic::OnKeyPress(k: keyPressed)
 BEGIN
     dict column[1], row[2] cell;
     CASE
-        IF keyPressed == KeyCode.Enter THEN
+        IF keyPressed == K<Enter> THEN
             LOCAL I: index;
             
             FOR index FROM 1 TO SIZE(periodicTable) DO
@@ -358,25 +358,25 @@ BEGIN
             Periodic::ChemicalDataMenu(cell);
         END;
         
-        IF keyPressed == KeyCode.Left THEN
+        IF keyPressed == K<Left> THEN
             REPEAT
                 periodicColumn := (periodicColumn - 2) MOD 18 + 1;
             UNTIL Periodic::DoesCellExist(periodicColumn, periodicRow) == true;
         END;
         
-        IF keyPressed == KeyCode.Right THEN
+        IF keyPressed == K<Right> THEN
             REPEAT
                 periodicColumn := periodicColumn MOD 18 + 1;
             UNTIL Periodic::DoesCellExist(periodicColumn, periodicRow) == true;
         END;
         
-        IF keyPressed == KeyCode.Up THEN
+        IF keyPressed == K<Up> THEN
             REPEAT
                 periodicRow := (periodicRow - 2) MOD 10 + 1;
             UNTIL Periodic::DoesCellExist(periodicColumn, periodicRow) == true;
         END;
         
-        IF keyPressed == KeyCode.Down THEN
+        IF keyPressed == K<Down> THEN
             REPEAT
                 periodicRow := periodicRow MOD 10 + 1;
             UNTIL Periodic::DoesCellExist(periodicColumn, periodicRow) == true;
@@ -401,7 +401,7 @@ BEGIN
         IF TYPE(input) == ObjectType.List THEN
             Periodic::OnTouch(input);
         ELSE
-            IF input == KeyCode.Esc THEN
+            IF input == K<Esc> THEN
                 periodicColumn := 0; periodicRow := 0;
                 RETURN;
             END;
