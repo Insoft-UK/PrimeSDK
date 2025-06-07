@@ -92,12 +92,12 @@ bool Alias::parse(std::string &str) {
     
     if (singleton->scopeDepth == 0) {
         /*
-         eg. export name:alias::name(p1, p2:alias, auto:alias)
-         Group  0 export name:alias(p1, p2:alias, auto:alias)
+         eg. export name:alias::name(p1,p2:alias,a:alias)
+         Group  0 export name:alias::name(p1,p2:alias,a:alias)
          1 name:alias::name
-         2 p1, p2:alias, auto:alias
+         2 p1,p2:alias,a:alias
          */
-        re = std::regex(R"(^(?:EXPORT )?([a-zA-Z]\w*(?::[a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*)?)\((.*)\)$)", std::regex_constants::icase);
+        re = std::regex(R"(^(?:EXPORT )?((?:[a-zA-Z]\w*:)?@?[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)\(((?:[a-zA-Z]\w*(?::[a-zA-Z_]\w*)?)(?:,(?:[a-zA-Z]\w*(?::[a-zA-Z_]\w*)?))*)\)$)", std::regex_constants::icase);
         
         if (regex_search(str, matches, re)) {
             parseFunctionName(matches[1].str());
@@ -107,7 +107,7 @@ bool Alias::parse(std::string &str) {
             }
             parsed = true;
         } else {
-            re = R"(\b[a-zA-Z]\w*:[a-zA-Z]\w*(?:::[a-zA-Z]\w*)*\b)";
+            re = R"(\b[a-zA-Z]\w*:[a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*\b)";
             if (regex_search(str, re)) {
                 parseVariables(str);
                 parsed = true;
@@ -124,7 +124,7 @@ bool Alias::parse(std::string &str) {
     if (!parsed) return false;
     
     // Now that all aliases, if any, have been parsed, we can remove the :alias from the code.
-    str = regex_replace(str, std::regex(R"(([a-zA-Z]\w*):@?[a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*)"), "$1");
+    str = regex_replace(str, std::regex(R"(([a-zA-Z]\w*):@?[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)"), "$1");
     
     return true;
 }

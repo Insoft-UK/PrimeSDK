@@ -1254,29 +1254,30 @@ void loadRegexLibs(const std::string path, const bool verbose) {
 
 
 
-void embedPPLCode(const std::string& filepath, std::ofstream& os) {
+std::string embedPPLCode(const std::string& filepath) {
     std::ifstream is;
     std::string str;
     
     fs::path path = filepath;
     is.open(filepath, std::ios::in);
-    if (!is.is_open()) return;
+    if (!is.is_open()) return str;
     if (path.extension() == ".hpprgm" || path.extension() == ".prgm") {
         std::wstring wstr = hpprgm::load(filepath);
         
         if (!wstr.empty()) {
             str = utf::to_utf8(wstr);
             str = regex_replace(str, std::regex(R"(^ *#pragma mode *\(.+\) *\n+)"), "");
-            utf::write(str, os);
             is.close();
-            return;
+            return str;
         }
     }
-    while (getline(is, str)) {
-        str += '\n';
-        utf::write(str, os);
+    std::string line;
+    while (getline(is, line)) {
+        line += '\n';
+        str += line;
     }
     is.close();
+    return str;
 }
 
 bool verbose(void) {
@@ -1487,7 +1488,7 @@ void translatePPLPlusToPPL(const fs::path& path, std::ofstream& outfile) {
                 path = singleton.getMainSourceDir().string() + "/" + path.filename().string();
             }
             if (path.extension() == ".hpprgm" || path.extension() == ".prgm") {
-                embedPPLCode(path.string(), outfile);
+                output += embedPPLCode(path.string());
                 continue;
             }
             if (!(fs::exists(path))) {
@@ -1608,7 +1609,7 @@ void help(void) {
     << "Copyright (C) 2023-" << YEAR << " Insoft. All rights reserved.\n"
     << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")\n"
     << "\n"
-    << "Usage: " << COMMAND_NAME << " <input-file> [-o <output-file>] [-v <flags>] [--utf16-le]\n"
+    << "Usage: " << COMMAND_NAME << " <input-file> [-o <output-file>] [-v <flags>]\n"
     << "\n"
     << "Options:\n"
     << "  -o <output-file>        Specify the filename for generated PPL code.\n"

@@ -61,7 +61,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-o ~/Documents/HP\ Prime/Calculators/Prime/example.hpprgm"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--help"
@@ -72,15 +72,15 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/private/tmp/PrimeSDK/Examples/Colors/src/main.ppl+ -o $(PROJECT_DIR)/examples/Colors"
+            argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/private/tmp/PrimeSDK/Examples/Colors/src/main.prgm+ -o $(PROJECT_DIR)/examples/Colors"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/private/tmp/PrimeSDK/Examples/MAD/src/main.ppl+ -o $(PROJECT_DIR)/examples/MAD"
+            argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/private/tmp/PrimeSDK/Examples/MAD/src/main.prgm+ -o $(PROJECT_DIR)/examples/MAD.prgm"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/private/tmp/PrimeSDK/Examples/Periodic/src/main.ppl+ -o $(PROJECT_DIR)/examples/Periodic"
+            argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/private/tmp/PrimeSDK/Examples/Periodic/src/main.prgm+ -o $(PROJECT_DIR)/examples/Periodic"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument

@@ -32,7 +32,7 @@ class Auto {
 public:
     bool parse(std::string &str);
 private:
-    unsigned _fnCount = 0, _varCount = 0, _paramCount = 0, _globalCount = 0;
+    unsigned _count = 0;
 };
 
 }

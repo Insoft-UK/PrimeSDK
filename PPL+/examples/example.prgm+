@@ -39,7 +39,6 @@
 #include <prime>
 #include <string>
 
-#include "utf16-le.prgm"
 
 #ifndef __pplplus
  When defining a macro with parameters, issues can arise if an argument
@@ -53,34 +52,14 @@
 #define COPYWRITE "Copyright (c) 2023-2025  =>  Insoft. All rights reserved."
 #define NUMBER 123
 
-
-#PYTHON hello(a, b: Beta, d: Delta)
-import hpprimr as *
-import sys as *
-
-alias Alpha as argv[0]
-altha=int(Alpha)
-beta=int(Beta)
-delta=int(Delta)
-#END
-
-CR = COPYWRITE; // Comment will not be => effected.
-#PPL
-LOCAL A:=0;
-#END
-
-B:={"Hel \"   p", "if B    <= 6"};
-C:=COPYWRITE;
-
-#include <pplang>
 B := ThemeMode.Dark;
-pplang(auto: alpha)
+pplang::pplplus(a: alpha)
 begin
-    B := ThemeMode.Light;
-    var auto: somename;
+    B = ThemeMode.Light;
+    var n: somename;
     
     C = {0,1,2,3};
-    B = B * -B;
+    B * -B => B;
     
     switch A
     // H
@@ -121,4 +100,5 @@ begin
     var auto: blue;
     var b = Color.White;
     blit_c(Color.White);
+    pplang::pplplus();
 end;

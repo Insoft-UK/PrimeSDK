@@ -65,138 +65,19 @@ static bool isValidPPLName(const std::string name) {
     return true;
 }
 
-static bool isDefiningFunction(const std::string &str)
-{
-    std::regex re = std::regex(R"((?:EXPORT )?(?:[a-zA-Z]\w*:)?([a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*)\(([^()]*)\))", std::regex_constants::icase);
-    return regex_match(str, re);
-}
-
-// This function will examine any variable name thats not a valid PPL variable name and asign an auto: prefix to it.
-static void inferredAutoForVariableName(std::string &ln)
-{
-    std::regex re;
-    re = std::regex(R"(\b((?:LOCAL|CONST) +)(.+)(?=;))", std::regex_constants::icase);
-    
-    
-    std::sregex_token_iterator it = std::sregex_token_iterator {
-        ln.begin(), ln.end(), re, {1, 2}
-    };
-    if (it != std::sregex_token_iterator()) {
-        std::string code = *it++;
-        std::string str = *it;
-        
-        re =  R"([^,;]+)";
-        for (auto it = std::sregex_iterator(str.begin(), str.end(), re);;) {
-            std::string name = trim_copy(it->str());
-            if (regex_search(name, std::regex(R"(^[a-zA-Z]\w*:@?[a-zA-Z])"))) {
-                code.append(name);
-            }
-            else {
-                if (!isValidPPLName(name)) {
-                    name.insert(0, "auto:");
-                }
-                code.append(name);
-            }
-            
-            if (++it == std::sregex_iterator()) break;
-            code.append(",");
-        }
-        ln = regex_replace(ln, std::regex(R"(\b((?:LOCAL|CONST) +)(.*)(?=;))", std::regex_constants::icase), code);
-    }
-}
-
-
-// This function will examine the function name, and asign an auto: prefix to it if not valid for PPL.
-static void inferredAutoForFunctionName(std::string &str) {
-    std::regex re;
-    std::smatch matches;
-    
-    re = std::regex(R"((?:EXPORT )?([a-zA-Z]\w*:)?([a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*)\(([^()]*)\))", std::regex_constants::icase);
-    if (regex_search(str, matches, re)) {
-        if (matches.str(1).empty()) {
-            if (!isValidPPLName(matches.str(2))) {
-                str.insert(matches.position(2), "auto:");
-            }
-        }
-    }
-}
-
-// This function will examine the function parameter name/s, and asign an auto: prefix to it if not valid for PPL.
-static void inferredAutoForFunctionParameterNames(std::string &str) {
-    std::regex re;
-    std::string code;
-    
-    re = std::regex(R"((?:EXPORT )?(?:[a-zA-Z]\w*:)?([a-zA-Z_]\w*(?:::[a-zA-Z]\w*)*)\(([^()]*)\))", std::regex_constants::icase);
-    if (!regex_match(str, re)) return;
-    
-    re =  R"([^,;]+)";
-    for (auto it = std::sregex_iterator(str.begin(), str.end(), re);;) {
-        std::string name = trim_copy(it->str());
-        if (regex_search(name, std::regex(R"(^[a-zA-Z]\w*:[a-zA-Z])"))) {
-            code.append(name);
-        }
-        else {
-            if (!isValidPPLName(name)) {
-                name.insert(0, "auto:");
-            }
-            code.append(name);
-        }
-        
-        if (++it == std::sregex_iterator()) break;
-        code.append(",");
-    }
-    str = code;
-}
-
 bool Auto::parse(std::string &str) {
-    std::smatch match;
+    std::smatch matches;
     std::regex re;
-    size_t pos;
-    Singleton *singleton = Singleton::shared();
     
-    inferredAutoForVariableName(str);
-
-
-    if (singleton->scopeDepth == 0) {
-        if (isDefiningFunction(str)) {
-            inferredAutoForFunctionName(str);
-            inferredAutoForFunctionParameterNames(str);
-            
-            re = R"(\bauto *(?=: *(?:[A-Za-z_][\w:.]*) *(?=\()))";
-            if (regex_search(str, match, re)) {
-                while (singleton->aliases.realExists("fn" + base10ToBase32(++_fnCount)));
-                str.replace(match.position(), match.str().length(), "fn" + base10ToBase32(_fnCount));
+    if (Singleton::shared()->scopeDepth == 0) {
+        re = std::regex(R"((?:EXPORT )?(?:([a-zA-Z]\w*):)?(@?[a-zA-Z_]\w*(?:::[a-zA-Z_]\w*)*)\(((?:[a-zA-Z]\w*(?::[a-zA-Z_]\w*)?)(?:,(?:[a-zA-Z]\w*(?::[a-zA-Z_]\w*)?))*)\))", std::regex_constants::icase);
+        if (regex_search(str, matches, re)) {
+            if (matches.str(1).empty()) {
+                if (isValidPPLName(matches.str(2))) return true;
+                
+                while (Singleton::shared()->aliases.realExists("fn" + base10ToBase32(++_count)));
+                str.insert(matches.position(2),  "fn" + base10ToBase32(_count) + ":");
             }
-            
-            _paramCount = 0;
-            while ((pos = str.find("auto:")) != std::string::npos) {
-                while (singleton->aliases.realExists("p" + base10ToBase32(++_paramCount)));
-                str.replace(pos, 4, "p" + base10ToBase32(_paramCount));
-            }
-        }
-        
-        
-        
-        re = R"(\b[a-zA-Z]\w*:[a-zA-Z]\w*(?:::[a-zA-Z]\w*)*\b)";
-        if (regex_search(str, re)) {
-            while ((pos = str.find("auto:")) != std::string::npos) {
-                str.erase(pos, 4);
-                while (singleton->aliases.realExists("g" + base10ToBase32(++_globalCount)));
-                str.insert(pos, "g" + base10ToBase32(_globalCount));
-            }
-        }
-        _varCount = 0;
-        
-    }
-    
-    
-    // Variables/Constants
-    re = std::regex(R"(\b(LOCAL|CONST) +)", std::regex_constants::icase);
-    if (regex_search(str, match, re)) {
-        while ((pos = str.find("auto:")) != std::string::npos) {
-            str.erase(pos, 4);
-            while (singleton->aliases.realExists("v" + base10ToBase32(++_varCount)));
-            str.insert(pos, "v" + base10ToBase32(_varCount));
         }
     }
     
