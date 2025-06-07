@@ -33,7 +33,6 @@
 
 dict color[1], shade[2] @theme;
 
-
 dict Dark := 0, Light := 1 @ThemeMode;
 dict New := 0, Complete := 1, Drag := 2, Stretch := 3, Rotate := 4, LongClick := 5 @MouseType;
 dict Real := 0, Integer := 1, String := 2, Complex := 3, Matrix := 4, Error := 5, List := 6, Function := 8, Unit := 9, Cas := 14 @ObjectType;

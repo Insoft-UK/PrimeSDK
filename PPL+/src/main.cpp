@@ -1130,7 +1130,7 @@ std::string translatePPLPlusLine(const std::string& input, std::ofstream& outfil
      A code stack provides a convenient way to store code snippets
      that can be retrieved and used later.
      */
-    Singleton::shared()->codeStack.parse(output);
+    output = Singleton::shared()->codeStack.parse(output);
 
     
     if (Dictionary::isDictionaryDefinition(output)) {
@@ -1151,13 +1151,13 @@ std::string translatePPLPlusLine(const std::string& input, std::ofstream& outfil
     
     //MARK: User Define Alias Parsing
     
-    re = R"(^alias ([A-Za-z_]\w*(?:::[a-zA-Z]\w*)*):=([a-zA-Z→][\w→]*(?:\.[a-zA-Z→][\w→]*)*);$)";
+    re = R"(^alias\b *(@)?([A-Za-z_]\w*(?:::[a-zA-Z]\w*)*):=([a-zA-Z→][\w→]*(?:\.[a-zA-Z→][\w→]*)*);$)";
     if (regex_search(output, match, re)) {
         Aliases::TIdentity identity;
-        identity.identifier = match[1].str();
-        identity.real = match[2].str();
+        identity.identifier = match[2].str();
+        identity.real = match[3].str();
         identity.type = Aliases::Type::Alias;
-        identity.scope = -1;
+        identity.scope = match[1].matched ? 0 : Singleton::shared()->scopeDepth;
         
         Singleton::shared()->aliases.append(identity);
         output = "";

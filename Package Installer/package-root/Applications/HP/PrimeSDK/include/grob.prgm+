@@ -25,6 +25,6 @@
 #ifndef GROB_PPLIB
 #define GROB_PPLIB
 
-alias grob::image := GROB.Image;
+alias @grob::image := GROB.Image;
 
 #endif

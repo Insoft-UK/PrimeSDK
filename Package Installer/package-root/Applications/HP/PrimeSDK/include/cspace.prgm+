@@ -26,7 +26,7 @@
 #ifndef CSPACE_PPLIB
 #define CSPACE_PPLIB
 
-alias cs::normalize := ColorSpace.Normalize;
-alias cs::clamp_rgb := ColorSpace.ClampRGB;
+alias @cs::normalize := ColorSpace.Normalize;
+alias @cs::clamp_rgb := ColorSpace.ClampRGB;
 
 #endif

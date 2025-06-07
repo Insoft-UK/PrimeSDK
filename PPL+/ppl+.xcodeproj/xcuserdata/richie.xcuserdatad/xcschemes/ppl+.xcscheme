@@ -57,7 +57,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "$(PROJECT_DIR)/examples/example"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-o ~/Documents/HP\ Prime/Calculators/Prime/example.hpprgm"
@@ -73,7 +73,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/private/tmp/PrimeSDK/Examples/Colors/src/main.prgm+ -o $(PROJECT_DIR)/examples/Colors.prgm"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/private/tmp/PrimeSDK/Examples/MAD/src/main.prgm+ -o $(PROJECT_DIR)/examples/MAD.prgm"

@@ -37,20 +37,13 @@
 #define COPYWRITE "Copyright (c) 2023-2025  =>  Insoft. All rights reserved."
 #define NUMBER 123
 
-#ifdef __pplplus
-var a;
-90=>a;
-#else
-var b;
-98=>b;
-#endif
-
-
+#define Event key, type[1], x[2], y[3], dx[4], dy[5]
 
 alias::name(a: alpha, b: beta)
 begin
     dict New := 0, Complete := 1, Drag := 2, Stretch := 3, Rotate := 4, LongClick := 5 MouseType;
-    
+    dict Event event;
+            
     beta = MouseType.Drag;
     alpha * \`98 + 1 * 2` => alpha;
     if alpha > 0 then

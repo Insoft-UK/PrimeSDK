@@ -25,20 +25,20 @@
 #ifndef IO_PPLIB
 #define IO_PPLIB
 
-alias io::choose := CHOOSE;
-alias io::editlist := EDITLIST;
-alias io::getkey := GETKEY;
-alias io::input := INPUT;
-alias io::is_keydown := ISKEYDOWN;
-alias io::mouse := MOUSE;
-alias io::message::box := MSGBOX;
-alias io::draw::menu := DRAWMENU;
-alias io::print := PRINT;
-alias io::wait := WAIT;
-alias io::app::files := AFiles;
+alias @io::choose := CHOOSE;
+alias @io::editlist := EDITLIST;
+alias @io::getkey := GETKEY;
+alias @io::input := INPUT;
+alias @io::is_keydown := ISKEYDOWN;
+alias @io::mouse := MOUSE;
+alias @io::message::box := MSGBOX;
+alias @io::draw::menu := DRAWMENU;
+alias @io::print := PRINT;
+alias @io::wait := WAIT;
+alias @io::app::files := AFiles;
 
 /// New, recommended!
-alias mouse := MOUSE;
-alias keyboard := GETKEY;
+alias @mouse := MOUSE;
+alias @keyboard := GETKEY;
 
 #endif

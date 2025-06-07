@@ -267,13 +267,13 @@ begin
         if menu == 3 then
             colorsH = floor((colorsH - 29) / 30) * 30;
             Colors::UpdateRGB;
-            HP.MouseClr;
+            hp::mouse::clear;
         end;
             
         if menu == 4 then
             colorsH = floor(colorsH / 30) * 30 + 30;
             Colors::UpdateRGB;
-            HP.MouseClr;
+            hp::mouse::clear;
         end;
             
         if menu == 5 then

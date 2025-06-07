@@ -25,11 +25,11 @@
 using pplplus::Dictionary;
 
 bool Dictionary::isDictionaryDefinition(const std::string &str) {
-    return regex_search(str, std::regex(R"(\bdict +([\w[\],:=#-]+) *@?([A-Za-z_]\w*(?:::[A-Za-z_]\w*)*);)"));
+    return regex_search(str, std::regex(R"(\bdict +([\w[\],:=#\- ]+) *@?\b([A-Za-z_]\w*(?:::[A-Za-z_]\w*)*);)"));
 }
 
 std::string Dictionary::removeDictionaryDefinition(const std::string& str) {
-    return std::regex_replace(str, std::regex(R"(\bdict +([\w[\],:=#-]+) *@?([A-Za-z_]\w*(?:::[A-Za-z_]\w*)*);)"), "");
+    return std::regex_replace(str, std::regex(R"(\bdict +([\w[\],:=#\- ]+) *@?\b([A-Za-z_]\w*(?:::[A-Za-z_]\w*)*);)"), "");
 }
 
 bool Dictionary::proccessDictionaryDefinition(const std::string &str) {
@@ -43,7 +43,7 @@ bool Dictionary::proccessDictionaryDefinition(const std::string &str) {
     identity.scope = Singleton::shared()->scopeDepth;
     identity.type = Aliases::Type::Alias;
     
-    re = R"(\bdict +([\w[\],:=#-]+) *(@)?([A-Za-z_]\w*(?:::[A-Za-z_]\w*)*);)";
+    re = R"(\bdict +([\w[\],:=#\- ]+) *(@)?\b([A-Za-z_]\w*(?:::[A-Za-z_]\w*)*);)";
     if (regex_search(code, match, re)) {
         
         identity.scope = match[2].matched ? 0 : Singleton::shared()->scopeDepth;

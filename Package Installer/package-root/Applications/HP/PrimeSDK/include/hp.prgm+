@@ -26,17 +26,17 @@
 #ifndef HP_PPLIB
 #define HP_PPLIB
 
-alias hp::glyph := HP.Glyph;
-alias hp::text := HP.Text;
-alias hp::zones::reset := HP.RZs;
-alias hp::zone::reset := HP.RZn;
-alias hp::zone::set := HP.SZs;
-alias hp::zone := HP.Zn;
-alias hp::event::wait := HP.EWait;
-alias hp::mouse::wait := HP.MWait;
-alias hp::mouse::clear := HP.MClr;
-alias hp::mouse := HP.MPt;
-alias hp::menu := HP.Mn;
+alias @hp::glyph := HP.Glyph;
+alias @hp::text := HP.Text;
+alias @hp::zones::reset := HP.RZs;
+alias @hp::zone::reset := HP.RZn;
+alias @hp::zone::set := HP.SZs;
+alias @hp::zone := HP.Zn;
+alias @hp::event::wait := HP.EWait;
+alias @hp::mouse::wait := HP.MWait;
+alias @hp::mouse::clear := HP.MClr;
+alias @hp::mouse::pt := HP.MPt;
+alias @hp::menu::num := HP.Mn;
 
 regex @`hp::mouse\.x` HP.ms[1,1]
 regex @`hp::mouse\.y` HP.ms[1,2]

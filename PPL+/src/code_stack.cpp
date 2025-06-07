@@ -27,20 +27,20 @@
 
 using pplplus::CodeStack;
 
-bool CodeStack::parse(std::string &str)
-{
+std::string CodeStack::parse(const std::string& str) {
     std::regex re;
     std::smatch match;
     std::string::const_iterator it;
+    std::string output = str;
     
     re = R"(__PUSH__`([^`]*)`|__POP__|__TOP__)";
-    it = str.cbegin();
-    while (std::regex_search(it, str.cend(), match, re)) {
+    it = output.cbegin();
+    while (std::regex_search(it, output.cend(), match, re)) {
         if (match.str() == "__POP__") {
             // Replace the match with the last value from the stack
-            it = str.erase(it + match.position(), it + match.position() +  match.length());
+            it = output.erase(it + match.position(), it + match.position() +  match.length());
             if (!_stack.empty()) {
-                it = str.insert(it, _stack.top().begin(), _stack.top().end());
+                it = output.insert(it, _stack.top().begin(), _stack.top().end());
                 _stack.pop();
             }
             continue;
@@ -48,9 +48,9 @@ bool CodeStack::parse(std::string &str)
         
         if (match.str() == "__TOP__") {
             // Replace the match with the last value from the stack
-            it = str.erase(it + match.position(), it + match.position() +  match.length());
+            it = output.erase(it + match.position(), it + match.position() +  match.length());
             if (!_stack.empty()) {
-                it = str.insert(it, _stack.top().begin(), _stack.top().end());
+                it = output.insert(it, _stack.top().begin(), _stack.top().end());
             }
             continue;
         }
@@ -59,8 +59,8 @@ bool CodeStack::parse(std::string &str)
         _stack.push(match.str(1));
         
         // Erase only the matched portion and update the iterator correctly
-        it = str.erase(it + match.position(), it + match.position() + match.length());
+        it = output.erase(it + match.position(), it + match.position() + match.length());
     }
     
-    return false;
+    return output;
 }

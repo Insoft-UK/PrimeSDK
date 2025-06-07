@@ -25,8 +25,7 @@
 #ifndef CPLANG_PPLIB
 #define CPLANG_PPLIB
 
-#define namespace alias
-
+alias @namespace := alias
 regex @`\bvoid\b *`
 
 regex @`0x([\dA-F]+)` #$1:h
