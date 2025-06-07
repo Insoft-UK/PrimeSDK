@@ -14,7 +14,7 @@ Graphing calculator HP Prime has a **3.5-inch full color touch screen**, that de
 PPL+ is a pre-processor utility designed to improve code maintainability and readability in the HP Programming Language (PPL). PPL+ also allows one to define regular expressions to assist in the preprocessing workflow. The final output is a compact, optimized PPL program file tailored to the HP Prime’s limited storage capacity.
 
 >[!WARNING]
-The **auto** feature will be removed in future releases of PPL+. It is recommended to avoid using auto aliases going forward.
+The **auto** feature will be removed in future releases of PPL+. It is recommended to avoid using auto aliases going forward. The **auto feature** in the PPL+ preprocessor has become largely redundant. It was originally intended to help generate compressed code, but since the introduction of a separate tool dedicated to code compression and minimization, its continued presence in PPL+ is unnecessary. In fact, it somewhat contradicts the core purpose of PPL+ itself. As a result, this feature is expected to be removed in a future update.
 
 ### <a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/PPL-Minifier/README.md">Minifier & Compressor</a> for PPL Code
 Minification of your code results in it taking up less space, making it use less storage of your HP Prime's storage memory giving you more space for more programs.
