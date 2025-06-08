@@ -21,8 +21,8 @@
 // SOFTWARE.
 
 #define VERSION_NUMBER        "4.0.4"
-#define VERSION_CODE          "D0E86-25F6"
-#define NUMERIC_BUILD          40486
-#define INTERNAL_BUILD_CODE   "D0E86"
-#define DATE                  "2025 June 07"
+#define VERSION_CODE          "D0E87-25F7"
+#define NUMERIC_BUILD          40487
+#define INTERNAL_BUILD_CODE   "D0E87"
+#define DATE                  "2025 June 08"
 #define YEAR                  "2025"

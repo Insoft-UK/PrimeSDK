@@ -1,4 +1,4 @@
-#pragma mode( separator(., ;) integer(h64) )
+#pragma mode( separator(.,;) integer(h32) )
 
 // SHUTTLE for HP Prime
 // Converted from an AutoCAD DWG
