@@ -31,7 +31,7 @@ This is a handy utility that goes well with the original fontconvert tool provid
 ### <a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/hpprgm/README.md">HP Prime Program Tool</a>
 This utility tool provides the ability to extract **PPL** code from an HP Prime `.hpprgm` file.
 
-### Examples: Colors, MAD, Periodic and Shuttle
+### Examples: Colors, MAD and Shuttle
 **screenshots**
 
 
