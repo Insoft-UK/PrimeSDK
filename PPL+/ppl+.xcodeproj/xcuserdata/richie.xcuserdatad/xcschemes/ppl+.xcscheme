@@ -73,11 +73,11 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/private/tmp/PrimeSDK/Examples/Colors/src/main.prgm+ -o $(PROJECT_DIR)/examples/Colors.prgm"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/private/tmp/PrimeSDK/Examples/MAD/src/main.prgm+ -o $(PROJECT_DIR)/examples/MAD.prgm"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "$(PROJECT_DIR)/../Package\ Installer/package-root/private/tmp/PrimeSDK/Examples/Periodic/src/main.prgm+ -o $(PROJECT_DIR)/examples/Periodic.prgm"

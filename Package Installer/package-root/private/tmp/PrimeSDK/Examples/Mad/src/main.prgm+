@@ -36,14 +36,14 @@ end;
 
 Draw: MAD::Draw()
 begin
-    RECT(#00FF00h);
+    RECT(#00FF00:32h);
     local C: color = Color.White;
     local FX: x1, FY: y1, LX: x2, LY: y2;
 
     I:=1;
-    while DATA[I] != END_OF_DATA do
+    while DATA[I] <> END_OF_DATA do
         if I==1561 then
-            color := #006600h;
+            color := #006600:32h;
         end;
         MAD::Read();
     
