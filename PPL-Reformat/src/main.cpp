@@ -84,7 +84,7 @@ namespace std::filesystem {
     #include <cstdint>
     namespace std {
         template <typename T>
-        T bitswap(T u)
+        T byteswap(T u)
         {
             
             static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
@@ -174,7 +174,7 @@ bool isHPPrgrmFileFormat(std::ifstream& infile)
     infile.read((char *)&u32, sizeof(uint32_t));
     
 #ifndef __LITTLE_ENDIAN__
-    u32 = swap_endian(u32);
+    u32 = std::byteswap(u32);
 #endif
     
     if (u32 != 0x7C618AB2) {
@@ -184,7 +184,7 @@ bool isHPPrgrmFileFormat(std::ifstream& infile)
     while (!infile.eof()) {
         infile.read((char *)&u32, sizeof(uint32_t));
 #ifndef __LITTLE_ENDIAN__
-    u32 = swap_endian(u32);
+    u32 = std::byteswap(u32);
 #endif
         if (u32 == 0x9B00C000) return true;
         infile.peek();
@@ -790,13 +790,16 @@ int main(int argc, char **argv) {
             return 0;
         }
         
-        in_filename = argv[n];
+        in_filename = std::filesystem::expand_tilde(argv[n]);
         std::regex re(R"(.\w*$)");
         std::smatch extension;
     }
     
     info();
     
+    if (std::filesystem::path(in_filename).parent_path().empty()) {
+        in_filename = in_filename.insert(0, "./");
+    }
     std::filesystem::path path = in_filename;
     path = std::filesystem::expand_tilde(path);
     

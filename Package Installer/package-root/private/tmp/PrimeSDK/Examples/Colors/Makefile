@@ -11,8 +11,8 @@ endif
 
 all:
 	mkdir -p build
-	ppl+ $(SOURCES)/main -o build/$(NAME).hpprgm
+	ppl+ $(SOURCES)/main -o build/$(NAME).prgm
 min:
-	pplmin build/$(NAME).hpprgm
+	pplmin build/$(NAME).prgm
 clean:
 	rmdir -r build

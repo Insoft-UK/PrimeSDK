@@ -73,7 +73,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/linedda"
+            argument = "$(PROJECT_DIR)/examples/ppl.prgm"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

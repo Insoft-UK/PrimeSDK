@@ -8,6 +8,7 @@ export SOURCES=src
 
 make -j$(sysctl -n hw.ncpu) all
 make min
+hpprgm $NAME-min.prgm
 
 read -p "Press Enter to exit!"
 

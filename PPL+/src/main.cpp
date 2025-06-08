@@ -99,7 +99,7 @@ namespace std::filesystem {
     #include <cstdint>
     namespace std {
         template <typename T>
-        T bitswap(T u)
+        T byteswap(T u)
         {
             
             static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
@@ -1694,7 +1694,9 @@ int main(int argc, char **argv) {
         std::regex re(R"(.\w*$)");
     }
     
-    
+    if (fs::path(in_filename).parent_path().empty()) {
+        in_filename.insert(0, "./");
+    }
     
     if (!fs::exists(in_filename)) {
         if (fs::exists(in_filename + ".prgm+")) in_filename.append(".prgm+");
@@ -1724,7 +1726,7 @@ int main(int argc, char **argv) {
     }
 
     if (fs::path(out_filename).extension() != ".hpprgm") {
-        // The ".ppl" file format requires UTF16-LE.
+        // The ".prgm" file format requires UTF16-LE.
         outfile.put(0xFF);
         outfile.put(0xFE);
     } else {

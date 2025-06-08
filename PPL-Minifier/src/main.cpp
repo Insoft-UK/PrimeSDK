@@ -84,7 +84,7 @@ namespace std::filesystem {
     #include <cstdint>
     namespace std {
         template <typename T>
-        T bitswap(T u)
+        T byteswap(T u)
         {
             
             static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
@@ -165,25 +165,6 @@ std::string utf16_to_utf8(const uint16_t* utf16_str, size_t utf16_size) {
     return utf8_str;
 }
 
-template <typename T>
-T swap_endian(T u)
-{
-    static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
-
-    union
-    {
-        T u;
-        unsigned char u8[sizeof(T)];
-    } source, dest;
-
-    source.u = u;
-
-    for (size_t k = 0; k < sizeof(T); k++)
-        dest.u8[k] = source.u8[sizeof(T) - k - 1];
-
-    return dest.u;
-}
-
 // TODO: .hpprgrm file format detection and handling.
 bool isHPPrgrmFileFormat(std::ifstream &infile)
 {
@@ -191,7 +172,7 @@ bool isHPPrgrmFileFormat(std::ifstream &infile)
     infile.read((char *)&u32, sizeof(uint32_t));
     
 #ifndef __LITTLE_ENDIAN__
-    u32 = swap_endian(u32);
+    u32 = std::byteswap(u32);
 #endif
     
     if (u32 != 0x7C618AB2) {
@@ -201,7 +182,7 @@ bool isHPPrgrmFileFormat(std::ifstream &infile)
     while (!infile.eof()) {
         infile.read((char *)&u32, sizeof(uint32_t));
 #ifndef __LITTLE_ENDIAN__
-    u32 = swap_endian(u32);
+    u32 = std::byteswap(u32);
 #endif
         if (u32 == 0x9B00C000) return true;
         infile.peek();
@@ -744,14 +725,18 @@ int main(int argc, char **argv) {
             return 0;
         }
         
-        in_filename = argv[n];
+        in_filename = std::filesystem::expand_tilde(argv[n]);
         std::regex re(R"(.\w*$)");
         std::smatch extension;
     }
     
     info();
     
+    if (std::filesystem::path(in_filename).parent_path().empty()) {
+        in_filename = in_filename.insert(0, "./");
+    }
     std::filesystem::path path = in_filename;
+    
     path = std::filesystem::expand_tilde(path);
     
     if (path.extension().empty()) {

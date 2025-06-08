@@ -108,26 +108,55 @@ void help(void) {
 }
 
 // MARK: -
+// MARK: - Extensions
 
-
-template <typename T>
-T swap_endian(T u)
-{
-    static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
-
-    union
-    {
-        T u;
-        unsigned char u8[sizeof(T)];
-    } source, dest;
-
-    source.u = u;
-
-    for (size_t k = 0; k < sizeof(T); k++)
-        dest.u8[k] = source.u8[sizeof(T) - k - 1];
-
-    return dest.u;
+namespace std::filesystem {
+    std::filesystem::path expand_tilde(const std::filesystem::path& path) {
+        if (!path.empty() && path.string().starts_with("~")) {
+#ifdef _WIN32
+            const char* home = std::getenv("USERPROFILE");
+#else
+            const char* home = std::getenv("HOME");
+#endif
+            
+            if (home) {
+                return std::filesystem::path(std::string(home) + path.string().substr(1));  // Replace '~' with $HOME
+            }
+        }
+        return path;  // return as-is if no tilde or no HOME
+    }
 }
+
+#if __cplusplus >= 202302L
+    #include <bit>
+    using std::byteswap;
+#elif __cplusplus >= 201103L
+    #include <cstdint>
+    namespace std {
+        template <typename T>
+        T byteswap(T u)
+        {
+            
+            static_assert (CHAR_BIT == 8, "CHAR_BIT != 8");
+            
+            union
+            {
+                T u;
+                unsigned char u8[sizeof(T)];
+            } source, dest;
+            
+            source.u = u;
+            
+            for (size_t k = 0; k < sizeof(T); k++)
+                dest.u8[k] = source.u8[sizeof(T) - k - 1];
+            
+            return dest.u;
+        }
+    }
+#else
+    #error "C++11 or newer is required"
+#endif
+
 
 static void createUTF16LEFile(const std::string& filename, const std::string str) {
     std::ofstream outfile;
@@ -294,7 +323,7 @@ static std::string createPPLList(const void *data, const size_t lengthInBytes, c
         n = *bytes++;
         
         if (!le) {
-            n = swap_endian<uint64_t>(n);
+            n = std::byteswap<uint64_t>(n);
         }
         
 #ifndef __LITTLE_ENDIAN__
@@ -320,7 +349,7 @@ static std::string createPPLList(const void *data, const size_t lengthInBytes, c
         n = *bytes++;
         
         if (!le) {
-            n = swap_endian<uint64_t>(n);
+            n = std::byteswap<uint64_t>(n);
         }
         
         os << " ,";
@@ -421,9 +450,12 @@ int main(int argc, const char **argv)
             return 0;
         }
         
-        in_filename = argv[n];
+        in_filename = std::filesystem::expand_tilde(argv[n]);
     }
     
+    if (std::filesystem::path(in_filename).parent_path().empty()) {
+        in_filename = in_filename.insert(0, "./");
+    }
     
     if (name.empty()) {
         name = std::filesystem::path(in_filename).stem().string();

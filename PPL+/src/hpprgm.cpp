@@ -22,7 +22,7 @@
 
 #include "hpprgm.hpp"
 
-static std::wstring readInUTF16(std::ifstream &is, std::streampos offset = 0) {
+static std::wstring readInUTF16(std::ifstream& is, std::streampos offset = 0) {
     // Seek to the desired offset (if any)
     if (offset > 0) {
         is.seekg(offset, std::ios::beg);
@@ -46,8 +46,7 @@ static std::wstring readInUTF16(std::ifstream &is, std::streampos offset = 0) {
     return result;
 }
 
-static std::wstring readInPPLCode(const std::string &s)
-{
+static std::wstring readInPPLCode(const std::string& s) {
     std::wstring wstr;
     std::ifstream is;
     
@@ -57,8 +56,7 @@ static std::wstring readInPPLCode(const std::string &s)
     return wstr;
 }
 
-static std::wstring extractPPLCode(const std::string &s)
-{
+static std::wstring extractPPLCode(const std::string& s) {
     uint32_t u32;
     std::streampos pos, codePos;
     std::wstring wstr;
@@ -97,8 +95,7 @@ static std::wstring extractPPLCode(const std::string &s)
 }
 
 
-static bool isG1(const std::string &filepath)
-{
+static bool isG1(const std::string& filepath) {
     std::ifstream is;
     uint32_t header_size, code_size;
     std::filesystem::path path;
@@ -120,8 +117,7 @@ static bool isG1(const std::string &filepath)
     return filesize == 4 + header_size + 4 + code_size;
 }
 
-static bool isG2(const std::string &filepath)
-{
+static bool isG2(const std::string& filepath) {
     std::ifstream is;
     uint32_t sig;
     
@@ -132,8 +128,7 @@ static bool isG2(const std::string &filepath)
     return sig == 0xB28A617C;
 }
 
-static bool isUTF16le(const std::string &filepath)
-{
+static bool isUTF16le(const std::string& filepath) {
     std::ifstream is;
     uint16_t sig;
     
@@ -145,8 +140,7 @@ static bool isUTF16le(const std::string &filepath)
 }
 
 
-std::wstring hpprgm::load(const std::string &filepath)
-{
+std::wstring hpprgm::load(const std::string& filepath) {
     std::wstring wstr;
     
     if (!std::filesystem::exists(filepath)) return wstr;
@@ -155,5 +149,9 @@ std::wstring hpprgm::load(const std::string &filepath)
     if (isG2(filepath) || isG1(filepath)) return extractPPLCode(filepath);
     
     return wstr;
+}
+
+void hpprgm::save(const std::string& filepath, const std::wstring& prgm) {
+    
 }
 
