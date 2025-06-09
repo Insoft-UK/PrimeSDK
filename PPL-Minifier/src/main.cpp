@@ -47,6 +47,7 @@
 
 static Preprocessor preprocessor = Preprocessor();
 static Strings strings = Strings();
+static bool preserveFunctionNames = false;
 
 void terminator() {
   std::cout << MessageType::Error << "An internal preprocessing problem occurred. Please review the syntax before this point.\n";
@@ -477,10 +478,12 @@ void minifieLine(std::string &ln, std::ofstream &outfile) {
         // Function
         re = R"(^([A-Za-z]\w*)\(([\w,]*)\);?$)";
         if (regex_search(ln, match, re)) {
-            identity.type = Aliases::Type::Function;
-            identity.identifier = match.str(1);
-            identity.real = "f" + base10ToBase32(++functionAliasCount);
-            singleton->aliases.append(identity);
+            if (!preserveFunctionNames) {
+                identity.type = Aliases::Type::Function;
+                identity.identifier = match.str(1);
+                identity.real = "f" + base10ToBase32(++functionAliasCount);
+                singleton->aliases.append(identity);
+            }
             
             std::string s = match.str(2);
             int count = -1;
@@ -680,8 +683,12 @@ void help(void) {
     std::cout 
     << "Copyright (C) 2024-" << YEAR << " Insoft. All rights reserved."
     << "Insoft "<< NAME << " version, " << VERSION_NUMBER << " (BUILD " << VERSION_CODE << ")"
-    << ""
+    << "\n"
     << "Usage: " << COMMAND_NAME << " <input-file>\n"
+    << "\n"
+    << "Options:\n"
+    << "  -f                      Preserve function names.\n"
+    << "\n"
     << "Additional Commands:"
     << "  " << COMMAND_NAME << " {-version | -help}"
     << "    -version              Display the version information."
@@ -718,7 +725,10 @@ int main(int argc, char **argv) {
             exit(0);
         }
         
-        
+        if ( args == "-f" ) {
+            preserveFunctionNames = true;
+            continue;
+        }
         
         if ( strcmp( argv[n], "-version" ) == 0 ) {
             version();
