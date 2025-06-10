@@ -28,7 +28,7 @@
 
 namespace hpprgm {
     std::wstring load(const std::string& filepath);
-    void save(const std::string& filepath, const std::wstring& prgm);
+    bool save(const std::string& filepath, const std::string& str);
 }
 
 #endif /* hpprgm_hpp */

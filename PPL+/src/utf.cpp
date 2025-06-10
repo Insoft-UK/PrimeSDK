@@ -23,7 +23,7 @@
 #include "utf.hpp"
 
 
-std::string utf::to_utf8(const std::wstring &wstr) {
+std::string utf::to_utf8(const std::wstring& wstr) {
     std::string utf8;
     uint16_t utf16 = 0;
 
@@ -48,7 +48,7 @@ std::string utf::to_utf8(const std::wstring &wstr) {
     return utf8;
 }
 
-std::wstring utf::to_utf16(const std::string &str) {
+std::wstring utf::to_utf16(const std::string& str) {
     std::wstring utf16;
     size_t i = 0;
 
@@ -88,7 +88,7 @@ std::wstring utf::to_utf16(const std::string &str) {
     return utf16;
 }
 
-uint16_t utf::utf16(const char *str) {
+uint16_t utf::utf16(const char* str) {
     uint8_t *utf8 = (uint8_t *)str;
     uint16_t utf16 = *utf8;
     
@@ -112,10 +112,55 @@ uint16_t utf::utf16(const char *str) {
     return utf16;
 }
 
-void utf::write(const std::string &str, std::ofstream &outfile) {
-    if (str.empty()) return;
+std::wstring utf::read_as_utf16(std::ifstream& is) {
+    std::wstring output;
     
-    for ( int n = 0; n < str.length(); n++) {
+    while (true) {
+        char16_t ch;
+        // Read 2 bytes (UTF-16LE)
+        is.read(reinterpret_cast<char*>(&ch), sizeof(ch));
+        
+        if (!is || ch == 0x0000) {
+            break; // EOF or null terminator
+        }
+        
+        output += static_cast<wchar_t>(ch);
+        is.peek();
+        if (is.eof()) break;
+    }
+    
+    return output;
+}
+
+std::wstring utf::read_utf16(std::ifstream& is) {
+    std::wstring wstr;
+    uint16_t byte_order_mark;
+    
+    is.read(reinterpret_cast<char*>(&byte_order_mark), sizeof(byte_order_mark));
+    if (byte_order_mark != 0xFEFF) return wstr;
+    
+    wstr = read_as_utf16(is);
+    return wstr;
+}
+
+std::wstring utf::load_utf16(const std::string& filepath) {
+    std::wstring output;
+    std::ifstream is;
+    
+    is.open(filepath, std::ios::in | std::ios::binary);
+    if(!is.is_open()) return output;
+
+    output = read_utf16(is);
+    
+    is.close();
+    return output;
+}
+
+size_t utf::write_as_utf16(std::ofstream& os, const std::string& str) {
+    if (str.empty()) return 0;
+    
+    size_t size = 0;
+    for ( int n = 0; n < str.length(); n++, size += 2) {
         uint8_t *ascii = (uint8_t *)&str.at(n);
         if (str.at(n) == '\r') continue;
         
@@ -126,13 +171,35 @@ void utf::write(const std::string &str, std::ofstream &outfile) {
 #ifndef __LITTLE_ENDIAN__
             utf16 = utf16 >> 8 | utf16 << 8;
 #endif
-            outfile.write((const char *)&utf16, 2);
+            os.write((const char *)&utf16, 2);
             if ((*ascii & 0b11100000) == 0b11000000) n++;
             if ((*ascii & 0b11110000) == 0b11100000) n+=2;
             if ((*ascii & 0b11111000) == 0b11110000) n+=3;
         } else {
-            outfile.put(str.at(n));
-            outfile.put('\0');
+            os.put(str.at(n));
+            os.put('\0');
         }
     }
+    return size;
+}
+
+size_t utf::write_utf16(std::ofstream& os, const std::string& str) {
+    if (str.empty()) return 0;
+    
+    os.put(0xFF);
+    os.put(0xFE);
+    
+    return write_as_utf16(os, str);
+}
+
+bool utf::save_as_utf16(const std::string& filepath, const std::string& str) {
+    std::ofstream os;
+    
+    os.open(filepath, std::ios::out | std::ios::binary);
+    if(!os.is_open()) return false;
+    
+    write_utf16(os, str);
+    
+    os.close();
+    return true;
 }

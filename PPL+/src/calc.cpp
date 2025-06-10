@@ -328,7 +328,17 @@ std::string Calc::parse(const std::string& str) {
     std::string newstr = str;
     
     
-    re = R"(\\( *\d{1,2}|F|C|R)?(?:\[|`)(.*)(?:\]|`))";
+//    re = R"(\\( *\d{1,2}|F|C|R)?(?:\[|`)(.*)(?:\]|`))";
+    
+    /*
+     \`1+2*3/4`:1
+     \`1+2*3/4`:f
+     \`1+2*3/4`:c
+     \`1+2*3/4`:r
+     \`1+2*3`:32h
+     \`1+2*3`:-32d
+     */
+    re = R"(\\`([^`]+)`(?::(?:(-)?(\d+)([bodh])?|([fcr])))?)";
     while (regex_search(str, match, re)) {
         
         std::string matched = match.str();
@@ -336,63 +346,75 @@ std::string Calc::parse(const std::string& str) {
         convertPPLStyleNumbersToBase10(matched);
         
         std::string expression;
-        int scale = 0;
+        int scale = -1;
         
         matched = regex_replace(matched, std::regex(R"(e)"), "2.71828182845904523536028747135266250");
         matched = regex_replace(matched, std::regex(R"(π)"), "3.14159265358979323846264338327950288");
         
         strip(matched);
+  
+        expression = match.str(1);
         
-        char output = 0;
         
-        auto it = std::sregex_token_iterator {
-            matched.begin(), matched.end(), re, {1, 2}
-        };
-        if (it != std::sregex_token_iterator()) {
-            if (it->matched) {
-                if (isdigit(it->str().c_str()[0])) {
-                    scale = atoi(it->str().c_str());
-                } else {
-                    output = it->str().c_str()[0];
-                }
-            }
-            else {
-                scale = -1; // -1 means auto scale
-            }
-            it++;
-            expression = *it;
-        }
-        
+
         parse(expression);
-        
         
         expression = separateExpression(expression);
         double result = evaluateExpression(expression);
         
-        switch (output) {
-            case 'F':
-                result = floor(result);
-                break;
-                
-            case 'C':
-                result = ceil(result);
-                break;
-                
-            case 'R':
-                result = round(result);
-                break;
-                
-            default:
-                break;
+        if (match[5].matched) {
+            switch (*match.str(5).c_str()) {
+                case 'f':
+                    result = floor(result);
+                    break;
+                    
+                case 'c':
+                    result = ceil(result);
+                    break;
+                    
+                case 'r':
+                    result = round(result);
+                    break;
+                    
+                default:
+                    break;
+            }
+        }
+        
+        if (match[4].matched) {
+            scale = 0;
+        }
+    
+        if (match.str(2).empty() && match.str(4).empty() && match[3].matched) {
+            scale = atoi(match.str(3).c_str());
         }
         
         std::stringstream ss;
-        ss << std::fixed << std::setprecision(scale > -1 ? scale : 10) << result;
-        std::string s = ss.str();
+        std::string s;
         
-        if (scale < 0) {
-            s.erase ( s.find_last_not_of('0') + 1, std::string::npos );
-            s.erase ( s.find_last_not_of('.') + 1, std::string::npos );
+        if (match[4].matched) {
+            ss << "#" << std::uppercase;
+            
+            if (match.str(4) == "h") {
+                ss << std::hex << std::setfill('0') << std::setw(atoi(match.str(3).c_str()) / 4);
+            }
+            if (match.str(4) == "d") {
+                ss << std::dec;
+            }
+            if (match.str(4) == "o") {
+                ss << std::oct;
+            }
+            
+            ss << (int)result << ":" << match.str(2) << match.str(3) << match.str(4);
+            s = ss.str();
+        } else {
+            ss << std::fixed << std::setprecision(scale > -1 ? scale : 10) << result;
+            s = ss.str();
+            
+            if (scale < 0) {
+                s.erase ( s.find_last_not_of('0') + 1, std::string::npos );
+                s.erase ( s.find_last_not_of('.') + 1, std::string::npos );
+            }
         }
         
         

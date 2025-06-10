@@ -35,6 +35,7 @@
 
 #include "singleton.hpp"
 #include "common.hpp"
+#include "hpprgm.hpp"
 
 #include "preprocessor.hpp"
 #include "strings.hpp"

@@ -20,22 +20,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include "base.hpp"
 
-#ifndef calc_hpp
-#define calc_hpp
+#include <regex>
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <unordered_map>
-#include <stdint.h>
+using pplplus::Base;
 
-namespace pplplus {
-    class Calc {
-    public:
-        static std::string evaluateMathExpression(const std::string& str);
-        static std::string parse(const std::string& str);
-    };
+std::string Base::parse(const std::string &str) {
+    std::smatch matches;
+    std::string output = str;
+    std::regex re(R"(#(-)?(\d+)([bodh])\((0x[[:xdigit:]]+|[[:xdigit:]]+(?:\.[[:xdigit:]]+)?|0[0-7]+|0b[0-1]+)\))");
+    
+    if (regex_search(output, matches, re)) {
+        std::string s;
+        s = "#" + matches.str(4) + ":" + matches.str(1) + matches.str(2) + matches.str(3);
+        output.replace(matches.position(), matches.length(), s);
+    }
+    return output;
 }
-
-#endif /* calc_hpp */

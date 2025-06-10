@@ -42,7 +42,7 @@
 #include "preprocessor.hpp"
 #include "dictionary.hpp"
 #include "alias.hpp"
-//#include "strings.hpp"
+#include "base.hpp"
 #include "calc.hpp"
 #include "hpprgm.hpp"
 #include "utf.hpp"
@@ -61,6 +61,7 @@ using pplplus::Alias;
 using pplplus::Calc;
 using pplplus::Dictionary;
 using pplplus::Preprocessor;
+using pplplus::Base;
 
 using std::regex_replace;
 using std::sregex_iterator;
@@ -1075,7 +1076,7 @@ void reformatPPLLine(std::string& str) {
 }
 
 
-std::string translatePPLPlusLine(const std::string& input, std::ofstream& outfile) {
+std::string translatePPLPlusLine(const std::string& input) {
     std::regex re;
     std::smatch match;
     std::ifstream infile;
@@ -1197,6 +1198,7 @@ std::string translatePPLPlusLine(const std::string& input, std::ofstream& outfil
     output = Singleton::shared()->autoname.parse(output);
     output = Alias::parse(output);
     output = Calc::parse(output);
+    output = Base::parse(output);
     
     reformatPPLLine(output);
     output = processEscapes(output);
@@ -1246,8 +1248,6 @@ void loadRegexLibs(const std::string path, const bool verbose) {
     }
 }
 
-
-
 std::string embedPPLCode(const std::string& filepath) {
     std::ifstream is;
     std::string str;
@@ -1255,6 +1255,7 @@ std::string embedPPLCode(const std::string& filepath) {
     fs::path path = filepath;
     is.open(filepath, std::ios::in);
     if (!is.is_open()) return str;
+    
     if (path.extension() == ".hpprgm" || path.extension() == ".prgm") {
         std::wstring wstr = hpprgm::load(filepath);
         
@@ -1265,6 +1266,7 @@ std::string embedPPLCode(const std::string& filepath) {
             return str;
         }
     }
+    
     std::string line;
     while (getline(is, line)) {
         line += '\n';
@@ -1383,7 +1385,7 @@ std::string processPythonBlock(std::ifstream& infile, const std::string& input) 
     return output;
 }
 
-void translatePPLPlusToPPL(const fs::path& path, std::ofstream& outfile) {
+std::string translatePPLPlusToPPL(const fs::path& path) {
     Singleton& singleton = *Singleton::shared();
     std::ifstream infile;
     std::regex re;
@@ -1397,7 +1399,7 @@ void translatePPLPlusToPPL(const fs::path& path, std::ofstream& outfile) {
     
     infile.open(path,std::ios::in);
     if (!infile.is_open()) {
-        return;
+        return output;
     }
     
     while (getline(infile, input)) {
@@ -1468,8 +1470,7 @@ void translatePPLPlusToPPL(const fs::path& path, std::ofstream& outfile) {
                 input.append(it->str() + " ");
             }
             input.append(")");
-            
-            utf::write(input + "\n", outfile);
+            output += input + '\n';
             Singleton::shared()->incrementLineNumber();
             continue;
         }
@@ -1489,7 +1490,7 @@ void translatePPLPlusToPPL(const fs::path& path, std::ofstream& outfile) {
             if (!(fs::exists(path))) {
                 std::cout << MessageType::Verbose << path.filename() << " file not found\n";
             } else {
-                translatePPLPlusToPPL(path.string(), outfile);
+                output += translatePPLPlusToPPL(path.string());
             }
             continue;
         }
@@ -1509,7 +1510,7 @@ void translatePPLPlusToPPL(const fs::path& path, std::ofstream& outfile) {
             if (!(fs::exists(path))) {
                 std::cout << MessageType::Verbose << path.filename() << " file not found\n";
             } else {
-                translatePPLPlusToPPL(path.string(), outfile);
+                output += translatePPLPlusToPPL(path.string());
             }
             continue;
         }
@@ -1523,6 +1524,7 @@ void translatePPLPlusToPPL(const fs::path& path, std::ofstream& outfile) {
         input = blankOutStrings(input);
         Singleton::shared()->regexp.resolveAllRegularExpression(input);
         input = restoreStrings(input, strings);
+        
         
         /*
          We need to perform pre-parsing to ensure that, in lines using subtitued
@@ -1551,16 +1553,18 @@ void translatePPLPlusToPPL(const fs::path& path, std::ofstream& outfile) {
         std::string str;
         
         while(getline(iss, str)) {
-            output.append(translatePPLPlusLine(str, outfile));
+            output += (translatePPLPlusLine(str));
         }
         
         Singleton::shared()->incrementLineNumber();
     }
     
-    utf::write(output, outfile);
+    
     
     infile.close();
     singleton.popPath();
+    
+    return output;
 }
 
 
@@ -1715,26 +1719,7 @@ int main(int argc, char **argv) {
     out_filename = fs::expand_tilde(out_filename);
     
     info();
-    
-    
-    std::ofstream outfile;
-    outfile.open(out_filename, std::ios::out | std::ios::binary);
-    if(!outfile.is_open())
-    {
-        error();
-        return 0;
-    }
 
-    if (fs::path(out_filename).extension() != ".hpprgm") {
-        // The ".prgm" file format requires UTF16-LE.
-        outfile.put(0xFF);
-        outfile.put(0xFE);
-    } else {
-        outfile.seekp(20, std::ios::beg);
-    }
-    
-      
-    
     // Start measuring time
     Timer timer;
     
@@ -1759,55 +1744,21 @@ int main(int argc, char **argv) {
 #endif
     
     
-    translatePPLPlusToPPL(in_filename, outfile);
+    std::string output = translatePPLPlusToPPL(in_filename);
+    
+    if (fs::path(out_filename).extension() != ".hpprgm") {
+        if (!utf::save_as_utf16(out_filename, output)) {
+            std::cout << "Unable to create file " << fs::path(out_filename).filename() << ".\n";
+            return 0;
+        }
+    }
     
     if (fs::path(out_filename).extension() == ".hpprgm") {
-        // Get the current file size.
-        std::streampos currentPos = outfile.tellp();
-        
-        // Code size will be the current filesize - the header size + the two aditional bytes.
-        uint32_t codeSize = static_cast<uint32_t>(currentPos) - 20 + 2;
-
-        // Seek to the beginning to write the header.
-        outfile.seekp(0, std::ios::beg);
-
-        // HEADER
-        /**
-         0x0000-0x0003: Header Size, excludes itself (so the header begins at offset 4)
-         */
-        outfile.put(0x0C); // 12
-        outfile.put(0x00);
-        outfile.put(0x00);
-        outfile.put(0x00);
-        
-        // Write the 12-byte UTF-16LE header.
-        /**
-         0x0004-0x0005: Number of variables in table.
-         0x0006-0x0007: Number of uknown?
-         0x0008-0x0009: Number of exported functions in table.
-         0x000A-0x000F: Conn. kit generates 7F 01 00 00 00 00 but all zeros seems to work too.
-         */
-        for (int i = 0; i < 12; ++i) {
-            outfile.put(0x00);
+        if (!hpprgm::save(out_filename, output)) {
+            std::cout << "Unable to create file " << fs::path(out_filename).filename() << ".\n";
+            return 0;
         }
-
-        // CODE HEADER
-        /**
-         0x0000-0x0003: Size of the PPL Code in UTF-16 LE
-         */
-#ifndef __LITTLE_ENDIAN__
-        codeSize = swap_endian(codeSize);
-#endif
-        outfile.write(reinterpret_cast<const char*>(&codeSize), sizeof(codeSize));
-        
-        /**
-         0x0004-0x----: Code in UTF-16 LE until 00 00
-         */
-        outfile.seekp(0, std::ios::end);
-        outfile.put(0x00);
-        outfile.put(0x00);
     }
-    outfile.close();
     
     if (hasErrors() == true) {
         std::cout << ANSI::Red << "ERRORS!" << ANSI::Default << "\n";

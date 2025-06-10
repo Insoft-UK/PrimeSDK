@@ -27,12 +27,19 @@
 #include <fstream>
 #include <cstdlib>
 
-class utf {
-public:
-    static std::string to_utf8(const std::wstring &wstr);
-    static std::wstring to_utf16(const std::string &str);
-    static uint16_t utf16(const char *str);
-    static void write(const std::string &str, std::ofstream &outfile);
+namespace utf {
+    std::string to_utf8(const std::wstring& wstr);
+    std::wstring to_utf16(const std::string& str);
+    
+    uint16_t utf16(const char *str);
+    
+    std::wstring read_as_utf16(std::ifstream& is);
+    std::wstring read_utf16(std::ifstream& is);
+    std::wstring load_utf16(const std::string& filepath);
+    
+    size_t write_as_utf16(std::ofstream& os, const std::string& str);
+    size_t write_utf16(std::ofstream& os, const std::string& str);
+    bool save_as_utf16(const std::string& filepath, const std::string& str);
 };
 
 #endif /* utf_hpp */

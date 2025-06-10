@@ -46,6 +46,5 @@ dict White := #FFFFFF:32h, Silver := #C0C0C0:32h, Gray := #808080:32h, Black := 
 
 regex @`\bK<([a-zA-Z]\w*)>` KeyCode.$1
 regex @`\bT<(Real|Integer|String|Complex|Matrix|Error|List|Function|Unit|Cas)>` ObjectType.$1
-regex @`\bC<([a-zA-Z]\w*)>` Color.$1
 
 #endif

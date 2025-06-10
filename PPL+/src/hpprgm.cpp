@@ -21,40 +21,7 @@
 // SOFTWARE.
 
 #include "hpprgm.hpp"
-
-static std::wstring readInUTF16(std::ifstream& is, std::streampos offset = 0) {
-    // Seek to the desired offset (if any)
-    if (offset > 0) {
-        is.seekg(offset, std::ios::beg);
-    }
-
-    std::wstring result;
-    while (true) {
-        char16_t ch;
-        // Read 2 bytes (UTF-16LE)
-        is.read(reinterpret_cast<char*>(&ch), sizeof(ch));
-
-        if (!is || ch == 0x0000) {
-            break; // EOF or null terminator
-        }
-
-        result += static_cast<wchar_t>(ch);
-        is.peek();
-        if (is.eof()) break;
-    }
-
-    return result;
-}
-
-static std::wstring readInPPLCode(const std::string& s) {
-    std::wstring wstr;
-    std::ifstream is;
-    
-    is.open(s, std::ios::in | std::ios::binary);
-    wstr = readInUTF16(is, 2);
-    is.close();
-    return wstr;
-}
+#include "utf.hpp"
 
 static std::wstring extractPPLCode(const std::string& s) {
     uint32_t u32;
@@ -67,7 +34,8 @@ static std::wstring extractPPLCode(const std::string& s) {
     while (!is.eof()) {
         is.read((char *)&u32, sizeof(uint32_t));
         if (u32 == 0x00C0009B) {
-            wstr = readInUTF16(is, is.tellg());
+            is.seekg(is.tellg(), std::ios::beg);
+            wstr = utf::read_as_utf16(is);
             is.close();
             
             return wstr;
@@ -90,7 +58,8 @@ static std::wstring extractPPLCode(const std::string& s) {
         is.close();
     }
     
-    wstr = readInUTF16(is, codePos);
+    is.seekg(codePos, std::ios::beg);
+    wstr = utf::read_as_utf16(is);
     return wstr;
 }
 
@@ -128,30 +97,60 @@ static bool isG2(const std::string& filepath) {
     return sig == 0xB28A617C;
 }
 
-static bool isUTF16le(const std::string& filepath) {
-    std::ifstream is;
-    uint16_t sig;
-    
-    is.open(filepath, std::ios::in | std::ios::binary);
-    is.read(reinterpret_cast<char*>(&sig), sizeof(sig));
-    is.close();
-    
-    return sig == 0xFEFF;
-}
-
-
 std::wstring hpprgm::load(const std::string& filepath) {
     std::wstring wstr;
     
     if (!std::filesystem::exists(filepath)) return wstr;
     
-    if (isUTF16le(filepath)) return readInPPLCode(filepath);
-    if (isG2(filepath) || isG1(filepath)) return extractPPLCode(filepath);
-    
+    if (std::filesystem::path(filepath).extension() != ".hpprgm") wstr = utf::load_utf16(filepath);
+    if (std::filesystem::path(filepath).extension() == ".hpprgm") {
+        if (isG2(filepath) || isG1(filepath)) wstr = extractPPLCode(filepath);
+    }
     return wstr;
 }
 
-void hpprgm::save(const std::string& filepath, const std::wstring& prgm) {
+
+bool hpprgm::save(const std::string& filepath, const std::string& str) {
     
+    std::ofstream outfile;
+    outfile.open(filepath, std::ios::out | std::ios::binary);
+    if(!outfile.is_open()) {
+        return false;
+    }
+    
+    // HEADER
+    /**
+     0x0000-0x0003: Header Size, excludes itself (so the header begins at offset 4)
+     */
+    outfile.put(0x0C); // 12
+    outfile.put(0x00);
+    outfile.put(0x00);
+    outfile.put(0x00);
+    
+    // Write the 12-byte UTF-16LE header.
+    /**
+     0x0004-0x0005: Number of variables in table.
+     0x0006-0x0007: Number of uknown?
+     0x0008-0x0009: Number of exported functions in table.
+     0x000A-0x000F: Conn. kit generates 7F 01 00 00 00 00 but all zeros seems to work too.
+     */
+    for (int i = 0; i < 12 + 4; ++i) {
+        outfile.put(0x00);
+    }
+    
+    /**
+     0x0004-0x----: Code in UTF-16 LE until 00 00
+     */
+    uint32_t size = (uint32_t)utf::write_as_utf16(outfile, str);
+    
+    outfile.put(0x00);
+    outfile.put(0x00);
+    
+    outfile.seekp(16, std::ios::beg);
+    outfile.write(reinterpret_cast<const char*>(&size), sizeof(size));
+    outfile.seekp(std::ios::end);
+    
+    outfile.close();
+    return true;
 }
 

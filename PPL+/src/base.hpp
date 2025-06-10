@@ -20,22 +20,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#ifndef base_hpp
+#define base_hpp
 
-#ifndef calc_hpp
-#define calc_hpp
-
-#include <iostream>
-#include <vector>
 #include <string>
-#include <unordered_map>
-#include <stdint.h>
 
 namespace pplplus {
-    class Calc {
+    class Base {
     public:
-        static std::string evaluateMathExpression(const std::string& str);
-        static std::string parse(const std::string& str);
+        static std::string parse(const std::string &str);
     };
 }
 
-#endif /* calc_hpp */
+#endif /* base_hpp */
