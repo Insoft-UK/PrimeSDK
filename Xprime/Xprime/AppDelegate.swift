@@ -31,13 +31,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return true
     }
     
-//    func application(_ application: NSApplication, shouldRestoreApplicationState coder: NSCoder) -> Bool {
-//        return false
-//    }
-//
-//    func application(_ application: NSApplication, shouldSaveApplicationState coder: NSCoder) -> Bool {
-//        return false
-//    }
 
     @IBAction func openDocument(_ sender: Any) {
         if let vc = NSApp.mainWindow?.contentViewController as? ViewController {
@@ -57,5 +50,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    @IBAction func exportAsPrgm(_ sender: Any) {
+        if let vc = NSApp.mainWindow?.contentViewController as? ViewController {
+            vc.exportAsPrgm()
+        }
+    }
+    
+    @IBAction func exportAsHprgm(_ sender: Any) {
+        if let vc = NSApp.mainWindow?.contentViewController as? ViewController {
+            vc.exportAsHpprgm()
+        }
+    }
 }
 

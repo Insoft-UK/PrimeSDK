@@ -56,7 +56,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "$(PROJECT_DIR)/examples/example"
+            argument = "$(PROJECT_DIR)/examples/example.prgm+"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

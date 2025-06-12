@@ -103,7 +103,9 @@ class ViewController: NSViewController, NSTextViewDelegate {
             let regex = try! NSRegularExpression(pattern: pattern, options: [.caseInsensitive])
             regex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
                 if let match = match {
-                    textStorage.addAttribute(.foregroundColor, value: NSColor.systemBlue, range: match.range)
+                    textStorage.addAttribute(.foregroundColor, value: NSColor.init(calibratedRed: 0.330, green: 0.510, blue: 1, alpha: 1), range: match.range)
+                    
+//                    NSColor.init(red: 0.330, green: 0.510, blue: 1, alpha: 1)
                 }
             }
         }
@@ -123,17 +125,19 @@ class ViewController: NSViewController, NSTextViewDelegate {
         let brRegex = try! NSRegularExpression(pattern: brPattern)
         brRegex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
             if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: NSColor.systemBlue, range: match.range)
+                textStorage.addAttribute(.foregroundColor, value: NSColor.init(calibratedRed: 0.330, green: 0.510, blue: 1, alpha: 1), range: match.range)
             }
         }
         
         
         // Numbers (HP PPL + C/C++)
-        let numberPattern = #"\b-?(0[xX][0-9A-Fa-f]+|0[bB][01]+|(\d+\.\d*|\.\d+|\d+)([eE][+-]?\d+)?)([uUlLfFdD]*)\b"#
+        let numberPattern = #"#[\dA-F]+(:-?\d+)?h|#\d+(:-?\d+)?d|#[0-7]+(:-?\d+)?o|#[01]+(:-?\d+)?b|\b-?\d+(\.\d+)?\b"#
+        
+        //        let numberPattern = #"\b-?(0[xX][0-9A-Fa-f]+|0[bB][01]+|(\d+\.\d*|\.\d+|\d+)([eE][+-]?\d+)?)([uUlLfFdD]*)\b"#
         let numberRegex = try! NSRegularExpression(pattern: numberPattern)
         numberRegex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
             if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: NSColor.systemOrange, range: match.range)
+                textStorage.addAttribute(.foregroundColor, value: NSColor.init(calibratedRed: 0.992, green: 0.561, blue: 0.247, alpha: 1), range: match.range)
             }
         }
         
@@ -151,7 +155,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         let preprocessorRegex = try! NSRegularExpression(pattern: preprocessorPattern)
         preprocessorRegex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
             if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: NSColor.systemOrange, range: match.range)
+                textStorage.addAttribute(.foregroundColor, value: NSColor.init(calibratedRed: 0.992, green: 0.561, blue: 0.247, alpha: 1), range: match.range)
             }
         }
         
@@ -172,7 +176,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
     
     func replaceOperators() {
         guard let textStorage = textView.textStorage else { return }
-
+        
         let replacements: [(String, String)] = [
             ("!=", "≠"),
             ("<>", "≠"),
@@ -180,37 +184,37 @@ class ViewController: NSViewController, NSTextViewDelegate {
             ("<=", "≤"),
             ("=>", "▶")
         ]
-
+        
         var newCursorLocation = textView.selectedRange().location
         let originalText = textView.string as NSString
-
+        
         textStorage.beginEditing()
-
+        
         var totalOffset = 0
-
+        
         for (find, replace) in replacements {
             let pattern = NSRegularExpression.escapedPattern(for: find)
             let regex = try! NSRegularExpression(pattern: pattern)
-
+            
             let matches = regex.matches(in: originalText as String, range: NSRange(location: 0, length: originalText.length))
-
+            
             for match in matches.reversed() {
                 let range = match.range
                 let adjustedRange = NSRange(location: range.location + totalOffset, length: range.length)
                 textStorage.replaceCharacters(in: adjustedRange, with: replace)
-
+                
                 let offsetDelta = replace.count - range.length
                 totalOffset += offsetDelta
-
+                
                 // If replacement happened before or at the cursor, adjust it
                 if adjustedRange.location <= newCursorLocation {
                     newCursorLocation += offsetDelta
                 }
             }
         }
-
+        
         textStorage.endEditing()
-
+        
         // Update the selection to avoid jump or newline
         textView.setSelectedRange(NSRange(location: newCursorLocation, length: 0))
     }
@@ -252,7 +256,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
     func detectEncoding(of url: URL) -> String.Encoding? {
         do {
             let data = try Data(contentsOf: url)
-
+            
             if data.starts(with: [0xEF, 0xBB, 0xBF]) {
                 return .utf8
             } else if data.starts(with: [0xFF, 0xFE]) {
@@ -273,11 +277,17 @@ class ViewController: NSViewController, NSTextViewDelegate {
     
     func openFile() {
         let openPanel = NSOpenPanel()
-        openPanel.allowedFileTypes = ["prgm", "prgm+", "ppl", "ppl+", "pp"]
-
+        if #available(macOS 12.0, *) {
+            let extensions = ["prgm", "prgm+", "ppl", "ppl+", "pp"]
+            let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
+            openPanel.allowedContentTypes = contentTypes
+        } else {
+            openPanel.allowedFileTypes = ["prgm", "prgm+", "ppl", "ppl+", "pp"]
+        }
+        
         openPanel.allowsMultipleSelection = false
         openPanel.canChooseDirectories = false
-
+        
         openPanel.begin { [weak self] result in
             guard result == .OK, let url = openPanel.url else { return }
             
@@ -285,11 +295,26 @@ class ViewController: NSViewController, NSTextViewDelegate {
                 print("Unknown encoding")
                 return
             }
-
+            
+            //            if url.pathExtension == "ppl" || url.pathExtension == "ppl+" {
+            //                if encoding != .utf8 {
+            //                    print("Invalid encoding for \(url.pathExtension) file.")
+            //                    return
+            //                }
+            //            }
+            //
+            //            if url.pathExtension == "prgm" || url.pathExtension == "prgm+" {
+            //                if encoding != .utf16LittleEndian {
+            //                    print("Invalid encoding for \(url.pathExtension) file.")
+            //                    return
+            //                }
+            //            }
+            
             do {
                 let contents = try String(contentsOf: url, encoding: encoding)
                 self?.textView.string = contents
                 self?.applySyntaxHighlighting()
+                self?.currentFileURL = url
             } catch {
                 // handle error (e.g., show alert)
                 print("Failed to open file:", error)
@@ -312,7 +337,11 @@ class ViewController: NSViewController, NSTextViewDelegate {
     
     func saveFileAs() {
         let savePanel = NSSavePanel()
-        savePanel.allowedFileTypes = ["prgm+"]
+        if #available(macOS 12.0, *) {
+            savePanel.allowedContentTypes = [UTType(filenameExtension: "prgm+")].compactMap { $0 }
+        } else {
+            savePanel.allowedFileTypes = ["prgm+"]
+        }
         
         savePanel.begin { [weak self] result in
             guard result == .OK, let url = savePanel.url else { return }
@@ -325,5 +354,84 @@ class ViewController: NSViewController, NSTextViewDelegate {
             }
         }
     }
+    
+    func exportAsPrgm() {
+        guard let url = currentFileURL else {
+            print("No input file URL.")
+            return
+        }
+        
+        let outputURL = url.deletingPathExtension().appendingPathExtension("prgm")
+        let toolPath = "/Applications/HP/PrimeSDK/bin/ppl+"
+        
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            print("Input file does not exist at: \(url.path)")
+            return
+        }
+        
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: toolPath)
+        process.arguments = [url.path, "-o", outputURL.path]
+        process.currentDirectoryURL = url.deletingLastPathComponent()
+        
+        let command = ([toolPath] + [url.path, "-o", outputURL.path]).map { "\"\($0)\"" }.joined(separator: " ")
+        print("Running command:\n\(command)")
+
+        
+        do {
+            try process.run()
+            process.waitUntilExit()
+            
+            print("Process finished with status: \(process.terminationStatus)")
+            
+            if FileManager.default.fileExists(atPath: outputURL.path) {
+                print("Output file created at: \(outputURL.path)")
+            } else {
+                print("ppl+ completed, but output file not found.")
+            }
+            
+        } catch {
+            print("Failed to run ppl+ tool:", error)
+            return
+        }
+    }
+    
+    func exportAsHpprgm() {
+        guard let url = currentFileURL else {
+            print("No input file URL.")
+            return
+        }
+        
+        let outputURL = url.deletingPathExtension().appendingPathExtension("hpprgm")
+        let toolPath = "/Applications/HP/PrimeSDK/bin/ppl+"
+        
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            print("Input file does not exist at: \(url.path)")
+            return
+        }
+        
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: toolPath)
+        process.arguments = [url.path, "-o", outputURL.path]
+        process.currentDirectoryURL = url.deletingLastPathComponent()
+        
+        do {
+            try process.run()
+            process.waitUntilExit()
+            
+            print("Process finished with status: \(process.terminationStatus)")
+            
+            if FileManager.default.fileExists(atPath: outputURL.path) {
+                print("Output file created at: \(outputURL.path)")
+            } else {
+                print("ppl+ completed, but output file not found.")
+            }
+            
+        } catch {
+            print("Failed to run ppl+ tool:", error)
+            return
+        }
+    }
+    
 }
 
