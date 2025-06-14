@@ -34,6 +34,13 @@ class ViewController: NSViewController, NSTextViewDelegate {
         ]
     }()
     
+    var developerPath: String? {
+        Bundle.main.bundleURL
+            .appendingPathComponent("Contents")
+            .appendingPathComponent("developer")
+            .path
+    }
+    
     @IBOutlet var textView: NSTextView!
     
     required init?(coder: NSCoder) {
@@ -80,7 +87,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
     }
     
     func textDidChange(_ notification: Notification) {
-        replaceOperators()
+//        replaceOperators()
         applySyntaxHighlighting()
     }
     
@@ -92,20 +99,21 @@ class ViewController: NSViewController, NSTextViewDelegate {
         let text = textView.string as NSString
         let fullRange = NSRange(location: 0, length: text.length)
         
+        let blue = NSColor.init(calibratedRed: 0.330, green: 0.510, blue: 1, alpha: 1)
+        let orange = NSColor.init(calibratedRed: 0.992, green: 0.561, blue: 0.247, alpha: 1)
+       
         // Reset all text color first
         textStorage.beginEditing()
         textStorage.setAttributes(baseAttributes, range: fullRange)
         
         // Keywords
-        let keywords = ["export", "begin", "default", "until", "case", "and", "or", "xor", "catalog", "local", "var", "if", "then", "else", "do", "while", "repeat", "return", "break", "end", "endif", "wend", "to", "downto", "step", "ifer", "try", "catch", "const"]
+        let keywords = ["export", "begin", "default", "until", "switch", "case", "and", "or", "xor", "catalog", "local", "var", "if", "then", "else", "do", "while", "repeat", "return", "break", "end", "endif", "wend", "to", "downto", "step", "ifer", "try", "catch", "const"]
         for keyword in keywords {
             let pattern = "\\b\(keyword)\\b"
             let regex = try! NSRegularExpression(pattern: pattern, options: [.caseInsensitive])
             regex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
                 if let match = match {
-                    textStorage.addAttribute(.foregroundColor, value: NSColor.init(calibratedRed: 0.330, green: 0.510, blue: 1, alpha: 1), range: match.range)
-                    
-//                    NSColor.init(red: 0.330, green: 0.510, blue: 1, alpha: 1)
+                    textStorage.addAttribute(.foregroundColor, value: orange, range: match.range)
                 }
             }
         }
@@ -116,7 +124,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         let operatorRegex = try! NSRegularExpression(pattern: operatorPattern)
         operatorRegex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
             if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: NSColor.systemGray, range: match.range)
+                textStorage.addAttribute(.foregroundColor, value: NSColor.white, range: match.range)
             }
         }
         
@@ -125,28 +133,34 @@ class ViewController: NSViewController, NSTextViewDelegate {
         let brRegex = try! NSRegularExpression(pattern: brPattern)
         brRegex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
             if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: NSColor.init(calibratedRed: 0.330, green: 0.510, blue: 1, alpha: 1), range: match.range)
+                textStorage.addAttribute(.foregroundColor, value: blue, range: match.range)
             }
         }
         
         
-        // Numbers (HP PPL + C/C++)
+        // Numbers
         let numberPattern = #"#[\dA-F]+(:-?\d+)?h|#\d+(:-?\d+)?d|#[0-7]+(:-?\d+)?o|#[01]+(:-?\d+)?b|\b-?\d+(\.\d+)?\b"#
-        
-        //        let numberPattern = #"\b-?(0[xX][0-9A-Fa-f]+|0[bB][01]+|(\d+\.\d*|\.\d+|\d+)([eE][+-]?\d+)?)([uUlLfFdD]*)\b"#
         let numberRegex = try! NSRegularExpression(pattern: numberPattern)
         numberRegex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
             if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: NSColor.init(calibratedRed: 0.992, green: 0.561, blue: 0.247, alpha: 1), range: match.range)
+                textStorage.addAttribute(.foregroundColor, value: blue, range: match.range)
             }
         }
         
         // Strings
-        let stringPattern = #"\".*?\""# // double-quoted strings
+        let stringPattern = #"".*?""# // double-quoted strings
         let stringRegex = try! NSRegularExpression(pattern: stringPattern)
         stringRegex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
             if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: NSColor.systemGreen, range: match.range)
+                textStorage.addAttribute(.foregroundColor, value: blue, range: match.range)
+            }
+        }
+        
+        // Strings
+        let regex = try! NSRegularExpression(pattern: #"\\`.*?`(:[#\-\dA-Fbodh]+)?"#)
+        regex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
+            if let match = match {
+                textStorage.addAttribute(.foregroundColor, value: blue, range: match.range)
             }
         }
         
@@ -155,7 +169,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         let preprocessorRegex = try! NSRegularExpression(pattern: preprocessorPattern)
         preprocessorRegex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
             if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: NSColor.init(calibratedRed: 0.992, green: 0.561, blue: 0.247, alpha: 1), range: match.range)
+                textStorage.addAttribute(.foregroundColor, value: NSColor.systemGray, range: match.range)
             }
         }
         
@@ -361,6 +375,10 @@ class ViewController: NSViewController, NSTextViewDelegate {
             return
         }
         
+        if let path = developerPath, FileManager.default.fileExists(atPath: path) {
+            print("Developer folder exists at: \(path)")
+        }
+        
         let outputURL = url.deletingPathExtension().appendingPathExtension("prgm")
         let toolPath = "/Applications/HP/PrimeSDK/bin/ppl+"
         
@@ -374,9 +392,6 @@ class ViewController: NSViewController, NSTextViewDelegate {
         process.arguments = [url.path, "-o", outputURL.path]
         process.currentDirectoryURL = url.deletingLastPathComponent()
         
-        let command = ([toolPath] + [url.path, "-o", outputURL.path]).map { "\"\($0)\"" }.joined(separator: " ")
-        print("Running command:\n\(command)")
-
         
         do {
             try process.run()

@@ -1653,11 +1653,7 @@ int main(int argc, char **argv) {
                 error();
                 exit(101);
             }
-            out_filename = argv[n + 1];
-            if (fs::path(out_filename).extension().empty()) {
-                out_filename.append(".hpprgm");
-            }
-            
+            out_filename = fs::expand_tilde(argv[n + 1]);
             n++;
             continue;
         }
@@ -1698,25 +1694,48 @@ int main(int argc, char **argv) {
         std::regex re(R"(.\w*$)");
     }
     
-    if (fs::path(in_filename).parent_path().empty()) {
-        in_filename.insert(0, "./");
-    }
-    
-    if (!fs::exists(in_filename)) {
-        if (fs::exists(in_filename + ".prgm+")) in_filename.append(".prgm+");
-    }
-    if (!fs::exists(in_filename)) {
+    if (in_filename.empty()) {
         error();
         return 0;
     }
     
+    if (fs::path(in_filename).extension() == ".ppl" || fs::path(in_filename).extension() == ".prgm" || fs::path(in_filename).extension() == ".hpprgm") {
+        std::cout << "Error: " << fs::path(in_filename).extension() << " files are not supported.\n";
+        return 0;
+    }
+    
+    if (fs::path(in_filename).parent_path().empty()) {
+        in_filename.insert(0, "./");
+    }
+    
+    /*
+     If the specified input file doesn’t exist and no extension
+     is provided, append the default .prgm+ extension.
+     */
+    if (!fs::exists(in_filename)) {
+        if (fs::path(in_filename).extension().empty()) {
+            in_filename += ".prgm+";
+        }
+    }
+    
+    if (!fs::exists(in_filename)) {
+        std::cout << "File " << fs::path(in_filename).filename() << " not found at " << fs::path(in_filename).parent_path() << " location.\n";
+        return 0;
+    }
+    
+    /*
+     If the user did not specify an output filename, use the input
+     filename with a .hpprgm extension.
+     */
     if (out_filename.empty()) {
-        out_filename = fs::path(in_filename).stem().string() + ".prgm";
+        out_filename = in_filename;
+        out_filename = fs::path(out_filename).replace_extension(".hpprgm");
+    } else {
+        if (fs::path(out_filename).extension().empty()) out_filename += ".hpprgm"; // Default extension if none given.
+        if (fs::path(out_filename).parent_path().empty()) {
+            out_filename = fs::path(in_filename).parent_path().string() + "/" + out_filename;
+        }
     }
-    if (fs::path(out_filename).parent_path().empty()) {
-        out_filename.insert(0, fs::path(in_filename).parent_path().string() + "/");
-    }
-    out_filename = fs::expand_tilde(out_filename);
     
     info();
 

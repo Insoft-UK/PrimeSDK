@@ -39,6 +39,7 @@
 
 #define Event key, type[1], x[2], y[3], dx[4], dy[5]
 
+B=C*A;
 
 B = \`1+2*3/4`:f;
 C = \`1+2*3/4`:c;
