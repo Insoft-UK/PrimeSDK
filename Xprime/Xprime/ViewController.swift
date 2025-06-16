@@ -465,6 +465,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
                 // show alert if you want
             }
         }
+        
     }
     
     @objc func exportAsHpprgm() {
