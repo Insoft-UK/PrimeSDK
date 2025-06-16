@@ -35,11 +35,17 @@ class ViewController: NSViewController, NSTextViewDelegate {
     }()
     
     var developerPath: String? {
+        // For now PrimeSDK, will be used by Xprime during development.
+        #if !PRIMESDK
         Bundle.main.bundleURL
             .appendingPathComponent("Contents")
-            .appendingPathComponent("developer")
+            .appendingPathComponent("Developer")
             .path
+        #else
+        return "/Applications/HP/PrimeSDK"
+        #endif
     }
+    
     
     @IBOutlet var textView: NSTextView!
     
@@ -59,6 +65,24 @@ class ViewController: NSViewController, NSTextViewDelegate {
         textView.isAutomaticSpellingCorrectionEnabled = false
         textView.isAutomaticLinkDetectionEnabled = false
         
+        
+        // No Wrapping, Horizontal Scroll Enabled
+        textView.isHorizontallyResizable = true
+        textView.isVerticallyResizable = true
+
+        if let textContainer = textView.textContainer {
+            textContainer.widthTracksTextView = false // THIS is the key line
+            textContainer.containerSize = NSSize(
+                width: CGFloat.greatestFiniteMagnitude,
+                height: CGFloat.greatestFiniteMagnitude
+            )
+        }
+        
+        textView.enclosingScrollView?.hasHorizontalScroller = true
+        
+        
+        
+        
         textView.typingAttributes[.kern] = 0
         textView.typingAttributes[.ligature] = 0
         
@@ -77,6 +101,16 @@ class ViewController: NSViewController, NSTextViewDelegate {
             scrollView.tile()
         }
         
+        if let url = Bundle.main.resourceURL?.appendingPathComponent("default.prgm+") {
+            do {
+                let contents = try String(contentsOf: url, encoding: .utf8)
+                textView.string = contents
+            } catch {
+                print("Failed to open file:", error)
+            }
+        }
+        
+        
         applySyntaxHighlighting()
     }
     
@@ -87,8 +121,15 @@ class ViewController: NSViewController, NSTextViewDelegate {
     }
     
     func textDidChange(_ notification: Notification) {
-//        replaceOperators()
+        replaceLastTypedOperator()
         applySyntaxHighlighting()
+        
+        guard let mainMenu = NSApp.mainMenu else { return }
+        if currentFileURL != nil {
+            if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Revert to Saved") {
+                item.action = #selector(revertToSaved)
+            }
+        }
     }
     
     func applySyntaxHighlighting() {
@@ -107,13 +148,18 @@ class ViewController: NSViewController, NSTextViewDelegate {
         textStorage.setAttributes(baseAttributes, range: fullRange)
         
         // Keywords
-        let keywords = ["export", "begin", "default", "until", "switch", "case", "and", "or", "xor", "catalog", "local", "var", "if", "then", "else", "do", "while", "repeat", "return", "break", "end", "endif", "wend", "to", "downto", "step", "ifer", "try", "catch", "const"]
+        let keywords = [
+            "begin", "end", "return", "kill", "if", "then", "else", "xor", "or", "and", "not",
+            "case", "default", "iferr", "ifte", "for", "from", "step", "downto", "to", "do",
+            "while", "repeat", "until", "break", "continue", "export", "const", "local", "key",
+            "var", "endif", "wend", "next", "switch", "try", "catch", "catalog", "private", "dict", "regex"
+        ]
         for keyword in keywords {
             let pattern = "\\b\(keyword)\\b"
             let regex = try! NSRegularExpression(pattern: pattern, options: [.caseInsensitive])
             regex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
                 if let match = match {
-                    textStorage.addAttribute(.foregroundColor, value: orange, range: match.range)
+                    textStorage.addAttribute(.foregroundColor, value: blue, range: match.range)
                 }
             }
         }
@@ -129,11 +175,11 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
         
         // Brackets
-        let brPattern = #"[\[\](){}]+"#
+        let brPattern = #"\{[^}]+\}"#
         let brRegex = try! NSRegularExpression(pattern: brPattern)
         brRegex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
             if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: blue, range: match.range)
+                textStorage.addAttribute(.foregroundColor, value: NSColor.systemGray, range: match.range)
             }
         }
         
@@ -143,7 +189,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         let numberRegex = try! NSRegularExpression(pattern: numberPattern)
         numberRegex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
             if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: blue, range: match.range)
+                textStorage.addAttribute(.foregroundColor, value: orange, range: match.range)
             }
         }
         
@@ -152,15 +198,15 @@ class ViewController: NSViewController, NSTextViewDelegate {
         let stringRegex = try! NSRegularExpression(pattern: stringPattern)
         stringRegex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
             if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: blue, range: match.range)
+                textStorage.addAttribute(.foregroundColor, value: orange, range: match.range)
             }
         }
         
-        // Strings
+        // ``
         let regex = try! NSRegularExpression(pattern: #"\\`.*?`(:[#\-\dA-Fbodh]+)?"#)
         regex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
             if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: blue, range: match.range)
+                textStorage.addAttribute(.foregroundColor, value: orange, range: match.range)
             }
         }
         
@@ -169,7 +215,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         let preprocessorRegex = try! NSRegularExpression(pattern: preprocessorPattern)
         preprocessorRegex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
             if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: NSColor.systemGray, range: match.range)
+                textStorage.addAttribute(.foregroundColor, value: orange, range: match.range)
             }
         }
         
@@ -188,9 +234,9 @@ class ViewController: NSViewController, NSTextViewDelegate {
     
     
     
-    func replaceOperators() {
+    func replaceLastTypedOperator() {
         guard let textStorage = textView.textStorage else { return }
-        
+
         let replacements: [(String, String)] = [
             ("!=", "≠"),
             ("<>", "≠"),
@@ -198,39 +244,33 @@ class ViewController: NSViewController, NSTextViewDelegate {
             ("<=", "≤"),
             ("=>", "▶")
         ]
-        
-        var newCursorLocation = textView.selectedRange().location
+
+        let cursorLocation = textView.selectedRange().location
+        guard cursorLocation >= 2 else { return } // Need at least 2 chars to match most patterns
+
         let originalText = textView.string as NSString
-        
+
+        // Check the last 2–3 characters before the cursor
+        let maxLookback = 3
+        let start = max(cursorLocation - maxLookback, 0)
+        let range = NSRange(location: start, length: cursorLocation - start)
+        let recentText = originalText.substring(with: range)
+
         textStorage.beginEditing()
-        
-        var totalOffset = 0
-        
+
         for (find, replace) in replacements {
-            let pattern = NSRegularExpression.escapedPattern(for: find)
-            let regex = try! NSRegularExpression(pattern: pattern)
-            
-            let matches = regex.matches(in: originalText as String, range: NSRange(location: 0, length: originalText.length))
-            
-            for match in matches.reversed() {
-                let range = match.range
-                let adjustedRange = NSRange(location: range.location + totalOffset, length: range.length)
-                textStorage.replaceCharacters(in: adjustedRange, with: replace)
-                
-                let offsetDelta = replace.count - range.length
-                totalOffset += offsetDelta
-                
-                // If replacement happened before or at the cursor, adjust it
-                if adjustedRange.location <= newCursorLocation {
-                    newCursorLocation += offsetDelta
-                }
+            if recentText.hasSuffix(find) {
+                let replaceRange = NSRange(location: cursorLocation - find.count, length: find.count)
+                textStorage.replaceCharacters(in: replaceRange, with: replace)
+
+                // Move cursor after replacement
+                let newCursor = replaceRange.location + replace.count
+                textView.setSelectedRange(NSRange(location: newCursor, length: 0))
+                break
             }
         }
-        
+
         textStorage.endEditing()
-        
-        // Update the selection to avoid jump or newline
-        textView.setSelectedRange(NSRange(location: newCursorLocation, length: 0))
     }
     
     
@@ -292,11 +332,11 @@ class ViewController: NSViewController, NSTextViewDelegate {
     func openFile() {
         let openPanel = NSOpenPanel()
         if #available(macOS 12.0, *) {
-            let extensions = ["prgm", "prgm+", "ppl", "ppl+", "pp"]
+            let extensions = ["prgm", "prgm+", "ppl", "ppl+"]
             let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
             openPanel.allowedContentTypes = contentTypes
         } else {
-            openPanel.allowedFileTypes = ["prgm", "prgm+", "ppl", "ppl+", "pp"]
+            openPanel.allowedFileTypes = ["prgm", "prgm+", "ppl", "ppl+"]
         }
         
         openPanel.allowsMultipleSelection = false
@@ -310,25 +350,20 @@ class ViewController: NSViewController, NSTextViewDelegate {
                 return
             }
             
-            //            if url.pathExtension == "ppl" || url.pathExtension == "ppl+" {
-            //                if encoding != .utf8 {
-            //                    print("Invalid encoding for \(url.pathExtension) file.")
-            //                    return
-            //                }
-            //            }
-            //
-            //            if url.pathExtension == "prgm" || url.pathExtension == "prgm+" {
-            //                if encoding != .utf16LittleEndian {
-            //                    print("Invalid encoding for \(url.pathExtension) file.")
-            //                    return
-            //                }
-            //            }
+            
+//            if encoding != .utf8 {
+//                print("Invalid encoding for \(url.pathExtension) file.")
+//                return
+//            }
             
             do {
                 let contents = try String(contentsOf: url, encoding: encoding)
                 self?.textView.string = contents
                 self?.applySyntaxHighlighting()
                 self?.currentFileURL = url
+                self?.validateMenuItem()
+                
+                
             } catch {
                 // handle error (e.g., show alert)
                 print("Failed to open file:", error)
@@ -369,49 +404,70 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    func exportAsPrgm() {
+    @objc func revertToSaved() {
+        guard let mainMenu = NSApp.mainMenu else { return }
+        
+        if let url = currentFileURL {
+            if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Revert to Saved") {
+                do {
+                    let contents = try String(contentsOf: url, encoding: .utf8)
+                    textView.string = contents
+                    applySyntaxHighlighting()
+                    item.action = nil
+                } catch {
+                    return
+                }
+            }
+        }
+    }
+    
+    @objc func exportAs() {
         guard let url = currentFileURL else {
             print("No input file URL.")
             return
         }
         
+        let savePanel = NSSavePanel()
+        if #available(macOS 12.0, *) {
+            savePanel.allowedContentTypes = [
+                UTType(filenameExtension: "prgm"),
+                UTType(filenameExtension: "ppl")
+            ].compactMap { $0 }
+        } else {
+            savePanel.allowedFileTypes = ["prgm", "ppl"]
+        }
+        
         if let path = developerPath, FileManager.default.fileExists(atPath: path) {
             print("Developer folder exists at: \(path)")
         }
-        
+        let toolPath = (developerPath ?? "/urs/local") + "/bin/ppl+"
         let outputURL = url.deletingPathExtension().appendingPathExtension("prgm")
-        let toolPath = "/Applications/HP/PrimeSDK/bin/ppl+"
-        
-        guard FileManager.default.fileExists(atPath: url.path) else {
-            print("Input file does not exist at: \(url.path)")
-            return
-        }
-        
         let process = Process()
         process.executableURL = URL(fileURLWithPath: toolPath)
         process.arguments = [url.path, "-o", outputURL.path]
         process.currentDirectoryURL = url.deletingLastPathComponent()
         
-        
-        do {
-            try process.run()
-            process.waitUntilExit()
-            
-            print("Process finished with status: \(process.terminationStatus)")
-            
-            if FileManager.default.fileExists(atPath: outputURL.path) {
-                print("Output file created at: \(outputURL.path)")
-            } else {
-                print("ppl+ completed, but output file not found.")
+        savePanel.begin { result in
+            guard result == .OK, let url = savePanel.url else { return }
+            do {
+                try process.run()
+                process.waitUntilExit()
+                
+                print("Process finished with status: \(process.terminationStatus)")
+                
+                if FileManager.default.fileExists(atPath: outputURL.path) {
+                    print("Output file created at: \(outputURL.path)")
+                } else {
+                    print("ppl+ completed, but output file not found.")
+                }
+            } catch {
+                print("Failed to save file:", error)
+                // show alert if you want
             }
-            
-        } catch {
-            print("Failed to run ppl+ tool:", error)
-            return
         }
     }
     
-    func exportAsHpprgm() {
+    @objc func exportAsHpprgm() {
         guard let url = currentFileURL else {
             print("No input file URL.")
             return
@@ -447,6 +503,16 @@ class ViewController: NSViewController, NSTextViewDelegate {
             return
         }
     }
+    
+    
+    func validateMenuItem() {
+        guard let mainMenu = NSApp.mainMenu else { return }
+        
+        if let exportMenuItem = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Export")?.submenu?.item(at: 1) {
+            exportMenuItem.action = #selector(exportAs)
+        }
+    }
+
     
 }
 

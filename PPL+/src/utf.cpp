@@ -156,6 +156,25 @@ std::wstring utf::load_utf16(const std::string& filepath) {
     return output;
 }
 
+size_t utf::write_utf8(std::ofstream& os, const std::string& str) {
+    if (str.empty()) return 0;
+
+    os.write(str.data(), str.size());
+    return os.tellp();
+}
+
+bool utf::save_as_utf8(const std::string& filepath, const std::string& str) {
+    std::ofstream os;
+    
+    os.open(filepath, std::ios::out | std::ios::binary);
+    if(!os.is_open()) return false;
+    
+    write_utf8(os, str);
+    
+    os.close();
+    return true;
+}
+
 size_t utf::write_as_utf16(std::ofstream& os, const std::string& str) {
     if (str.empty()) return 0;
     

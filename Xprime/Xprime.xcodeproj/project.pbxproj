@@ -145,7 +145,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Define source and destination\nSRC_DIR=\"${PROJECT_DIR}/Developer\"\nDST_DIR=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/../developer\"\n\n# Create the destination directory\nmkdir -p \"$DST_DIR\"\n\n# Copy contents\ncp -R \"$SRC_DIR/\" \"$DST_DIR/\"\n";
+			shellScript = "# Define source and destination\nSRC_DIR=\"${PROJECT_DIR}/Developer\"\nDST_DIR=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/../Developer\"\n\n# Create the destination directory\nmkdir -p \"$DST_DIR\"\n\n# Copy contents\ncp -R \"$SRC_DIR/\" \"$DST_DIR/\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -309,6 +309,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "Debug PRIMESDK";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
@@ -345,6 +346,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = PRIMESDK;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};

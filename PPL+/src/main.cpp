@@ -1766,7 +1766,7 @@ int main(int argc, char **argv) {
     std::string output = translatePPLPlusToPPL(in_filename);
     
     if (fs::path(out_filename).extension() != ".hpprgm") {
-        if (!utf::save_as_utf16(out_filename, output)) {
+        if (!utf::save_as_utf8(out_filename, output)) {
             std::cout << "Unable to create file " << fs::path(out_filename).filename() << ".\n";
             return 0;
         }
@@ -1794,10 +1794,7 @@ int main(int argc, char **argv) {
     } else {
         std::cout << "Completed in " << std::fixed << std::setprecision(2) << elapsed_time / 1e9 << " seconds\n";
     }
-    if (fs::path(out_filename).extension() != ".hpprgm")
-        std::cout << "UTF-16LE file ";
-    else
-        std::cout << "File ";
+    std::cout << "File ";
     if (showpath)
         std::cout << "at \"" << out_filename << "\" succefuly created.\n";
     else

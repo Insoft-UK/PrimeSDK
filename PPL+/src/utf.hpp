@@ -37,6 +37,9 @@ namespace utf {
     std::wstring read_utf16(std::ifstream& is);
     std::wstring load_utf16(const std::string& filepath);
     
+    size_t write_utf8(std::ofstream& os, const std::string& str);
+    bool save_as_utf8(const std::string& filepath, const std::string& str);
+    
     size_t write_as_utf16(std::ofstream& os, const std::string& str);
     size_t write_utf16(std::ofstream& os, const std::string& str);
     bool save_as_utf16(const std::string& filepath, const std::string& str);

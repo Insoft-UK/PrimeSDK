@@ -9,8 +9,8 @@ import Cocoa
 
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
-
-
+    @IBOutlet weak var mainMenu: NSMenu!
+ 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
         NSApp.appearance = NSAppearance(named: .darkAqua)
@@ -20,6 +20,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         UserDefaults.standard.set(false, forKey: "NSAutomaticQuoteSubstitutionEnabled")
         UserDefaults.standard.set(false, forKey: "NSAutomaticDashSubstitutionEnabled")
         UserDefaults.standard.synchronize()
+        
+//        guard let mainMenu = NSApp.mainMenu else { return }
+//        
+        
+        
+
         
     }
 
@@ -49,17 +55,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             vc.saveFileAs()
         }
     }
-
-    @IBAction func exportAsPrgm(_ sender: Any) {
-        if let vc = NSApp.mainWindow?.contentViewController as? ViewController {
-            vc.exportAsPrgm()
-        }
-    }
     
-    @IBAction func exportAsHprgm(_ sender: Any) {
-        if let vc = NSApp.mainWindow?.contentViewController as? ViewController {
-            vc.exportAsHpprgm()
-        }
-    }
 }
 
