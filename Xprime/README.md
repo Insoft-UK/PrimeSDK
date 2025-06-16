@@ -1,4 +1,4 @@
-<img src="https://github.com/Insoft-UK/PrimeSDK/blob/main/assets/icons/Xprime.png" width="92" />
+<img src="https://github.com/Insoft-UK/PrimeSDK/blob/main/Xprime/Xprime/Assets.xcassets/AppIcon.appiconset/128pt.png" />
 
 # Code Editor for PPL+ Code
 Edit your PPL+ code.
