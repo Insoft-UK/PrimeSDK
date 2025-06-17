@@ -17,6 +17,8 @@ extension ViewController: NSWindowRestoration {
 }
 
 class ViewController: NSViewController, NSTextViewDelegate {
+    let mainMenu = NSApp.mainMenu!
+    
     var currentFileURL: URL?
     lazy var baseAttributes: [NSAttributedString.Key: Any] = {
         let font = NSFont.monospacedSystemFont(ofSize: 12, weight: .medium)
@@ -124,11 +126,8 @@ class ViewController: NSViewController, NSTextViewDelegate {
         replaceLastTypedOperator()
         applySyntaxHighlighting()
         
-        guard let mainMenu = NSApp.mainMenu else { return }
         if currentFileURL != nil {
-            if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Revert to Saved") {
-                item.action = #selector(revertToSaved)
-            }
+            enableRevertToSavedMenuItem()
         }
     }
     
@@ -351,19 +350,17 @@ class ViewController: NSViewController, NSTextViewDelegate {
             }
             
             
-//            if encoding != .utf8 {
-//                print("Invalid encoding for \(url.pathExtension) file.")
-//                return
-//            }
+            if encoding != .utf8 {
+                print("Invalid encoding for \(url.pathExtension) file.")
+                return
+            }
             
             do {
                 let contents = try String(contentsOf: url, encoding: encoding)
                 self?.textView.string = contents
                 self?.applySyntaxHighlighting()
                 self?.currentFileURL = url
-                self?.validateMenuItem()
-                
-                
+                self?.enableExportMenuItems()
             } catch {
                 // handle error (e.g., show alert)
                 print("Failed to open file:", error)
@@ -378,10 +375,15 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
         do {
             try textView.string.write(to: url, atomically: true, encoding: .utf8)
+            
+            if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Revert to Saved") {
+                item.action = nil
+            }
         } catch {
             print("Failed to save file:", error)
             // show alert if you want
         }
+        
     }
     
     func saveFileAs() {
@@ -396,7 +398,11 @@ class ViewController: NSViewController, NSTextViewDelegate {
             guard result == .OK, let url = savePanel.url else { return }
             do {
                 try self?.textView.string.write(to: url, atomically: true, encoding: .utf8)
-                self?.currentFileURL = url
+                if self?.currentFileURL == url {
+                    self?.disableRevertToSavedMenuItem()
+                } else {
+                    self?.currentFileURL = url
+                }
             } catch {
                 print("Failed to save file:", error)
                 // show alert if you want
@@ -404,7 +410,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    @objc func revertToSaved() {
+    @objc func revertToSavedDocument() {
         guard let mainMenu = NSApp.mainMenu else { return }
         
         if let url = currentFileURL {
@@ -422,41 +428,43 @@ class ViewController: NSViewController, NSTextViewDelegate {
     }
     
     @objc func exportAs() {
-        guard let url = currentFileURL else {
+        guard let currentFileURL = currentFileURL else {
             print("No input file URL.")
             return
         }
         
+        let extensions = ["prgm", "ppl"]
         let savePanel = NSSavePanel()
         if #available(macOS 12.0, *) {
-            savePanel.allowedContentTypes = [
-                UTType(filenameExtension: "prgm"),
-                UTType(filenameExtension: "ppl")
-            ].compactMap { $0 }
+            let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
+            savePanel.allowedContentTypes = contentTypes
         } else {
-            savePanel.allowedFileTypes = ["prgm", "ppl"]
+            savePanel.allowedFileTypes = extensions
         }
         
         if let path = developerPath, FileManager.default.fileExists(atPath: path) {
             print("Developer folder exists at: \(path)")
         }
         let toolPath = (developerPath ?? "/urs/local") + "/bin/ppl+"
-        let outputURL = url.deletingPathExtension().appendingPathExtension("prgm")
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: toolPath)
-        process.arguments = [url.path, "-o", outputURL.path]
-        process.currentDirectoryURL = url.deletingLastPathComponent()
+        
+        saveFile()
         
         savePanel.begin { result in
             guard result == .OK, let url = savePanel.url else { return }
+            
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: toolPath)
+            process.arguments = [currentFileURL.path, "-o", url.path]
+            process.currentDirectoryURL = url.deletingLastPathComponent()
+            
             do {
                 try process.run()
                 process.waitUntilExit()
                 
                 print("Process finished with status: \(process.terminationStatus)")
                 
-                if FileManager.default.fileExists(atPath: outputURL.path) {
-                    print("Output file created at: \(outputURL.path)")
+                if FileManager.default.fileExists(atPath: url.path) {
+                    print("Output file created at: \(url.path)")
                 } else {
                     print("ppl+ completed, but output file not found.")
                 }
@@ -506,14 +514,27 @@ class ViewController: NSViewController, NSTextViewDelegate {
     }
     
     
-    func validateMenuItem() {
-        guard let mainMenu = NSApp.mainMenu else { return }
+    func enableExportMenuItems() {
+        if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Export")?.submenu?.item(at: 1) {
+            item.action = #selector(exportAs)
+        }
         
-        if let exportMenuItem = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Export")?.submenu?.item(at: 1) {
-            exportMenuItem.action = #selector(exportAs)
+        if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Export")?.submenu?.item(at: 2) {
+            item.action = #selector(exportAsHpprgm)
         }
     }
 
+    func enableRevertToSavedMenuItem() {
+        if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Revert to Saved") {
+            item.action = #selector(revertToSavedDocument)
+        }
+    }
+    
+    func disableRevertToSavedMenuItem() {
+        if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Revert to Saved") {
+            item.action = nil
+        }
+    }
     
 }
 

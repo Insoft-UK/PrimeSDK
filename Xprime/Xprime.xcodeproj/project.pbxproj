@@ -65,7 +65,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13EE0F712DF9DEDF004F3D7E /* Build configuration list for PBXNativeTarget "Xprime" */;
 			buildPhases = (
-				137DBBD12E00BA1D00657C42 /* Run Script */,
 				13EE0F5E2DF9DEDE004F3D7E /* Sources */,
 				13EE0F5F2DF9DEDE004F3D7E /* Frameworks */,
 				131885A52DFDD70800EBB039 /* Run Script */,
@@ -132,6 +131,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		131885A52DFDD70800EBB039 /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -147,24 +147,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# Define source and destination\nSRC_DIR=\"${PROJECT_DIR}/Developer\"\nDST_DIR=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/../Developer\"\n\n# Create the destination directory\nmkdir -p \"$DST_DIR\"\n\n# Copy contents\ncp -R \"$SRC_DIR/\" \"$DST_DIR/\"\n";
-		};
-		137DBBD12E00BA1D00657C42 /* Run Script */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Run Script";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "#!/bin/bash\n\n# Ensure we are in the project root\ncd \"${SRCROOT}\"\n\n# Get current version\ncurrentBuild=$(agvtool what-version -terse | tail -1)\n\n# If not a valid number, default to 1\nif ! [[ \"$currentBuild\" =~ ^[0-9]+$ ]]; then\n  echo \"⚠️ No valid build number found. Starting from 1.\"\n  currentBuild=1\nfi\n\n# Increment and set\nnewBuild=$((currentBuild + 1))\nagvtool new-version -all \"$newBuild\"\n\necho \"✅ Updated CFBundleVersion to $newBuild\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -308,7 +290,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 46;
+				CURRENT_PROJECT_VERSION = 55;
 				DEVELOPMENT_TEAM = 8XN79M4JCJ;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -346,7 +328,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 46;
+				CURRENT_PROJECT_VERSION = 55;
 				DEVELOPMENT_TEAM = 8XN79M4JCJ;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
