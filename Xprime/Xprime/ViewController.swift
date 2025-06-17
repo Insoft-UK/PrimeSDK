@@ -24,6 +24,64 @@
 import Cocoa
 import UniformTypeIdentifiers
 
+struct Theme: Codable {
+    let name: String
+    let type: String
+    let colors: [String: String]
+    let tokenColors: [TokenColor]
+}
+
+struct TokenColor: Codable {
+    let scope: [String]
+    let settings: TokenSettings
+}
+
+struct TokenSettings: Codable {
+    let foreground: String
+}
+
+
+struct Grammar: Codable {
+    let name: String
+    let scopeName: String
+    let patterns: [GrammarPattern]
+}
+
+struct GrammarPattern: Codable {
+    let name: String
+    let match: String
+}
+
+extension NSColor {
+    convenience init?(hex: String) {
+        var hexString = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+        
+        // Remove "#" prefix
+        if hexString.hasPrefix("#") {
+            hexString.remove(at: hexString.startIndex)
+        }
+        
+        // Handle shorthand (#RGB)
+        if hexString.count == 3 {
+            let r = hexString[hexString.startIndex]
+            let g = hexString[hexString.index(hexString.startIndex, offsetBy: 1)]
+            let b = hexString[hexString.index(hexString.startIndex, offsetBy: 2)]
+            hexString = "\(r)\(r)\(g)\(g)\(b)\(b)"
+        }
+        
+        guard hexString.count == 6,
+              let rgb = Int(hexString, radix: 16) else {
+            return nil
+        }
+        
+        let red   = CGFloat((rgb >> 16) & 0xFF) / 255.0
+        let green = CGFloat((rgb >> 8) & 0xFF) / 255.0
+        let blue  = CGFloat(rgb & 0xFF) / 255.0
+        
+        self.init(red: red, green: green, blue: blue, alpha: 1.0)
+    }
+}
+
 extension ViewController: NSWindowRestoration {
     static func restoreWindow(withIdentifier identifier: NSUserInterfaceItemIdentifier, state: NSCoder, completionHandler: @escaping (NSWindow?, Error?) -> Void) {
         // Restore your window here if needed
@@ -33,6 +91,19 @@ extension ViewController: NSWindowRestoration {
 
 class ViewController: NSViewController, NSTextViewDelegate {
     let mainMenu = NSApp.mainMenu!
+    var theme: Theme?
+    var grammar: Grammar?
+    
+    var colors: [String: NSColor] = [
+        "Keywords": .white,
+        "Operators": .white,
+        "Brackets": .white,
+        "Numbers": .white,
+        "Strings": .white,
+        "Comments": .white,
+        "Backquotes": .white,
+        "Preprocessor Statements": .white
+    ]
     
     var currentFileURL: URL?
     lazy var baseAttributes: [NSAttributedString.Key: Any] = {
@@ -53,14 +124,14 @@ class ViewController: NSViewController, NSTextViewDelegate {
     
     var developerPath: String? {
         // For now PrimeSDK, will be used by Xprime during development.
-        #if !PRIMESDK
+#if !PRIMESDK
         Bundle.main.bundleURL
             .appendingPathComponent("Contents")
             .appendingPathComponent("Developer")
             .path
-        #else
+#else
         return "/Applications/HP/PrimeSDK"
-        #endif
+#endif
     }
     
     
@@ -86,7 +157,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         // No Wrapping, Horizontal Scroll Enabled
         textView.isHorizontallyResizable = true
         textView.isVerticallyResizable = true
-
+        
         if let textContainer = textView.textContainer {
             textContainer.widthTracksTextView = false // THIS is the key line
             textContainer.containerSize = NSSize(
@@ -127,6 +198,8 @@ class ViewController: NSViewController, NSTextViewDelegate {
             }
         }
         
+        loadTheme()
+        loadGrammar()
         
         applySyntaxHighlighting()
     }
@@ -146,111 +219,90 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    func applySyntaxHighlighting() {
+    // MARK: - Theme
+    func loadJSONString(_ url: URL) -> String? {
+        do {
+            let jsonString = try String(contentsOf: url, encoding: .utf8)
+            return jsonString
+        } catch {
+            return nil
+        }
+    }
+    
+    private func loadTheme() {
+        guard let url = Bundle.main.url(forResource: "Default (Dark)", withExtension: "xpcolortheme") else { return }
+        
+        if let jsonString = loadJSONString(url),
+           let jsonData = jsonString.data(using: .utf8) {
+            theme = try? JSONDecoder().decode(Theme.self, from: jsonData)
+        }
+        
+        func colorWithKey(_ key: String) -> NSColor {
+            for tokenColor in theme!.tokenColors {
+                if tokenColor.scope.contains(key) {
+                    return NSColor.init(hex: tokenColor.settings.foreground)!
+                }
+            }
+            return NSColor.white
+        }
+        
+        textView.backgroundColor = NSColor.init(hex: (theme?.colors["editor.background"])!)!
+        textView.textColor = NSColor.init(hex: (theme?.colors["editor.foreground"])!)!
+        textView.selectedTextAttributes = [
+            .backgroundColor: NSColor.init(hex: (theme?.colors["editor.selectionBackground"])!)!
+        ]
+        textView.insertionPointColor = NSColor.init(hex: (theme?.colors["editor.cursor"])!)!
         
         
+        colors["Keywords"] = colorWithKey("Keywords")
+        colors["Operators"] = colorWithKey("Operators")
+        colors["Brackets"] = colorWithKey("Brackets")
+        colors["Numbers"] = colorWithKey("Numbers")
+        colors["Strings"] = colorWithKey("Strings")
+        colors["Comments"] = colorWithKey("Comments")
+        colors["Backquote"] = colorWithKey("Backquote")
+        colors["Preprocessor Statements"] = colorWithKey("Preprocessor Statements")
+    }
+    
+    private func loadGrammar() {
+        guard let url = Bundle.main.url(forResource: "Language", withExtension: "xpgrammar") else { return }
+        
+        if let jsonString = loadJSONString(url),
+           let jsonData = jsonString.data(using: .utf8) {
+            grammar = try? JSONDecoder().decode(Grammar.self, from: jsonData)
+        }
+    }
+
+    // MARK: - Syntax Highlighting
+    
+    private func applySyntaxHighlighting() {
         guard let textStorage = textView.textStorage else { return }
         
         let text = textView.string as NSString
         let fullRange = NSRange(location: 0, length: text.length)
-        
-        let blue = NSColor.init(calibratedRed: 0.330, green: 0.510, blue: 1, alpha: 1)
-        let orange = NSColor.init(calibratedRed: 0.992, green: 0.561, blue: 0.247, alpha: 1)
-       
+    
         // Reset all text color first
         textStorage.beginEditing()
         textStorage.setAttributes(baseAttributes, range: fullRange)
         
-        // Keywords
-        let keywords = [
-            "begin", "end", "return", "kill", "if", "then", "else", "xor", "or", "and", "not",
-            "case", "default", "iferr", "ifte", "for", "from", "step", "downto", "to", "do",
-            "while", "repeat", "until", "break", "continue", "export", "const", "local", "key",
-            "var", "endif", "wend", "next", "switch", "try", "catch", "catalog", "private", "dict", "regex"
-        ]
-        for keyword in keywords {
-            let pattern = "\\b\(keyword)\\b"
-            let regex = try! NSRegularExpression(pattern: pattern, options: [.caseInsensitive])
+        for pattern in grammar!.patterns {
+            let color = colors[pattern.name]!
+            let regex = try! NSRegularExpression(pattern: pattern.match, options: [.caseInsensitive])
             regex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
                 if let match = match {
-                    textStorage.addAttribute(.foregroundColor, value: blue, range: match.range)
+                    textStorage.addAttribute(.foregroundColor, value: color, range: match.range)
                 }
             }
         }
-        
-        
-        // Operators
-        let operatorPattern = #"[▶:=+\-*/<>≠≤≥]+"#
-        let operatorRegex = try! NSRegularExpression(pattern: operatorPattern)
-        operatorRegex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
-            if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: NSColor.white, range: match.range)
-            }
-        }
-        
-        // Brackets
-        let brPattern = #"\{[^}]+\}"#
-        let brRegex = try! NSRegularExpression(pattern: brPattern)
-        brRegex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
-            if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: NSColor.systemGray, range: match.range)
-            }
-        }
-        
-        
-        // Numbers
-        let numberPattern = #"#[\dA-F]+(:-?\d+)?h|#\d+(:-?\d+)?d|#[0-7]+(:-?\d+)?o|#[01]+(:-?\d+)?b|\b-?\d+(\.\d+)?\b"#
-        let numberRegex = try! NSRegularExpression(pattern: numberPattern)
-        numberRegex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
-            if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: orange, range: match.range)
-            }
-        }
-        
-        // Strings
-        let stringPattern = #"".*?""# // double-quoted strings
-        let stringRegex = try! NSRegularExpression(pattern: stringPattern)
-        stringRegex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
-            if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: orange, range: match.range)
-            }
-        }
-        
-        // ``
-        let regex = try! NSRegularExpression(pattern: #"\\`.*?`(:[#\-\dA-Fbodh]+)?"#)
-        regex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
-            if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: orange, range: match.range)
-            }
-        }
-        
-        // Preprocessor Directives (e.g. #define, #ifdef)
-        let preprocessorPattern = #"(?m)^\s*#.+"#
-        let preprocessorRegex = try! NSRegularExpression(pattern: preprocessorPattern)
-        preprocessorRegex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
-            if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: orange, range: match.range)
-            }
-        }
-        
-        // Comments
-        let commentPattern = #"//.*"#  // Matches '//' followed by any characters to the end of the line
-        let commentRegex = try! NSRegularExpression(pattern: commentPattern)
-        commentRegex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
-            if let match = match {
-                textStorage.addAttribute(.foregroundColor, value: NSColor.systemGray, range: match.range)
-            }
-        }
-        
-        
+
         textStorage.endEditing()
     }
     
     
     
-    func replaceLastTypedOperator() {
+    private func replaceLastTypedOperator() {
         guard let textStorage = textView.textStorage else { return }
-
+        
         let replacements: [(String, String)] = [
             ("!=", "≠"),
             ("<>", "≠"),
@@ -258,44 +310,41 @@ class ViewController: NSViewController, NSTextViewDelegate {
             ("<=", "≤"),
             ("=>", "▶")
         ]
-
+        
         let cursorLocation = textView.selectedRange().location
         guard cursorLocation >= 2 else { return } // Need at least 2 chars to match most patterns
-
+        
         let originalText = textView.string as NSString
-
+        
         // Check the last 2–3 characters before the cursor
         let maxLookback = 3
         let start = max(cursorLocation - maxLookback, 0)
         let range = NSRange(location: start, length: cursorLocation - start)
         let recentText = originalText.substring(with: range)
-
+        
         textStorage.beginEditing()
-
+        
         for (find, replace) in replacements {
             if recentText.hasSuffix(find) {
                 let replaceRange = NSRange(location: cursorLocation - find.count, length: find.count)
                 textStorage.replaceCharacters(in: replaceRange, with: replace)
-
+                
                 // Move cursor after replacement
                 let newCursor = replaceRange.location + replace.count
                 textView.setSelectedRange(NSRange(location: newCursor, length: 0))
                 break
             }
         }
-
+        
         textStorage.endEditing()
     }
-    
-    
-    
     
     override func insertNewline(_ sender: Any?) {
         super.insertNewline(sender)
         autoIndentCurrentLine()
     }
     
-    func autoIndentCurrentLine() {
+    private func autoIndentCurrentLine() {
         guard let textView = self.textView else { return }
         
         let text = textView.string as NSString
@@ -321,7 +370,9 @@ class ViewController: NSViewController, NSTextViewDelegate {
         textView.insertText(indent, replacementRange: selectedRange)
     }
     
-    func detectEncoding(of url: URL) -> String.Encoding? {
+    // MARK: - File Handling
+    
+    private func detectEncoding(of url: URL) -> String.Encoding? {
         do {
             let data = try Data(contentsOf: url)
             
@@ -340,8 +391,6 @@ class ViewController: NSViewController, NSTextViewDelegate {
             return nil
         }
     }
-    
-    
     
     func openFile() {
         let openPanel = NSOpenPanel()
@@ -422,7 +471,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    @objc func revertToSavedDocument() {
+    @objc private func revertToSavedDocument() {
         guard let mainMenu = NSApp.mainMenu else { return }
         
         if let url = currentFileURL {
@@ -439,7 +488,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    @objc func exportAs() {
+    @objc private func exportAs() {
         guard let currentFileURL = currentFileURL else {
             return
         }
@@ -453,8 +502,8 @@ class ViewController: NSViewController, NSTextViewDelegate {
             savePanel.allowedFileTypes = extensions
         }
         
-        if let path = developerPath, FileManager.default.fileExists(atPath: path) {
-            alert("Developer folder exists at: \(path)")
+        if let path = developerPath, !FileManager.default.fileExists(atPath: path) {
+            alert("Developer folder missing at: \(path)")
         }
         let toolPath = (developerPath ?? "/urs/local") + "/bin/ppl+"
         
@@ -471,7 +520,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
             do {
                 try process.run()
                 process.waitUntilExit()
-            
+                
                 if !FileManager.default.fileExists(atPath: url.path) {
                     self?.alert("Failed to export file: \(url.path)")
                 }
@@ -482,7 +531,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         
     }
     
-    @objc func exportAsHpprgm() {
+    @objc private func exportAsHpprgm() {
         guard let url = currentFileURL else {
             return
         }
@@ -495,7 +544,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         let outputURL = url.deletingPathExtension().appendingPathExtension("hpprgm")
         let toolPath = "/Applications/HP/PrimeSDK/bin/ppl+"
         
-    
+        
         let process = Process()
         process.executableURL = URL(fileURLWithPath: toolPath)
         process.arguments = [url.path, "-o", outputURL.path]
@@ -515,30 +564,31 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
+    // MARK: -
     
-    func assignExportAction() {
-        if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Export")?.submenu?.item(at: 1) {
+    private func assignExportAction() {
+        if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Export")?.submenu?.item(withTitle: "Export As...") {
             item.action = #selector(exportAs)
         }
         
-        if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Export")?.submenu?.item(at: 2) {
+        if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Export")?.submenu?.item(withTitle: "Quick Export As HPPRGM") {
             item.action = #selector(exportAsHpprgm)
         }
     }
-
-    func assignRevertToSavedAction() {
+    
+    private func assignRevertToSavedAction() {
         if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Revert to Saved") {
             item.action = #selector(revertToSavedDocument)
         }
     }
     
-    func removeRevertToSavedAction() {
+    private func removeRevertToSavedAction() {
         if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Revert to Saved") {
             item.action = nil
         }
     }
     
-    func alert(_ message: String) {
+    private func alert(_ message: String) {
         let alert = NSAlert()
         alert.messageText = "Error"
         alert.informativeText = message

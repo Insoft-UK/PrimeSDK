@@ -1,7 +1,7 @@
 {
     "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
     "name": "HP Prime+ Language",
-    "fileTypes": [".hpprgm",".pp"],
+    "fileTypes": [".prgm",".ppl",".prgm+","ppl+"],
     "patterns": [
         {
             "include": "#comments"
