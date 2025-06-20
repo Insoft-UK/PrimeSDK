@@ -4,7 +4,7 @@
 Edit your PPL+ code.
 
 >[!NOTE]
-**Xprime** is currently in its early stages. Xprime includes the PrimeSDK, providing a GUI interface to the command-line tools.
+**Xprime** is currently in its early stages. It includes the command-line tools.
 
 >[!WARNING]
-Xprime is still in early alpha stage, it's usable.
+Xprime still in **alpha** release, while usable some features are not fully working.
