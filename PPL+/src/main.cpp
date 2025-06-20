@@ -1633,6 +1633,7 @@ void help(void) {
 int main(int argc, char **argv) {
     
     std::string in_filename, out_filename;
+    fs::path libPath;
     
     if (argc == 1) {
         error();
@@ -1681,7 +1682,15 @@ int main(int argc, char **argv) {
         }
         
         if (args.starts_with("-I")) {
-            preprocessor.systemIncludePath.push_front(fs::path(args.substr(2)).has_filename() ? fs::path(args.substr(2)) : fs::path(args.substr(2)).parent_path());
+            fs::path path = fs::path(args.substr(2)).has_filename() ? fs::path(args.substr(2)) : fs::path(args.substr(2)).parent_path();
+            path = fs::expand_tilde(path);
+            preprocessor.systemIncludePath.push_front(path);
+            continue;
+        }
+        
+        if (args.starts_with("-L")) {
+            fs::path path = fs::path(args.substr(2)).has_filename() ? fs::path(args.substr(2)) : fs::path(args.substr(2)).parent_path();
+            libPath = fs::expand_tilde(path);
             continue;
         }
         
@@ -1758,9 +1767,17 @@ int main(int argc, char **argv) {
     
 #ifdef DEBUG
     loadRegexLibs(fs::expand_tilde("~/GitHub/PrimeSDK/Package Installer/package-root/Applications/HP/PrimeSDK/lib"), true);
+    preprocessor.systemIncludePath.push_front(fs::path(fs::expand_tilde("~/GitHub/PrimeSDK/Package Installer/package-root/Applications/HP/PrimeSDK/include")));
 #else
-    loadRegexLibs("/Applications/HP/PrimeSDK/lib", verbose);
+    if (libPath.empty()) {
+        libPath = "/Applications/HP/PrimeSDK/lib";
+    }
+    loadRegexLibs(libPath, verbose);
+    if (preprocessor.systemIncludePath.empty()) {
+        preprocessor.systemIncludePath.push_front(fs::path("/Applications/HP/PrimeSDK/include"));
+    }
 #endif
+    
     
     
     std::string output = translatePPLPlusToPPL(in_filename);

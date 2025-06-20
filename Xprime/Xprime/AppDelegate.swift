@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2023-2025 Insoft. All rights reserved.
+// Copyright (c) 2025 Insoft. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the Software), to deal
@@ -25,6 +25,7 @@ import Cocoa
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak var mainMenu: NSMenu!
+    let tempManager = TempFileManager()
  
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
@@ -39,13 +40,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 //        guard let mainMenu = NSApp.mainMenu else { return }
 //        
         
-        
-
-        
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
         // Insert code here to tear down your application
+        tempManager.cleanup()
     }
 
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
@@ -71,5 +70,38 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
+    @IBAction func insertImage(_ sender: Any) {
+        if let vc = NSApp.mainWindow?.contentViewController as? ViewController {
+            vc.insertImage()
+        }
+    }
+    
+    @IBAction func insertCode(_ sender: Any) {
+        if let vc = NSApp.mainWindow?.contentViewController as? ViewController {
+            vc.insertCode()
+        }
+    }
+    
+    @IBAction func insertTemplate(_ sender: Any) {
+        if let vc = NSApp.mainWindow?.contentViewController as? ViewController {
+            if let menuItem = sender as? NSMenuItem {
+                vc.insertTemplate("\(traceMenuItem(menuItem))/\(menuItem.title)")
+            }
+        }
+    }
+    
+    private func traceMenuItem(_ item: NSMenuItem) -> String {
+        if let parentMenu = item.menu {
+            print("Item '\(item.title)' is in menu: \(parentMenu.title)")
+
+            // Try to find the parent NSMenuItem that links to this menu
+            for superitem in parentMenu.supermenu?.items ?? [] {
+                if superitem.submenu == parentMenu {
+                    return superitem.title
+                }
+            }
+        }
+        return ""
+    }
 }
 

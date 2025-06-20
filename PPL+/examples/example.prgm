@@ -1,0 +1,72 @@
+#pragma mode( separator(.,,) integer(h64) )
+B:=2;
+C:=3;
+D:=3;
+A:=#255:32d;
+A:=#000000FF:32h;
+A:=#377:32o;
+fn1(a, b)
+BEGIN
+ b:=2;
+ a * 100 ▶ a;
+ IF a>0 THEN
+  LOCAL d;
+  CASE
+   IF a≥b THEN
+    d:=a * b;
+   END;
+  END;
+  d ▶ b;
+ END;
+ LOCAL sw1:=a; CASE
+  IF sw1==1 THEN
+   a + b ▶ b;
+  END;
+  IF sw1==2 THEN
+   a - b ▶ b;
+  END;
+  DEFAULT
+ END;
+ IF a≠b AND delta≤b OR b==0 THEN
+  RETURN;
+ END;
+ WHILE 1 DO
+  a + 1 ▶ A;
+  IF a≥100 THEN
+   BREAK;
+  END
+ END;
+ REPEAT
+  A - 1 ▶ A;
+ UNTIL A≠0;
+ IFERR
+  A * B ▶ A;
+ THEN
+ ELSE
+ END;
+END;
+
+GROB(trgtG, w, h, data, palt)
+BEGIN
+  LOCAL g := {}, i, j, d, bpp := 0;
+  
+  IF w * h / 64 == SIZE(data) THEN bpp := 1; END;
+  IF w * h / 16 == SIZE(data) THEN bpp := 4; END;
+  IF w * h / 8 == SIZE(data) THEN bpp := 8; END;
+  
+  IF bpp == 0 THEN RETURN; END;
+  
+  LOCAL m = 2 ^ bpp - 1;
+  LOCAL s = 64 / bpp;
+
+  FOR i := 1 TO SIZE(data) DO
+    LOCAL d := data[i];
+
+    FOR j := 1 TO s STEP 2 DO
+      BITOR(palt[BITAND(d, m) + 1], BITSL(palt[BITAND(BITSR(d, bpp), m) + 1], 32)) ▶ g[SIZE(g) + 1];
+      d := BITSR(d, bpp * 2);
+    END;
+  END;
+  
+  DIMGROB_P(trgtG, w, h, g);
+END;

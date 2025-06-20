@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2023-2025 Insoft. All rights reserved.
+// Copyright (c) 2025 Insoft. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the Software), to deal
@@ -93,6 +93,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
     let mainMenu = NSApp.mainMenu!
     var theme: Theme?
     var grammar: Grammar?
+    var tempDirectoryURL: URL?
     
     var colors: [String: NSColor] = [
         "Keywords": .white,
@@ -124,14 +125,10 @@ class ViewController: NSViewController, NSTextViewDelegate {
     
     var developerPath: String? {
         // For now PrimeSDK, will be used by Xprime during development.
-#if !PRIMESDK
         Bundle.main.bundleURL
             .appendingPathComponent("Contents")
             .appendingPathComponent("Developer")
             .path
-#else
-        return "/Applications/HP/PrimeSDK"
-#endif
     }
     
     
@@ -144,6 +141,8 @@ class ViewController: NSViewController, NSTextViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
         textView.delegate = self
         
         textView.smartInsertDeleteEnabled = false
@@ -202,6 +201,13 @@ class ViewController: NSViewController, NSTextViewDelegate {
         loadGrammar()
         
         applySyntaxHighlighting()
+        
+        if let appDelegate = NSApp.delegate as? AppDelegate {
+            tempDirectoryURL = appDelegate.tempManager.tempDirectoryURL
+        }
+        
+        
+
     }
     
     override var representedObject: Any? {
@@ -344,6 +350,18 @@ class ViewController: NSViewController, NSTextViewDelegate {
         autoIndentCurrentLine()
     }
     
+    private func insertString(_ string: String) {
+        if let textView = textView, let selectedRange = textView.selectedRanges.first as? NSRange {
+            
+            if let textStorage = textView.textStorage {
+                textStorage.replaceCharacters(in: selectedRange, with: string)
+                textView.setSelectedRange(NSRange(location: selectedRange.location + string.count, length: 0))
+            }
+        }
+        
+        applySyntaxHighlighting()
+    }
+    
     private func autoIndentCurrentLine() {
         guard let textView = self.textView else { return }
         
@@ -392,16 +410,47 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    func openFile() {
-        let openPanel = NSOpenPanel()
-        if #available(macOS 12.0, *) {
-            let extensions = ["prgm", "prgm+", "ppl", "ppl+"]
-            let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
-            openPanel.allowedContentTypes = contentTypes
-        } else {
-            openPanel.allowedFileTypes = ["prgm", "prgm+", "ppl", "ppl+"]
+    func updateDocumentIconButtonImage() {
+        guard let url = self.currentFileURL else { return }
+        if let window = self.view.window {
+            window.title = url.lastPathComponent
+            window.representedURL = URL(fileURLWithPath: url.path)
+            if let iconButton = window.standardWindowButton(.documentIconButton) {
+                if url.pathExtension == "ppl+" || url.pathExtension == "prgm+" {
+                    iconButton.image = NSImage(named: "ppl+")
+                    assignExportAction()
+                } else {
+                    iconButton.image = NSImage(named: "ppl")
+                    assignExportAction()
+                    
+                    if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Export")?.submenu?.item(withTitle: "Export As...") {
+                        item.action = nil
+                    }
+                }
+                iconButton.isHidden = false
+            }
+        }
+    }
+    
+    func loadFile(_ url: URL) -> String? {
+        do {
+            let data = try Data(contentsOf: url)
+            let string = String(data: data, encoding: .utf8) ?? ""
+            
+            return string
+        } catch {
+            alert("Reading file \(url): \(error)")
         }
         
+        return nil
+    }
+    
+    func openFile() {
+        let openPanel = NSOpenPanel()
+        let extensions = ["prgm", "prgm+", "ppl", "ppl+"]
+        let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
+        
+        openPanel.allowedContentTypes = contentTypes
         openPanel.allowsMultipleSelection = false
         openPanel.canChooseDirectories = false
         
@@ -413,20 +462,16 @@ class ViewController: NSViewController, NSTextViewDelegate {
                 return
             }
             
-            
             if encoding != .utf8 {
                 self?.alert("Invalid encoding for \(url.pathExtension) file.")
                 return
             }
             
-            do {
-                let contents = try String(contentsOf: url, encoding: encoding)
+            if let contents = self?.loadFile(url) {
                 self?.textView.string = contents
                 self?.applySyntaxHighlighting()
                 self?.currentFileURL = url
-                self?.assignExportAction()
-            } catch {
-                self?.alert("Failed to open file: \(error)")
+                self?.updateDocumentIconButtonImage()
             }
         }
     }
@@ -450,14 +495,15 @@ class ViewController: NSViewController, NSTextViewDelegate {
     
     func saveFileAs() {
         let savePanel = NSSavePanel()
-        if #available(macOS 12.0, *) {
-            savePanel.allowedContentTypes = [UTType(filenameExtension: "prgm+")].compactMap { $0 }
-        } else {
-            savePanel.allowedFileTypes = ["prgm+"]
-        }
+        let extensions = ["prgm+", "ppl+"]
+        let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
+        
+        savePanel.allowedContentTypes = contentTypes
+        savePanel.nameFieldStringValue = "Untitled.prgm+"
         
         savePanel.begin { [weak self] result in
             guard result == .OK, let url = savePanel.url else { return }
+
             do {
                 try self?.textView.string.write(to: url, atomically: true, encoding: .utf8)
                 if self?.currentFileURL == url {
@@ -465,6 +511,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
                 } else {
                     self?.currentFileURL = url
                 }
+                self?.updateDocumentIconButtonImage()
             } catch {
                 self?.alert("Failed to save file: \(error)")
             }
@@ -488,8 +535,102 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
+    func insertCode() {
+        let openPanel = NSOpenPanel()
+            let extensions = ["prgm", "prgm+", "ppl", "ppl+"]
+            let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
+            
+        openPanel.allowedContentTypes = contentTypes
+        openPanel.allowsMultipleSelection = false
+        openPanel.canChooseDirectories = false
+        
+        openPanel.begin { [weak self] result in
+            guard result == .OK, let url = openPanel.url else { return }
+            
+            guard let encoding = self?.detectEncoding(of: url) else {
+                self?.alert("Unknown encoding for \(url.pathExtension) file.")
+                return
+            }
+            
+            
+            if encoding != .utf8 {
+                self?.alert("Invalid encoding for \(url.pathExtension) file.")
+                return
+            }
+            
+            if let contents = self?.loadFile(url) {
+                if let textView = self?.textView, let selectedRange = textView.selectedRanges.first as? NSRange {
+                    let textToInsert = contents
+                    if let textStorage = textView.textStorage {
+                        textStorage.replaceCharacters(in: selectedRange, with: textToInsert)
+                        textView.setSelectedRange(NSRange(location: selectedRange.location + textToInsert.count, length: 0))
+                    }
+                }
+                
+                self?.applySyntaxHighlighting()
+            }
+        }
+    }
+    
+    func insertImage() {
+        guard let developerPath = self.developerPath else {
+            return
+        }
+        let toolPath = developerPath + "/usr/bin/grob"
+        
+        guard let tempDirectoryURL = self.tempDirectoryURL else {
+            return
+        }
+        
+        let openPanel = NSOpenPanel()
+        let extensions = ["bmp", "png"]
+        let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
+        
+        openPanel.allowedContentTypes = contentTypes
+        openPanel.allowsMultipleSelection = false
+        openPanel.canChooseDirectories = false
+        
+        openPanel.begin { [weak self] result in
+            guard result == .OK, let url = openPanel.url else { return }
+            
+            guard let encoding = self?.detectEncoding(of: url) else {
+                self?.alert("Unknown encoding for \(url.pathExtension) file.")
+                return
+            }
+            
+            if encoding != .utf8 {
+                self?.alert("Invalid encoding for \(url.pathExtension) file.")
+                return
+            }
+            
+            
+            let outputURL = tempDirectoryURL.appendingPathComponent("output.ppl")
+
+            
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: toolPath)
+            process.arguments = [url.path, "-G1", "-o", outputURL.path]
+            process.currentDirectoryURL = url.deletingLastPathComponent()
+            
+            do {
+                try process.run()
+                process.waitUntilExit()
+                if let contents = self?.loadFile(outputURL) {
+                    self?.insertString(contents)
+                }
+            } catch {
+                
+            }
+        
+        }
+    }
+    
     @objc private func exportAs() {
-        guard let currentFileURL = currentFileURL else {
+        guard let currentFileURL = self.currentFileURL else {
+            return
+        }
+        
+        guard let developerPath = self.developerPath else {
             return
         }
         
@@ -502,19 +643,22 @@ class ViewController: NSViewController, NSTextViewDelegate {
             savePanel.allowedFileTypes = extensions
         }
         
-        if let path = developerPath, !FileManager.default.fileExists(atPath: path) {
-            alert("Developer folder missing at: \(path)")
+        if !FileManager.default.fileExists(atPath: developerPath) {
+            alert("Developer folder missing at: \(developerPath)")
         }
-        let toolPath = (developerPath ?? "/urs/local") + "/bin/ppl+"
+        let toolPath = developerPath + "/usr/bin/ppl+"
         
         saveFile()
+        
+        let lib = developerPath + "/usr/lib"
+        let include = developerPath + "/usr/include"
         
         savePanel.begin { [weak self] result in
             guard result == .OK, let url = savePanel.url else { return }
             
             let process = Process()
             process.executableURL = URL(fileURLWithPath: toolPath)
-            process.arguments = [currentFileURL.path, "-o", url.path]
+            process.arguments = ["-L" + lib, "-I" + include, currentFileURL.path, "-o", url.path]
             process.currentDirectoryURL = url.deletingLastPathComponent()
             
             do {
@@ -536,18 +680,24 @@ class ViewController: NSViewController, NSTextViewDelegate {
             return
         }
         
+        let developerURL = Bundle.main.bundleURL
+            .appendingPathComponent("Contents")
+            .appendingPathComponent("Developer")
+        
         guard FileManager.default.fileExists(atPath: url.path) else {
             alert("Input file does not exist at: \(url.path)")
             return
         }
         
         let outputURL = url.deletingPathExtension().appendingPathExtension("hpprgm")
-        let toolPath = "/Applications/HP/PrimeSDK/bin/ppl+"
+
         
+        let lib = developerURL.appendingPathComponent("usr/lib")
+        let include = developerURL.appendingPathComponent("usr/include")
         
         let process = Process()
-        process.executableURL = URL(fileURLWithPath: toolPath)
-        process.arguments = [url.path, "-o", outputURL.path]
+        process.executableURL = developerURL.appendingPathComponent("usr/bin/ppl+")
+        process.arguments = ["-L\(lib.path)", "-I\(include.path)", url.path, "-o", outputURL.path]
         process.currentDirectoryURL = url.deletingLastPathComponent()
         
         do {
@@ -564,6 +714,17 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
+    func insertTemplate(_ template: String) {
+        let url = Bundle.main.bundleURL
+            .appendingPathComponent("Contents")
+            .appendingPathComponent("Template")
+            .appendingPathComponent("\(template).prgm")
+        
+        if let contents = loadFile(url) {
+            insertString(contents)
+        }
+    }
+    
     // MARK: -
     
     private func assignExportAction() {
@@ -571,7 +732,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
             item.action = #selector(exportAs)
         }
         
-        if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Export")?.submenu?.item(withTitle: "Quick Export As HPPRGM") {
+        if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Export")?.submenu?.item(withTitle: "Quick Export as HPPRGM") {
             item.action = #selector(exportAsHpprgm)
         }
     }

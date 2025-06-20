@@ -17,7 +17,7 @@
         {
             "scope": ["Keywords"],
             "settings": {
-                "foreground": "#5482FF"
+                "foreground": "#6699FF"
             }
         },
         {

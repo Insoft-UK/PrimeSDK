@@ -68,6 +68,7 @@
 				13EE0F5E2DF9DEDE004F3D7E /* Sources */,
 				13EE0F5F2DF9DEDE004F3D7E /* Frameworks */,
 				131885A52DFDD70800EBB039 /* Run Script */,
+				137DBD6A2E04798800657C42 /* ShellScript */,
 				13EE0F602DF9DEDE004F3D7E /* Resources */,
 			);
 			buildRules = (
@@ -147,6 +148,24 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# Define source and destination\nSRC_DIR=\"${PROJECT_DIR}/Developer\"\nDST_DIR=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/../Developer\"\n\n# Create the destination directory\nmkdir -p \"$DST_DIR\"\n\n# Copy contents\ncp -R \"$SRC_DIR/\" \"$DST_DIR/\"\n";
+		};
+		137DBD6A2E04798800657C42 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Define source and destination\nSRC_DIR=\"${PROJECT_DIR}/Template\"\nDST_DIR=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/../Template\"\n\n# Create the destination directory\nmkdir -p \"$DST_DIR\"\n\n# Copy contents\ncp -R \"$SRC_DIR/\" \"$DST_DIR/\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -290,7 +309,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 234;
+				CURRENT_PROJECT_VERSION = 9039;
 				DEVELOPMENT_TEAM = 8XN79M4JCJ;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -305,12 +324,12 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.4;
-				MARKETING_VERSION = 0.5;
+				MARKETING_VERSION = 0.9;
 				PRODUCT_BUNDLE_IDENTIFIER = uk.insoft.Xprime;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "Debug PRIMESDK";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = Debug;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -328,7 +347,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 234;
+				CURRENT_PROJECT_VERSION = 9039;
 				DEVELOPMENT_TEAM = 8XN79M4JCJ;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
@@ -343,12 +362,12 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.4;
-				MARKETING_VERSION = 0.5;
+				MARKETING_VERSION = 0.9;
 				PRODUCT_BUNDLE_IDENTIFIER = uk.insoft.Xprime;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = PRIMESDK;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";

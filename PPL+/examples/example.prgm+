@@ -40,14 +40,6 @@
 #define Event key, type[1], x[2], y[3], dx[4], dy[5]
 
 
-B = \`1+2*3/4`:f;
-C = \`1+2*3/4`:c;
-D = \`1+2*3/4`:r;
-
-A = \`255`:32d;
-A = \`255`:32h;
-A = \`255`:32o;
-
 alias::name(a: alpha, b: beta)
 begin
     dict New := 0, Complete := 1, Drag := 2, Stretch := 3, Rotate := 4, LongClick := 5 MouseType;
