@@ -19,7 +19,7 @@ Xprime still in **alpha** release, while usable some features are not fully work
 
 <img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/PrimeSDK.png" style="width: 128px" />
 
-# Command-Line Tooks for macOS
+# Command-Line Tools for macOS
 
 ### <a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/Xprime/Tools/PrimePlus/README.md">PPL+</a> Pre-Processor for PPL
 PPL+ is a pre-processor designed to improve code maintainability and readability in the HP Programming Language (PPL). PPL+ also allows one to define regular expressions to assist in the preprocessing workflow. The final output is a compact, optimized PPL program file tailored to the HP Prime’s limited storage capacity.
