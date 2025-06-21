@@ -1,9 +1,0 @@
-#!/bin/bash
-DIR=$(dirname "$0")
-printf '\e[1;40;92m'
-clear
-
-cd $DIR
-
-vsce package
-

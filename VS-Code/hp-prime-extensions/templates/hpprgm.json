@@ -1,5 +1,0 @@
-{
-    "name": "HP Prime Program",
-    "description": "Template for hpprgm Files",
-    "body": "EXPORT example_name()\nBEGIND\n\nEND;"
-}
