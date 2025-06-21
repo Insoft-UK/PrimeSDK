@@ -45,7 +45,7 @@ chgrp -R staff "$USER_HOME/Documents/HP Prime/Examples"
 # Check if the symlink already exists
 if [ ! -L "$USER_HOME/Documents/HP Prime/Library" ]; then
     # Create symlink
-    ln -s /Applications/HP/PrimeSDK/hpprgm "$USER_HOME/Documents/HP Prime/Library"
+    ln -s /Applications/HP/PrimeSDK/prgm "$USER_HOME/Documents/HP Prime/Library"
 fi
 if [ ! -L "$USER_HOME/Documents/HP Prime/Libraries" ]; then
     rm "$USER_HOME/Documents/HP Prime/Libraries"

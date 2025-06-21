@@ -1,0 +1,30 @@
+#!/bin/bash
+DIR=$(dirname "$0")
+clear
+echo "Developer Sync."
+echo "Copyright © 2025 Insoft. All rights reserved.\n"
+
+cd "$DIR"
+
+# Source and destination directories
+SRC_DIR="../Xprime/Developer/usr"
+DEST_DIR="package-root/Applications/HP/PrimeSDK"
+
+if [ -d "$DEST_DIR" ]; then
+    # Exclude any directories or files you don't want to sync
+    EXCLUDE_FILE="$(basename $0)"
+
+    # Synchronize source to destination while deleting files in the destination that don't exist in the source
+    rsync -av --delete --exclude "Icon?" --exclude $EXCLUDE_FILE "$SRC_DIR/" "$DEST_DIR/"
+
+    # Notify the user
+    echo "File synchronization complete. Any extra files in the destination have been removed."
+
+else
+    printf "Folder '\e[1;32m$DEST_DIR\e[0;m' dose not exist."
+fi
+
+read -p "Press Enter to exit!"
+
+# Close the Terminal window
+osascript -e 'tell application "Terminal" to close window 1' & exit
