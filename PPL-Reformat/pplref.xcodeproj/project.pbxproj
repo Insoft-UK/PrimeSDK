@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1308E8F62AC48F20001EEC82 /* singleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1308E8F42AC48F20001EEC82 /* singleton.cpp */; };
 		131C87742C936CE800063389 /* comments.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 131C87722C936CE800063389 /* comments.cpp */; };
+		137DBFE72E06E8F100657C42 /* utf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 137DBFE62E06E8F100657C42 /* utf.cpp */; };
 		137FB2892A03B06500AEFDF2 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 137FB2882A03B06500AEFDF2 /* main.cpp */; };
 		13B13C312B66C2F000F9BCBB /* strings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13B13C2F2B66C2F000F9BCBB /* strings.cpp */; };
 		13C21F9A2A7829C80067CE22 /* preprocessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13C21F982A7829C80067CE22 /* preprocessor.cpp */; };
@@ -35,6 +36,7 @@
 		131C87722C936CE800063389 /* comments.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = comments.cpp; sourceTree = "<group>"; };
 		131C87732C936CE800063389 /* comments.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = comments.hpp; sourceTree = "<group>"; };
 		1351CC552BFC0E180073FEDF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		137DBFE62E06E8F100657C42 /* utf.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = utf.cpp; path = ../PrimePlus/src/utf.cpp; sourceTree = SOURCE_ROOT; };
 		137FB2852A03B06500AEFDF2 /* pplref */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = pplref; sourceTree = BUILT_PRODUCTS_DIR; };
 		137FB2882A03B06500AEFDF2 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		137FB2942A046E8E00AEFDF2 /* pplref.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = pplref.entitlements; sourceTree = "<group>"; };
@@ -93,6 +95,7 @@
 				1308E8F52AC48F20001EEC82 /* singleton.hpp */,
 				1308E8F42AC48F20001EEC82 /* singleton.cpp */,
 				1389CFEE2CAAEB9A008FDBEB /* timer.hpp */,
+				137DBFE62E06E8F100657C42 /* utf.cpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -180,6 +183,7 @@
 				137FB2892A03B06500AEFDF2 /* main.cpp in Sources */,
 				13C21F9D2A783D8D0067CE22 /* common.cpp in Sources */,
 				1308E8F62AC48F20001EEC82 /* singleton.cpp in Sources */,
+				137DBFE72E06E8F100657C42 /* utf.cpp in Sources */,
 				131C87742C936CE800063389 /* comments.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

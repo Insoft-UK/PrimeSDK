@@ -27,6 +27,7 @@
 #include <cstring>
 #include <iomanip>
 #include <cstdint>
+#include "../../PrimePlus/src/utf.hpp"
 
 #include "../version_code.h"
 #include "bmp.hpp"
@@ -170,66 +171,6 @@ void info(void) {
     std::cout << "Copyright (c) 2024 Insoft. All rights reserved.\n";
     std::cout << "Insoft "<< NAME << " version, " << VERSION_NUMBER << "\n\n";
 }
-
-
-void saveAs(const std::string &filename, const std::string& str) {
-    std::ofstream outfile;
-    outfile.open(filename, std::ios::out | std::ios::binary);
-
-    if(!outfile.is_open()) {
-        error();
-        exit(0x02);
-    }
-    
-    bool utf16le = false;
-    std::string extension = std::filesystem::path(filename).extension();
-    
-    if (extension == ".prgm" || extension == ".ppl") utf16le = true;
-    
-    if (utf16le) {
-        outfile.put(0xFF);
-        outfile.put(0xFE);
-    }
-    
-    uint8_t* ptr = (uint8_t*)str.c_str();
-    for ( int n = 0; n < str.length(); n++) {
-        if (0xc2 == ptr[0]) {
-            ptr++;
-            continue;
-        }
-        
-        if (utf16le) {
-            if (0xE0 <= ptr[0]) {
-                // 3 Bytes
-                uint16_t utf16 = ptr[0];
-                utf16 <<= 6;
-                utf16 |= ptr[1] & 0b111111;
-                utf16 <<= 6;
-                utf16 |= ptr[1] & 0b111111;
-                
-#ifndef __LITTLE_ENDIAN__
-                utf16 = utf16 >> 8 | utf16 << 8;
-#endif
-                outfile.write((const char *)&utf16, 2);
-                
-                ptr+=3;
-                continue;
-            }
-        }
-        
-        if ('\r' == ptr[0]) {
-            ptr++;
-            continue;
-        }
-
-        // Output as UTF-16LE
-        outfile.put(*ptr++);
-        if (utf16le) outfile.put('\0');
-    }
-    
-    outfile.close();
-}
-
 
 // MARK: - Main
 
@@ -458,9 +399,9 @@ int main(int argc, const char * argv[]) {
             break;
     }
     
-    saveAs(out_filename, utf8);
+    utf::save_as_utf16(out_filename, utf8);
     
-    std::cout << "UTF-16LE file '" << regex_replace(out_filename, std::regex(R"(.*/)"), "") << "' succefuly created.\n";
+    std::cout << "File '" << regex_replace(out_filename, std::regex(R"(.*/)"), "") << "' succefuly created.\n";
     
     return 0;
 }

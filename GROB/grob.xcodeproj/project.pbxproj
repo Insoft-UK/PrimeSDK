@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1352EDF62B4786BD003130E4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1352EDF42B4786BC003130E4 /* main.cpp */; };
 		136E64402D25AF090054E0CC /* bmp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 136E643F2D25AF090054E0CC /* bmp.cpp */; };
+		137DBFDA2E06D82400657C42 /* utf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 137DBFD92E06D82400657C42 /* utf.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -28,6 +29,7 @@
 		136E643E2D25AF090054E0CC /* bmp.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = bmp.hpp; sourceTree = "<group>"; };
 		136E643F2D25AF090054E0CC /* bmp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = bmp.cpp; sourceTree = "<group>"; };
 		136E64442D262CE90054E0CC /* version.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = version.txt; sourceTree = "<group>"; };
+		137DBFD92E06D82400657C42 /* utf.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = utf.cpp; path = ../PrimePlus/src/utf.cpp; sourceTree = SOURCE_ROOT; };
 		138F54D42C977703009357F9 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		138F54D52C977708009357F9 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		13EBE2F32B22249100302F26 /* grob */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = grob; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -51,6 +53,7 @@
 		1352EDEC2B4786BC003130E4 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				137DBFD92E06D82400657C42 /* utf.cpp */,
 				1352EDF42B4786BC003130E4 /* main.cpp */,
 				136E643E2D25AF090054E0CC /* bmp.hpp */,
 				136E643F2D25AF090054E0CC /* bmp.cpp */,
@@ -135,6 +138,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				137DBFDA2E06D82400657C42 /* utf.cpp in Sources */,
 				136E64402D25AF090054E0CC /* bmp.cpp in Sources */,
 				1352EDF62B4786BD003130E4 /* main.cpp in Sources */,
 			);

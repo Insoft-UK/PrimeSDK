@@ -35,6 +35,7 @@ class TempFileManager {
         } catch {
             fatalError("Failed to create temp directory: \(error)")
         }
+        
     }
 
     func cleanup() {

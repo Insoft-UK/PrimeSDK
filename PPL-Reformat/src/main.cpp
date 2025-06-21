@@ -30,6 +30,7 @@
 #include <iomanip>
 #include <unordered_set>
 #include <sys/time.h>
+#include "../../PrimePlus/src/utf.hpp"
 
 #include "singleton.hpp"
 #include "common.hpp"
@@ -110,104 +111,6 @@ namespace std::filesystem {
 
 // MARK: - Utills
 
-
-
-uint32_t utf8_to_utf16(const char* utf8) {
-    uint8_t *utf8_char = (uint8_t *)utf8;
-    uint16_t utf16_char = *utf8_char;
-    
-    if ((utf8_char[0] & 0b11110000) == 0b11100000) {
-        utf16_char = utf8_char[0] & 0b11111;
-        utf16_char <<= 6;
-        utf16_char |= utf8_char[1] & 0b111111;
-        utf16_char <<= 6;
-        utf16_char |= utf8_char[2] & 0b111111;
-        return utf16_char;
-    }
-    
-    // 110xxxxx 10xxxxxx
-    if ((utf8_char[0] & 0b11100000) == 0b11000000) {
-        utf16_char = utf8_char[0] & 0b11111;
-        utf16_char <<= 6;
-        utf16_char |= utf8_char[1] & 0b111111;
-        return utf16_char;
-    }
-    
-    return utf16_char;
-}
-
-std::string utf16_to_utf8(const uint16_t* utf16_str, size_t utf16_size) {
-    std::string utf8_str;
-    
-    for (size_t i = 0; i < utf16_size; ++i) {
-        uint16_t utf16_char = utf16_str[i];
-        
-#ifndef __LITTLE_ENDIAN__
-        utf16_char = utf16_char >> 8 | utf16_char << 8;
-#endif
-
-        if (utf16_char < 0x0080) {
-            // 1-byte UTF-8
-            utf8_str += static_cast<char>(utf16_char);
-        }
-        else if (utf16_char < 0x0800) {
-            // 2-byte UTF-8
-            utf8_str += static_cast<char>(0xC0 | ((utf16_char >> 6) & 0x1F));
-            utf8_str += static_cast<char>(0x80 | (utf16_char & 0x3F));
-        }
-        else {
-            // 3-byte UTF-8
-            utf8_str += static_cast<char>(0xE0 | ((utf16_char >> 12) & 0x0F));
-            utf8_str += static_cast<char>(0x80 | ((utf16_char >> 6) & 0x3F));
-            utf8_str += static_cast<char>(0x80 | (utf16_char & 0x3F));
-        }
-    }
-    
-    return utf8_str;
-}
-
-
-// TODO: .hpprgrm file format detection and handling.
-bool isHPPrgrmFileFormat(std::ifstream& infile)
-{
-    uint32_t u32;
-    infile.read((char *)&u32, sizeof(uint32_t));
-    
-#ifndef __LITTLE_ENDIAN__
-    u32 = std::byteswap(u32);
-#endif
-    
-    if (u32 != 0x7C618AB2) {
-        goto invalid;
-    }
-    
-    while (!infile.eof()) {
-        infile.read((char *)&u32, sizeof(uint32_t));
-#ifndef __LITTLE_ENDIAN__
-    u32 = std::byteswap(u32);
-#endif
-        if (u32 == 0x9B00C000) return true;
-        infile.peek();
-    }
-    
-invalid:
-    infile.seekg(0);
-    return false;
-}
-
-bool isUTF16le(std::ifstream &infile)
-{
-    uint16_t byte_order_mark;
-    infile.read((char *)&byte_order_mark, sizeof(uint16_t));
-    
-#ifndef __LITTLE_ENDIAN__
-    byte_order_mark = byte_order_mark >> 8 | byte_order_mark << 8;
-#endif
-    if (byte_order_mark == 0xFEFF) return true;
-    
-    infile.seekg(0);
-    return false;
-}
 
 // Function to remove whitespaces around specific operators using regular expressions
 std::string removeWhitespaceAroundOperators(const std::string& str) {
@@ -530,29 +433,29 @@ std::string insert_space_before_word_after_closing_paren(const std::string& inpu
 
 // MARK: - Formatting And Writing
 
-void reformatLine(std::string& ln, std::ofstream& outfile) {
+std::string reformatLine(const std::string& str) {
     std::regex re;
     std::ifstream infile;
+    std::string result = str;
     static std::string indentation("");
     Singleton *singleton = Singleton::shared();
     
     if (preprocessor.python) {
         // We're presently handling Python code.
-        preprocessor.parse(ln);
-        ln += '\n';
-        return;
+        preprocessor.parse(result);
+        result += '\n';
+        return result;
     }
     
-    if (preprocessor.parse(ln)) {
+    if (preprocessor.parse(result)) {
         if (preprocessor.python) {
             // Indicating Python code ahead with the #PYTHON preprocessor, we maintain the line unchanged and return to the calling function.
-            ln += '\n';
-            return;
+            result += '\n';
+            return result;
         }
         
-//        ln = std::string("");
-        ln += '\n';
-        return;
+        result += '\n';
+        return result;
     }
     
     /*
@@ -562,45 +465,45 @@ void reformatLine(std::string& ln, std::ofstream& outfile) {
      Subsequently, after parsing, any strings that have been universally altered can
      be restored to their original state.
      */
-    strings.preserveStrings(ln);
-    strings.blankOutStrings(ln);
+    strings.preserveStrings(result);
+    strings.blankOutStrings(result);
 
     // Remove any leading white spaces before or after.
-    trim(ln);
+    trim(result);
     
-    if (ln.length() < 1) {
-        return;
+    if (result.length() < 1) {
+        return result;
     }
     
     // Remove any comments.
-    singleton->comments.preserveComment(ln);
-    singleton->comments.removeComment(ln);
+    singleton->comments.preserveComment(result);
+    singleton->comments.removeComment(result);
     
     
     
-    ln = capitalize_words(ln, {
+    result = capitalize_words(result, {
         "begin", "end", "return", "kill", "if", "then", "else", "xor", "or", "and", "not",
         "case", "default", "iferr", "ifte", "for", "from", "step", "downto", "to", "do",
         "while", "repeat", "until", "break", "continue", "export", "const", "local", "key"
     });
-    ln = capitalize_words(ln, {"log", "cos", "sin", "tan", "ln", "min", "max"});
-    ln = replace_words(ln, {"FROM"}, ":=");
-    ln = clean_whitespace(ln);
-    ln = replace_operators(ln);
-    ln = fix_unary_minus(ln);
-    ln = normalize_operators(ln);
-    ln = insert_space_after_chars(ln, {',', ';'});
-    ln = insert_space_before_word_after_closing_paren(ln);
+    result = capitalize_words(result, {"log", "cos", "sin", "tan", "ln", "min", "max"});
+    result = replace_words(result, {"FROM"}, ":=");
+    result = clean_whitespace(result);
+    result = replace_operators(result);
+    result = fix_unary_minus(result);
+    result = normalize_operators(result);
+    result = insert_space_after_chars(result, {',', ';'});
+    result = insert_space_before_word_after_closing_paren(result);
     
     
     re = std::regex(R"(\b(?:BEGIN|IF|CASE|FOR|WHILE|REPEAT)\b)", std::regex_constants::icase);
-    for(auto it = std::sregex_iterator(ln.begin(), ln.end(), re); it != std::sregex_iterator(); ++it) {
+    for(auto it = std::sregex_iterator(result.begin(), result.end(), re); it != std::sregex_iterator(); ++it) {
         singleton->nestingLevel++;
         singleton->scope = Singleton::Scope::Local;
     }
     
     re = std::regex(R"(\b(?:END|UNTIL)\b)", std::regex_constants::icase);
-    for(auto it = std::sregex_iterator(ln.begin(), ln.end(), re); it != std::sregex_iterator(); ++it) {
+    for(auto it = std::sregex_iterator(result.begin(), result.end(), re); it != std::sregex_iterator(); ++it) {
         singleton->nestingLevel--;
         if (0 == singleton->nestingLevel) {
             singleton->scope = Singleton::Scope::Global;
@@ -609,93 +512,64 @@ void reformatLine(std::string& ln, std::ofstream& outfile) {
     
     
     if (Singleton::Scope::Local == singleton->scope) {
-        if (!regex_search(ln, std::regex(R"(\b(?:BEGIN|IF|CASE|FOR|WHILE|REPEAT)\b)", std::regex_constants::icase))) {
-            ln.insert(0, std::string(Singleton::shared()->nestingLevel * INDENT_WIDTH, ' '));
+        if (!regex_search(result, std::regex(R"(\b(?:BEGIN|IF|CASE|FOR|WHILE|REPEAT)\b)", std::regex_constants::icase))) {
+            result.insert(0, std::string(Singleton::shared()->nestingLevel * INDENT_WIDTH, ' '));
         } else {
-            ln.insert(0, std::string((Singleton::shared()->nestingLevel - 1) * INDENT_WIDTH, ' '));
+            result.insert(0, std::string((Singleton::shared()->nestingLevel - 1) * INDENT_WIDTH, ' '));
         }
-        ln = regex_replace(ln, std::regex(R"(\(\s*\))"), "");
+        result = regex_replace(result, std::regex(R"(\(\s*\))"), "");
     }
 
-    strings.restoreStrings(ln);
-    singleton->comments.restoreComment(ln);
-    rtrim(ln);
+    strings.restoreStrings(result);
+    singleton->comments.restoreComment(result);
+    rtrim(result);
     
     if (Singleton::shared()->nestingLevel == 1) {
-        ln = regex_replace(ln, std::regex(R"(END;)"), "$0\n");
+        result = regex_replace(result, std::regex(R"(END;)"), "$0\n");
     }
     
-    if (Singleton::shared()->nestingLevel == 0 && ln != "END;") {
-        ln = ln.insert(0, "\n");
+    if (Singleton::shared()->nestingLevel == 0 && result != "END;") {
+        result = result.insert(0, "\n");
     }
     
-    ln = regex_replace(ln, std::regex(R"(^ *(\[|\d))"), std::string((Singleton::shared()->nestingLevel + 1) * INDENT_WIDTH, ' ') + "$1");
+    result = regex_replace(result, std::regex(R"(^ *(\[|\d))"), std::string((Singleton::shared()->nestingLevel + 1) * INDENT_WIDTH, ' ') + "$1");
     
-    ln += "\n";
+    result += "\n";
+    return result;
 }
 
-void writeUTF16Line(const std::string& ln, std::ofstream& outfile) {
-    for ( int n = 0; n < ln.length(); n++) {
-        uint8_t *ascii = (uint8_t *)&ln.at(n);
-        if (ln.at(n) == '\r') continue;
-        
-        // Output as UTF-16LE
-        if (*ascii >= 0x80) {
-            uint16_t utf16 = utf8_to_utf16(&ln.at(n));
-            
-#ifndef __LITTLE_ENDIAN__
-            utf16 = utf16 >> 8 | utf16 << 8;
-#endif
-            outfile.write((const char *)&utf16, 2);
-            if ((*ascii & 0b11100000) == 0b11000000) n++;
-            if ((*ascii & 0b11110000) == 0b11100000) n+=2;
-            if ((*ascii & 0b11111000) == 0b11110000) n+=3;
-        } else {
-            outfile.put(ln.at(n));
-            outfile.put('\0');
-        }
-    }
-}
 
-void formatAndWriteLine(std::string& str, std::ofstream& outfile) {
-    Singleton& singleton = *Singleton::shared();
-    
-    reformatLine(str, outfile);
-    writeUTF16Line(str, outfile);
-    
-    singleton.incrementLineNumber();
-}
 
-void processAndWriteLines(std::istringstream& iss, std::ofstream& outfile)
+std::string reformatAllLines(std::istringstream& iss)
 {
     std::string str;
+    std::string result;
     
     while(getline(iss, str)) {
-        formatAndWriteLine(str, outfile);
+        result.append(reformatLine(str));
+        Singleton::shared()->incrementLineNumber();
     }
+    
+    return result;
 }
 
-void convertAndFormatFile(std::ifstream& infile, std::ofstream& outfile)
+std::string reformatPrgm(std::ifstream& infile)
 {
-    if (!isUTF16le(infile)) {
-        infile.close();
-        return;
-    }
-   
     // Read in the whole of the file into a `std::string`
     std::string str;
+    std::wstring wstr;
     
-    char c;
-    while (!infile.eof()) {
-        infile.get(c);
-        str += c;
-        infile.peek();
+    wstr = utf::read_utf16(infile);
+    if (wstr.empty()) {
+        char c;
+        while (!infile.eof()) {
+            infile.get(c);
+            str += c;
+            infile.peek();
+        }
+    } else {
+        str = utf::to_utf8(wstr);
     }
-    
-    
-    // The UTF16-LE data first needs to be converted to UTF8 before it can be proccessed.
-    uint16_t *utf16_str = (uint16_t *)str.c_str();
-    str = utf16_to_utf8(utf16_str, str.size() / 2);
     
     std::regex re;
 
@@ -717,7 +591,8 @@ void convertAndFormatFile(std::ifstream& infile, std::ofstream& outfile)
     
     std::istringstream iss;
     iss.str(str);
-    processAndWriteLines(iss, outfile);
+    
+    return reformatAllLines(iss);
 }
 
 
@@ -829,17 +704,15 @@ int main(int argc, char **argv) {
         error();
         return 0;
     }
-    
-    // The "prgm" file format requires UTF-16LE
-    outfile.put(0xFF);
-    outfile.put(0xFE);
+
     
     // Start measuring time
     Timer timer;
     
     std::string str;
 
-    convertAndFormatFile( infile, outfile );
+    str = reformatPrgm(infile);
+    utf::save_as_utf16(out_filename, str);
     
     // Stop measuring time and calculate the elapsed time.
     long long elapsed_time = timer.elapsed();
@@ -856,23 +729,7 @@ int main(int argc, char **argv) {
         return 0;
     }
     
-    // Percentage Reduction = (Original Size - New Size) / Original Size * 100
-    std::ifstream::pos_type original_size = file_size(in_filename);
-    std::ifstream::pos_type new_size = file_size(out_filename);
-    
-    // Create a locale with the custom comma-based numpunct
-    std::locale commaLocale(std::locale::classic(), new comma_numpunct);
-    std::cout.imbue(commaLocale);
-    
-    if (original_size > new_size) {
-        std::cout << "Reformatting reduced file size by " << (original_size - new_size) * 100 / original_size;
-        std::cout << "% or " << original_size - new_size << " bytes.\n";
-    }
-    else {
-        std::cout << "Reformatting increased file size by " << (new_size - original_size) * 100 / new_size;
-        std::cout << "% or " << new_size - original_size << " bytes.\n";
-    }
-    std::cout << "UTF-16LE file '" << regex_replace(out_filename, std::regex(R"(.*/)"), "") << "' succefuly created.\n";
+    std::cout << "File '" << regex_replace(out_filename, std::regex(R"(.*/)"), "") << "' succefuly created.\n";
     
     return 0;
 }

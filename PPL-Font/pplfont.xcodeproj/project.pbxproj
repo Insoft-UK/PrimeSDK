@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		137DBFE32E06DA2700657C42 /* utf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 137DBFE22E06DA2700657C42 /* utf.cpp */; };
 		84764229189579CD00AFBE9C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84764228189579CD00AFBE9C /* main.cpp */; };
 /* End PBXBuildFile section */
 
@@ -27,6 +28,7 @@
 		13148B602D42B5E800849C73 /* version.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = version.txt; sourceTree = "<group>"; };
 		1328C2962BCB4908003C4B3A /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		1328C2972BCB4910003C4B3A /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		137DBFE22E06DA2700657C42 /* utf.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = utf.cpp; path = ../PrimePlus/src/utf.cpp; sourceTree = SOURCE_ROOT; };
 		138F54D32C977594009357F9 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		84764225189579CD00AFBE9C /* pplfont */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = pplfont; sourceTree = BUILT_PRODUCTS_DIR; };
 		84764228189579CD00AFBE9C /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -81,6 +83,7 @@
 			isa = PBXGroup;
 			children = (
 				84764228189579CD00AFBE9C /* main.cpp */,
+				137DBFE22E06DA2700657C42 /* utf.cpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -92,7 +95,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8476422E189579CD00AFBE9C /* Build configuration list for PBXNativeTarget "pplfont" */;
 			buildPhases = (
-				1328C28A2BC83B5A003C4B3A /* ShellScript */,
 				84764221189579CD00AFBE9C /* Sources */,
 				84764222189579CD00AFBE9C /* Frameworks */,
 				84764223189579CD00AFBE9C /* CopyFiles */,
@@ -134,33 +136,13 @@
 		};
 /* End PBXProject section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		1328C28A2BC83B5A003C4B3A /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 12;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "./version_code\n";
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		84764221189579CD00AFBE9C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				84764229189579CD00AFBE9C /* main.cpp in Sources */,
+				137DBFE32E06DA2700657C42 /* utf.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

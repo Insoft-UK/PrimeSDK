@@ -69,6 +69,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "--ppl"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "-v gf"
             isEnabled = "NO">
          </CommandLineArgument>

@@ -195,6 +195,15 @@ class ViewController: NSViewController, NSTextViewDelegate {
             } catch {
                 print("Failed to open file:", error)
             }
+            
+            if let window = self.view.window {
+                window.representedURL = URL(fileURLWithPath: url.path)
+                if let iconButton = window.standardWindowButton(.documentIconButton) {
+                    iconButton.image = NSImage(named: "ppl+")
+                    assignExportAction()
+                    iconButton.isHidden = false
+                }
+            }
         }
         
         loadTheme()
@@ -433,9 +442,11 @@ class ViewController: NSViewController, NSTextViewDelegate {
     }
     
     func loadFile(_ url: URL) -> String? {
+        guard let encoding = detectEncoding(of: url) else { return nil }
+        
         do {
             let data = try Data(contentsOf: url)
-            let string = String(data: data, encoding: .utf8) ?? ""
+            let string = String(data: data, encoding: encoding) ?? ""
             
             return string
         } catch {
@@ -456,16 +467,6 @@ class ViewController: NSViewController, NSTextViewDelegate {
         
         openPanel.begin { [weak self] result in
             guard result == .OK, let url = openPanel.url else { return }
-            
-            guard let encoding = self?.detectEncoding(of: url) else {
-                self?.alert("Unknown encoding for \(url.pathExtension) file.")
-                return
-            }
-            
-            if encoding != .utf8 {
-                self?.alert("Invalid encoding for \(url.pathExtension) file.")
-                return
-            }
             
             if let contents = self?.loadFile(url) {
                 self?.textView.string = contents
@@ -547,17 +548,6 @@ class ViewController: NSViewController, NSTextViewDelegate {
         openPanel.begin { [weak self] result in
             guard result == .OK, let url = openPanel.url else { return }
             
-            guard let encoding = self?.detectEncoding(of: url) else {
-                self?.alert("Unknown encoding for \(url.pathExtension) file.")
-                return
-            }
-            
-            
-            if encoding != .utf8 {
-                self?.alert("Invalid encoding for \(url.pathExtension) file.")
-                return
-            }
-            
             if let contents = self?.loadFile(url) {
                 if let textView = self?.textView, let selectedRange = textView.selectedRanges.first as? NSRange {
                     let textToInsert = contents
@@ -602,21 +592,22 @@ class ViewController: NSViewController, NSTextViewDelegate {
                 self?.alert("Invalid encoding for \(url.pathExtension) file.")
                 return
             }
-            
-            
-            let outputURL = tempDirectoryURL.appendingPathComponent("output.ppl")
 
-            
+            let outputURL = tempDirectoryURL.appendingPathComponent("image.prgm")
+
             let process = Process()
             process.executableURL = URL(fileURLWithPath: toolPath)
-            process.arguments = [url.path, "-G1", "-o", outputURL.path]
+            process.arguments = [url.path, "-o", outputURL.path]
             process.currentDirectoryURL = url.deletingLastPathComponent()
             
             do {
                 try process.run()
                 process.waitUntilExit()
-                if let contents = self?.loadFile(outputURL) {
-                    self?.insertString(contents)
+                if FileManager.default.fileExists(atPath: outputURL.path) {
+                    if let contents = self?.loadFile(outputURL) {
+                        self?.insertString(contents)
+                    }
+                    try FileManager.default.removeItem(at: outputURL)
                 }
             } catch {
                 

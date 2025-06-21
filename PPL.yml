@@ -1,7 +1,6 @@
-name: PPL+
+name: PPL
 type: programming
-extensions:
-  - ".pp"
+extensions: [".prgm+", ".ppl+", ".prgm", "ppl"]
 color: "#ff8c00"  # Customize the color as you'd like
 tm_scope: source.pplplus
 ace_mode: text

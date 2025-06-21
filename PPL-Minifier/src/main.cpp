@@ -30,12 +30,12 @@
 #include <cstring>
 #include <iomanip>
 #include <unordered_set>
+#include "../../PrimePlus/src/utf.hpp"
 
 #include <sys/time.h>
 
 #include "singleton.hpp"
 #include "common.hpp"
-#include "hpprgm.hpp"
 
 #include "preprocessor.hpp"
 #include "strings.hpp"
@@ -110,105 +110,6 @@ namespace std::filesystem {
 #endif
 
 // MARK: - Utills
-
-
-
-uint32_t utf8_to_utf16(const char *utf8) {
-    uint8_t *utf8_char = (uint8_t *)utf8;
-    uint16_t utf16_char = *utf8_char;
-    
-    if ((utf8_char[0] & 0b11110000) == 0b11100000) {
-        utf16_char = utf8_char[0] & 0b11111;
-        utf16_char <<= 6;
-        utf16_char |= utf8_char[1] & 0b111111;
-        utf16_char <<= 6;
-        utf16_char |= utf8_char[2] & 0b111111;
-        return utf16_char;
-    }
-    
-    // 110xxxxx 10xxxxxx
-    if ((utf8_char[0] & 0b11100000) == 0b11000000) {
-        utf16_char = utf8_char[0] & 0b11111;
-        utf16_char <<= 6;
-        utf16_char |= utf8_char[1] & 0b111111;
-        return utf16_char;
-    }
-    
-    return utf16_char;
-}
-
-std::string utf16_to_utf8(const uint16_t* utf16_str, size_t utf16_size) {
-    std::string utf8_str;
-    
-    for (size_t i = 0; i < utf16_size; ++i) {
-        uint16_t utf16_char = utf16_str[i];
-        
-#ifndef __LITTLE_ENDIAN__
-        utf16_char = utf16_char >> 8 | utf16_char << 8;
-#endif
-
-        if (utf16_char < 0x0080) {
-            // 1-byte UTF-8
-            utf8_str += static_cast<char>(utf16_char);
-        }
-        else if (utf16_char < 0x0800) {
-            // 2-byte UTF-8
-            utf8_str += static_cast<char>(0xC0 | ((utf16_char >> 6) & 0x1F));
-            utf8_str += static_cast<char>(0x80 | (utf16_char & 0x3F));
-        }
-        else {
-            // 3-byte UTF-8
-            utf8_str += static_cast<char>(0xE0 | ((utf16_char >> 12) & 0x0F));
-            utf8_str += static_cast<char>(0x80 | ((utf16_char >> 6) & 0x3F));
-            utf8_str += static_cast<char>(0x80 | (utf16_char & 0x3F));
-        }
-    }
-    
-    return utf8_str;
-}
-
-// TODO: .hpprgrm file format detection and handling.
-bool isHPPrgrmFileFormat(std::ifstream &infile)
-{
-    uint32_t u32;
-    infile.read((char *)&u32, sizeof(uint32_t));
-    
-#ifndef __LITTLE_ENDIAN__
-    u32 = std::byteswap(u32);
-#endif
-    
-    if (u32 != 0x7C618AB2) {
-        goto invalid;
-    }
-    
-    while (!infile.eof()) {
-        infile.read((char *)&u32, sizeof(uint32_t));
-#ifndef __LITTLE_ENDIAN__
-    u32 = std::byteswap(u32);
-#endif
-        if (u32 == 0x9B00C000) return true;
-        infile.peek();
-    }
-    
-invalid:
-    infile.seekg(0);
-    return false;
-}
-
-bool isUTF16le(std::ifstream &infile)
-{
-    uint16_t byte_order_mark;
-    infile.read((char *)&byte_order_mark, sizeof(uint16_t));
-    
-#ifndef __LITTLE_ENDIAN__
-    byte_order_mark = byte_order_mark >> 8 | byte_order_mark << 8;
-#endif
-    if (byte_order_mark == 0xFEFF) return true;
-    
-    infile.seekg(0);
-    return false;
-}
-
 
 std::string base10ToBase32(unsigned int num) {
     if (num == 0) {
@@ -390,12 +291,28 @@ std::string capitalize_words(const std::string& input, const std::unordered_set<
     return result;
 }
 
+static bool is_utf16(const std::string& filepath) {
+    std::ifstream is;
+    is.open(filepath, std::ios::in | std::ios::binary);
+    if(!is.is_open()) {
+        return false;
+    }
+    
+    uint16_t byte_order_mark;
+    
+    is.read(reinterpret_cast<char*>(&byte_order_mark), sizeof(byte_order_mark));
+    is.close();
+    
+    return byte_order_mark == 0xFEFF;
+}
+
 // MARK: - Minifying And Writing
 
-void minifieLine(std::string &ln, std::ofstream &outfile) {
+std::string minifieLine(const std::string& ln) {
     std::regex re;
     std::smatch match;
     std::ifstream infile;
+    std::string result = ln;
     
     Singleton *singleton = Singleton::shared();
     
@@ -403,20 +320,20 @@ void minifieLine(std::string &ln, std::ofstream &outfile) {
     
     if (preprocessor.python) {
         // We're presently handling Python code.
-        preprocessor.parse(ln);
-        ln += '\n';
-        return;
+        preprocessor.parse(result);
+        result += '\n';
+        return result;
     }
     
-    if (preprocessor.parse(ln)) {
+    if (preprocessor.parse(result)) {
         if (preprocessor.python) {
             // Indicating Python code ahead with the #PYTHON preprocessor, we maintain the line unchanged and return to the calling function.
-            ln += '\n';
-            return;
+            result += '\n';
+            return result;
         }
         
-        ln = std::string("");
-        return;
+        result = std::string("");
+        return result;
     }
     
     /*
@@ -424,45 +341,45 @@ void minifieLine(std::string &ln, std::ofstream &outfile) {
      To address this issue, we prioritize the preservation of any existing strings. Subsequently, after parsing, any strings that have
      been universally altered can be restored to their original state.
      */
-    strings.preserveStrings(ln);
-    strings.blankOutStrings(ln);
+    strings.preserveStrings(result);
+    strings.blankOutStrings(result);
     
     // Remove any comments.
-    size_t pos = ln.find("//");
+    size_t pos = result.find("//");
     if (pos != std::string::npos) {
-        ln.resize(pos);
+        result.resize(pos);
     }
     
     // Remove sequences of whitespaces to a single whitespace.
-    ln = std::regex_replace(ln, std::regex(R"(\s+)"), " ");
+    result = std::regex_replace(result, std::regex(R"(\s+)"), " ");
 
     // Remove any leading white spaces before or after.
-    trim(ln);
+    trim(result);
     
-    if (ln.length() < 1) {
-        ln = std::string("");
-        return;
+    if (result.length() < 1) {
+        result = std::string("");
+        return result;
     }
     
-    ln = capitalize_words(ln, {
+    result = capitalize_words(result, {
         "begin", "end", "return", "kill", "if", "then", "else", "xor", "or", "and", "not",
         "case", "default", "iferr", "ifte", "for", "from", "step", "downto", "to", "do",
         "while", "repeat", "until", "break", "continue", "export", "const", "local", "key"
     });
-    ln = capitalize_words(ln, {"log", "cos", "sin", "tan", "ln", "min", "max"});
-    ln = replace_words(ln, {"FROM"}, ":=");
-    ln = clean_whitespace(ln);
-    ln = replace_operators(ln);
-    ln = fix_unary_minus(ln);
+    result = capitalize_words(result, {"log", "cos", "sin", "tan", "result", "min", "max"});
+    result = replace_words(result, {"FROM"}, ":=");
+    result = clean_whitespace(result);
+    result = replace_operators(result);
+    result = fix_unary_minus(result);
     
     re = std::regex(R"(\b(?:BEGIN|IF|CASE|FOR|WHILE|REPEAT|FOR|WHILE|REPEAT)\b)", std::regex_constants::icase);
-    for(auto it = std::sregex_iterator(ln.begin(), ln.end(), re); it != std::sregex_iterator(); ++it) {
+    for(auto it = std::sregex_iterator(result.begin(), result.end(), re); it != std::sregex_iterator(); ++it) {
         singleton->nestingLevel++;
         singleton->scope = Singleton::Scope::Local;
     }
     
     re = std::regex(R"(\b(?:END|UNTIL)\b)", std::regex_constants::icase);
-    for(auto it = std::sregex_iterator(ln.begin(), ln.end(), re); it != std::sregex_iterator(); ++it) {
+    for(auto it = std::sregex_iterator(result.begin(), result.end(), re); it != std::sregex_iterator(); ++it) {
         singleton->nestingLevel--;
         if (0 == singleton->nestingLevel) {
             singleton->scope = Singleton::Scope::Global;
@@ -478,7 +395,7 @@ void minifieLine(std::string &ln, std::ofstream &outfile) {
         
         // Function
         re = R"(^([A-Za-z]\w*)\(([\w,]*)\);?$)";
-        if (regex_search(ln, match, re)) {
+        if (regex_search(result, match, re)) {
             if (!preserveFunctionNames) {
                 identity.type = Aliases::Type::Function;
                 identity.identifier = match.str(1);
@@ -496,8 +413,8 @@ void minifieLine(std::string &ln, std::ofstream &outfile) {
                 identity.identifier = it->str();
                 identity.real = "p" + base10ToBase32(++count);
                 
-                if (ln.back() == ';') {
-                    ln = regex_replace(ln, std::regex(identity.identifier), identity.real);
+                if (result.back() == ';') {
+                    result = regex_replace(result, std::regex(identity.identifier), identity.real);
                 } else {
                     if (!singleton->aliases.exists(identity)) {
                         singleton->aliases.append(identity);
@@ -510,7 +427,7 @@ void minifieLine(std::string &ln, std::ofstream &outfile) {
         
         // Global Variable
         re = R"(\b(?:LOCAL )?([A-Za-z]\w*)(?::=.*);)";
-        if (regex_search(ln, match, re)) {
+        if (regex_search(result, match, re)) {
             if (match.str(1).length() > 3) {
                 identity.type = Aliases::Type::Variable;
                 identity.identifier = match.str(1);
@@ -525,7 +442,7 @@ void minifieLine(std::string &ln, std::ofstream &outfile) {
         identity.scope = Aliases::Scope::Local;
         
         // LOCAL
-        if (regex_search(ln, match, std::regex(R"(\bLOCAL (?:[A-Za-z]\w*[,;])+)", std::regex_constants::icase))) {
+        if (regex_search(result, match, std::regex(R"(\bLOCAL (?:[A-Za-z]\w*[,;])+)", std::regex_constants::icase))) {
             std::string matched = match.str();
             re = R"([A-Za-z]\w*(?=[,;]))";
             
@@ -539,7 +456,7 @@ void minifieLine(std::string &ln, std::ofstream &outfile) {
             }
         }
         
-        if (regex_search(ln, match, std::regex(R"(\bLOCAL ([A-Za-z]\w*)(?::=))", std::regex_constants::icase))) {
+        if (regex_search(result, match, std::regex(R"(\bLOCAL ([A-Za-z]\w*)(?::=))", std::regex_constants::icase))) {
             identity.type = Aliases::Type::Variable;
             identity.identifier = match.str(1);
             identity.real = "v" + base10ToBase32(++localVariableAliasCount);
@@ -547,9 +464,9 @@ void minifieLine(std::string &ln, std::ofstream &outfile) {
             singleton->aliases.append(identity);
         }
         
-        ln = regex_replace(ln, std::regex(R"(\(\))"), "");
+        result = regex_replace(result, std::regex(R"(\(\))"), "");
         
-        while (regex_search(ln, match, std::regex(R"(^[A-Za-z]\w*:=[^;]*;)"))) {
+        while (regex_search(result, match, std::regex(R"(^[A-Za-z]\w*:=[^;]*;)"))) {
             std::string matched = match.str();
             
             /*
@@ -565,76 +482,52 @@ void minifieLine(std::string &ln, std::ofstream &outfile) {
             if (it != std::sregex_token_iterator()) {
                 std::stringstream ss;
                 ss << *it++ << "▶" << *it << ";";
-                ln = ln.replace(match.position(), match.length(), ss.str());
+                result = result.replace(match.position(), match.length(), ss.str());
             }
         }
         
-        ln = regex_replace(ln, std::regex(R"( +FROM +)", std::regex_constants::icase), ":=");
+        result = regex_replace(result, std::regex(R"( +FROM +)", std::regex_constants::icase), ":=");
     }
     
-    ln = singleton->aliases.resolveAliasesInText(ln);
-    strings.restoreStrings(ln);
+    result = singleton->aliases.resolveAliasesInText(result);
+    strings.restoreStrings(result);
     
-    ln = regex_replace(ln, std::regex(R"([^;,\[\]\{\}]$)"), "$0\n");
+    result = regex_replace(result, std::regex(R"([^;,\[\]\{\}]$)"), "$0\n");
+    return result;
 }
 
-void writeUTF16Line(const std::string& ln, std::ofstream& outfile) {
-    for ( int n = 0; n < ln.length(); n++) {
-        uint8_t *ascii = (uint8_t *)&ln.at(n);
-        if (ln.at(n) == '\e') continue;
-        
-        // Output as UTF-16LE
-        if (*ascii >= 0x80) {
-            uint16_t utf16 = utf8_to_utf16(&ln.at(n));
-            
-#ifndef __LITTLE_ENDIAN__
-            utf16 = utf16 >> 8 | utf16 << 8;
-#endif
-            outfile.write((const char *)&utf16, 2);
-            if ((*ascii & 0b11100000) == 0b11000000) n++;
-            if ((*ascii & 0b11110000) == 0b11100000) n+=2;
-            if ((*ascii & 0b11111000) == 0b11110000) n+=3;
-        } else {
-            outfile.put(ln.at(n));
-            outfile.put('\0');
-        }
-    }
-}
 
-void minifieAndWriteLine(std::string& str, std::ofstream& outfile) {
-    Singleton& singleton = *Singleton::shared();
-    
-    minifieLine(str, outfile);
-    writeUTF16Line(str, outfile);
-    
-    singleton.incrementLineNumber();
-}
-
-void processAndWriteLines(std::istringstream &iss, std::ofstream &outfile)
+std::string minifieAllLines(std::istringstream &iss)
 {
     std::string str;
+    std::string result;
     
     while(getline(iss, str)) {
-        minifieAndWriteLine(str, outfile);
+        result.append(minifieLine(str));
+        Singleton::shared()->incrementLineNumber();
     }
+    
+    return result;
 }
 
-void convertAndFormatFile(std::ifstream &infile, std::ofstream &outfile)
+std::string minifiePrgm(std::ifstream &infile)
 {
     // Read in the whole of the file into a `std::string`
     std::string str;
+    std::wstring wstr;
     
-    char c;
-    while (!infile.eof()) {
-        infile.get(c);
-        str += c;
-        infile.peek();
+    wstr = utf::read_utf16(infile);
+    if (wstr.empty()) {
+        char c;
+        while (!infile.eof()) {
+            infile.get(c);
+            str += c;
+            infile.peek();
+        }
+    } else {
+        str = utf::to_utf8(wstr);
     }
-    
-    
-    // The UTF16-LE data first needs to be converted to UTF8 before it can be proccessed.
-    uint16_t *utf16_str = (uint16_t *)str.c_str();
-    str = utf16_to_utf8(utf16_str, str.size() / 2);
+
     
     std::regex re;
 
@@ -656,7 +549,7 @@ void convertAndFormatFile(std::ifstream &infile, std::ofstream &outfile)
     
     std::istringstream iss;
     iss.str(str);
-    processAndWriteLines(iss, outfile);
+    return minifieAllLines(iss);
 }
 
 
@@ -747,7 +640,6 @@ int main(int argc, char **argv) {
         in_filename = in_filename.insert(0, "./");
     }
     std::filesystem::path path = in_filename;
-    
     path = std::filesystem::expand_tilde(path);
     
     if (path.extension().empty()) {
@@ -777,25 +669,16 @@ int main(int argc, char **argv) {
         return 0;
     }
     
-    // The "hpprgm" file format requires UTF-16LE.
-    
-    
-    outfile.put(0xFF);
-    outfile.put(0xFE);
+   
     
     // Start measuring time
     Timer timer;
     
     std::string str;
 
-    if (!isUTF16le(infile)) {
-        infile.close();
-        outfile.close();
-        std::cout << "ERRORS! not a valid UTF16le file.\n";
-        remove(out_filename.c_str());
-        return 0;
-    }
-    convertAndFormatFile( infile, outfile );
+    
+    str = minifiePrgm(infile);
+    utf::save_as_utf16(out_filename, str);
     
     // Stop measuring time and calculate the elapsed time.
     long long elapsed_time = timer.elapsed();
@@ -820,14 +703,17 @@ int main(int argc, char **argv) {
     std::ifstream::pos_type original_size = file_size(in_filename);
     std::ifstream::pos_type new_size = file_size(out_filename);
     
+    if (is_utf16(in_filename) == false) original_size = original_size * 2;
+    
+    
     // Create a locale with the custom comma-based numpunct
     std::locale commaLocale(std::locale::classic(), new comma_numpunct);
     std::cout.imbue(commaLocale);
     
     std::cout << "Reduction of " << (original_size - new_size) * 100 / original_size;
-    std::cout << "% or " << original_size - new_size << " bytes.\n";
+    std::cout << "%\n";
     
-    std::cout << "UTF-16LE file '" << regex_replace(out_filename, std::regex(R"(.*/)"), "") << "' succefuly created.\n";
+    std::cout << "File '" << regex_replace(out_filename, std::regex(R"(.*/)"), "") << "' succefuly created.\n";
     
     
     return 0;

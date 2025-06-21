@@ -1,0 +1,22 @@
+#!/bin/bash
+DIR=$(dirname "$0")
+cd $DIR
+clear
+source ../../notarization.sh
+~/GitHub/Insoft-UK/scripts/version_xcode.sh
+
+PACKAGEROOT=../Package\ Installer/package-root
+PRIMESDK=Applications/HP/PrimeSDK
+
+rsync -av --delete "$PACKAGEROOT/$PRIMESDK/bin" "Developer/usr"
+
+# re-sign all binarys
+find "Developer/usr/bin" -type f -exec xattr -c {} \;
+find "Developer/usr/bin" -type f -exec codesign --remove-signature {} \;
+find "Developer/usr/bin" -type f -exec codesign --sign "Developer ID Application: $YOUR_NAME ($TEAM_ID)" --options runtime --timestamp {} \;
+
+
+read -p "Press Enter to exit!"
+
+# Close the Terminal window
+osascript -e 'tell application "Terminal" to close window 1' & exit
