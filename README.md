@@ -10,7 +10,7 @@ Graphing calculator HP Prime has a **3.5-inch full color touch screen**, that de
 
 # Code Editor for HP Prime Programming Language
 Edit your PPL+ code.
-**<a href="https://github.com/Insoft-UK/PrimeSDK/blob/main/Xprime.zip">Xprime</a>** Alpha Release
+**<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/Xprime.zip">Xprime</a>** Alpha Release
 
 >[!NOTE]
 **Xprime** is currently in its early stages. It includes the command-line tools.
