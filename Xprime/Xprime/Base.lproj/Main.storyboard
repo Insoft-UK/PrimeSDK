@@ -81,13 +81,13 @@
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <menu key="submenu" title="Insert" id="KSp-ZZ-Eb4">
                                                 <items>
-                                                    <menuItem title="Insert Image as PPL..." id="Rjl-Nh-Ew5">
+                                                    <menuItem title="Insert Image" id="Rjl-Nh-Ew5">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <connections>
                                                             <action selector="insertImage:" target="Voe-Tx-rLC" id="ciO-do-9oB"/>
                                                         </connections>
                                                     </menuItem>
-                                                    <menuItem title="Insert PPL/PPL+ File..." id="1OF-xl-3eV">
+                                                    <menuItem title="Insert Code" id="1OF-xl-3eV">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <connections>
                                                             <action selector="insertCode:" target="Voe-Tx-rLC" id="js5-zO-08x"/>
@@ -102,9 +102,6 @@
                                                 <items>
                                                     <menuItem title="Quick Export as HPPRGM" id="lEh-6x-kCK">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
-                                                    </menuItem>
-                                                    <menuItem title="Export As..." keyEquivalent="W" id="9s1-ai-uD1">
-                                                        <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
                                                     </menuItem>
                                                 </items>
                                             </menu>
@@ -363,176 +360,190 @@
                                     </items>
                                 </menu>
                             </menuItem>
-                            <menuItem title="Template" id="uCe-hI-i1s">
+                            <menuItem title="Project" id="uCe-hI-i1s">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="Template" id="KAd-IF-cuB">
+                                <menu key="submenu" title="Project" id="KAd-IF-cuB">
                                     <items>
-                                        <menuItem title="Block" id="2fR-lR-zPu">
+                                        <menuItem title="Build" id="Ust-Jd-TDZ">
                                             <modifierMask key="keyEquivalentModifierMask"/>
-                                            <menu key="submenu" title="Block" id="XDM-c2-9YN">
+                                        </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="uSe-yx-JCn"/>
+                                        <menuItem title="Template" id="dAk-Ox-0tv">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <menu key="submenu" title="Template" id="0gA-KS-KB6">
                                                 <items>
-                                                    <menuItem title="BEGIN END" id="aNg-iF-5pJ">
+                                                    <menuItem title="Block" id="2fR-lR-zPu">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="Js2-zH-GvK"/>
-                                                        </connections>
+                                                        <menu key="submenu" title="Block" id="XDM-c2-9YN">
+                                                            <items>
+                                                                <menuItem title="BEGIN END" id="aNg-iF-5pJ">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="Js2-zH-GvK"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                                <menuItem title="RETURN" id="SKP-ac-Wf4">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="COf-lh-Ij2"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                                <menuItem title="KILL" id="Q5c-yC-JW8">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="1yn-fF-mEh"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                            </items>
+                                                        </menu>
                                                     </menuItem>
-                                                    <menuItem title="RETURN" id="SKP-ac-Wf4">
+                                                    <menuItem title="Branch" id="5FS-px-VwR">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="COf-lh-Ij2"/>
-                                                        </connections>
+                                                        <menu key="submenu" title="Branch" id="yLe-R8-fcE">
+                                                            <items>
+                                                                <menuItem title="IF THEN" id="yXQ-2z-JWY">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="VXb-aY-dK3"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                                <menuItem title="IF THEN ELSE" id="sAX-aQ-af3">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="5Gk-sE-G68"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                                <menuItem title="CASE" id="gxl-vi-3B7">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="12P-Wg-mkR"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                                <menuItem title="IFERR" id="x0e-Hx-Kbu">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="WMW-aE-DGT"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                                <menuItem title="IFERR ELSE" id="1Zd-pc-Dxp">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="cxB-BW-mjD"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                            </items>
+                                                        </menu>
                                                     </menuItem>
-                                                    <menuItem title="KILL" id="Q5c-yC-JW8">
+                                                    <menuItem title="Loop" id="H6v-PA-tkd">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="1yn-fF-mEh"/>
-                                                        </connections>
+                                                        <menu key="submenu" title="Loop" id="P1f-0B-Kpa">
+                                                            <items>
+                                                                <menuItem title="FOR" id="SPP-ZN-Kwb">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="xw4-lB-REs"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                                <menuItem title="FOR STEP" id="rjd-Ad-uRf">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="ata-Ot-iSc"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                                <menuItem title="FOR DOWNTO" id="rVG-M9-7y8">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="578-zA-2f8"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                                <menuItem title="FOR DOWNTO STEP" id="6Bm-ct-qxr">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="Tiq-Sa-Td2"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                                <menuItem title="WHILE" id="v46-YC-vdG">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="TxA-iz-ltN"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                                <menuItem title="REPEAT" id="ygr-Ca-Oib">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="Rgg-TP-3ef"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                                <menuItem title="BREAK" id="AkL-zs-sTd">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="uXp-8D-dMr"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                                <menuItem title="CONTINUE" id="Z4Q-vv-SGl">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="Au2-Mz-D6W"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                            </items>
+                                                        </menu>
+                                                    </menuItem>
+                                                    <menuItem title="Variable" id="4I0-ZP-Ygi">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                        <menu key="submenu" title="Variable" id="Ja2-z5-wKj">
+                                                            <items>
+                                                                <menuItem title="LOCAL" id="Qke-qD-0wL">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="1io-l5-niu"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                                <menuItem title="EXPORT" id="efl-wx-mzN">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="1Uj-tU-cIs"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                                <menuItem title="CONST" id="ErR-Hb-msS">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="xeF-rR-1jh"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                            </items>
+                                                        </menu>
+                                                    </menuItem>
+                                                    <menuItem title="Function" id="dIv-Na-hLM">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                        <menu key="submenu" title="Function" id="T6d-pR-Hul">
+                                                            <items>
+                                                                <menuItem title="EXPORT" id="g6k-QM-evm">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="yyG-Ts-6N6"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                                <menuItem title="VIEW" id="cC0-eS-XQL">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="FuT-eV-BUF"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                                <menuItem title="KEY" id="tVJ-w9-U2C">
+                                                                    <modifierMask key="keyEquivalentModifierMask"/>
+                                                                    <connections>
+                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="PxX-0n-b2E"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                            </items>
+                                                        </menu>
                                                     </menuItem>
                                                 </items>
                                             </menu>
                                         </menuItem>
-                                        <menuItem title="Branch" id="5FS-px-VwR">
+                                        <menuItem title="Export to HP Prime Emulator" id="p6y-v1-4El">
                                             <modifierMask key="keyEquivalentModifierMask"/>
-                                            <menu key="submenu" title="Branch" id="yLe-R8-fcE">
-                                                <items>
-                                                    <menuItem title="IF THEN" id="yXQ-2z-JWY">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="VXb-aY-dK3"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                    <menuItem title="IF THEN ELSE" id="sAX-aQ-af3">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="5Gk-sE-G68"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                    <menuItem title="CASE" id="gxl-vi-3B7">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="12P-Wg-mkR"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                    <menuItem title="IFERR" id="x0e-Hx-Kbu">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="WMW-aE-DGT"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                    <menuItem title="IFERR ELSE" id="1Zd-pc-Dxp">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="cxB-BW-mjD"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                </items>
-                                            </menu>
-                                        </menuItem>
-                                        <menuItem title="Loop" id="H6v-PA-tkd">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                            <menu key="submenu" title="Loop" id="P1f-0B-Kpa">
-                                                <items>
-                                                    <menuItem title="FOR" id="SPP-ZN-Kwb">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="xw4-lB-REs"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                    <menuItem title="FOR STEP" id="rjd-Ad-uRf">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="ata-Ot-iSc"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                    <menuItem title="FOR DOWNTO" id="rVG-M9-7y8">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="578-zA-2f8"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                    <menuItem title="FOR DOWNTO STEP" id="6Bm-ct-qxr">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="Tiq-Sa-Td2"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                    <menuItem title="WHILE" id="v46-YC-vdG">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="TxA-iz-ltN"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                    <menuItem title="REPEAT" id="ygr-Ca-Oib">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="Rgg-TP-3ef"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                    <menuItem title="BREAK" id="AkL-zs-sTd">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="uXp-8D-dMr"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                    <menuItem title="CONTINUE" id="Z4Q-vv-SGl">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="Au2-Mz-D6W"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                </items>
-                                            </menu>
-                                        </menuItem>
-                                        <menuItem title="Variable" id="4I0-ZP-Ygi">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                            <menu key="submenu" title="Variable" id="Ja2-z5-wKj">
-                                                <items>
-                                                    <menuItem title="LOCAL" id="Qke-qD-0wL">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="1io-l5-niu"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                    <menuItem title="EXPORT" id="efl-wx-mzN">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="1Uj-tU-cIs"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                    <menuItem title="CONST" id="ErR-Hb-msS">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="xeF-rR-1jh"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                </items>
-                                            </menu>
-                                        </menuItem>
-                                        <menuItem title="Function" id="dIv-Na-hLM">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                            <menu key="submenu" title="Function" id="T6d-pR-Hul">
-                                                <items>
-                                                    <menuItem title="EXPORT" id="g6k-QM-evm">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="yyG-Ts-6N6"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                    <menuItem title="VIEW" id="cC0-eS-XQL">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="FuT-eV-BUF"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                    <menuItem title="KEY" id="tVJ-w9-U2C">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertTemplate:" target="Voe-Tx-rLC" id="PxX-0n-b2E"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                </items>
-                                            </menu>
                                         </menuItem>
                                     </items>
                                 </menu>

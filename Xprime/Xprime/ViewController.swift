@@ -106,6 +106,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         "Preprocessor Statements": .white
     ]
     
+    
     var currentFileURL: URL?
     lazy var baseAttributes: [NSAttributedString.Key: Any] = {
         let font = NSFont.monospacedSystemFont(ofSize: 12, weight: .medium)
@@ -200,7 +201,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
                 window.representedURL = URL(fileURLWithPath: url.path)
                 if let iconButton = window.standardWindowButton(.documentIconButton) {
                     iconButton.image = NSImage(named: "ppl+")
-                    assignExportAction()
+                    updateMainMenuActions()
                     iconButton.isHidden = false
                 }
             }
@@ -216,7 +217,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
         
         
-
+        
     }
     
     override var representedObject: Any? {
@@ -397,6 +398,37 @@ class ViewController: NSViewController, NSTextViewDelegate {
         textView.insertText(indent, replacementRange: selectedRange)
     }
     
+    // MARK: - Helper Functions
+    private func registerUndo<T: AnyObject>(
+        target: T,
+        oldValue: @autoclosure @escaping () -> String,
+        keyPath: ReferenceWritableKeyPath<T, String>,
+        undoManager: UndoManager?,
+        actionName: String = "Edit"
+    ) {
+        guard let undoManager = undoManager else { return }
+        let previousValue = oldValue()
+        
+        undoManager.registerUndo(withTarget: target) { target in
+            let currentValue = target[keyPath: keyPath]
+            self.registerUndo(target: target,
+                         oldValue: currentValue,
+                         keyPath: keyPath,
+                         undoManager: undoManager,
+                         actionName: actionName)
+            target[keyPath: keyPath] = previousValue
+        }
+        undoManager.setActionName(actionName)
+    }
+    
+    private func registerTextViewUndo(actionName: String = "Edit") {
+        registerUndo(target: textView,
+                     oldValue: self.textView.string,
+                     keyPath: \NSTextView.string,
+                     undoManager: textView.undoManager,
+                     actionName: actionName)
+    }
+    
     // MARK: - File Handling
     
     private func detectEncoding(of url: URL) -> String.Encoding? {
@@ -427,15 +459,14 @@ class ViewController: NSViewController, NSTextViewDelegate {
             if let iconButton = window.standardWindowButton(.documentIconButton) {
                 if url.pathExtension == "ppl+" || url.pathExtension == "prgm+" {
                     iconButton.image = NSImage(named: "ppl+")
-                    assignExportAction()
                 } else {
                     iconButton.image = NSImage(named: "ppl")
-                    assignExportAction()
                     
                     if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Export")?.submenu?.item(withTitle: "Export As...") {
                         item.action = nil
                     }
                 }
+                updateMainMenuActions()
                 iconButton.isHidden = false
             }
         }
@@ -458,7 +489,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
     
     func openFile() {
         let openPanel = NSOpenPanel()
-        let extensions = ["prgm", "prgm+", "ppl", "ppl+"]
+        let extensions = ["prgm", "prgm+", "ppl", "ppl+", "hpprgm"]
         let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
         
         openPanel.allowedContentTypes = contentTypes
@@ -473,8 +504,10 @@ class ViewController: NSViewController, NSTextViewDelegate {
                 self?.applySyntaxHighlighting()
                 self?.currentFileURL = url
                 self?.updateDocumentIconButtonImage()
+                self?.updateMainMenuActions()
             }
         }
+        
     }
     
     func saveFile() {
@@ -491,12 +524,11 @@ class ViewController: NSViewController, NSTextViewDelegate {
         } catch {
             alert("Failed to save file: \(error)")
         }
-        
     }
     
     func saveFileAs() {
         let savePanel = NSSavePanel()
-        let extensions = ["prgm+", "ppl+"]
+        let extensions = ["prgm", "ppl", "prgm+", "ppl+"]
         let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
         
         savePanel.allowedContentTypes = contentTypes
@@ -616,117 +648,115 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    @objc private func exportAs() {
-        guard let currentFileURL = self.currentFileURL else {
-            return
-        }
-        
-        guard let developerPath = self.developerPath else {
-            return
-        }
-        
-        let extensions = ["prgm", "ppl"]
-        let savePanel = NSSavePanel()
-        if #available(macOS 12.0, *) {
-            let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
-            savePanel.allowedContentTypes = contentTypes
-        } else {
-            savePanel.allowedFileTypes = extensions
-        }
-        
-        if !FileManager.default.fileExists(atPath: developerPath) {
-            alert("Developer folder missing at: \(developerPath)")
-        }
-        let toolPath = developerPath + "/usr/bin/ppl+"
-        
-        saveFile()
-        
-        let lib = developerPath + "/usr/lib"
-        let include = developerPath + "/usr/include"
-        
-        savePanel.begin { [weak self] result in
-            guard result == .OK, let url = savePanel.url else { return }
-            
-            let process = Process()
-            process.executableURL = URL(fileURLWithPath: toolPath)
-            process.arguments = ["-L" + lib, "-I" + include, currentFileURL.path, "-o", url.path]
-            process.currentDirectoryURL = url.deletingLastPathComponent()
-            
-            do {
-                try process.run()
-                process.waitUntilExit()
-                
-                if !FileManager.default.fileExists(atPath: url.path) {
-                    self?.alert("Failed to export file: \(url.path)")
-                }
-            } catch {
-                self?.alert("Failed to export file: \(error)")
-            }
-        }
-        
-    }
-    
     @objc private func exportAsHpprgm() {
         guard let url = currentFileURL else {
             return
         }
+        saveFile()
         
-        let developerURL = Bundle.main.bundleURL
-            .appendingPathComponent("Contents")
-            .appendingPathComponent("Developer")
-        
-        guard FileManager.default.fileExists(atPath: url.path) else {
-            alert("Input file does not exist at: \(url.path)")
-            return
-        }
-        
-        let outputURL = url.deletingPathExtension().appendingPathExtension("hpprgm")
-
-        
-        let lib = developerURL.appendingPathComponent("usr/lib")
-        let include = developerURL.appendingPathComponent("usr/include")
-        
-        let process = Process()
-        process.executableURL = developerURL.appendingPathComponent("usr/bin/ppl+")
-        process.arguments = ["-L\(lib.path)", "-I\(include.path)", url.path, "-o", outputURL.path]
-        process.currentDirectoryURL = url.deletingLastPathComponent()
-        
-        do {
-            try process.run()
-            process.waitUntilExit()
+        let savePanel = NSSavePanel()
+        savePanel.allowedContentTypes = ["hpprgm"].compactMap { UTType(filenameExtension: $0) }
+        savePanel.nameFieldStringValue = url.deletingPathExtension().lastPathComponent + ".hpprgm"
+        savePanel.begin { [weak self] result in
+            guard result == .OK, let outURL = savePanel.url else { return }
             
-            if !FileManager.default.fileExists(atPath: outputURL.path) {
-                alert("Failed to export file: \(outputURL.path)")
+            PrimeSDK.pplplus(i: url, o: outURL)
+            if !FileManager.default.fileExists(atPath: outURL.path) {
+                self?.alert("Failed to export file: \(outURL.path)")
             }
-            
-        } catch {
-            alert("Developer Tool Missing!")
-            return
         }
     }
     
     func insertTemplate(_ template: String) {
-        let url = Bundle.main.bundleURL
-            .appendingPathComponent("Contents")
-            .appendingPathComponent("Template")
-            .appendingPathComponent("\(template).prgm")
+        let url = Bundle.main.bundleURL.appendingPathComponent("Contents/Template/\(template).prgm")
         
         if let contents = loadFile(url) {
+            registerTextViewUndo(actionName: "Insert Template")
             insertString(contents)
         }
     }
     
-    // MARK: -
+   
     
-    private func assignExportAction() {
-        if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Export")?.submenu?.item(withTitle: "Export As...") {
-            item.action = #selector(exportAs)
+    
+    
+    @objc private func build() {
+        guard let url = currentFileURL else {
+            return
         }
         
-        if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Export")?.submenu?.item(withTitle: "Quick Export as HPPRGM") {
-            item.action = #selector(exportAsHpprgm)
-        }
+        print("\(url.pathExtension)")
+        
+//        if url.pathExtension != "prgm+" || url.pathExtension != "ppl+" {
+//            return
+//        }
+        
+        saveFile()
+        
+        let prgm = url.deletingPathExtension().appendingPathExtension("prgm")
+        
+        PrimeSDK.pplplus(i: url, o: prgm)
+        PrimeSDK.pplmin(i: prgm, o: prgm)
+        PrimeSDK.hpprgm(i: prgm)
     }
+    
+    @objc func exportToHpPrimeEmulator() {
+        guard let url = currentFileURL?.deletingPathExtension().appendingPathExtension("hpprgm") else {
+            return
+        }
+        
+        if !FileManager.default.fileExists(atPath: url.path) {
+            alert("File not found: \(url.path)")
+            return
+        }
+        
+
+        let path = "~/Documents/HP Prime/Calculators/Prime"
+        let destPath = NSString(string: path).expandingTildeInPath
+        var destURL: URL = URL(fileURLWithPath: destPath)
+        destURL.appendPathComponent(url.lastPathComponent, isDirectory: false)
+        print(destURL.path)
+        
+        try? FileManager.default.copyItem(atPath: url.path, toPath: destURL.path)
+        
+        let task = Process()
+        task.launchPath = "/Applications/HP Prime.app/Contents/MacOS/HP Prime"
+        task.arguments = [url.path]
+        task.launch()
+    }
+    
+    // MARK: -
+    
+    private func updateMainMenuActions() {
+        if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Export")?.submenu?.item(withTitle: "Quick Export as HPPRGM") {
+            if let _ = currentFileURL {
+                item.action = #selector(exportAsHpprgm)
+            } else {
+                item.action = nil
+            }
+        }
+        
+        if let item = mainMenu.item(withTitle: "Project")?.submenu?.item(withTitle: "Build") {
+            if currentFileURL?.pathExtension == "prgm+" || currentFileURL?.pathExtension == "ppl+" {
+                item.action = #selector(build)
+            } else {
+                item.action = nil
+            }
+        }
+        
+        if let item = mainMenu.item(withTitle: "Project")?.submenu?.item(withTitle: "Export to HP Prime Emulator") {
+            item.action = nil
+            if let url = currentFileURL?.deletingPathExtension().appendingPathExtension("hpprgm") {
+                if FileManager.default.fileExists(atPath: url.path) {
+                    item.action = #selector(exportToHpPrimeEmulator)
+                }
+            }
+        }
+        
+        
+    }
+    
+    
     
     private func assignRevertToSavedAction() {
         if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Revert to Saved") {

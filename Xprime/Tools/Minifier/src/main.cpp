@@ -624,6 +624,15 @@ int main(int argc, char **argv) {
             continue;
         }
         
+        if ( args == "-o" ) {
+            if ( n + 1 >= argc ) {
+                error();
+                exit(0);
+            }
+            out_filename = std::filesystem::expand_tilde(argv[n + 1]);
+            continue;
+        }
+        
         if ( strcmp( argv[n], "-version" ) == 0 ) {
             version();
             return 0;
@@ -640,7 +649,6 @@ int main(int argc, char **argv) {
         in_filename = in_filename.insert(0, "./");
     }
     std::filesystem::path path = in_filename;
-    path = std::filesystem::expand_tilde(path);
     
     if (path.extension().empty()) {
         path.append(".prgm");
@@ -650,34 +658,24 @@ int main(int argc, char **argv) {
         return 0;
     }
     
-    out_filename = path.parent_path().string() + "/" + path.stem().string() + "-min.prgm";
+    if (out_filename.empty())
+        out_filename = path.parent_path().string() + "/" + path.stem().string() + "-min.prgm";
     
-    std::ofstream outfile;
-    outfile.open(out_filename, std::ios::out | std::ios::binary);
-    if(!outfile.is_open())
-    {
-        error();
-        return 0;
-    }
-    
-    std::ifstream infile;
-    infile.open(in_filename, std::ios::in | std::ios::binary);
-    if(!infile.is_open())
-    {
-        outfile.close();
-        error();
-        return 0;
-    }
-    
-   
-    
+
     // Start measuring time
     Timer timer;
     
     std::string str;
 
-    
+    std::ifstream infile;
+    infile.open(in_filename, std::ios::in | std::ios::binary);
+    if (!infile.is_open()) {
+        error();
+        return 0;
+    }
     str = minifiePrgm(infile);
+    infile.close();
+    
     utf::save_as_utf16(out_filename, str);
     
     // Stop measuring time and calculate the elapsed time.
@@ -685,9 +683,7 @@ int main(int argc, char **argv) {
     
     // Display elasps time in secononds.
     std::cout << "Completed in " << std::fixed << std::setprecision(2) << elapsed_time / 1e9 << " seconds\n";
-    
-    infile.close();
-    outfile.close();
+
     
     if (hasErrors() == true) {
         std::cout << "ERRORS!\n";

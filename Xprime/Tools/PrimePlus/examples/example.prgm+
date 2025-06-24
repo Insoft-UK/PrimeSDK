@@ -88,4 +88,3 @@ begin
     end;
 end;
 
-#include "utf16-le.prgm"
