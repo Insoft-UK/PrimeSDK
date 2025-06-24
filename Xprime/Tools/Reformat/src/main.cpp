@@ -496,7 +496,7 @@ std::string reformatLine(const std::string& str) {
     result = insert_space_before_word_after_closing_paren(result);
     
     
-    re = std::regex(R"(\b(?:BEGIN|IF|CASE|FOR|WHILE|REPEAT)\b)", std::regex_constants::icase);
+    re = std::regex(R"(\b(?:BEGIN|IF|CASE|FOR|WHILE|REPEAT|IFERR)\b)", std::regex_constants::icase);
     for(auto it = std::sregex_iterator(result.begin(), result.end(), re); it != std::sregex_iterator(); ++it) {
         singleton->nestingLevel++;
         singleton->scope = Singleton::Scope::Local;
@@ -512,7 +512,7 @@ std::string reformatLine(const std::string& str) {
     
     
     if (Singleton::Scope::Local == singleton->scope) {
-        if (!regex_search(result, std::regex(R"(\b(?:BEGIN|IF|CASE|FOR|WHILE|REPEAT)\b)", std::regex_constants::icase))) {
+        if (!regex_search(result, std::regex(R"(\b(?:BEGIN|IF|CASE|FOR|WHILE|REPEAT|IFERR|ELSE)\b)", std::regex_constants::icase))) {
             result.insert(0, std::string(Singleton::shared()->nestingLevel * INDENT_WIDTH, ' '));
         } else {
             result.insert(0, std::string((Singleton::shared()->nestingLevel - 1) * INDENT_WIDTH, ' '));
@@ -585,9 +585,12 @@ std::string reformatPrgm(std::ifstream& infile)
     // Make sure all `LOCAL` & `CONST` are on seperate lines.
     re = std::regex(R"(\b(LOCAL|CONST)\b)", std::regex_constants::icase);
     str = regex_replace(str, re, "\n$0");
+    
+    re = std::regex(R"(\b(IF|CASE|REPEAT|FOR|WHILE|DEFAULT|UNTIL|ELSE|IFERR)\b)", std::regex_constants::icase);
+    str = regex_replace(str, re, "\n$0");
 
     re = std::regex(R"(\bEND;)", std::regex_constants::icase);
-    str = regex_replace(str, re, "\n$0");
+    str = regex_replace(str, re, "\n$0\n");
     
     std::istringstream iss;
     iss.str(str);
@@ -655,6 +658,15 @@ int main(int argc, char **argv) {
     for( int n = 1; n < argc; n++ ) {
         std::string args(argv[n]);
         
+        if ( args == "-o" ) {
+            if ( n + 1 >= argc ) {
+                error();
+                exit(0);
+            }
+            out_filename = std::filesystem::expand_tilde(argv[n + 1]);
+            continue;
+        }
+        
         if ( args == "--help" ) {
             help();
             exit(102);
@@ -686,23 +698,8 @@ int main(int argc, char **argv) {
         return 0;
     }
     
-    out_filename = path.parent_path().string() + "/" + path.stem().string() + "-ref.prgm";
-    
-    std::ofstream outfile;
-    outfile.open(out_filename, std::ios::out | std::ios::binary);
-    if(!outfile.is_open())
-    {
-        error();
-        return 0;
-    }
-    
-    std::ifstream infile;
-    infile.open(in_filename, std::ios::in | std::ios::binary);
-    if(!infile.is_open())
-    {
-        outfile.close();
-        error();
-        return 0;
+    if (out_filename.empty()) {
+        out_filename = path.parent_path().string() + "/" + path.stem().string() + "-ref.prgm";
     }
 
     
@@ -711,6 +708,13 @@ int main(int argc, char **argv) {
     
     std::string str;
 
+    std::ifstream infile;
+    infile.open(in_filename, std::ios::in | std::ios::binary);
+    if(!infile.is_open())
+    {
+        error();
+        return 0;
+    }
     str = reformatPrgm(infile);
     utf::save_as_utf16(out_filename, str);
     
@@ -721,7 +725,6 @@ int main(int argc, char **argv) {
     std::cout << "Completed in " << std::fixed << std::setprecision(2) << elapsed_time / 1e9 << " seconds\n";
     
     infile.close();
-    outfile.close();
     
     if (hasErrors() == true) {
         std::cout << "ERRORS!\n";
