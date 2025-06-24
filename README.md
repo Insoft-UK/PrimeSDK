@@ -6,15 +6,23 @@ Graphing calculator HP Prime has a **3.5-inch full color touch screen**, that de
 
 <a href="https://www.moravia.education/en/id/72-hp-prime-g2">more...</a>
 
-<img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/PrimeSDK.png" style="width: 128px" />
+<img src="https://github.com/Insoft-UK/PrimeSDK/blob/main/Xprime/Xprime/Assets.xcassets/AppIcon.appiconset/128pt.png" width="128" />
 
-# PrimeSDK for macOS
+# Code Editor for HP Prime Programming Language
+Edit your PPL+ code.
 
-### <a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/Xprime/Tools/PrimePlus/README.md">PPL+</a> Pre-Processor for PPL
-PPL+ is a pre-processor utility designed to improve code maintainability and readability in the HP Programming Language (PPL). PPL+ also allows one to define regular expressions to assist in the preprocessing workflow. The final output is a compact, optimized PPL program file tailored to the HP Prime’s limited storage capacity.
+>[!NOTE]
+**Xprime** is currently in its early stages. It includes the command-line tools.
 
 >[!WARNING]
-The **auto** feature will be removed in future releases of PPL+. It is recommended to avoid using auto aliases going forward. The **auto feature** in the PPL+ preprocessor has become largely redundant. It was originally intended to help generate compressed code, but since the introduction of a separate tool dedicated to code compression and minimization, its continued presence in PPL+ is unnecessary. In fact, it somewhat contradicts the core purpose of PPL+ itself. As a result, this feature is expected to be removed in a future update.
+Xprime still in **alpha** release, while usable some features are not fully working.
+
+<img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/PrimeSDK.png" style="width: 128px" />
+
+# Command-Line Tools for macOS
+
+### <a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/Xprime/Tools/PrimePlus/README.md">PPL+</a> Pre-Processor for PPL
+PPL+ is a pre-processor designed to improve code maintainability and readability in the HP Programming Language (PPL). PPL+ also allows one to define regular expressions to assist in the preprocessing workflow. The final output is a compact, optimized PPL program file tailored to the HP Prime’s limited storage capacity.
 
 ### <a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/Xprime/Tools/Minifier/README.md">Minifier & Compressor</a> for PPL Code
 Minification of your code results in it taking up less space, making it use less storage of your HP Prime's storage memory giving you more space for more programs.
