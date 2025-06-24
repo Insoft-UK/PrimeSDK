@@ -40,9 +40,8 @@ A handy utility for converting Adafruit_GFX .h files to the .prgm format, for us
 ### <a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/Xprime/Tools/hpprgm/README.md">HP Prime Program Tool</a>
 This utility tool provides the ability to extract **PPL** code from an HP Prime `.hpprgm` file.
 
-### Examples: Colors, MAD and Shuttle
-**screenshots**
+## Example
+#### Colors
+<img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/Colors.png" /></a>
+**<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/hpprgm/Colors.hpprgm">Colors</a>** is a simple color picker App for the HP Prime and requires the **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/hpprgm/ColorSpace.hpprgm">ColorSpace</a>** library for HP Prime
 
-The **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/hpprgm/ColorSpace.hpprgm">ColorSpace</a>** library for HP Prime
-
-<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/hpprgm/Colors.hpprgm"><img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/Colors.png" /></a><img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/MAD-1.png" /><img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/MAD-2.png" /><img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/Shuttle.png" />
