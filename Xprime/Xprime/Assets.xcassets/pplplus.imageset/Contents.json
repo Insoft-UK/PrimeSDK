@@ -1,12 +1,12 @@
 {
   "images" : [
     {
-      "filename" : "ppl+.png",
+      "filename" : "pplplus.png",
       "idiom" : "mac",
       "scale" : "1x"
     },
     {
-      "filename" : "ppl+@2x.png",
+      "filename" : "pplplus@2x.png",
       "idiom" : "mac",
       "scale" : "2x"
     }

@@ -77,20 +77,14 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="XfC-ik-oAT"/>
-                                        <menuItem title="Insert" id="nDy-gR-fEe">
+                                        <menuItem title="Embed" id="nDy-gR-fEe">
                                             <modifierMask key="keyEquivalentModifierMask"/>
-                                            <menu key="submenu" title="Insert" id="KSp-ZZ-Eb4">
+                                            <menu key="submenu" title="Embed" id="KSp-ZZ-Eb4">
                                                 <items>
-                                                    <menuItem title="Insert Image" id="Rjl-Nh-Ew5">
+                                                    <menuItem title="Embed Image" id="Rjl-Nh-Ew5">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <connections>
-                                                            <action selector="insertImage:" target="Voe-Tx-rLC" id="ciO-do-9oB"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                    <menuItem title="Insert Code" id="1OF-xl-3eV">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="insertCode:" target="Voe-Tx-rLC" id="js5-zO-08x"/>
+                                                            <action selector="embedImage:" target="Voe-Tx-rLC" id="3el-rh-mlI"/>
                                                         </connections>
                                                     </menuItem>
                                                 </items>
@@ -364,7 +358,8 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Project" id="KAd-IF-cuB">
                                     <items>
-                                        <menuItem title="Build" id="Ust-Jd-TDZ">
+                                        <menuItem title="Build" keyEquivalent="b" id="Ust-Jd-TDZ"/>
+                                        <menuItem title="Reformat All" id="p6y-v1-4El">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="uSe-yx-JCn"/>
@@ -542,7 +537,13 @@
                                                 </items>
                                             </menu>
                                         </menuItem>
-                                        <menuItem title="Export to HP Prime Emulator" id="p6y-v1-4El">
+                                        <menuItem title="Insert Code" id="1OF-xl-3eV">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="insertCode:" target="Voe-Tx-rLC" id="js5-zO-08x"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Export to HP Prime Emulator" id="119-Oe-DIo">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                         </menuItem>
                                     </items>

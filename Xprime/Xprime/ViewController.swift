@@ -217,14 +217,21 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
         
         
-        
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(didPerformUndo),
+                                               name: .NSUndoManagerDidUndoChange,
+                                               object: textView.undoManager)
     }
     
-    override var representedObject: Any? {
-        didSet {
-            // Update the view, if already loaded.
-        }
+    @objc private func didPerformUndo(notification: Notification) {
+        applySyntaxHighlighting()
     }
+    
+//    override var representedObject: Any? {
+//        didSet {
+//            // Update the view, if already loaded.
+//        }
+//    }
     
     func textDidChange(_ notification: Notification) {
         replaceLastTypedOperator()
@@ -355,6 +362,8 @@ class ViewController: NSViewController, NSTextViewDelegate {
         textStorage.endEditing()
     }
     
+    
+    
     override func insertNewline(_ sender: Any?) {
         super.insertNewline(sender)
         autoIndentCurrentLine()
@@ -429,6 +438,27 @@ class ViewController: NSViewController, NSTextViewDelegate {
                      actionName: actionName)
     }
     
+    func updateDocumentIconButtonImage() {
+        guard let url = self.currentFileURL else { return }
+        if let window = self.view.window {
+            window.title = url.lastPathComponent
+            window.representedURL = URL(fileURLWithPath: url.path)
+            if let iconButton = window.standardWindowButton(.documentIconButton) {
+                if url.pathExtension == "ppl+" || url.pathExtension == "prgm+" {
+                    iconButton.image = NSImage(named: "pplplus")
+                } else {
+                    iconButton.image = NSImage(named: "ppl")
+                    
+                    if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Export")?.submenu?.item(withTitle: "Export As...") {
+                        item.action = nil
+                    }
+                }
+                updateMainMenuActions()
+                iconButton.isHidden = false
+            }
+        }
+    }
+    
     // MARK: - File Handling
     
     private func detectEncoding(of url: URL) -> String.Encoding? {
@@ -451,26 +481,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    func updateDocumentIconButtonImage() {
-        guard let url = self.currentFileURL else { return }
-        if let window = self.view.window {
-            window.title = url.lastPathComponent
-            window.representedURL = URL(fileURLWithPath: url.path)
-            if let iconButton = window.standardWindowButton(.documentIconButton) {
-                if url.pathExtension == "ppl+" || url.pathExtension == "prgm+" {
-                    iconButton.image = NSImage(named: "ppl+")
-                } else {
-                    iconButton.image = NSImage(named: "ppl")
-                    
-                    if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Export")?.submenu?.item(withTitle: "Export As...") {
-                        item.action = nil
-                    }
-                }
-                updateMainMenuActions()
-                iconButton.isHidden = false
-            }
-        }
-    }
+    
     
     func loadFile(_ url: URL) -> String? {
         guard let encoding = detectEncoding(of: url) else { return nil }
@@ -569,8 +580,9 @@ class ViewController: NSViewController, NSTextViewDelegate {
     }
     
     func insertCode() {
+        
         let openPanel = NSOpenPanel()
-            let extensions = ["prgm", "prgm+", "ppl", "ppl+"]
+            let extensions = ["prgm", "prgm+", "ppl", "ppl+", "hpprgm"]
             let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
             
         openPanel.allowedContentTypes = contentTypes
@@ -578,14 +590,19 @@ class ViewController: NSViewController, NSTextViewDelegate {
         openPanel.canChooseDirectories = false
         
         openPanel.begin { [weak self] result in
-            guard result == .OK, let url = openPanel.url else { return }
+            guard result == .OK, var url = openPanel.url else { return }
+            
+            if let tempDirectoryURL = self?.tempDirectoryURL, url.pathExtension == "hpprgm" {
+                PrimeSDK.hpprgm(i: url, o: tempDirectoryURL.appendingPathComponent("code.prgm"))
+                url = tempDirectoryURL.appendingPathComponent("code.prgm")
+            }
             
             if let contents = self?.loadFile(url) {
                 if let textView = self?.textView, let selectedRange = textView.selectedRanges.first as? NSRange {
-                    let textToInsert = contents
+                    self?.registerTextViewUndo(actionName: "Insert Code")
                     if let textStorage = textView.textStorage {
-                        textStorage.replaceCharacters(in: selectedRange, with: textToInsert)
-                        textView.setSelectedRange(NSRange(location: selectedRange.location + textToInsert.count, length: 0))
+                        textStorage.replaceCharacters(in: selectedRange, with: contents)
+                        textView.setSelectedRange(NSRange(location: selectedRange.location + contents.count, length: 0))
                     }
                 }
                 
@@ -594,12 +611,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    func insertImage() {
-        guard let developerPath = self.developerPath else {
-            return
-        }
-        let toolPath = developerPath + "/usr/bin/grob"
-        
+    func embedImage() {
         guard let tempDirectoryURL = self.tempDirectoryURL else {
             return
         }
@@ -615,36 +627,13 @@ class ViewController: NSViewController, NSTextViewDelegate {
         openPanel.begin { [weak self] result in
             guard result == .OK, let url = openPanel.url else { return }
             
-            guard let encoding = self?.detectEncoding(of: url) else {
-                self?.alert("Unknown encoding for \(url.pathExtension) file.")
-                return
+            
+            PrimeSDK.grob(i: url, o: tempDirectoryURL.appendingPathComponent("image.prgm"))
+            if let contents = self?.loadFile(tempDirectoryURL.appendingPathComponent("image.prgm")) {
+                self?.registerTextViewUndo(actionName: "Embed Image")
+                self?.insertString(contents)
             }
             
-            if encoding != .utf8 {
-                self?.alert("Invalid encoding for \(url.pathExtension) file.")
-                return
-            }
-
-            let outputURL = tempDirectoryURL.appendingPathComponent("image.prgm")
-
-            let process = Process()
-            process.executableURL = URL(fileURLWithPath: toolPath)
-            process.arguments = [url.path, "-o", outputURL.path]
-            process.currentDirectoryURL = url.deletingLastPathComponent()
-            
-            do {
-                try process.run()
-                process.waitUntilExit()
-                if FileManager.default.fileExists(atPath: outputURL.path) {
-                    if let contents = self?.loadFile(outputURL) {
-                        self?.insertString(contents)
-                    }
-                    try FileManager.default.removeItem(at: outputURL)
-                }
-            } catch {
-                
-            }
-        
         }
     }
     
@@ -678,7 +667,17 @@ class ViewController: NSViewController, NSTextViewDelegate {
     
    
     
-    
+    @objc private func reformatAll() {
+        guard let url = currentFileURL else {
+            return
+        }
+        
+        PrimeSDK.pplref(i: url, o: url)
+        if let contents = loadFile(url) {
+            registerTextViewUndo(actionName: "Reformat All")
+            textView.string = contents
+        }
+    }
     
     @objc private func build() {
         guard let url = currentFileURL else {
@@ -687,9 +686,9 @@ class ViewController: NSViewController, NSTextViewDelegate {
         
         print("\(url.pathExtension)")
         
-//        if url.pathExtension != "prgm+" || url.pathExtension != "ppl+" {
-//            return
-//        }
+        if url.pathExtension != "prgm+" && url.pathExtension != "ppl+" {
+            return
+        }
         
         saveFile()
         
@@ -753,7 +752,12 @@ class ViewController: NSViewController, NSTextViewDelegate {
             }
         }
         
-        
+        if let item = mainMenu.item(withTitle: "Project")?.submenu?.item(withTitle: "Reformat All") {
+            item.action = nil
+            if currentFileURL?.pathExtension == "prgm" || currentFileURL?.pathExtension == "ppl" {
+                item.action = #selector(reformatAll)
+            }
+        }
     }
     
     

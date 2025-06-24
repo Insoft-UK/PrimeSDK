@@ -70,9 +70,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
-    @IBAction func insertImage(_ sender: Any) {
+    @IBAction func embedImage(_ sender: Any) {
         if let vc = NSApp.mainWindow?.contentViewController as? ViewController {
-            vc.insertImage()
+            vc.embedImage()
         }
     }
     
