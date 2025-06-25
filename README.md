@@ -45,5 +45,5 @@ This utility tool provides the ability to extract **PPL** code from an HP Prime 
 #### Colors
 <img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/Colors.png" /></a>
 
-**<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/hpprgm/Colors.hpprgm">Colors</a>** is a simple color picker App for the HP Prime and requires the **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/hpprgm/ColorSpace.hpprgm">ColorSpace</a>** library for HP Prime
+**<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/hpprgm/Colors.hpprgm">Colors</a>** is a simple color picker App for the HP Prime and requires the **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/hpprgm/ColorSpace.hpprgm">ColorSpace</a>** and **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/hpprgm/HP.hpprgm">HP</a>** library for HP Prime
 
