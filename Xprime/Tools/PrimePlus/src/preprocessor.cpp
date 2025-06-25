@@ -267,13 +267,14 @@ std::string Preprocessor::parse(const std::string& str) {
     
     if (regex_search(str, std::regex(R"(^ *#else\b *((\/\/.*)|)$)"))) {
         disregard = !disregard;
+        return "";
     }
     
     if (regex_search(str, std::regex(R"(#end(if)?\b)"))) {
         disregard = false;
+        return "";
     }
     
-    if (str.starts_with("#")) return "";
 
     return str;
 }

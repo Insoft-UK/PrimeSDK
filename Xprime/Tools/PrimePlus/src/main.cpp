@@ -1288,11 +1288,11 @@ enum BlockType
     BlockType_Python, BlockType_PPL, BlockType_PrimePlus
 };
 
-bool isPythonBlock(const std::string str) {
+bool isPythonBlock(const std::string& str) {
     return str.find("#PYTHON") != std::string::npos;
 }
 
-bool isPPLBlock(const std::string str) {
+bool isPPLBlock(const std::string& str) {
     return str.find("#PPL") != std::string::npos;
 }
 

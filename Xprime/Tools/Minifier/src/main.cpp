@@ -37,17 +37,12 @@
 #include "singleton.hpp"
 #include "common.hpp"
 
-#include "preprocessor.hpp"
-#include "strings.hpp"
-
 #include "../version_code.h"
 #include "timer.hpp"
 
 #define NAME "PPL Minifier"
 #define COMMAND_NAME "pplmin"
 
-static Preprocessor preprocessor = Preprocessor();
-static Strings strings = Strings();
 static bool preserveFunctionNames = false;
 
 void terminator() {
@@ -109,6 +104,441 @@ namespace std::filesystem {
     #error "C++11 or newer is required"
 #endif
 
+/**
+ * @brief Cleans up whitespace in a string while preserving word separation and '\n'.
+ *
+ * This function removes all unnecessary whitespace characters (spaces, tabs, newlines, etc.)
+ * from the input string. It ensures that only a single space is inserted between consecutive
+ * word characters (letters, digits, or underscores) when needed to maintain logical separation.
+ *
+ * Non-word characters (such as punctuation) are not separated by spaces, and leading/trailing
+ * whitespace is removed.
+ *
+ * @param input The input string to be cleaned.
+ * @return A new string with cleaned and normalized whitespace.
+ *
+ * @note This is useful for normalizing input for parsers, code formatters, or text display
+ *       where compact and readable word separation is desired.
+ */
+std::string cleanWhitespace(const std::string& input) {
+    std::string output;
+    bool lastWasWordChar = false;
+    bool pendingSpace = false;
+
+    auto isWordChar = [](char c) {
+        return std::isalnum(static_cast<unsigned char>(c)) || c == '_';
+    };
+
+    for (char ch : input) {
+        if (ch == '\n') {
+            if (pendingSpace) {
+                pendingSpace = false; // discard pending space before newline
+            }
+            output += '\n';
+            lastWasWordChar = false;
+        } else if (std::isspace(static_cast<unsigned char>(ch))) {
+            if (lastWasWordChar) {
+                pendingSpace = true;
+            }
+        } else {
+            if (pendingSpace && lastWasWordChar && isWordChar(ch)) {
+                output += ' ';
+            }
+            output += ch;
+            lastWasWordChar = isWordChar(ch);
+            pendingSpace = false;
+        }
+    }
+
+    return output;
+}
+
+/**
+ * @brief Replaces common two-character operators with their symbolic Unicode equivalents.
+ *
+ * This function scans the input string and replaces specific two-character operator
+ * sequences with their corresponding Unicode symbols:
+ *
+ * - `>=` becomes `≥`
+ * - `<=` becomes `≤`
+ * - `=>` becomes `▶`
+ * - `<>` becomes `≠`
+ *
+ * All other characters are copied as-is.
+ *
+ * @param input The input string potentially containing ASCII operator sequences.
+ * @return A new string with supported operators replaced by Unicode symbols.
+ *
+ * @note Useful for rendering more readable mathematical or logical expressions in UI output,
+ *       documents, or educational tools.
+ */
+std::string replaceOperators(const std::string& input) {
+    std::string output;
+    output.reserve(input.size());  // Reserve space to reduce reallocations
+
+    for (std::size_t i = 0; i < input.size(); ++i) {
+        if (i + 1 < input.size()) {
+            // Lookahead for 2-character operators
+            if (input[i] == '>' && input[i + 1] == '=') {
+                output += "≥";
+                ++i;
+                continue;
+            }
+            if (input[i] == '<' && input[i + 1] == '=') {
+                output += "≤";
+                ++i;
+                continue;
+            }
+            if (input[i] == '=' && input[i + 1] == '>') {
+                output += "▶";
+                ++i;
+                continue;
+            }
+            if (input[i] == '<' && input[i + 1] == '>') {
+                output += "≠";
+                ++i;
+                continue;
+            }
+        }
+
+        // Default: copy character
+        output += input[i];
+    }
+
+    return output;
+}
+
+/**
+ * @brief Converts all characters in a string to lowercase.
+ *
+ * This function takes an input string and returns a new string
+ * with every character converted to its lowercase equivalent,
+ * using the standard C locale rules.
+ *
+ * @param s The input string to convert.
+ * @return A new string with all characters in lowercase.
+ *
+ * @note The conversion uses `std::tolower` with `unsigned char` casting to
+ *       avoid undefined behavior for negative `char` values.
+ *
+ * Example:
+ * toLower("Hello World!") returns "hello world!"
+ */
+std::string toLower(const std::string& s) {
+    std::string result = s;
+    std::transform(result.begin(), result.end(), result.begin(),
+                   [](unsigned char c) { return std::tolower(c); });
+    return result;
+}
+
+/**
+ * @brief Converts all characters in a string to uppercase.
+ *
+ * This function takes an input string and returns a new string
+ * with every character converted to its uppercase equivalent,
+ * using the standard C locale rules.
+ *
+ * @param s The input string to convert.
+ * @return A new string with all characters in uppercase.
+ *
+ * @note The conversion uses `std::toupper` with `unsigned char` casting to
+ *       avoid undefined behavior for negative `char` values.
+ *
+ * Example:
+ * toUpper("Hello World!") returns "HELLO WORLD!"
+ */
+std::string toUpper(const std::string& s) {
+    std::string result = s;
+    std::transform(result.begin(), result.end(), result.begin(),
+                   [](unsigned char c) { return std::toupper(c); });
+    return result;
+}
+
+/**
+ * @brief Replaces specified words in a string with a given replacement string.
+ *
+ * This function scans the input string and replaces all occurrences of words
+ * found in the provided list (case-insensitive) with the specified replacement string.
+ * Words are defined as sequences of alphabetic characters and underscores (`_`).
+ * Non-word characters are preserved as-is.
+ *
+ * @param input The input string to process.
+ * @param words A vector of words to be replaced (case-insensitive).
+ * @param replacement The string to replace each matched word with.
+ * @return A new string with the specified words replaced.
+ *
+ * @note Matching is case-insensitive. The function treats underscores as part of words.
+ *
+ * Example"
+ *   replaceWords("Hello world_123", {"world_123"}, "Earth") returns "Hello Earth"
+ */
+std::string replaceWords(const std::string& input, const std::vector<std::string>& words, const std::string& replacement) {
+    // Create lowercase word set
+    std::unordered_set<std::string> wordSet;
+    for (const auto& w : words) {
+        wordSet.insert(toLower(w));
+    }
+
+    std::string result;
+    size_t i = 0;
+    
+    while (i < input.size()) {
+        if (!isalpha(static_cast<unsigned char>(input[i])) && input[i] != '_') {
+            result += input[i];
+            ++i;
+            continue;
+        }
+        size_t start = i;
+        
+        while (i < input.size() && (isalpha(static_cast<unsigned char>(input[i])) || input[i] == '_')) {
+            ++i;
+        }
+        
+        std::string word = input.substr(start, i - start);
+        std::string lowercase = toLower(word);
+        
+        if (wordSet.count(lowercase)) {
+            result += replacement;
+            continue;
+        }
+        
+        result += word;
+    }
+    
+    return result;
+}
+
+/**
+ * @brief Capitalizes specified words in a string by converting them to uppercase.
+ *
+ * This function scans the input string and converts to uppercase all occurrences
+ * of words found in the provided set (case-insensitive). Words are defined as
+ * sequences of alphabetic characters and underscores (`_`). Non-word characters
+ * are preserved as-is.
+ *
+ * @param input The input string to process.
+ * @param words An unordered set of words to capitalize (case-insensitive).
+ * @return A new string with the specified words converted to uppercase.
+ *
+ * @note Matching is case-insensitive. The function treats underscores as part of words.
+ *
+ * Example usage:
+ * capitalizeWords("hello world_test", {"world_test"}) returns "hello WORLD_TEST"
+ */
+std::string capitalizeWords(const std::string& input, const std::unordered_set<std::string>& words) {
+    // Create lowercase word set
+    std::unordered_set<std::string> wordSet;
+    for (const auto& w : words) {
+        wordSet.insert(toLower(w));
+    }
+    
+    std::string result;
+    size_t i = 0;
+    
+    while (i < input.size()) {
+        if (!isalpha(static_cast<unsigned char>(input[i])) && input[i] != '_') {
+            result += input[i];
+            ++i;
+            continue;
+        }
+        size_t start = i;
+        
+        while (i < input.size() && (isalpha(static_cast<unsigned char>(input[i])) || input[i] == '_')) {
+            ++i;
+        }
+        
+        std::string word = input.substr(start, i - start);
+        std::string lowercase = toLower(word);
+        
+        if (wordSet.count(lowercase)) {
+            result += toUpper(lowercase);
+            continue;
+        }
+        
+        result += word;
+    }
+    
+    return result;
+}
+
+std::string replaceTabsWithSpaces(const std::string& input) {
+    std::string result = input;
+    for (char& ch : result) {
+        if (ch == '\t') {
+            ch = ' ';
+        }
+    }
+    return result;
+}
+
+std::string reduceMultipleSpaces(const std::string& input) {
+    std::ostringstream oss;
+    bool inSpace = false;
+
+    for (char ch : input) {
+        if (ch == ' ') {
+            if (!inSpace) {
+                oss << ' ';
+                inSpace = true;
+            }
+        } else {
+            oss << ch;
+            inSpace = false;
+        }
+    }
+
+    return oss.str();
+}
+
+std::string removeNewlineAfterSemicolon(const std::string& input) {
+    std::string output;
+    size_t len = input.length();
+
+    for (size_t i = 0; i < len; ++i) {
+        if (input[i] == '\n' && i > 0 && input[i - 1] == ';') {
+            continue; // skip the newline after a semicolon
+        }
+        output += input[i];
+    }
+
+    return output;
+}
+
+std::string removeNewlineBeforeSymbols(const std::string& input) {
+    std::string output;
+    const std::string symbols = "{}[](),";
+    size_t i = 0;
+    size_t len = input.length();
+
+    while (i < len) {
+        if (input[i] == '\n') {
+            size_t j = i + 1;
+            // Skip spaces/tabs after newline
+            while (j < len && (input[j] == ' ' || input[j] == '\t')) {
+                ++j;
+            }
+            // If the first non-whitespace char is a target symbol, skip the newline and spaces
+            if (j < len && symbols.find(input[j]) != std::string::npos) {
+                i = j; // Skip to the symbol, skipping \n and spaces
+                continue;
+            }
+        }
+        output += input[i];
+        ++i;
+    }
+
+    return output;
+}
+
+/**
+ * @brief Extracts and preserves all double-quoted substrings from the input string.
+ *
+ * Handles escaped quotes (e.g., \" inside quoted text) and does not use regex.
+ *
+ * @param str The input string.
+ * @return std::list<std::string> A list of quoted substrings, including the quote characters.
+ */
+std::list<std::string> preserveStrings(const std::string& str) {
+    std::list<std::string> strings;
+    bool inQuotes = false;
+    std::string current;
+    
+    for (size_t i = 0; i < str.size(); ++i) {
+        char c = str[i];
+
+        if (!inQuotes) {
+            if (c == '"') {
+                inQuotes = true;
+                current.clear();
+                current += c;  // start quote
+            }
+        } else {
+            current += c;
+
+            if (c == '"' && (i == 0 || str[i - 1] != '\\')) {
+                // End of quoted string (unescaped quote)
+                inQuotes = false;
+                strings.push_back(current);
+            }
+        }
+    }
+
+    return strings;
+}
+/**
+ * @brief Replaces all double-quoted substrings in the input string with "".
+ *
+ * Handles escaped quotes (e.g., \" inside strings) and does not use regex.
+ *
+ * @param str The input string to process.
+ * @return std::string A new string with quoted substrings replaced by "".
+ */
+std::string blankOutStrings(const std::string& str) {
+    std::string result;
+    bool inQuotes = false;
+    size_t start = 0;
+
+    for (size_t i = 0; i < str.length(); ++i) {
+        // Start of quoted string
+        if (!inQuotes && str[i] == '"') {
+            inQuotes = true;
+            result.append(str, start, i - start);  // Append text before quote
+            start = i; // mark quote start
+        }
+        // Inside quoted string
+        else if (inQuotes && str[i] == '"' && (i == 0 || str[i - 1] != '\\')) {
+            // End of quoted string
+            inQuotes = false;
+            result += "\"\"";  // Replace quoted string with empty quotes
+            start = i + 1;     // Next copy chunk starts after closing quote
+        }
+    }
+
+    // Append remaining text after last quoted section
+    if (start < str.size()) {
+        result.append(str, start, str.size() - start);
+    }
+
+    return result;
+}
+
+/**
+ * @brief Restores quoted strings into a string that had them blanked out.
+ *
+ * @param str The string with blanked-out quoted substrings (e.g., `""`).
+ * @param strings A list of original quoted substrings, in the order they appeared.
+ * @return std::string A new string with the original quoted substrings restored.
+ */
+std::string restoreStrings(const std::string& str, std::list<std::string>& strings) {
+    static const std::regex re(R"("[^"]*")");
+
+    if (strings.empty()) return str;
+
+    std::string result;
+    std::size_t lastPos = 0;
+
+    auto stringIt = strings.begin();
+    for (auto it = std::sregex_iterator(str.begin(), str.end(), re);
+         it != std::sregex_iterator() && stringIt != strings.end(); ++it, ++stringIt)
+    {
+        const std::smatch& match = *it;
+
+        // Append the part before the match
+        result.append(str, lastPos, match.position() - lastPos);
+
+        // Append the preserved quoted string
+        result.append(*stringIt);
+
+        // Update the last position
+        lastPos = match.position() + match.length();
+    }
+
+    // Append the remaining part of the string after the last match
+    result.append(str, lastPos, std::string::npos);
+
+    return result;
+}
+
 // MARK: - Utills
 
 std::string base10ToBase32(unsigned int num) {
@@ -132,7 +562,29 @@ std::string base10ToBase32(unsigned int num) {
     return result;
 }
 
-std::string fix_unary_minus(const std::string& input) {
+/**
+ * @brief Inserts a space after operator characters when followed by a unary minus,
+ *        except in the case of the assignment operator `:=`.
+ *
+ * This function scans the input string and ensures that a space is inserted between
+ * consecutive operator characters when the second is a minus (`-`). This helps
+ * disambiguate unary minus usage in expressions like `a*-b`, transforming it to `a* -b`.
+ *
+ * A special exception is made for the `:=` operator, which is preserved without
+ * inserting a space.
+ *
+ * @param input The input string potentially containing unary minus after operators.
+ * @return A new string with appropriate spaces inserted to clarify unary minus usage.
+ *
+ * @note This function assumes a fixed set of operator characters: `+`, `-`, `*`, `/`, `=`, and `:`.
+ *       It is particularly useful for preprocessing mathematical expressions to improve readability
+ *       or prepare them for parsing.
+ *
+ * Example usage:
+ * fixUnaryMinus("a*-b") returns "a* -b"
+ * fixUnaryMinus("x:=y") returns "x:=y"
+ */
+std::string fixUnaryMinus(const std::string& input) {
     const std::string ops = "+-*/=:";
 
     // We only need to check ":=" pair, no need to store more.
@@ -164,132 +616,7 @@ std::string fix_unary_minus(const std::string& input) {
     return output;
 }
 
-std::string to_lower(const std::string& s) {
-    std::string result = s;
-    std::transform(result.begin(), result.end(), result.begin(),
-                   [](unsigned char c) { return std::tolower(c); });
-    return result;
-}
 
-std::string to_upper(const std::string& s) {
-    std::string result = s;
-    std::transform(result.begin(), result.end(), result.begin(),
-                   [](unsigned char c) { return std::toupper(c); });
-    return result;
-}
-
-std::string replace_operators(const std::string& input) {
-    std::string output;
-    output.reserve(input.size());  // Reserve space to reduce reallocations
-
-    for (std::size_t i = 0; i < input.size(); ++i) {
-        if (i + 1 < input.size()) {
-            // Lookahead for 2-character operators
-            if (input[i] == '>' && input[i + 1] == '=') {
-                output += "≥";
-                ++i;
-                continue;
-            }
-            if (input[i] == '<' && input[i + 1] == '=') {
-                output += "≤";
-                ++i;
-                continue;
-            }
-            if (input[i] == '=' && input[i + 1] == '>') {
-                output += "▶";
-                ++i;
-                continue;
-            }
-            if (input[i] == '<' && input[i + 1] == '>') {
-                output += "≠";
-                ++i;
-                continue;
-            }
-            if (input[i] == '=' && input[i + 1] == '=') {
-                output += "=";
-                ++i;
-                continue;
-            }
-        }
-
-        // Default: copy character
-        output += input[i];
-    }
-
-    return output;
-}
-
-std::string replace_words(const std::string& input, const std::vector<std::string>& words, const std::string& replacement) {
-    // Create lowercase word set
-    std::unordered_set<std::string> wordset;
-    for (const auto& w : words) {
-        wordset.insert(to_lower(w));
-    }
-
-    std::string result;
-    size_t i = 0;
-    
-    while (i < input.size()) {
-        if (!isalpha(static_cast<unsigned char>(input[i])) && input[i] != '_') {
-            result += input[i];
-            ++i;
-            continue;
-        }
-        size_t start = i;
-        
-        while (i < input.size() && (isalpha(static_cast<unsigned char>(input[i])) || input[i] == '_')) {
-            ++i;
-        }
-        
-        std::string word = input.substr(start, i - start);
-        std::string lowerWord = to_lower(word);
-        
-        if (wordset.count(lowerWord)) {
-            result += replacement;
-            continue;
-        }
-        
-        result += word;
-    }
-    
-    return result;
-}
-
-std::string capitalize_words(const std::string& input, const std::unordered_set<std::string>& words) {
-    // Create lowercase word set
-    std::unordered_set<std::string> wordset;
-    for (const auto& w : words) {
-        wordset.insert(to_lower(w));
-    }
-    
-    std::string result;
-    size_t i = 0;
-    
-    while (i < input.size()) {
-        if (!isalpha(static_cast<unsigned char>(input[i])) && input[i] != '_') {
-            result += input[i];
-            ++i;
-            continue;
-        }
-        size_t start = i;
-        
-        while (i < input.size() && (isalpha(static_cast<unsigned char>(input[i])) || input[i] == '_')) {
-            ++i;
-        }
-        
-        std::string word = input.substr(start, i - start);
-        std::string lowercase = to_lower(word);
-        
-        if (wordset.count(lowercase)) {
-            result += to_upper(lowercase);
-            continue;
-        }
-        
-        result += word;
-    }
-    
-    return result;
-}
 
 static bool is_utf16(const std::string& filepath) {
     std::ifstream is;
@@ -308,41 +635,20 @@ static bool is_utf16(const std::string& filepath) {
 
 // MARK: - Minifying And Writing
 
-std::string minifieLine(const std::string& ln) {
+std::string minifieLine(const std::string& str) {
     std::regex re;
     std::smatch match;
     std::ifstream infile;
-    std::string result = ln;
+    std::string result = str;
     
     Singleton *singleton = Singleton::shared();
     
     static int globalVariableAliasCount = -1, localVariableAliasCount = -1, functionAliasCount = -1;
     
-    if (preprocessor.python) {
-        // We're presently handling Python code.
-        preprocessor.parse(result);
-        result += '\n';
-        return result;
-    }
     
-    if (preprocessor.parse(result)) {
-        if (preprocessor.python) {
-            // Indicating Python code ahead with the #PYTHON preprocessor, we maintain the line unchanged and return to the calling function.
-            result += '\n';
-            return result;
-        }
-        
-        result = std::string("");
-        return result;
-    }
     
-    /*
-     While parsing the contents, strings may inadvertently undergo parsing, leading to potential disruptions in the string's content.
-     To address this issue, we prioritize the preservation of any existing strings. Subsequently, after parsing, any strings that have
-     been universally altered can be restored to their original state.
-     */
-    strings.preserveStrings(result);
-    strings.blankOutStrings(result);
+    auto strings = preserveStrings(result);
+    result = blankOutStrings(result);
     
     // Remove any comments.
     size_t pos = result.find("//");
@@ -350,9 +656,9 @@ std::string minifieLine(const std::string& ln) {
         result.resize(pos);
     }
     
-    // Remove sequences of whitespaces to a single whitespace.
-    result = std::regex_replace(result, std::regex(R"(\s+)"), " ");
-
+    result = replaceTabsWithSpaces(result);
+    result = reduceMultipleSpaces(result);
+    
     // Remove any leading white spaces before or after.
     trim(result);
     
@@ -361,16 +667,24 @@ std::string minifieLine(const std::string& ln) {
         return result;
     }
     
-    result = capitalize_words(result, {
+    result = cleanWhitespace(result);
+    
+    if (result.find("#pragma ") != std::string::npos) {
+        return result + '\n';
+    }
+    
+    result = replaceOperators(result);
+    
+    result = capitalizeWords(result, {
         "begin", "end", "return", "kill", "if", "then", "else", "xor", "or", "and", "not",
         "case", "default", "iferr", "ifte", "for", "from", "step", "downto", "to", "do",
         "while", "repeat", "until", "break", "continue", "export", "const", "local", "key"
     });
-    result = capitalize_words(result, {"log", "cos", "sin", "tan", "result", "min", "max"});
-    result = replace_words(result, {"FROM"}, ":=");
-    result = clean_whitespace(result);
-    result = replace_operators(result);
-    result = fix_unary_minus(result);
+    result = capitalizeWords(result, {"log", "cos", "sin", "tan", "result", "min", "max"});
+    result = replaceWords(result, {"FROM"}, ":=");
+    result = fixUnaryMinus(result);
+    result = removeNewlineAfterSemicolon(result);
+    
     
     re = std::regex(R"(\b(?:BEGIN|IF|CASE|FOR|WHILE|REPEAT|FOR|WHILE|REPEAT)\b)", std::regex_constants::icase);
     for(auto it = std::sregex_iterator(result.begin(), result.end(), re); it != std::sregex_iterator(); ++it) {
@@ -485,25 +799,43 @@ std::string minifieLine(const std::string& ln) {
                 result = result.replace(match.position(), match.length(), ss.str());
             }
         }
-        
-        result = regex_replace(result, std::regex(R"( +FROM +)", std::regex_constants::icase), ":=");
     }
     
     result = singleton->aliases.resolveAliasesInText(result);
-    strings.restoreStrings(result);
+   
+    result = restoreStrings(result, strings);
     
-    result = regex_replace(result, std::regex(R"([^;,\[\]\{\}]$)"), "$0\n");
+//    result = regex_replace(result, std::regex(R"([^;,\[\]\{\}]$)"), "$0\n");
+//    if (result.at(result.length() - 1) == ';') result += '\n';
+    result = regex_replace(result, std::regex(R"([a-zA-Z]$)"), "$0\n");
     return result;
 }
 
+bool isPythonBlock(const std::string& str) {
+    return str.find("#PYTHON") != std::string::npos;
+}
 
-std::string minifieAllLines(std::istringstream &iss)
+std::string minifieAllLines(std::istringstream& iss)
 {
     std::string str;
     std::string result;
     
     while(getline(iss, str)) {
-        result.append(minifieLine(str));
+        if (isPythonBlock(str)) {
+            str = cleanWhitespace(str);
+            result += str + '\n';
+            Singleton::shared()->incrementLineNumber();
+            while(getline(iss, str)) {
+                result += str + '\n';
+                if (str.find("#END") != std::string::npos) {
+                    break;
+                }
+                Singleton::shared()->incrementLineNumber();
+            }
+        } else {
+            result.append(minifieLine(str));
+        }
+        
         Singleton::shared()->incrementLineNumber();
     }
     
@@ -519,6 +851,7 @@ std::string minifiePrgm(std::ifstream &infile)
     wstr = utf::read_utf16(infile);
     if (wstr.empty()) {
         char c;
+        infile.seekg(0);
         while (!infile.eof()) {
             infile.get(c);
             str += c;
@@ -546,6 +879,9 @@ std::string minifiePrgm(std::ifstream &infile)
 
     re = R"(\bEND;)";
     str = regex_replace(str, re, "\n$0");
+    
+    str = removeNewlineAfterSemicolon(str);
+    str = removeNewlineBeforeSymbols(str);
     
     std::istringstream iss;
     iss.str(str);
@@ -629,7 +965,7 @@ int main(int argc, char **argv) {
                 error();
                 exit(0);
             }
-            out_filename = std::filesystem::expand_tilde(argv[n + 1]);
+            out_filename = std::filesystem::expand_tilde(argv[++n]);
             continue;
         }
         
@@ -639,8 +975,6 @@ int main(int argc, char **argv) {
         }
         
         in_filename = std::filesystem::expand_tilde(argv[n]);
-        std::regex re(R"(.\w*$)");
-        std::smatch extension;
     }
     
     info();

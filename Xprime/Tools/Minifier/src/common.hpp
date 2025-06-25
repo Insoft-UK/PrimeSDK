@@ -56,8 +56,6 @@ std::string& strip(std::string& str);
 std::string strip_copy(const std::string& str);
 
 std::ifstream::pos_type file_size(const std::string& filename);
-std::string clean_whitespace(const std::string &input);
-std::string normalize_whitespace(const std::string& input);
 
 
 #endif /* common_hpp */

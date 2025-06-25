@@ -1,90 +1,41 @@
-#ifndef __pplplus
-// The MIT License (MIT)
-//
-// Copyright (c) 2023-2025 Insoft. All rights reserved.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-#endif
+#pragma mode( separator(.,;) integer(h64) assignment(=) indentation(1) operators(▶,*,/,-,+) )
 
-#pragma mode( separator(.,,) integer(h64) assignment(=) indentation(1) operators(▶,*,/,-,+) )
+#define COPYWRITE "Copyright (c) 2023-2025 Insoft. All rights reserved."
 
-
-#ifndef __pplplus
- When defining a macro with parameters, issues can arise if an argument
- name is adjacent to a letter. To resolve this, you can use numbered
- placeholders like `$1` for the first argument, `$2` for the second, `$3`
- for the third, and so on. This ensures the macro arguments remain uniquely
- identifiable and avoid issues, note that $0 is the identifier.
-#endif
-
-#define MacroList(i)      L$1
-#define COPYWRITE "Copyright (c) 2023-2025  =>  Insoft. All rights reserved."
-#define NUMBER 123
-
-#define Event key, type[1], x[2], y[3], dx[4], dy[5]
-
-
-alias::name(a: alpha, b: beta)
+MyApp()
 begin
-    dict New := 0, Complete := 1, Drag := 2, Stretch := 3, Rotate := 4, LongClick := 5 MouseType;
-    dict Event event;
-            
-    beta = MouseType.Drag;
-    alpha * \`98 + 1 * 2` => alpha;
-    if alpha > 0 then
-        var d: delta;
-        case
-            if alpha >= beta then
-                delta = a * b;
-            endif;
-        end;
-    
-        delta => beta;
-    endif;
-    
-    switch alpha
-        case 1 do
-            alpha + beta => beta;
-        end;
-        case 2 do
-            alpha - beta => beta;
-        end;
-        default
-    end;
-    
-    
-    
-    if alpha <> beta and delta <= beta or beta == 0 then return; endif;
-    
-    while true do
-        a+1 => A;
-        if a >= 100 then break;
-        endif
-    wend;
-    
-    
-    repeat
-        A - 1 => A;
-    until A <> 0;
-    
-    try A*B => A; then
-    else
-    end;
-end;
+  resister := {
+  {
+    #000000003FFFE000:64h, #0007FFFC00000000:64h,
+    #00000003FFFFF800:64h, #001FFFFFC0000000:64h,
+    #FFFFFFFFF5557C00:64h, #003D5557FFFFFFFF:64h,
+    #FFFFFFFEAAAAAE00:64h, #007AAAAAFFFFFFFF:64h,
+    #5555555555555700:64h, #00F5555555555555:64h,
+    #AAAAAAAAA0002B00:64h, #00E8000AAAAAAAAA:64h,
+    #5555555400001780:64h, #01D0000055555555:64h,
+    #0000000000000B80:64h, #01A0000000000000:64h,
+    #00000000000005C0:64h, #0340000000000000:64h,
+    #00000000000002C0:64h, #0380000000000000:64h,
+    #00000000000005F0:64h, #0F40000000000000:64h,
+    #00000000000002FF:64h, #FE80000000000000:64h,
+    #0000000000000570:64h, #0F40000000000000:64h,
+    #00000000000002FF:64h, #FE80000000000000:64h,
+    #00000000000005FF:64h, #FF40000000000000:64h,
+    #0000000000000AF0:64h, #0FA0000000000000:64h,
+    #55555555500015C0:64h, #0354001555555555:64h,
+    #AAAAAAAAAAAAABC0:64h, #03AAAAAAAAAAAAAA:64h,
+    #5555555555555580:64h, #01D5555555555555:64h,
+    #AAAAAAAAAAAAAB80:64h, #01EAAAAAAAAAAAAA:64h,
+    #5555555555555700:64h, #00D5555555555555:64h,
+    #AAAAAAAAAAAAAF00:64h, #00EAAAAAAAAAAAAA:64h,
+    #FFFFFFFF55555E00:64h, #007555557FFFFFFF:64h,
+    #FFFFFFFFEAAABC00:64h, #003EAAAFFFFFFFFF:64h,
+    #00000003FFFFF800:64h, #001FFFFFC0000000:64h,
+    #000000003FFFE000:64h, #0007FFFC00000000:64h
+  },
+  { 128, 26 },
+  {
+    #FFFFFF:32h, #000000:32h
+  }};
 
+end;

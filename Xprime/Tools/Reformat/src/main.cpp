@@ -663,7 +663,7 @@ int main(int argc, char **argv) {
                 error();
                 exit(0);
             }
-            out_filename = std::filesystem::expand_tilde(argv[n + 1]);
+            out_filename = std::filesystem::expand_tilde(argv[++n]);
             continue;
         }
         
