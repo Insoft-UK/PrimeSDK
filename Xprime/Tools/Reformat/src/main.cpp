@@ -48,7 +48,7 @@ using namespace ppl;
 
 static Preprocessor preprocessor = Preprocessor();
 static Strings strings = Strings();
-static std::vector<std::string> operators = { ":=", "==", "▶", "≥", "≤", "≠", "-", "+", "*", "/" };
+static std::vector<std::string> operators = { ":=", "==", "▶", "≥", "≤", "≠" };
 
 
 
@@ -145,7 +145,29 @@ std::string base10ToBase32(unsigned int num) {
     return result;
 }
 
-std::string fix_unary_minus(const std::string& input) {
+/**
+ * @brief Inserts a space after operator characters when followed by a unary minus,
+ *        except in the case of the assignment operator `:=`.
+ *
+ * This function scans the input string and ensures that a space is inserted between
+ * consecutive operator characters when the second is a minus (`-`). This helps
+ * disambiguate unary minus usage in expressions like `a*-b`, transforming it to `a* -b`.
+ *
+ * A special exception is made for the `:=` operator, which is preserved without
+ * inserting a space.
+ *
+ * @param input The input string potentially containing unary minus after operators.
+ * @return A new string with appropriate spaces inserted to clarify unary minus usage.
+ *
+ * @note This function assumes a fixed set of operator characters: `+`, `-`, `*`, `/`, `=`, and `:`.
+ *       It is particularly useful for preprocessing mathematical expressions to improve readability
+ *       or prepare them for parsing.
+ *
+ * Example usage:
+ * fixUnaryMinus("a*-b") returns "a* -b"
+ * fixUnaryMinus("x:=y") returns "x:=y"
+ */
+std::string fixUnaryMinus(const std::string& input) {
     const std::string ops = "+-*/=:";
 
     // We only need to check ":=" pair, no need to store more.
@@ -191,7 +213,7 @@ std::string to_upper(const std::string& s) {
     return result;
 }
 
-std::string replace_operators(const std::string& input) {
+std::string replaceOperators(const std::string& input) {
     std::string output;
     output.reserve(input.size());  // Reserve space to reduce reallocations
 
@@ -346,40 +368,60 @@ std::string normalize_whitespace(const std::string& input) {
     return output;
 }
 
-std::string normalize_operators(const std::string& input) {
+/**
+ * @brief Normalizes spacing around operators in a string.
+ *
+ * This function ensures that operators from a predefined list are properly spaced
+ * within the input string. It scans the string, identifies any known operators,
+ * and inserts spaces before and after them if needed to ensure consistent formatting.
+ *
+ * After operator normalization, the function also removes any extra or redundant
+ * whitespace, ensuring clean and readable output.
+ *
+ * @param input The input string that may contain operators with inconsistent spacing.
+ * @return A new string with operators consistently spaced and extraneous whitespace removed.
+ *
+ * @note The function relies on a global or external list of `operators` (std::vector<std::string>)
+ *       to define which sequences are considered operators.
+ *
+ * Example usage:
+ * // Given operators = { "+", "-", "*", "/", "==", ">=", "<=", "=" };
+ * normalizeOperators("a+  b==c") returns "a + b == c"
+ */
+std::string normalizeOperators(const std::string& input) {
     // List of all operators to normalize
-    
-    std::string result;
-    size_t i = 0;
-    
-    while (i < input.size()) {
-        bool matched = false;
         
-        for (const std::string& op : operators) {
-            if (input.compare(i, op.size(), op) == 0) {
-                if (!result.empty() && result.back() != ' ') result += ' ';
-                result += op;
-                i += op.size();
-                if (i < input.size() && input[i] != ' ') result += ' ';
-                matched = true;
-                break;
+        std::string result;
+        size_t i = 0;
+
+        while (i < input.size()) {
+            bool matched = false;
+
+            for (const std::string& op : operators) {
+                if (input.compare(i, op.size(), op) == 0) {
+                    if (!result.empty() && result.back() != ' ') result += ' ';
+                    result += op;
+                    i += op.size();
+                    if (i < input.size() && input[i] != ' ') result += ' ';
+                    matched = true;
+                    break;
+                }
+            }
+
+            if (!matched) {
+                result += input[i++];
             }
         }
-        
-        if (!matched) {
-            result += input[i++];
+
+        // Final cleanup: collapse multiple spaces
+        std::istringstream iss(result);
+        std::string word, cleaned;
+        while (iss >> word) {
+            if (!cleaned.empty()) cleaned += ' ';
+            cleaned += word;
         }
-    }
-    
-    // Final cleanup: collapse multiple spaces
-    std::istringstream iss(result);
-    std::string word, cleaned;
-    while (iss >> word) {
-        if (!cleaned.empty()) cleaned += ' ';
-        cleaned += word;
-    }
-    
-    return cleaned;
+
+        return cleaned;
 }
 
 std::string insert_space_after_chars(const std::string& input, const std::unordered_set<char>& chars) {
@@ -487,12 +529,10 @@ std::string reformatLine(const std::string& str) {
         "while", "repeat", "until", "break", "continue", "export", "const", "local", "key"
     });
     result = capitalize_words(result, {"log", "cos", "sin", "tan", "ln", "min", "max"});
-    result = replace_words(result, {"FROM"}, ":=");
     result = clean_whitespace(result);
-    result = replace_operators(result);
-    result = fix_unary_minus(result);
-    result = normalize_operators(result);
-    result = insert_space_after_chars(result, {',', ';'});
+    result = replaceOperators(result);
+    result = normalizeOperators(result);
+    result = insert_space_after_chars(result, {','});
     result = insert_space_before_word_after_closing_paren(result);
     
     
@@ -524,15 +564,26 @@ std::string reformatLine(const std::string& str) {
     singleton->comments.restoreComment(result);
     rtrim(result);
     
-    if (Singleton::shared()->nestingLevel == 1) {
-        result = regex_replace(result, std::regex(R"(END;)"), "$0\n");
-    }
+//    if (Singleton::shared()->nestingLevel == 1) {
+//        result = regex_replace(result, std::regex(R"(END;)"), "$0\n");
+//    }
     
-    if (Singleton::shared()->nestingLevel == 0 && result != "END;") {
-        result = result.insert(0, "\n");
-    }
+//    if (Singleton::shared()->nestingLevel == 0 && result != "END;") {
+//        result = result.insert(0, "\n");
+//    }
     
-    result = regex_replace(result, std::regex(R"(^ *(\[|\d))"), std::string((Singleton::shared()->nestingLevel + 1) * INDENT_WIDTH, ' ') + "$1");
+    result = regex_replace(result, std::regex(R"(^ *([\[\d\-\#]))"), std::string((Singleton::shared()->nestingLevel + 1) * INDENT_WIDTH, ' ') + "$1");
+
+//    if (result.length()) {
+//        if (result.at(result.length() - 1) == ';') {
+//            result += '\n';
+//        }
+//    }
+//        result = regex_replace(result, std::regex(R"(;)"), "$0\n");
+//    trim(result);
+//    if (!result.empty())
+    
+//    result = result.insert(0, std::string((Singleton::shared()->nestingLevel - 1) * INDENT_WIDTH, ' '));
     
     result += "\n";
     return result;
@@ -586,11 +637,11 @@ std::string reformatPrgm(std::ifstream& infile)
     re = std::regex(R"(\b(LOCAL|CONST)\b)", std::regex_constants::icase);
     str = regex_replace(str, re, "\n$0");
     
-    re = std::regex(R"(\b(IF|CASE|REPEAT|FOR|WHILE|DEFAULT|UNTIL|ELSE|IFERR)\b)", std::regex_constants::icase);
+    re = std::regex(R"(\b(IF|CASE|REPEAT|FOR|WHILE|DEFAULT|UNTIL|ELSE|IFERR|END)\b)", std::regex_constants::icase);
     str = regex_replace(str, re, "\n$0");
 
-    re = std::regex(R"(\bEND;)", std::regex_constants::icase);
-    str = regex_replace(str, re, "\n$0\n");
+    
+    str = regex_replace(str, std::regex(R"([\w})\]];)"), "$0\n");
     
     std::istringstream iss;
     iss.str(str);
