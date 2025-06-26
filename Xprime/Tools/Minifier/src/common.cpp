@@ -24,7 +24,6 @@
 
 
 #include "common.hpp"
-#include "singleton.hpp"
 
 #include <sstream>
 #include <algorithm>
@@ -38,12 +37,6 @@ bool hasErrors(void) {
 }
 
 std::ostream& operator<<(std::ostream& os, MessageType type) {
-    Singleton *singlenton = Singleton::shared();
-
-    if (singlenton->currentPathname() != "") os << singlenton->currentPathname() << ":";
-    os << singlenton->currentLineNumber();
-
-
     switch (type) {
         case MessageType::Error:
             os << " error: ";

@@ -102,6 +102,7 @@
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="Ktx-1R-bVM"/>
                                         <menuItem title="Revert to Saved" keyEquivalent="r" id="KaW-ft-85H">
+                                            <modifierMask key="keyEquivalentModifierMask" option="YES"/>
                                             <connections>
                                                 <action selector="revertDocumentToSaved:" target="Ady-hI-5gd" id="iJ3-Pv-kwq"/>
                                             </connections>
@@ -358,8 +359,13 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Project" id="KAd-IF-cuB">
                                     <items>
+                                        <menuItem title="Run" keyEquivalent="r" id="p6y-v1-4El"/>
+                                        <menuItem title="Run Without Building" keyEquivalent="r" id="Jf6-5T-MLT">
+                                            <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                        </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="XAL-zZ-CE3"/>
                                         <menuItem title="Build" keyEquivalent="b" id="Ust-Jd-TDZ"/>
-                                        <menuItem title="Reformat All" id="p6y-v1-4El">
+                                        <menuItem title="Reformat All" id="OqD-SV-dml">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="uSe-yx-JCn"/>
@@ -542,9 +548,6 @@
                                             <connections>
                                                 <action selector="insertCode:" target="Voe-Tx-rLC" id="js5-zO-08x"/>
                                             </connections>
-                                        </menuItem>
-                                        <menuItem title="Export to HP Prime Emulator" id="119-Oe-DIo">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
                                         </menuItem>
                                     </items>
                                 </menu>

@@ -310,7 +310,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         
         for pattern in grammar!.patterns {
             let color = colors[pattern.name]!
-            let regex = try! NSRegularExpression(pattern: pattern.match, options: [.caseInsensitive])
+            let regex = try! NSRegularExpression(pattern: pattern.match)
             regex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in
                 if let match = match {
                     textStorage.addAttribute(.foregroundColor, value: color, range: match.range)
@@ -369,17 +369,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         autoIndentCurrentLine()
     }
     
-    private func insertString(_ string: String) {
-        if let textView = textView, let selectedRange = textView.selectedRanges.first as? NSRange {
-            
-            if let textStorage = textView.textStorage {
-                textStorage.replaceCharacters(in: selectedRange, with: string)
-                textView.setSelectedRange(NSRange(location: selectedRange.location + string.count, length: 0))
-            }
-        }
-        
-        applySyntaxHighlighting()
-    }
+    
     
     private func autoIndentCurrentLine() {
         guard let textView = self.textView else { return }
@@ -408,7 +398,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
     }
     
     // MARK: - Helper Functions
-    private func registerUndo<T: AnyObject>(
+    func registerUndo<T: AnyObject>(
         target: T,
         oldValue: @autoclosure @escaping () -> String,
         keyPath: ReferenceWritableKeyPath<T, String>,
@@ -430,7 +420,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         undoManager.setActionName(actionName)
     }
     
-    private func registerTextViewUndo(actionName: String = "Edit") {
+    func registerTextViewUndo(actionName: String = "Edit") {
         registerUndo(target: textView,
                      oldValue: self.textView.string,
                      keyPath: \NSTextView.string,
@@ -459,6 +449,18 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
+    func insertText(_ string: String) {
+        if let textView = textView, let selectedRange = textView.selectedRanges.first as? NSRange {
+            
+            if let textStorage = textView.textStorage {
+                textStorage.replaceCharacters(in: selectedRange, with: string)
+                textView.setSelectedRange(NSRange(location: selectedRange.location + string.count, length: 0))
+            }
+        }
+        
+        applySyntaxHighlighting()
+    }
+    
     // MARK: - File Handling
     
     private func detectEncoding(of url: URL) -> String.Encoding? {
@@ -467,14 +469,15 @@ class ViewController: NSViewController, NSTextViewDelegate {
             
             if data.starts(with: [0xEF, 0xBB, 0xBF]) {
                 return .utf8
-            } else if data.starts(with: [0xFF, 0xFE]) {
-                return .utf16LittleEndian
-            } else if data.starts(with: [0xFE, 0xFF]) {
-                return .utf16BigEndian
-            } else {
-                // No BOM — assume UTF-8 as default fallback
-                return .utf8
             }
+            if data.starts(with: [0xFF, 0xFE]) {
+                return .utf16LittleEndian
+            }
+            if data.starts(with: [0xFE, 0xFF]) {
+                return .utf16BigEndian
+            }
+            // No BOM — assume UTF-8 as default fallback
+            return .utf8
         } catch {
             alert("Reading file data: \(error)")
             return nil
@@ -483,7 +486,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
     
     
     
-    func loadFile(_ url: URL) -> String? {
+    func loadTextFile(at url: URL) -> String? {
         guard let encoding = detectEncoding(of: url) else { return nil }
         
         do {
@@ -500,7 +503,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
     
     func openFile() {
         let openPanel = NSOpenPanel()
-        let extensions = ["prgm", "prgm+", "ppl", "ppl+", "hpprgm"]
+        let extensions = ["prgm", "prgm+", "ppl", "ppl+"]
         let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
         
         openPanel.allowedContentTypes = contentTypes
@@ -510,7 +513,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         openPanel.begin { [weak self] result in
             guard result == .OK, let url = openPanel.url else { return }
             
-            if let contents = self?.loadFile(url) {
+            if let contents = self?.loadTextFile(at: url) {
                 self?.textView.string = contents
                 self?.applySyntaxHighlighting()
                 self?.currentFileURL = url
@@ -597,7 +600,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
                 url = tempDirectoryURL.appendingPathComponent("code.prgm")
             }
             
-            if let contents = self?.loadFile(url) {
+            if let contents = self?.loadTextFile(at: url) {
                 if let textView = self?.textView, let selectedRange = textView.selectedRanges.first as? NSRange {
                     self?.registerTextViewUndo(actionName: "Insert Code")
                     if let textStorage = textView.textStorage {
@@ -629,9 +632,9 @@ class ViewController: NSViewController, NSTextViewDelegate {
             
             
             PrimeSDK.grob(i: url, o: tempDirectoryURL.appendingPathComponent("image.prgm"))
-            if let contents = self?.loadFile(tempDirectoryURL.appendingPathComponent("image.prgm")) {
+            if let contents = self?.loadTextFile(at: tempDirectoryURL.appendingPathComponent("image.prgm")) {
                 self?.registerTextViewUndo(actionName: "Embed Image")
-                self?.insertString(contents)
+                self?.insertText(contents)
             }
             
         }
@@ -656,72 +659,67 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    func insertTemplate(_ template: String) {
-        let url = Bundle.main.bundleURL.appendingPathComponent("Contents/Template/\(template).prgm")
-        
-        if let contents = loadFile(url) {
-            registerTextViewUndo(actionName: "Insert Template")
-            insertString(contents)
-        }
-    }
-    
-   
-    
     @objc private func reformatAll() {
+        saveFile()
+        
         guard let url = currentFileURL else {
             return
         }
         
         PrimeSDK.pplref(i: url, o: url)
-        if let contents = loadFile(url) {
+        if let contents = loadTextFile(at: url) {
             registerTextViewUndo(actionName: "Reformat All")
             textView.string = contents
+            applySyntaxHighlighting()
         }
     }
+    
+    
     
     @objc private func build() {
         guard let url = currentFileURL else {
             return
         }
-        
-        print("\(url.pathExtension)")
-        
-        if url.pathExtension != "prgm+" && url.pathExtension != "ppl+" {
-            return
-        }
-        
-        saveFile()
-        
         let prgm = url.deletingPathExtension().appendingPathExtension("prgm")
         
-        PrimeSDK.pplplus(i: url, o: prgm)
+        if url.pathExtension == "prgm+" || url.pathExtension == "ppl+" {
+            PrimeSDK.pplplus(i: url, o: prgm)
+        }
         PrimeSDK.pplmin(i: prgm, o: prgm)
         PrimeSDK.hpprgm(i: prgm)
+        
+        updateMainMenuActions()
+    }
+    
+    @objc private func run() {
+        guard let _ = currentFileURL else {
+            return
+        }
+        saveFile()
+        build()
+        exportToHpPrimeEmulator()
     }
     
     @objc func exportToHpPrimeEmulator() {
+        func HPPrimeEmulatorDirectoryPath() -> URL? {
+            let url = URL(fileURLWithPath: NSString(string: "~/Documents/HP Prime/Calculators/Prime").expandingTildeInPath)
+            return url.hasDirectoryPath ? url : nil
+        }
+        
+        func lauchHPPrimeEmulator() {
+            let task = Process()
+            task.launchPath = "/Applications/HP Prime.app/Contents/MacOS/HP Prime"
+            task.launch()
+        }
+        
         guard let url = currentFileURL?.deletingPathExtension().appendingPathExtension("hpprgm") else {
             return
         }
-        
-        if !FileManager.default.fileExists(atPath: url.path) {
-            alert("File not found: \(url.path)")
-            return
+      
+        if let destURL = HPPrimeEmulatorDirectoryPath() {
+            try? FileManager.default.copyItem(atPath: url.path, toPath: destURL.path)
+            lauchHPPrimeEmulator()
         }
-        
-
-        let path = "~/Documents/HP Prime/Calculators/Prime"
-        let destPath = NSString(string: path).expandingTildeInPath
-        var destURL: URL = URL(fileURLWithPath: destPath)
-        destURL.appendPathComponent(url.lastPathComponent, isDirectory: false)
-        print(destURL.path)
-        
-        try? FileManager.default.copyItem(atPath: url.path, toPath: destURL.path)
-        
-        let task = Process()
-        task.launchPath = "/Applications/HP Prime.app/Contents/MacOS/HP Prime"
-        task.arguments = [url.path]
-        task.launch()
     }
     
     // MARK: -
@@ -735,15 +733,23 @@ class ViewController: NSViewController, NSTextViewDelegate {
             }
         }
         
-        if let item = mainMenu.item(withTitle: "Project")?.submenu?.item(withTitle: "Build") {
-            if currentFileURL?.pathExtension == "prgm+" || currentFileURL?.pathExtension == "ppl+" {
-                item.action = #selector(build)
-            } else {
-                item.action = nil
+        if let item = mainMenu.item(withTitle: "Project")?.submenu?.item(withTitle: "Run") {
+            item.action = nil
+            if let url = currentFileURL,
+               url.pathExtension == "prgm+" || url.pathExtension == "ppl+" {
+                item.action = #selector(run)
             }
         }
         
-        if let item = mainMenu.item(withTitle: "Project")?.submenu?.item(withTitle: "Export to HP Prime Emulator") {
+        if let item = mainMenu.item(withTitle: "Project")?.submenu?.item(withTitle: "Build") {
+            item.action = nil
+            if let url = currentFileURL,
+               url.pathExtension == "prgm+" || url.pathExtension == "ppl+" {
+                item.action = #selector(build)
+            }
+        }
+        
+        if let item = mainMenu.item(withTitle: "Project")?.submenu?.item(withTitle: "Run Without Building") {
             item.action = nil
             if let url = currentFileURL?.deletingPathExtension().appendingPathExtension("hpprgm") {
                 if FileManager.default.fileExists(atPath: url.path) {

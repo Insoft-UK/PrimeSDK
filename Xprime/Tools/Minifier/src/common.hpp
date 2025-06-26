@@ -33,7 +33,6 @@
 #include <ostream>
 #include <fstream>
 
-#include "singleton.hpp"
 
 enum class MessageType {
     Warning,

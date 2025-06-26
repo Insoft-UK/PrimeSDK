@@ -2,7 +2,7 @@
 
 #define COPYWRITE "Copyright (c) 2023-2025 Insoft. All rights reserved."
 
-MyApp()
+MyApp(a,b)
 begin
   resister := {
   {

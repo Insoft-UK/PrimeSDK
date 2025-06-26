@@ -30,11 +30,12 @@
 #include <cstring>
 #include <iomanip>
 #include <unordered_set>
+#include <list>
 #include "../../PrimePlus/src/utf.hpp"
 
 #include <sys/time.h>
 
-#include "singleton.hpp"
+//#include "singleton.hpp"
 #include "common.hpp"
 
 #include "../version_code.h"
@@ -390,6 +391,21 @@ std::string reduceMultipleSpaces(const std::string& input) {
     return oss.str();
 }
 
+std::string removeBlankLines(const std::string& input) {
+    std::istringstream iss(input);
+    std::ostringstream oss;
+    std::string line;
+
+    while (std::getline(iss, line)) {
+        // Check if the line has non-whitespace characters
+        if (line.find_first_not_of(" \t\r") != std::string::npos) {
+            oss << line << '\n';
+        }
+    }
+
+    return oss.str();
+}
+
 std::string removeNewlineAfterSemicolon(const std::string& input) {
     std::string output;
     size_t len = input.length();
@@ -428,6 +444,149 @@ std::string removeNewlineBeforeSymbols(const std::string& input) {
     }
 
     return output;
+}
+
+std::list<std::string> extractPythonBlocks(const std::string& str) {
+    std::list<std::string> blocks;
+    const std::string startTag = "#PYTHON";
+    const std::string endTag = "#END";
+    
+    size_t pos = 0;
+
+    while (true) {
+        size_t start = str.find(startTag, pos);
+        if (start == std::string::npos)
+            break;
+
+        start += startTag.length();  // move past the #PYTHON tag
+
+        size_t end = str.find(endTag, start);
+        if (end == std::string::npos)
+            break;  // no matching #END, so stop
+
+        blocks.push_back(str.substr(start, end - start));
+        pos = end + endTag.length();  // move past this #END
+    }
+
+    return blocks;
+}
+
+
+std::string blankOutPythonBlocks(const std::string& str) {
+    std::string result;
+    const std::string startTag = "#PYTHON";
+    const std::string endTag = "#END";
+    
+    size_t pos = 0;
+
+    while (pos < str.length()) {
+        size_t start = str.find(startTag, pos);
+
+        if (start == std::string::npos) {
+            result.append(str, pos, str.length() - pos);
+            break;
+        }
+
+        // Append everything before #PYTHON
+        result.append(str, pos, start - pos);
+
+        size_t end = str.find(endTag, start + startTag.length());
+        if (end == std::string::npos) {
+            // No matching #END — treat rest as normal text
+            result.append(str, start, str.length() - start);
+            break;
+        }
+
+        // Keep the #PYTHON and #END markers, but blank out in between
+        result += startTag;
+        result.append(end - (start + startTag.length()), ' ');
+        result += endTag;
+
+        pos = end + endTag.length();
+    }
+
+    return result;
+}
+
+std::string restorePythonBlocks(const std::string& str, std::list<std::string>& blocks) {
+    if (blocks.empty()) return str;
+
+    const std::string startTag = "#PYTHON";
+    const std::string endTag = "#END";
+
+    std::string result;
+    size_t pos = 0;
+
+    while (pos < str.size()) {
+        size_t start = str.find(startTag, pos);
+        if (start == std::string::npos) {
+            result.append(str, pos, str.size() - pos);  // append rest
+            break;
+        }
+
+        // Append text before #PYTHON
+        result.append(str, pos, start - pos);
+
+        size_t end = str.find(endTag, start + startTag.length());
+        if (end == std::string::npos || blocks.empty()) {
+            // No matching #END or no block left — append rest
+            result.append(str, start, str.size() - start);
+            break;
+        }
+
+        // Append #PYTHON
+        result.append(str, start, startTag.length());
+
+        // Append original block content
+        result.append(blocks.front());
+        blocks.pop_front();
+
+        // Append #END
+        result.append(str, end, endTag.length());
+
+        pos = end + endTag.length();
+    }
+
+    return result;
+}
+
+
+std::string separatePythonMarkers(const std::string& input) {
+    std::istringstream iss(input);
+    std::ostringstream oss;
+    std::string line;
+
+    const std::string markers[] = {"#PYTHON", "#END"};
+
+    while (std::getline(iss, line)) {
+        size_t pos = 0;
+
+        while (pos < line.size()) {
+            bool foundMarker = false;
+            for (const std::string& marker : markers) {
+                size_t markerPos = line.find(marker, pos);
+                if (markerPos != std::string::npos) {
+                    // Add any content before the marker (if any) as a separate line
+                    if (markerPos > pos) {
+                        oss << line.substr(pos, markerPos - pos) << '\n';
+                    }
+                    // Add the marker as its own line
+                    oss << marker << '\n';
+                    pos = markerPos + marker.length();
+                    foundMarker = true;
+                    break;
+                }
+            }
+
+            if (!foundMarker) {
+                // No more markers on this line, output the rest
+                oss << line.substr(pos) << '\n';
+                break;
+            }
+        }
+    }
+
+    return oss.str();
 }
 
 /**
@@ -616,8 +775,6 @@ std::string fixUnaryMinus(const std::string& input) {
     return output;
 }
 
-
-
 static bool is_utf16(const std::string& filepath) {
     std::ifstream is;
     is.open(filepath, std::ios::in | std::ios::binary);
@@ -631,215 +788,6 @@ static bool is_utf16(const std::string& filepath) {
     is.close();
     
     return byte_order_mark == 0xFEFF;
-}
-
-// MARK: - Minifying And Writing
-
-std::string minifieLine(const std::string& str) {
-    std::regex re;
-    std::smatch match;
-    std::ifstream infile;
-    std::string result = str;
-    
-    Singleton *singleton = Singleton::shared();
-    
-    static int globalVariableAliasCount = -1, localVariableAliasCount = -1, functionAliasCount = -1;
-    
-    
-    
-    auto strings = preserveStrings(result);
-    result = blankOutStrings(result);
-    
-    // Remove any comments.
-    size_t pos = result.find("//");
-    if (pos != std::string::npos) {
-        result.resize(pos);
-    }
-    
-    result = replaceTabsWithSpaces(result);
-    result = reduceMultipleSpaces(result);
-    
-    // Remove any leading white spaces before or after.
-    trim(result);
-    
-    if (result.length() < 1) {
-        result = std::string("");
-        return result;
-    }
-    
-    result = cleanWhitespace(result);
-    
-    if (result.find("#pragma ") != std::string::npos) {
-        return result + '\n';
-    }
-    
-    result = replaceOperators(result);
-    
-    result = capitalizeWords(result, {
-        "begin", "end", "return", "kill", "if", "then", "else", "xor", "or", "and", "not",
-        "case", "default", "iferr", "ifte", "for", "from", "step", "downto", "to", "do",
-        "while", "repeat", "until", "break", "continue", "export", "const", "local", "key"
-    });
-    result = capitalizeWords(result, {"log", "cos", "sin", "tan", "result", "min", "max"});
-    result = replaceWords(result, {"FROM"}, ":=");
-    result = fixUnaryMinus(result);
-    result = removeNewlineAfterSemicolon(result);
-    
-    
-    re = std::regex(R"(\b(?:BEGIN|IF|CASE|FOR|WHILE|REPEAT|FOR|WHILE|REPEAT)\b)", std::regex_constants::icase);
-    for(auto it = std::sregex_iterator(result.begin(), result.end(), re); it != std::sregex_iterator(); ++it) {
-        singleton->nestingLevel++;
-        singleton->scope = Singleton::Scope::Local;
-    }
-    
-    re = std::regex(R"(\b(?:END|UNTIL)\b)", std::regex_constants::icase);
-    for(auto it = std::sregex_iterator(result.begin(), result.end(), re); it != std::sregex_iterator(); ++it) {
-        singleton->nestingLevel--;
-        if (0 == singleton->nestingLevel) {
-            singleton->scope = Singleton::Scope::Global;
-            singleton->aliases.removeAllLocalAliases();
-            localVariableAliasCount = -1;
-        }
-    }
-    
-    Aliases::TIdentity identity;
-    
-    if (singleton->scope == Singleton::Scope::Global) {
-        identity.scope = Aliases::Scope::Global;
-        
-        // Function
-        re = R"(^([A-Za-z]\w*)\(([\w,]*)\);?$)";
-        if (regex_search(result, match, re)) {
-            if (!preserveFunctionNames) {
-                identity.type = Aliases::Type::Function;
-                identity.identifier = match.str(1);
-                identity.real = "f" + base10ToBase32(++functionAliasCount);
-                singleton->aliases.append(identity);
-            }
-            
-            std::string s = match.str(2);
-            int count = -1;
-            identity.scope = Aliases::Scope::Local;
-            identity.type = Aliases::Type::Property;
-            re = R"([A-Za-z]\w*)";
-            for(auto it = std::sregex_iterator(s.begin(), s.end(), re); it != std::sregex_iterator(); ++it) {
-                if (it->str().length() < 3) continue;
-                identity.identifier = it->str();
-                identity.real = "p" + base10ToBase32(++count);
-                
-                if (result.back() == ';') {
-                    result = regex_replace(result, std::regex(identity.identifier), identity.real);
-                } else {
-                    if (!singleton->aliases.exists(identity)) {
-                        singleton->aliases.append(identity);
-                    }
-                }
-            }
-            identity.scope = Aliases::Scope::Global;
-        }
-        
-        
-        // Global Variable
-        re = R"(\b(?:LOCAL )?([A-Za-z]\w*)(?::=.*);)";
-        if (regex_search(result, match, re)) {
-            if (match.str(1).length() > 3) {
-                identity.type = Aliases::Type::Variable;
-                identity.identifier = match.str(1);
-                identity.real = "g" + base10ToBase32(++globalVariableAliasCount);
-                
-                singleton->aliases.append(identity);
-            }
-        }
-    }
-    
-    if (singleton->scope == Singleton::Scope::Local) {
-        identity.scope = Aliases::Scope::Local;
-        
-        // LOCAL
-        if (regex_search(result, match, std::regex(R"(\bLOCAL (?:[A-Za-z]\w*[,;])+)", std::regex_constants::icase))) {
-            std::string matched = match.str();
-            re = R"([A-Za-z]\w*(?=[,;]))";
-            
-            for(auto it = std::sregex_iterator(matched.begin(), matched.end(), re); it != std::sregex_iterator(); ++it) {
-                if (it->str().length() < 3) continue;
-                identity.type = Aliases::Type::Variable;
-                identity.identifier = it->str();
-                identity.real = "v" + base10ToBase32(++localVariableAliasCount);
-                
-                singleton->aliases.append(identity);
-            }
-        }
-        
-        if (regex_search(result, match, std::regex(R"(\bLOCAL ([A-Za-z]\w*)(?::=))", std::regex_constants::icase))) {
-            identity.type = Aliases::Type::Variable;
-            identity.identifier = match.str(1);
-            identity.real = "v" + base10ToBase32(++localVariableAliasCount);
-            
-            singleton->aliases.append(identity);
-        }
-        
-        result = regex_replace(result, std::regex(R"(\(\))"), "");
-        
-        while (regex_search(result, match, std::regex(R"(^[A-Za-z]\w*:=[^;]*;)"))) {
-            std::string matched = match.str();
-            
-            /*
-             eg. v1:=v2+v4;
-             Group  0 v1:=v2+v4;
-                    1 v1
-                    2 v2+v4
-            */
-            re = R"(([A-Za-z]\w*):=(.*);)";
-            auto it = std::sregex_token_iterator {
-                matched.begin(), matched.end(), re, {2, 1}
-            };
-            if (it != std::sregex_token_iterator()) {
-                std::stringstream ss;
-                ss << *it++ << "▶" << *it << ";";
-                result = result.replace(match.position(), match.length(), ss.str());
-            }
-        }
-    }
-    
-    result = singleton->aliases.resolveAliasesInText(result);
-   
-    result = restoreStrings(result, strings);
-    
-//    result = regex_replace(result, std::regex(R"([^;,\[\]\{\}]$)"), "$0\n");
-//    if (result.at(result.length() - 1) == ';') result += '\n';
-    result = regex_replace(result, std::regex(R"([a-zA-Z]$)"), "$0\n");
-    return result;
-}
-
-bool isPythonBlock(const std::string& str) {
-    return str.find("#PYTHON") != std::string::npos;
-}
-
-std::string minifieAllLines(std::istringstream& iss)
-{
-    std::string str;
-    std::string result;
-    
-    while(getline(iss, str)) {
-        if (isPythonBlock(str)) {
-            str = cleanWhitespace(str);
-            result += str + '\n';
-            Singleton::shared()->incrementLineNumber();
-            while(getline(iss, str)) {
-                result += str + '\n';
-                if (str.find("#END") != std::string::npos) {
-                    break;
-                }
-                Singleton::shared()->incrementLineNumber();
-            }
-        } else {
-            result.append(minifieLine(str));
-        }
-        
-        Singleton::shared()->incrementLineNumber();
-    }
-    
-    return result;
 }
 
 std::string minifiePrgm(std::ifstream &infile)
@@ -860,32 +808,52 @@ std::string minifiePrgm(std::ifstream &infile)
     } else {
         str = utf::to_utf8(wstr);
     }
-
     
-    std::regex re;
-
-    /*
-     Pre-correct any `THEN`, `DO` or `REPEAT` statements that are followed by other statements on the
-     same line by moving the additional statement(s) to the next line. This ensures that the code
-     is correctly processed, as it separates the conditional or loop structure from the subsequent
-     statements for proper handling.
-     */
-    re = R"(\b(THEN|DO|REPEAT)\b)";
-    str = regex_replace(str, re, "$0\n");
+    auto python = extractPythonBlocks(str);
+    str = blankOutPythonBlocks(str);
     
-    // Make sure all `LOCAL` are on seperate lines.
-    re = R"(\b(LOCAL|CASE|IF)\b)";
-    str = regex_replace(str, re, "\n$0");
-
-    re = R"(\bEND;)";
-    str = regex_replace(str, re, "\n$0");
+    auto strings = preserveStrings(str);
+    str = blankOutStrings(str);
     
+    str = replaceTabsWithSpaces(str);
+    str = reduceMultipleSpaces(str);
+    str = removeBlankLines(str);
+    str = cleanWhitespace(str);
+    str = replaceOperators(str);
+    
+    str = capitalizeWords(str, {
+        "begin", "end", "return", "kill", "if", "then", "else", "xor", "or", "and", "not",
+        "case", "default", "iferr", "ifte", "for", "from", "step", "downto", "to", "do",
+        "while", "repeat", "until", "break", "continue", "export", "const", "local", "key"
+    });
+    str = capitalizeWords(str, {"log", "cos", "sin", "tan", "result", "min", "max"});
+    str = replaceWords(str, {"FROM"}, ":=");
+    str = fixUnaryMinus(str);
     str = removeNewlineAfterSemicolon(str);
     str = removeNewlineBeforeSymbols(str);
     
-    std::istringstream iss;
-    iss.str(str);
-    return minifieAllLines(iss);
+    str = restoreStrings(str, strings);
+    str = separatePythonMarkers(str);
+    str = restorePythonBlocks(str, python);
+    
+
+    std::regex re(R"((\bEXPORT )?([a-zA-Z]\w*)\([a-zA-Z,]*\)\s*(?=BEGIN\b))");
+    std::sregex_iterator begin(str.begin(), str.end(), re);
+    std::sregex_iterator end;
+    std::string result = str;
+    int fn = 0;
+    
+    for (auto it = begin; it != end; ++it) {
+        std::smatch match = *it;
+
+        std::string export_kw = match[1].str();  // optional "EXPORT "
+        std::string function_name = match[2].str();
+        
+        if (export_kw.empty() && !preserveFunctionNames) {
+            result = replaceWords(result, {function_name}, "fn" + base10ToBase32(fn++));
+        }
+    }
+    return result;
 }
 
 
@@ -1025,9 +993,9 @@ int main(int argc, char **argv) {
         return 0;
     }
     
-    if (!Singleton::shared()->aliases.descendingOrder && Singleton::shared()->aliases.verbose) {
-        Singleton::shared()->aliases.dumpIdentities();
-    }
+//    if (!Singleton::shared()->aliases.descendingOrder && Singleton::shared()->aliases.verbose) {
+//        Singleton::shared()->aliases.dumpIdentities();
+//    }
     
     // Percentage Reduction = (Original Size - New Size) / Original Size * 100
     std::ifstream::pos_type original_size = file_size(in_filename);

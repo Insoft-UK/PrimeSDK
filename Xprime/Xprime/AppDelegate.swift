@@ -83,9 +83,49 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     @IBAction func insertTemplate(_ sender: Any) {
+        func loadTextFile(at url: URL) -> String? {
+            func detectEncoding(of url: URL) -> String.Encoding? {
+                do {
+                    let data = try Data(contentsOf: url)
+                    
+                    if data.starts(with: [0xEF, 0xBB, 0xBF]) {
+                        return .utf8
+                    }
+                    if data.starts(with: [0xFF, 0xFE]) {
+                        return .utf16LittleEndian
+                    }
+                    if data.starts(with: [0xFE, 0xFF]) {
+                        return .utf16BigEndian
+                    }
+                    
+                    // No BOM — assume UTF-8 as default fallback
+                    return .utf8
+                } catch {
+                    return nil
+                }
+            }
+            
+            guard let encoding = detectEncoding(of: url) else { return nil }
+            
+            do {
+                let data = try Data(contentsOf: url)
+                let string = String(data: data, encoding: encoding) ?? ""
+                
+                return string
+            } catch {
+            }
+            
+            return nil
+        }
+        
         if let vc = NSApp.mainWindow?.contentViewController as? ViewController {
             if let menuItem = sender as? NSMenuItem {
-                vc.insertTemplate("\(traceMenuItem(menuItem))/\(menuItem.title)")
+                let url = Bundle.main.bundleURL.appendingPathComponent("Contents/Template/\(traceMenuItem(menuItem))/\(menuItem.title).prgm")
+                
+                if let contents = loadTextFile(at: url) {
+                    vc.registerTextViewUndo(actionName: "Insert Template")
+                    vc.insertText(contents)
+                }
             }
         }
     }

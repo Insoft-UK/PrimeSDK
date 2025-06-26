@@ -39,6 +39,14 @@ BEGIN
   RETURN {   IP(r * 255), IP(g * 255), IP(v * 255)   };
 END;
 
+#PYTHON
+def gf():
+  return 0
+a=9
+#END
+
+
+
 EXPORT HSLtoHSV(h, s, l)
 BEGIN
   LOCAL v;

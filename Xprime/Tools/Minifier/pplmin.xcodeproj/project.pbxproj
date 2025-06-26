@@ -7,11 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1308E8F62AC48F20001EEC82 /* singleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1308E8F42AC48F20001EEC82 /* singleton.cpp */; };
 		137DBFEA2E06F08400657C42 /* utf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 137DBFE92E06F08400657C42 /* utf.cpp */; };
 		137FB2892A03B06500AEFDF2 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 137FB2882A03B06500AEFDF2 /* main.cpp */; };
 		13C21F9D2A783D8D0067CE22 /* common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13C21F9B2A783D8D0067CE22 /* common.cpp */; };
-		13F1D8832AB6185400EF623A /* aliases.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 13F1D8812AB6185400EF623A /* aliases.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -27,8 +25,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1308E8F42AC48F20001EEC82 /* singleton.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = singleton.cpp; sourceTree = "<group>"; };
-		1308E8F52AC48F20001EEC82 /* singleton.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = singleton.hpp; sourceTree = "<group>"; };
 		13166E852BA12E5E00D1E6F0 /* examples */ = {isa = PBXFileReference; lastKnownFileType = folder; path = examples; sourceTree = "<group>"; };
 		1351CC552BFC0E180073FEDF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		136E644E2D35A99C0054E0CC /* version.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = version.txt; sourceTree = "<group>"; };
@@ -40,8 +36,6 @@
 		1389CFED2CAA02A7008FDBEB /* timer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = timer.hpp; sourceTree = "<group>"; };
 		13C21F9B2A783D8D0067CE22 /* common.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = common.cpp; sourceTree = "<group>"; };
 		13C21F9C2A783D8D0067CE22 /* common.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = common.hpp; sourceTree = "<group>"; };
-		13F1D8812AB6185400EF623A /* aliases.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = aliases.cpp; sourceTree = "<group>"; };
-		13F1D8822AB6185400EF623A /* aliases.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = aliases.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,32 +74,12 @@
 			isa = PBXGroup;
 			children = (
 				137FB2882A03B06500AEFDF2 /* main.cpp */,
-				13C21F9E2A783E820067CE22 /* Classes */,
 				13C21F9C2A783D8D0067CE22 /* common.hpp */,
 				13C21F9B2A783D8D0067CE22 /* common.cpp */,
-				1308E8F52AC48F20001EEC82 /* singleton.hpp */,
-				1308E8F42AC48F20001EEC82 /* singleton.cpp */,
 				1389CFED2CAA02A7008FDBEB /* timer.hpp */,
 				137DBFE92E06F08400657C42 /* utf.cpp */,
 			);
 			path = src;
-			sourceTree = "<group>";
-		};
-		13C21F9E2A783E820067CE22 /* Classes */ = {
-			isa = PBXGroup;
-			children = (
-				13C21F9F2A783EA20067CE22 /* include */,
-				13F1D8812AB6185400EF623A /* aliases.cpp */,
-			);
-			name = Classes;
-			sourceTree = "<group>";
-		};
-		13C21F9F2A783EA20067CE22 /* include */ = {
-			isa = PBXGroup;
-			children = (
-				13F1D8822AB6185400EF623A /* aliases.hpp */,
-			);
-			name = include;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -167,9 +141,7 @@
 			files = (
 				137FB2892A03B06500AEFDF2 /* main.cpp in Sources */,
 				13C21F9D2A783D8D0067CE22 /* common.cpp in Sources */,
-				13F1D8832AB6185400EF623A /* aliases.cpp in Sources */,
 				137DBFEA2E06F08400657C42 /* utf.cpp in Sources */,
-				1308E8F62AC48F20001EEC82 /* singleton.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
