@@ -4,5 +4,6 @@ xcuserdata/
 *.pkg
 ignore
 build
+examples
 Nightly\ Build
 Package\ Installer
