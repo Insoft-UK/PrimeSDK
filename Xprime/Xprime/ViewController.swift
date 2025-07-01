@@ -95,6 +95,8 @@ class ViewController: NSViewController, NSTextViewDelegate {
     var grammar: Grammar?
     var tempDirectoryURL: URL?
     
+    var minifier = false
+    
     var colors: [String: NSColor] = [
         "Keywords": .white,
         "Operators": .white,
@@ -640,6 +642,32 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
+    func embedFont() {
+        guard let tempDirectoryURL = self.tempDirectoryURL else {
+            return
+        }
+        
+        let openPanel = NSOpenPanel()
+        let extensions = ["h"]
+        let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
+        
+        openPanel.allowedContentTypes = contentTypes
+        openPanel.allowsMultipleSelection = false
+        openPanel.canChooseDirectories = false
+        
+        openPanel.begin { [weak self] result in
+            guard result == .OK, let url = openPanel.url else { return }
+            
+            
+            PrimeSDK.pplfont(i: url, o: tempDirectoryURL.appendingPathComponent("font.prgm"))
+            if let contents = self?.loadTextFile(at: tempDirectoryURL.appendingPathComponent("font.prgm")) {
+                self?.registerTextViewUndo(actionName: "Embed Adafruit GFX Font")
+                self?.insertText(contents)
+            }
+            
+        }
+    }
+    
     @objc private func exportAsHpprgm() {
         guard let url = currentFileURL else {
             return
@@ -685,7 +713,9 @@ class ViewController: NSViewController, NSTextViewDelegate {
         if url.pathExtension == "prgm+" || url.pathExtension == "ppl+" {
             PrimeSDK.pplplus(i: url, o: prgm)
         }
-        PrimeSDK.pplmin(i: prgm, o: prgm)
+        if minifier {
+            PrimeSDK.pplmin(i: prgm, o: prgm)
+        }
         PrimeSDK.hpprgm(i: prgm)
         
         updateMainMenuActions()

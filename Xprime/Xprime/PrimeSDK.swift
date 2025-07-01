@@ -86,6 +86,20 @@ class PrimeSDK {
         process.waitUntilExit()
     }
     
+    class func pplfont(i infile: URL, o outfile: URL) {
+        let toolURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/bin/pplfont")
+        
+        let process = Process()
+        process.executableURL = toolURL
+        process.arguments = [infile.path, "-o", outfile.path, "--ppl"]
+        
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        
+        try? process.run()
+        process.waitUntilExit()
+    }
+    
     class func pplref(i infile: URL, o outfile: URL? = nil) {
         let process = Process()
         

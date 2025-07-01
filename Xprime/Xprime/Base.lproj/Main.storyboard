@@ -87,6 +87,12 @@
                                                             <action selector="embedImage:" target="Voe-Tx-rLC" id="3el-rh-mlI"/>
                                                         </connections>
                                                     </menuItem>
+                                                    <menuItem title="Embed Adafruit GFX Font" id="Lc7-JR-4Uo">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                        <connections>
+                                                            <action selector="embedFont:" target="Voe-Tx-rLC" id="6Lf-t5-IXs"/>
+                                                        </connections>
+                                                    </menuItem>
                                                 </items>
                                             </menu>
                                         </menuItem>
@@ -547,6 +553,18 @@
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="insertCode:" target="Voe-Tx-rLC" id="js5-zO-08x"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Install Libraries into HP Connectivity Kit" id="8sY-jt-YL6">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="installLibraries:" target="Voe-Tx-rLC" id="XAJ-Ks-g7I"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Minifie HP Prime Programming Code" id="8hU-o5-lvv">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="minifier:" target="Voe-Tx-rLC" id="fwH-gJ-gks"/>
                                             </connections>
                                         </menuItem>
                                     </items>

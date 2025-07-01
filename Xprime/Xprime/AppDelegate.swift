@@ -26,7 +26,7 @@ import Cocoa
 class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak var mainMenu: NSMenu!
     let tempManager = TempFileManager()
- 
+    
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
         NSApp.appearance = NSAppearance(named: .darkAqua)
@@ -36,49 +36,83 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         UserDefaults.standard.set(false, forKey: "NSAutomaticQuoteSubstitutionEnabled")
         UserDefaults.standard.set(false, forKey: "NSAutomaticDashSubstitutionEnabled")
         UserDefaults.standard.synchronize()
-        
-//        guard let mainMenu = NSApp.mainMenu else { return }
-//        
-        
     }
-
+    
     func applicationWillTerminate(_ aNotification: Notification) {
         // Insert code here to tear down your application
         tempManager.cleanup()
     }
-
+    
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
         return true
     }
     
-
+    
     @IBAction func openDocument(_ sender: Any) {
         if let vc = NSApp.mainWindow?.contentViewController as? ViewController {
             vc.openFile()
         }
     }
-
+    
     @IBAction func saveDocument(_ sender: Any) {
         if let vc = NSApp.mainWindow?.contentViewController as? ViewController {
             vc.saveFile()
         }
     }
-
+    
     @IBAction func saveDocumentAs(_ sender: Any) {
         if let vc = NSApp.mainWindow?.contentViewController as? ViewController {
             vc.saveFileAs()
         }
     }
     
-    @IBAction func embedImage(_ sender: Any) {
-        if let vc = NSApp.mainWindow?.contentViewController as? ViewController {
-            vc.embedImage()
+    @IBAction func installLibraries(_ sender: Any) {
+        guard let vc = NSApp.mainWindow?.contentViewController as? ViewController else { return }
+        
+        guard let tmpURL = vc.tempDirectoryURL else { return }
+        let destURL = URL(fileURLWithPath: NSString(string: "~/Documents/HP Connectivity Kit/Content").expandingTildeInPath)
+        let srcURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/prgm")
+        
+        let names: [String] = ["ColorSpace", "HP", "GROB"]
+        for name in names {
+            if vc.minifier == true {
+                PrimeSDK.pplmin(i: srcURL.appendingPathComponent("\(name).prgm"), o: tmpURL.appendingPathComponent("\(name).prgm"))
+                PrimeSDK.hpprgm(i: tmpURL.appendingPathComponent("\(name).prgm"), o: destURL.appendingPathComponent("\(name).hpprgm"))
+            } else {
+                PrimeSDK.hpprgm(i: srcURL.appendingPathComponent("\(name).prgm"), o: destURL.appendingPathComponent("\(name).hpprgm"))
+            }
+//            PrimeSDK.hpprgm(i: tmpURL.appendingPathComponent("\(name).prgm"))
+//            try? FileManager.default.copyItem(atPath: tmpURL.appendingPathComponent("\(name).hpprgm").path, toPath: destURL.appendingPathComponent("\(name).hpprgm").path)
         }
+        
+        
+    }
+    
+    @IBAction func embedImage(_ sender: Any) {
+        guard let vc = NSApp.mainWindow?.contentViewController as? ViewController else { return }
+        vc.embedImage()
+    }
+    
+    @IBAction func embedFont(_ sender: Any) {
+        guard let vc = NSApp.mainWindow?.contentViewController as? ViewController else { return }
+        vc.embedFont()
     }
     
     @IBAction func insertCode(_ sender: Any) {
-        if let vc = NSApp.mainWindow?.contentViewController as? ViewController {
-            vc.insertCode()
+        guard let vc = NSApp.mainWindow?.contentViewController as? ViewController else { return }
+        vc.insertCode()
+    }
+    
+    @IBAction func minifier(_ sender: Any) {
+        guard let vc = NSApp.mainWindow?.contentViewController as? ViewController else { return }
+        guard let menuItem = sender as? NSMenuItem else { return }
+        
+        if menuItem.state == .on {
+            menuItem.state = .off
+            vc.minifier = false
+        } else {
+            menuItem.state = .on
+            vc.minifier = true
         }
     }
     
@@ -133,7 +167,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func traceMenuItem(_ item: NSMenuItem) -> String {
         if let parentMenu = item.menu {
             print("Item '\(item.title)' is in menu: \(parentMenu.title)")
-
+            
             // Try to find the parent NSMenuItem that links to this menu
             for superitem in parentMenu.supermenu?.items ?? [] {
                 if superitem.submenu == parentMenu {
