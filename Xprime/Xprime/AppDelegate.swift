@@ -81,11 +81,25 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             } else {
                 PrimeSDK.hpprgm(i: srcURL.appendingPathComponent("\(name).prgm"), o: destURL.appendingPathComponent("\(name).hpprgm"))
             }
-//            PrimeSDK.hpprgm(i: tmpURL.appendingPathComponent("\(name).prgm"))
-//            try? FileManager.default.copyItem(atPath: tmpURL.appendingPathComponent("\(name).hpprgm").path, toPath: destURL.appendingPathComponent("\(name).hpprgm").path)
+        }
+    }
+    
+    @IBAction func installFonts(_ sender: Any) {
+        guard let vc = NSApp.mainWindow?.contentViewController as? ViewController else { return }
+       
+        let destURL = URL(fileURLWithPath: NSString(string: "~/Documents/HP Connectivity Kit/Content").expandingTildeInPath)
+        let srcURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/prgm/fonts")
+        var contents: String = ""
+        
+        for file in ["CGA.prgm", "EGA.prgm", "VGA.prgm", "BBC.prgm", "ARCADE.prgm", "HD44780.prgm"] {
+            if let prgm = vc.loadPrgmFile(srcURL.appendingPathComponent(file)) {
+                contents.append(prgm)
+            }
         }
         
-        
+        try? contents.write(to: destURL.appendingPathComponent("Fonts.prgm"), atomically: true, encoding: .utf16LittleEndian)
+        PrimeSDK.hpprgm(i: destURL.appendingPathComponent("Fonts.prgm"), o: destURL.appendingPathComponent("Fonts.hpprgm"))
+        try? FileManager.default.removeItem(at: destURL.appendingPathComponent("Fonts.prgm"))
     }
     
     @IBAction func embedImage(_ sender: Any) {
@@ -117,50 +131,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     @IBAction func insertTemplate(_ sender: Any) {
-        func loadTextFile(at url: URL) -> String? {
-            func detectEncoding(of url: URL) -> String.Encoding? {
-                do {
-                    let data = try Data(contentsOf: url)
-                    
-                    if data.starts(with: [0xEF, 0xBB, 0xBF]) {
-                        return .utf8
-                    }
-                    if data.starts(with: [0xFF, 0xFE]) {
-                        return .utf16LittleEndian
-                    }
-                    if data.starts(with: [0xFE, 0xFF]) {
-                        return .utf16BigEndian
-                    }
-                    
-                    // No BOM — assume UTF-8 as default fallback
-                    return .utf8
-                } catch {
-                    return nil
-                }
-            }
-            
-            guard let encoding = detectEncoding(of: url) else { return nil }
-            
-            do {
-                let data = try Data(contentsOf: url)
-                let string = String(data: data, encoding: encoding) ?? ""
-                
-                return string
-            } catch {
-            }
-            
-            return nil
-        }
+        guard let vc = NSApp.mainWindow?.contentViewController as? ViewController else { return }
+        guard let menuItem = sender as? NSMenuItem else { return }
         
-        if let vc = NSApp.mainWindow?.contentViewController as? ViewController {
-            if let menuItem = sender as? NSMenuItem {
-                let url = Bundle.main.bundleURL.appendingPathComponent("Contents/Template/\(traceMenuItem(menuItem))/\(menuItem.title).prgm")
-                
-                if let contents = loadTextFile(at: url) {
-                    vc.registerTextViewUndo(actionName: "Insert Template")
-                    vc.insertText(contents)
-                }
-            }
+        let url = Bundle.main.bundleURL.appendingPathComponent("Contents/Template/\(traceMenuItem(menuItem))/\(menuItem.title).prgm")
+        
+        if let contents = vc.loadPrgmFile(url) {
+            vc.registerTextViewUndo(actionName: "Template")
+            vc.insertString(contents)
+            vc.applySyntaxHighlighting()
         }
     }
     

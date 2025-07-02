@@ -1,0 +1,8 @@
+#pragma mode( separator(.,;) integer(h64) assignment(=) indentation(1) operators(▶,*,/,-,+) )
+
+#define COPYWRITE "Copyright (c) 2023-2025 Insoft. All rights reserved."
+
+MyApp()
+begin
+    
+end;

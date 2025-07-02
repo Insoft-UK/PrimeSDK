@@ -300,7 +300,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
 
     // MARK: - Syntax Highlighting
     
-    private func applySyntaxHighlighting() {
+    func applySyntaxHighlighting() {
         guard let textStorage = textView.textStorage else { return }
         
         let text = textView.string as NSString
@@ -422,7 +422,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         undoManager.setActionName(actionName)
     }
     
-    func registerTextViewUndo(actionName: String = "Edit") {
+    func registerTextViewUndo(actionName: String = "") {
         registerUndo(target: textView,
                      oldValue: self.textView.string,
                      keyPath: \NSTextView.string,
@@ -451,7 +451,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    func insertText(_ string: String) {
+    func insertString(_ string: String) {
         if let textView = textView, let selectedRange = textView.selectedRanges.first as? NSRange {
             
             if let textStorage = textView.textStorage {
@@ -459,13 +459,18 @@ class ViewController: NSViewController, NSTextViewDelegate {
                 textView.setSelectedRange(NSRange(location: selectedRange.location + string.count, length: 0))
             }
         }
-        
-        applySyntaxHighlighting()
     }
     
-    // MARK: - File Handling
+    func stripPragma(_ input: String) -> String {
+        let output = input
+            .components(separatedBy: .newlines)
+            .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("#pragma") }
+            .joined(separator: "\n")
+        
+        return output
+    }
     
-    private func detectEncoding(of url: URL) -> String.Encoding? {
+    func detectEncoding(of url: URL) -> String.Encoding? {
         do {
             let data = try Data(contentsOf: url)
             
@@ -486,22 +491,27 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    
-    
-    func loadTextFile(at url: URL) -> String? {
-        guard let encoding = detectEncoding(of: url) else { return nil }
+    func loadPrgmFile(_ url: URL) -> String? {
+        guard let content = try? String(contentsOf: url, encoding: detectEncoding(of: url) ?? .utf16LittleEndian) else { return nil }
         
-        do {
-            let data = try Data(contentsOf: url)
-            let string = String(data: data, encoding: encoding) ?? ""
-            
-            return string
-        } catch {
-            alert("Reading file \(url): \(error)")
-        }
-        
-        return nil
+        return content
     }
+    
+    func loadHpprgmFile(_ url: URL) -> String? {
+        guard let tmpURL = self.tempDirectoryURL, url.pathExtension == "hpprgm" else { return nil }
+        
+        let outURL = tmpURL.appendingPathComponent(url.deletingPathExtension().lastPathComponent + ".prgm")
+        PrimeSDK.hpprgm(i: url, o: outURL)
+        
+        guard let content = try? String(contentsOf: outURL, encoding: .utf16LittleEndian) else { return nil }
+
+        return content
+    }
+    
+    // MARK: - File Handling
+    
+    
+    
     
     func openFile() {
         let openPanel = NSOpenPanel()
@@ -515,7 +525,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         openPanel.begin { [weak self] result in
             guard result == .OK, let url = openPanel.url else { return }
             
-            if let contents = self?.loadTextFile(at: url) {
+            if let contents = self?.loadPrgmFile(url) {
                 self?.textView.string = contents
                 self?.applySyntaxHighlighting()
                 self?.currentFileURL = url
@@ -554,7 +564,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
             guard result == .OK, let url = savePanel.url else { return }
 
             do {
-                try self?.textView.string.write(to: url, atomically: true, encoding: .utf8)
+                try self?.textView.string.write(to: url, atomically: true, encoding: .utf16LittleEndian)
                 if self?.currentFileURL == url {
                     self?.removeRevertToSavedAction()
                 } else {
@@ -584,42 +594,39 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
+    
+    
     func insertCode() {
-        
         let openPanel = NSOpenPanel()
-            let extensions = ["prgm", "prgm+", "ppl", "ppl+", "hpprgm"]
-            let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
-            
+        let extensions = ["prgm", "prgm+", "ppl", "ppl+", "hpprgm"]
+        let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
+        
         openPanel.allowedContentTypes = contentTypes
         openPanel.allowsMultipleSelection = false
         openPanel.canChooseDirectories = false
         
         openPanel.begin { [weak self] result in
-            guard result == .OK, var url = openPanel.url else { return }
+            guard result == .OK, let url = openPanel.url else { return }
             
-            if let tempDirectoryURL = self?.tempDirectoryURL, url.pathExtension == "hpprgm" {
-                PrimeSDK.hpprgm(i: url, o: tempDirectoryURL.appendingPathComponent("code.prgm"))
-                url = tempDirectoryURL.appendingPathComponent("code.prgm")
+            var contents: String?
+            
+            if url.pathExtension == "hpprgm" {
+                contents = self?.loadHpprgmFile(url)
+            } else {
+                contents = self?.loadPrgmFile(url)
             }
             
-            if let contents = self?.loadTextFile(at: url) {
-                if let textView = self?.textView, let selectedRange = textView.selectedRanges.first as? NSRange {
-                    self?.registerTextViewUndo(actionName: "Insert Code")
-                    if let textStorage = textView.textStorage {
-                        textStorage.replaceCharacters(in: selectedRange, with: contents)
-                        textView.setSelectedRange(NSRange(location: selectedRange.location + contents.count, length: 0))
-                    }
-                }
-                
+            if let contents = contents {
+                let output = self?.stripPragma(contents)
+                self?.registerTextViewUndo(actionName: "Insert")
+                self?.insertString(output!)
                 self?.applySyntaxHighlighting()
             }
         }
     }
     
     func embedImage() {
-        guard let tempDirectoryURL = self.tempDirectoryURL else {
-            return
-        }
+        guard let tmpURL = self.tempDirectoryURL else { return }
         
         let openPanel = NSOpenPanel()
         let extensions = ["bmp", "png"]
@@ -632,18 +639,18 @@ class ViewController: NSViewController, NSTextViewDelegate {
         openPanel.begin { [weak self] result in
             guard result == .OK, let url = openPanel.url else { return }
             
-            
-            PrimeSDK.grob(i: url, o: tempDirectoryURL.appendingPathComponent("image.prgm"))
-            if let contents = self?.loadTextFile(at: tempDirectoryURL.appendingPathComponent("image.prgm")) {
-                self?.registerTextViewUndo(actionName: "Embed Image")
-                self?.insertText(contents)
+            let outURL = tmpURL.appendingPathComponent(url.deletingPathExtension().lastPathComponent + ".prgm")
+            PrimeSDK.grob(i: url, o: outURL)
+            if let contents = self?.loadPrgmFile(outURL) {
+                self?.registerTextViewUndo(actionName: "Insert")
+                self?.insertString(contents)
+                self?.applySyntaxHighlighting()
             }
-            
         }
     }
     
     func embedFont() {
-        guard let tempDirectoryURL = self.tempDirectoryURL else {
+        guard let tmpURL = self.tempDirectoryURL else {
             return
         }
         
@@ -658,13 +665,12 @@ class ViewController: NSViewController, NSTextViewDelegate {
         openPanel.begin { [weak self] result in
             guard result == .OK, let url = openPanel.url else { return }
             
-            
-            PrimeSDK.pplfont(i: url, o: tempDirectoryURL.appendingPathComponent("font.prgm"))
-            if let contents = self?.loadTextFile(at: tempDirectoryURL.appendingPathComponent("font.prgm")) {
-                self?.registerTextViewUndo(actionName: "Embed Adafruit GFX Font")
-                self?.insertText(contents)
+            PrimeSDK.pplfont(i: url, o: tmpURL.appendingPathComponent("font.prgm"))
+            if let contents = self?.loadPrgmFile(tmpURL.appendingPathComponent("font.prgm")) {
+                self?.registerTextViewUndo(actionName: "Embeded Adafruit GFX font")
+                self?.insertString(contents)
+                self?.applySyntaxHighlighting()
             }
-            
         }
     }
     
@@ -695,8 +701,8 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
         
         PrimeSDK.pplref(i: url, o: url)
-        if let contents = loadTextFile(at: url) {
-            registerTextViewUndo(actionName: "Reformat All")
+        if let contents = loadPrgmFile(url) {
+            registerTextViewUndo(actionName: "Reformat")
             textView.string = contents
             applySyntaxHighlighting()
         }
@@ -788,7 +794,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
             }
         }
         
-        if let item = mainMenu.item(withTitle: "Project")?.submenu?.item(withTitle: "Reformat All") {
+        if let item = mainMenu.item(withTitle: "Project")?.submenu?.item(withTitle: "Reformat") {
             item.action = nil
             if currentFileURL?.pathExtension == "prgm" || currentFileURL?.pathExtension == "ppl" {
                 item.action = #selector(reformatAll)
