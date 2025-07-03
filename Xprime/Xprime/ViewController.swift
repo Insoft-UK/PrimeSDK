@@ -105,9 +105,10 @@ class ViewController: NSViewController, NSTextViewDelegate {
         "Strings": .white,
         "Comments": .white,
         "Backquotes": .white,
-        "Preprocessor Statements": .white
+        "Preprocessor Statements": .white,
+        "Functions": .white
     ]
-    
+    var editorForegroundColor = NSColor(hex: "#000000")!
     
     var currentFileURL: URL?
     lazy var baseAttributes: [NSAttributedString.Key: Any] = {
@@ -145,7 +146,6 @@ class ViewController: NSViewController, NSTextViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
         textView.delegate = self
         
         textView.smartInsertDeleteEnabled = false
@@ -154,7 +154,6 @@ class ViewController: NSViewController, NSTextViewDelegate {
         textView.isAutomaticTextReplacementEnabled = false
         textView.isAutomaticSpellingCorrectionEnabled = false
         textView.isAutomaticLinkDetectionEnabled = false
-        
         
         // No Wrapping, Horizontal Scroll Enabled
         textView.isHorizontallyResizable = true
@@ -169,13 +168,8 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
         
         textView.enclosingScrollView?.hasHorizontalScroller = true
-        
-        
-        
-        
         textView.typingAttributes[.kern] = 0
         textView.typingAttributes[.ligature] = 0
-        
         textView.isRichText = false
         textView.usesFindPanel = true
         
@@ -198,18 +192,11 @@ class ViewController: NSViewController, NSTextViewDelegate {
             } catch {
                 print("Failed to open file:", error)
             }
-            
-            if let window = self.view.window {
-                window.representedURL = URL(fileURLWithPath: url.path)
-                if let iconButton = window.standardWindowButton(.documentIconButton) {
-                    iconButton.image = NSImage(named: "ppl+")
-                    updateMainMenuActions()
-                    iconButton.isHidden = false
-                }
-            }
         }
         
-        loadTheme()
+        
+        let url = Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/Default (Dark).xpcolortheme")
+        loadTheme(at: url)
         loadGrammar()
         
         applySyntaxHighlighting()
@@ -225,15 +212,22 @@ class ViewController: NSViewController, NSTextViewDelegate {
                                                object: textView.undoManager)
     }
     
+    override func viewDidAppear() {
+        super.viewDidAppear()
+        
+        if let window = self.view.window {
+            window.representedURL = Bundle.main.resourceURL?.appendingPathComponent("default.prgm+")
+            let iconButton = window.standardWindowButton(.documentIconButton)!
+            iconButton.image = NSImage(named: "pplplus")
+        }
+        
+        updateMainMenuActions()
+    }
+    
     @objc private func didPerformUndo(notification: Notification) {
         applySyntaxHighlighting()
     }
     
-//    override var representedObject: Any? {
-//        didSet {
-//            // Update the view, if already loaded.
-//        }
-//    }
     
     func textDidChange(_ notification: Notification) {
         replaceLastTypedOperator()
@@ -254,9 +248,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    private func loadTheme() {
-        guard let url = Bundle.main.url(forResource: "Default (Dark)", withExtension: "xpcolortheme") else { return }
-        
+    func loadTheme(at url: URL) {
         if let jsonString = loadJSONString(url),
            let jsonData = jsonString.data(using: .utf8) {
             theme = try? JSONDecoder().decode(Theme.self, from: jsonData)
@@ -265,18 +257,20 @@ class ViewController: NSViewController, NSTextViewDelegate {
         func colorWithKey(_ key: String) -> NSColor {
             for tokenColor in theme!.tokenColors {
                 if tokenColor.scope.contains(key) {
-                    return NSColor.init(hex: tokenColor.settings.foreground)!
+                    return NSColor(hex: tokenColor.settings.foreground)!
                 }
             }
-            return NSColor.white
+            return editorForegroundColor
         }
         
-        textView.backgroundColor = NSColor.init(hex: (theme?.colors["editor.background"])!)!
-        textView.textColor = NSColor.init(hex: (theme?.colors["editor.foreground"])!)!
+        editorForegroundColor = NSColor(hex: (theme?.colors["editor.foreground"])!)!
+        
+        textView.backgroundColor = NSColor(hex: (theme?.colors["editor.background"])!)!
+        textView.textColor = NSColor(hex: (theme?.colors["editor.foreground"])!)!
         textView.selectedTextAttributes = [
-            .backgroundColor: NSColor.init(hex: (theme?.colors["editor.selectionBackground"])!)!
+            .backgroundColor: NSColor(hex: (theme?.colors["editor.selectionBackground"])!)!
         ]
-        textView.insertionPointColor = NSColor.init(hex: (theme?.colors["editor.cursor"])!)!
+        textView.insertionPointColor = NSColor(hex: (theme?.colors["editor.cursor"])!)!
         
         
         colors["Keywords"] = colorWithKey("Keywords")
@@ -287,6 +281,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         colors["Comments"] = colorWithKey("Comments")
         colors["Backquote"] = colorWithKey("Backquote")
         colors["Preprocessor Statements"] = colorWithKey("Preprocessor Statements")
+        colors["Functions"] = colorWithKey("Functions")
     }
     
     private func loadGrammar() {
@@ -309,8 +304,12 @@ class ViewController: NSViewController, NSTextViewDelegate {
         // Reset all text color first
         textStorage.beginEditing()
         textStorage.setAttributes(baseAttributes, range: fullRange)
+        textStorage.foregroundColor = editorForegroundColor
         
         for pattern in grammar!.patterns {
+            if pattern.match.isEmpty {
+                continue
+            }
             let color = colors[pattern.name]!
             let regex = try! NSRegularExpression(pattern: pattern.match)
             regex.enumerateMatches(in: text as String, range: fullRange) { match, _, _ in

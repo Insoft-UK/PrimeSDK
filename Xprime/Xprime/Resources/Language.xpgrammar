@@ -12,7 +12,7 @@
     },
     {
       "name": "Brackets",
-      "match": "\\{[^}]+\\}"
+      "match": "[{}()\\[\\]]+"
     },
     {
       "name": "Numbers",
@@ -33,6 +33,10 @@
     {
       "name": "Comments",
       "match": "//.*"
+    },
+    {
+      "name": "Functions",
+      "match": "(?mi)[a-z]\\w*(?= *\\([a-z ,]*\\)\\s*BEGIN\\b)"
     }
   ]
 }

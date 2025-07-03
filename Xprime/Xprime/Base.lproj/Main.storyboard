@@ -374,6 +374,17 @@
                                     </items>
                                 </menu>
                             </menuItem>
+                            <menuItem title="Editor" id="xAN-Fh-vWV">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Editor" id="m5a-7F-s3q">
+                                    <items>
+                                        <menuItem title="Theme" id="Rsb-79-C1N">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <menu key="submenu" title="Theme" id="8Uw-Ch-uj5"/>
+                                        </menuItem>
+                                    </items>
+                                </menu>
+                            </menuItem>
                             <menuItem title="Project" id="uCe-hI-i1s">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Project" id="KAd-IF-cuB">
@@ -691,6 +702,19 @@
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+                <menu id="min-cL-j3I">
+                    <items>
+                        <menuItem title="Item 1" id="b3f-ts-tJr">
+                            <modifierMask key="keyEquivalentModifierMask"/>
+                        </menuItem>
+                        <menuItem title="Item 2" id="r1s-gp-tI9">
+                            <modifierMask key="keyEquivalentModifierMask"/>
+                        </menuItem>
+                        <menuItem title="Item 3" id="YEd-cM-M9N">
+                            <modifierMask key="keyEquivalentModifierMask"/>
+                        </menuItem>
+                    </items>
+                </menu>
             </objects>
             <point key="canvasLocation" x="75" y="763"/>
         </scene>

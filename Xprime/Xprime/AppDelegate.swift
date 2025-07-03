@@ -36,6 +36,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         UserDefaults.standard.set(false, forKey: "NSAutomaticQuoteSubstitutionEnabled")
         UserDefaults.standard.set(false, forKey: "NSAutomaticDashSubstitutionEnabled")
         UserDefaults.standard.synchronize()
+        
+        populateThemesMenu(menu: mainMenu)
     }
     
     func applicationWillTerminate(_ aNotification: Notification) {
@@ -155,6 +157,39 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
         return ""
+    }
+    
+    func populateThemesMenu(menu: NSMenu) {
+        guard let resourceURLs = Bundle.main.urls(forResourcesWithExtension: "xpcolortheme", subdirectory: nil) else {
+            print("No .xpcolortheme files found.")
+            return
+        }
+
+        for fileURL in resourceURLs {
+            let filename = fileURL.deletingPathExtension().lastPathComponent
+
+            let menuItem = NSMenuItem(title: filename, action: #selector(handleThemeSelection(_:)), keyEquivalent: "")
+            menuItem.representedObject = fileURL
+            menuItem.target = self  // or another target if needed
+            if filename == "Default (Dark)" {
+                menuItem.state = .on
+            }
+
+            menu.item(withTitle: "Editor")?.submenu?.item(withTitle: "Theme")?.submenu?.addItem(menuItem)
+        }
+    }
+    
+    @objc func handleThemeSelection(_ sender: NSMenuItem) {
+        guard let vc = NSApp.mainWindow?.contentViewController as? ViewController else { return }
+        
+        guard let fileURL = sender.representedObject as? URL else { return }
+        vc.loadTheme(at: fileURL)
+        vc.applySyntaxHighlighting()
+        
+        for menuItem in mainMenu.item(withTitle: "Editor")?.submenu?.item(withTitle: "Theme")!.submenu!.items ?? [] {
+            menuItem.state = .off
+        }
+        sender.state = .on
     }
 }
 
