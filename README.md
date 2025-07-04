@@ -45,5 +45,5 @@ This utility tool provides the ability to extract **PPL** code from an HP Prime 
 
 ### Nightly Build
 
-A <b>nightly build</b> is the latest developer version of the <a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/primesdk.zip">command-line tools</a>. It’s generally usable but may contain bugs or instability as it’s still in active development.
+A <b>nightly build</b> is the latest developer version of the <a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/primesdk_nightly.zip">command-line tools</a>. It’s generally usable but may contain bugs or instability as it’s still in active development.
 
