@@ -63,7 +63,7 @@ void help(void) {
     << "Usage: " << COMMAND_NAME << " <input-file> [-o <output-file>] [-v flags]"
     << ""
     << "Options:"
-    << "  -o <output-file>   Specify the filename for generated .hpprgm file."
+    << "  -o <output-file>   Specify the filename for generated .hpprgm or .prgm file."
     << "  -v                 Enable verbose output for detailed processing information."
     << ""
     << "Verbose Flags:"
