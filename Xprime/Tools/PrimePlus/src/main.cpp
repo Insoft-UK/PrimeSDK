@@ -1766,8 +1766,8 @@ int main(int argc, char **argv) {
     preprocessor.parse(str);
     
 #ifdef DEBUG
-    loadRegexLibs(fs::expand_tilde("~/GitHub/PrimeSDK/Package Installer/package-root/Applications/HP/PrimeSDK/lib"), true);
-    preprocessor.systemIncludePath.push_front(fs::path(fs::expand_tilde("~/GitHub/PrimeSDK/Package Installer/package-root/Applications/HP/PrimeSDK/include")));
+    loadRegexLibs(fs::expand_tilde("~/GitHub/PrimeSDK/Xprime/Developer/usr/lib"), true);
+    preprocessor.systemIncludePath.push_front(fs::path(fs::expand_tilde("~/GitHub/PrimeSDK/Xprime/Developer/usr/include")));
 #else
     if (libPath.empty()) {
         libPath = "/Applications/HP/PrimeSDK/lib";
