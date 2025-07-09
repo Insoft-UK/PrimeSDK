@@ -122,9 +122,3 @@ Added support for defining aliases that include a dot (e.g., alias hp::text := H
 
 >[!NOTE]
 The PPL+ preprocessor (formerly known as P+) is subject to change but aims to maintain some level of compatibility with previous versions.
-
-<img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/PPL+%20Nightly.png" style="width: 128px" />
-
-### Nightly Build
-
-A <b>nightly build</b> is the latest developer version of the software. It’s generally usable but may contain bugs or instability as it’s still in active development.
