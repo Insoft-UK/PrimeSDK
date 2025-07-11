@@ -1,8 +1,9 @@
-# GROB Image PPL Structure
-### v1.1
+### GROB Image PPL Structure
+Version 1.1
+
 {
 - **Data:**
-  - {#…:64h,…},
+  - {#0000000000000000:64h,#0000000000000000:64h,…},
 - **Header:**
   - { width, height, bpp },
 - **Color Table:**
