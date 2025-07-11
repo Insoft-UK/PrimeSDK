@@ -370,7 +370,7 @@ int main(int argc, const char * argv[]) {
         case 8:
             os << name << " := {\n";
             os << "  {\n" << ppl(bitmap.bytes.data(), lengthInBytes, columns, le) << "\n  },\n";
-            os << "  { " << std::dec << bitmap.width << ", " << bitmap.height << " },\n";
+            os << "  { " << std::dec << bitmap.width << ", " << bitmap.height << ", " << bitmap.bpp << " },\n";
             
             os << "  {\n    ";
             for (int i = 0; i < bitmap.palette.size(); i += 1) {
@@ -393,7 +393,7 @@ int main(int argc, const char * argv[]) {
         default:
             os << name << " := {\n";
             os << "  {\n" << ppl(bitmap.bytes.data(), lengthInBytes, columns, le) << "\n  },\n";
-            os << "  { " << std::dec << bitmap.width << ", " << bitmap.height << " };\n}\n";
+            os << "  { " << std::dec << bitmap.width << ", " << bitmap.height << ", " << bitmap.bpp << " };\n}\n";
             if (grob != "G0") os << "\nGROB.Image(" << grob << ", " << name << ");\n";
             utf8.append(os.str());
             break;
