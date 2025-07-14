@@ -36,5 +36,5 @@ END;
 Image(trgtG, img)
 BEGIN
   DIMGROB_P(trgtG, img(2,1), img(2,2));
-  BLIT_I(trgtG, 0, 0, img);
+  Blit(trgtG, 0, 0, img);
 END;
