@@ -1234,11 +1234,11 @@ void loadRegexLib(const fs::path path, const bool verbose) {
 }
 
 void loadRegexLibs(const std::string path, const bool verbose) {
-    loadRegexLib(path + "/.base.re", verbose);
+    loadRegexLib(path + "/base.re", verbose);
     
     try {
         for (const auto& entry : fs::directory_iterator(path)) {
-            if (fs::path(entry.path()).extension() != ".re" || fs::path(entry.path()).filename() == ".base.re") {
+            if (fs::path(entry.path()).extension() != ".re" || fs::path(entry.path()).filename() == "base.re") {
                 continue;
             }
             loadRegexLib(entry.path(), verbose);
@@ -1770,15 +1770,22 @@ int main(int argc, char **argv) {
     preprocessor.systemIncludePath.push_front(fs::path(fs::expand_tilde("~/GitHub/PrimeSDK/Xprime/Developer/usr/include")));
 #else
     if (libPath.empty()) {
-        libPath = "/Applications/HP/PrimeSDK/lib";
+        if (fs::exists(fs::path("/Applications/Xprime.app/Contents/Developer/usr/lib"))) {
+            libPath = "//Applications/Xprime.app/Contents/Developer/usr/lib";
+        } else if (fs::exists(fs::path("/Applications/HP/PrimeSDK/lib"))) {
+            libPath = "/Applications/HP/PrimeSDK/lib";
+        }
     }
     loadRegexLibs(libPath, verbose);
+    
     if (preprocessor.systemIncludePath.empty()) {
-        preprocessor.systemIncludePath.push_front(fs::path("/Applications/HP/PrimeSDK/include"));
+        if (fs::exists(fs::path("/Applications/Xprime.app/Contents/Developer/usr/inclue"))) {
+            preprocessor.systemIncludePath.push_front(fs::path("/Applications/Xprime.app/Contents/Developer/usr/inclue"));
+        } else if (fs::exists(fs::path("/Applications/HP/PrimeSDK/include"))) {
+            preprocessor.systemIncludePath.push_front(fs::path("/Applications/HP/PrimeSDK/include"));
+        }
     }
 #endif
-    
-    
     
     std::string output = translatePPLPlusToPPL(in_filename);
     

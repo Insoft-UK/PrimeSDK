@@ -1,2 +1,3 @@
-=`^ *catalog\b`i EXPORT
-=`\bfunc(?:tion)? +`i
+=`^ *CATALOG\b`i EXPORT
+=`\bFUNC(?:TION)? +`i
+=`\bSUB(?:ROUTINE)? +`i

@@ -32,6 +32,7 @@ class PrimeSDK {
         let process = Process()
         process.executableURL = toolURL
         process.arguments = ["-L\(libPath)", "-I\(includePath)", infile.path, "-o", outfile.path]
+//        process.arguments = [infile.path, "-o", outfile.path]
         
         let pipe = Pipe()
         process.standardOutput = pipe

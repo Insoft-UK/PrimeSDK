@@ -275,6 +275,9 @@ std::string Preprocessor::parse(const std::string& str) {
         return "";
     }
     
+    if (regex_search(str, std::regex(R"(# *[a-zA-Z]+\b)"))) {
+        return "";
+    }
 
     return str;
 }
