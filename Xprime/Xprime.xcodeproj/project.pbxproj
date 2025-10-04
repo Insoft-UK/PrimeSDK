@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 90;
 	objects = {
 
 /* Begin PBXFileReference section */
@@ -34,10 +34,8 @@
 /* Begin PBXFrameworksBuildPhase section */
 		13EE0F5F2DF9DEDE004F3D7E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
@@ -73,14 +71,10 @@
 			);
 			buildRules = (
 			);
-			dependencies = (
-			);
 			fileSystemSynchronizedGroups = (
 				13EE0F642DF9DEDE004F3D7E /* Xprime */,
 			);
 			name = Xprime;
-			packageProductDependencies = (
-			);
 			productName = Xprime;
 			productReference = 13EE0F622DF9DEDE004F3D7E /* Xprime.app */;
 			productType = "com.apple.product-type.application";
@@ -93,7 +87,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1640;
-				LastUpgradeCheck = 1640;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					13EE0F612DF9DEDE004F3D7E = {
 						CreatedOnToolsVersion = 16.4;
@@ -109,7 +103,7 @@
 			);
 			mainGroup = 13EE0F592DF9DEDE004F3D7E;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
+			preferredProjectObjectVersion = 90;
 			productRefGroup = 13EE0F632DF9DEDE004F3D7E /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -122,10 +116,8 @@
 /* Begin PBXResourcesBuildPhase section */
 		13EE0F602DF9DEDE004F3D7E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
@@ -133,53 +125,49 @@
 		137DBD6A2E04798800657C42 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Define source and destination\nSRC_DIR=\"${PROJECT_DIR}/Template\"\nDST_DIR=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/../Template\"\n\n# Create the destination directory\nmkdir -p \"$DST_DIR\"\n\n# Copy contents\ncp -R \"$SRC_DIR/\" \"$DST_DIR/\"\n";
+			shellScript = (
+				"# Define source and destination",
+				"SRC_DIR=\"${PROJECT_DIR}/Template\"",
+				"DST_DIR=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/../Template\"",
+				"",
+				"# Create the destination directory",
+				"mkdir -p \"$DST_DIR\"",
+				"",
+				"# Copy contents",
+				"cp -R \"$SRC_DIR/\" \"$DST_DIR/\"",
+				"",
+			);
 		};
 		137DC1F92E15EB5A00657C42 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Define source and destination\nSRC_DIR=\"${PROJECT_DIR}/Developer\"\nDST_DIR=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/../Developer\"\n\n# Create the destination directory\nmkdir -p \"$DST_DIR\"\n\n# Copy contents\ncp -R \"$SRC_DIR/\" \"$DST_DIR/\"\n";
+			shellScript = (
+				"# Define source and destination",
+				"SRC_DIR=\"${PROJECT_DIR}/Developer\"",
+				"DST_DIR=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/../Developer\"",
+				"",
+				"# Create the destination directory",
+				"mkdir -p \"$DST_DIR\"",
+				"",
+				"# Copy contents",
+				"cp -R \"$SRC_DIR/\" \"$DST_DIR/\"",
+				"",
+			);
 		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		13EE0F5E2DF9DEDE004F3D7E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		13EE0F6F2DF9DEDF004F3D7E /* Debug */ = {
+		13EE0F6F2DF9DEDF004F3D7E /* Debug configuration for PBXProject "Xprime" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -213,7 +201,9 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 8XN79M4JCJ;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -237,12 +227,13 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
-		13EE0F702DF9DEDF004F3D7E /* Release */ = {
+		13EE0F702DF9DEDF004F3D7E /* Release configuration for PBXProject "Xprime" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -276,7 +267,9 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 8XN79M4JCJ;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -293,11 +286,12 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 			};
 			name = Release;
 		};
-		13EE0F722DF9DEDF004F3D7E /* Debug */ = {
+		13EE0F722DF9DEDF004F3D7E /* Debug configuration for PBXNativeTarget "Xprime" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -309,7 +303,8 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 10002;
-				DEVELOPMENT_TEAM = 8XN79M4JCJ;
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -322,13 +317,16 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 12.4;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				MTL_HEADER_SEARCH_PATHS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.insoft.Xprime;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
+				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = YES;
+				RUNTIME_EXCEPTION_ALLOW_UNSIGNED_EXECUTABLE_MEMORY = YES;
+				RUNTIME_EXCEPTION_DISABLE_LIBRARY_VALIDATION = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = Debug;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -336,7 +334,7 @@
 			};
 			name = Debug;
 		};
-		13EE0F732DF9DEDF004F3D7E /* Release */ = {
+		13EE0F732DF9DEDF004F3D7E /* Release configuration for PBXNativeTarget "Xprime" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -348,7 +346,8 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 10002;
-				DEVELOPMENT_TEAM = 8XN79M4JCJ;
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -361,13 +360,16 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 12.4;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
 				MTL_HEADER_SEARCH_PATHS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.insoft.Xprime;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				REGISTER_APP_GROUPS = YES;
+				RUNTIME_EXCEPTION_ALLOW_DYLD_ENVIRONMENT_VARIABLES = YES;
+				RUNTIME_EXCEPTION_ALLOW_UNSIGNED_EXECUTABLE_MEMORY = YES;
+				RUNTIME_EXCEPTION_DISABLE_LIBRARY_VALIDATION = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -381,19 +383,17 @@
 		13EE0F5D2DF9DEDE004F3D7E /* Build configuration list for PBXProject "Xprime" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				13EE0F6F2DF9DEDF004F3D7E /* Debug */,
-				13EE0F702DF9DEDF004F3D7E /* Release */,
+				13EE0F6F2DF9DEDF004F3D7E /* Debug configuration for PBXProject "Xprime" */,
+				13EE0F702DF9DEDF004F3D7E /* Release configuration for PBXProject "Xprime" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		13EE0F712DF9DEDF004F3D7E /* Build configuration list for PBXNativeTarget "Xprime" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				13EE0F722DF9DEDF004F3D7E /* Debug */,
-				13EE0F732DF9DEDF004F3D7E /* Release */,
+				13EE0F722DF9DEDF004F3D7E /* Debug configuration for PBXNativeTarget "Xprime" */,
+				13EE0F732DF9DEDF004F3D7E /* Release configuration for PBXNativeTarget "Xprime" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */

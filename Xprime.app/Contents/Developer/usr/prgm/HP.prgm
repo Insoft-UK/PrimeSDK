@@ -1,0 +1,172 @@
+﻿Zs := {{-1,-1,-1,-1},{-1,-1,-1,-1},{-1,-1,-1,-1},{-1,-1,-1,-1},{-1,-1,-1,-1},{-1,-1,-1,-1},{-1,-1,-1,-1},{-1,-1,-1,-1},{-1,-1,-1,-1},{-1,-1,-1,-1}};
+ms := 0;
+
+Glyph(trgtG, ascii, x, y, fnt, color, sizeX, sizeY)
+BEGIN
+ LOCAL g := fnt[2, ascii];
+ LOCAL xAdvance := BITAND(BITSR(g,32), 255) * sizeX;
+ 
+  IF BITAND(g,#FFFFFFFF)==0 THEN
+    RETURN xAdvance;
+  END;
+  
+  LOCAL w, h, dX, dY, xx;
+  LOCAL yAdvance := fnt[5];
+
+  w := BITAND(BITSR(g, 16), 255);
+  h := BITAND(BITSR(g, 24), 255);
+ 
+  dX := BITAND(BITSR(g, 40), 255);
+  dY := BITAND(BITSR(g, 48), 255) - 256;
+ 
+  x := x + dX * sizeX;
+  y := y + yAdvance + dY;
+  
+  LOCAL bitmap := fnt[1];
+
+  LOCAL offset := BITAND(g, 65535);
+  LOCAL bitPosition := BITAND(offset, 7) * 8;
+  offset := BITSR(offset, 3) + 1;
+  LOCAL bits := BITSR(bitmap[offset], bitPosition);
+  
+  REPEAT
+    FOR xx FROM 1 TO w DO
+      IF bitPosition == 64 THEN
+        bitPosition := 0;
+        offset := offset + 1;
+        bits := bitmap[offset];
+      END;
+     
+      IF BITAND(bits, 1) == 1 THEN
+        IF sizeX == 1 AND sizeY == 1 THEN
+          PIXON_P(trgtG, x + xx,y, color);
+        ELSE
+          RECT_P(trgtG, x + xx * sizeX, y, x + xx * sizeX + sizeX - 1, y + sizeY - 1, color);
+        END;
+      END;
+      
+      bitPosition := bitPosition + 1;
+      bits := BITSR(bits, 1);
+    END;
+   
+    y + sizeY ▶ y;
+    h - 1 ▶ h;
+  UNTIL h == 0;
+  
+  RETURN xAdvance;
+END;
+
+Text(trgt, text, x, y, fnt, color, sizeX, sizeY)
+BEGIN
+  LOCAL i, l := ASC(text);
+ 
+  FOR i := 1 TO SIZE(l) DO
+    IF x >= 320 THEN
+      BREAK;
+    END;
+    IF l[i] < fnt[3] OR l[i] > fnt[4] THEN
+      CONTINUE;
+    END;
+    x := x + Glyph(trgt, l[i] - fnt[3] + 1, x, y, fnt, color, sizeX, sizeY);
+  END;
+END;
+
+EWait()
+BEGIN
+  LOCAL e := WAIT(-1);
+  IF SIZE(e)==1 THEN
+    RETURN {-1,-1,-1,-1,-1,e};
+  END;
+  IF SIZE(e)==5 THEN
+    RETURN CONCAT(e,-1);
+  END;
+  RETURN CONCAT(e,{-1,-1,-1});
+END;
+
+MWait()
+BEGIN
+  WHILE 1 DO
+    ms:=MOUSE;
+    IF SIZE(ms(1))==5 THEN RETURN ms; END;
+  END;
+END;
+
+MClr()
+BEGIN
+  REPEAT
+    ms:=MOUSE;
+  UNTIL SIZE(ms(1))≠5;
+END;
+
+MRdy()
+BEGIN
+  ms:=MOUSE;
+  IF SIZE(ms(1))==5 THEN RETURN 1; END;
+  RETURN 0;
+END;
+
+MPt()
+BEGIN
+  ms:=MOUSE;
+  IF SIZE(ms(1))≠5 THEN RETURN {-1, -1}; END;
+  RETURN {ms(1,1), ms(1,2)};
+END;
+
+Mn(pt)
+BEGIN
+  IF pt(2)<220 THEN RETURN 0; END;
+  RETURN IP(pt(1) / (320/6)+0.025) + 1;
+END;
+
+TestBars()
+BEGIN
+  LOCAL D:={
+    #00FFFFFF00FFFFFF:64h,#00FFFF0000FFFF00:64h,#0000FFFF0000FFFF:64h,#0000FF000000FF00:64h,#00FF00FF00FF00FF:64h,#00FF000000FF0000:64h,#000000FF000000FF:64h,
+    #000000FF000000FF:64h,#0000000000000000:64h,#00FF00FF00FF00FF:64h,#0000000000000000:64h,#0000FFFF0000FFFF:64h,#0000000000000000:64h,#00FFFFFF00FFFFFF:64h,
+    #0000008000000080:64h,#0000000000000000:64h,#007F007F007F007F:64h,#0000000000000000:64h,#00007F7F00007F7F:64h,#0000000000000000:64h,#007F7F7F007F7F7F:64h,
+    #00FFFFFF00FFFFFF:64h,#00D4D4D400D4D4D4:64h,#00AAAAAA00AAAAAA:64h,#0080808000808080:64h,#0055555500555555:64h,#0000000000000000:64h,#0000000000000000:64h,
+    #002B2B2B002B2B2B:64h,#0024242400242424:64h,#001D1D1D001D1D1D:64h,#0016161600161616:64h,#000E0E0E000E0E0E:64h,#0007070700070707:64h,#0000000000000000:64h
+  };
+  
+  DIMGROB_P(G1,14,5,D);
+  RECT(0);
+  BLIT_P(0,0,320,160,G1,0,0,14,1);
+  BLIT_P(0,160,320,180,G1,0,1,14,3);
+  BLIT_P(0,180,320,200,G1,0,3,14,4);
+  BLIT_P(230,180,320,200,G1,0,4,14,5);
+END;
+
+RZs()
+BEGIN
+  Zs := {{-1,-1,-1,-1},{-1,-1,-1,-1},{-1,-1,-1,-1},{-1,-1,-1,-1},{-1,-1,-1,-1},{-1,-1,-1,-1},{-1,-1,-1,-1},{-1,-1,-1,-1},{-1,-1,-1,-1},{-1,-1,-1,-1}};
+END;
+
+RZn(n)
+BEGIN
+  Zs(n):={-1,-1,-1,-1};
+END;
+
+SZn(n,x,y,w,h)
+BEGIN
+  IF n<1 OR n>10 THEN RETURN; END;
+  IF SIZE(Zs) ≠ 10 THEN RZs; END;
+  IFERR
+    Zs(n) := {x, y, x + w-1, h + h-1};
+  THEN
+    RZs;
+    Zs(n) := {x, y, x + w-1, h + h-1};
+  END;
+END;
+
+Zn(pt)
+BEGIN
+  IF SIZE(Zs) ≠ 10 THEN RZs; END;
+  LOCAL n;
+  FOR n := 1 TO n < 10 DO
+    IF Zs(n,1) < 0 OR Zs(n,2) < 0 THEN CONTINUE; END;
+    IF pt(1) ≥ Zs(n,1) AND pt(1) ≤ Zs(n,3) AND pt(2) ≥ Zs(n,2) AND pt(2) ≤ Zs(n,4) THEN
+      RETURN n;
+    END;
+  END;
+  RETURN 0;
+END;

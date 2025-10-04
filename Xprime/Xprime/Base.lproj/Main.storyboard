@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="23727" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="24127" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="23727"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24127"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -81,13 +81,13 @@
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <menu key="submenu" title="Embed" id="KSp-ZZ-Eb4">
                                                 <items>
-                                                    <menuItem title="Embed Image" id="Rjl-Nh-Ew5">
+                                                    <menuItem title="Embed Image" image="photo" catalog="system" id="Rjl-Nh-Ew5">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <connections>
                                                             <action selector="embedImage:" target="Voe-Tx-rLC" id="3el-rh-mlI"/>
                                                         </connections>
                                                     </menuItem>
-                                                    <menuItem title="Embed Adafruit GFX Font" id="Lc7-JR-4Uo">
+                                                    <menuItem title="Embed Adafruit GFX Font" image="character.book.closed" catalog="system" id="Lc7-JR-4Uo">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <connections>
                                                             <action selector="embedFont:" target="Voe-Tx-rLC" id="6Lf-t5-IXs"/>
@@ -96,11 +96,11 @@
                                                 </items>
                                             </menu>
                                         </menuItem>
-                                        <menuItem title="Export" id="r6P-WS-c2L">
+                                        <menuItem title="Export" image="square.and.arrow.up" catalog="system" id="r6P-WS-c2L">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <menu key="submenu" title="Export" id="pia-c9-RVv">
                                                 <items>
-                                                    <menuItem title="Quick Export as HPPRGM" id="lEh-6x-kCK">
+                                                    <menuItem title="Quick Export as HPPRGM" image="ppl" id="lEh-6x-kCK">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                     </menuItem>
                                                 </items>
@@ -114,13 +114,13 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="PnA-gF-GyT"/>
-                                        <menuItem title="Install Libraries into HP Connectivity Kit" id="8sY-jt-YL6">
+                                        <menuItem title="Install Libraries into HP Connectivity Kit" image="building.columns.circle" catalog="system" id="8sY-jt-YL6">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="installLibraries:" target="Voe-Tx-rLC" id="XAJ-Ks-g7I"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Install Fonts into HP Connectivity Kit" id="AzW-qF-sV7">
+                                        <menuItem title="Install Fonts into HP Connectivity Kit" image="building.columns.circle" catalog="system" id="AzW-qF-sV7">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="installFonts:" target="Voe-Tx-rLC" id="Dqp-gR-flx"/>
@@ -378,7 +378,7 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Editor" id="m5a-7F-s3q">
                                     <items>
-                                        <menuItem title="Theme" id="Rsb-79-C1N">
+                                        <menuItem title="Theme" image="paintbrush" catalog="system" id="Rsb-79-C1N">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <menu key="submenu" title="Theme" id="8Uw-Ch-uj5"/>
                                         </menuItem>
@@ -389,12 +389,12 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Project" id="KAd-IF-cuB">
                                     <items>
-                                        <menuItem title="Run" keyEquivalent="r" id="p6y-v1-4El"/>
+                                        <menuItem title="Run" image="NSTouchBarPlayTemplate" keyEquivalent="r" id="p6y-v1-4El"/>
                                         <menuItem title="Run Without Building" keyEquivalent="r" id="Jf6-5T-MLT">
                                             <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="XAL-zZ-CE3"/>
-                                        <menuItem title="Build" keyEquivalent="b" id="Ust-Jd-TDZ"/>
+                                        <menuItem title="Build" image="hammer" catalog="system" keyEquivalent="b" id="Ust-Jd-TDZ"/>
                                         <menuItem title="Reformat" id="OqD-SV-dml">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                         </menuItem>
@@ -685,7 +685,7 @@
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                                 <scroller key="verticalScroller" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="Zy3-AM-W93">
-                                    <rect key="frame" x="784" y="0.0" width="16" height="500"/>
+                                    <rect key="frame" x="783" y="0.0" width="17" height="500"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
@@ -719,4 +719,14 @@
             <point key="canvasLocation" x="75" y="763"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="NSTouchBarPlayTemplate" width="15" height="17"/>
+        <image name="building.columns.circle" catalog="system" width="15" height="15"/>
+        <image name="character.book.closed" catalog="system" width="14" height="16"/>
+        <image name="hammer" catalog="system" width="20" height="18"/>
+        <image name="paintbrush" catalog="system" width="17" height="18"/>
+        <image name="photo" catalog="system" width="18" height="14"/>
+        <image name="ppl" width="16" height="16"/>
+        <image name="square.and.arrow.up" catalog="system" width="15" height="18"/>
+    </resources>
 </document>

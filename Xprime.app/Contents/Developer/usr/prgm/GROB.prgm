@@ -1,0 +1,77 @@
+#pragma mode( separator(.,;) integer(h64) )
+
+Blit(trgtG, xd, yd, img)
+BEGIN
+  trgtG := "\"" + STRING(trgtG) + "\"";
+  dx := "\"" + STRING(dx) + "\"";
+  dy := "\"" + STRING(dy) + "\"";
+  img := "\"" + STRING(img) + "\"";
+  
+  PYTHON("
+from hpprime import *
+
+trgtG = int(eval("+trgtG+")[1:])
+dx = int(eval("+dx+"))
+dy = int(eval("+dy+"))
+img = eval("+img+")
+
+w = int(img[1][0]); h = int(img[1][1]); bpp = int(img[1][2])
+m = 1 << bpp - 1; s = 64 / bpp
+x = 0; y = 0
+
+size = len(img[0])
+for i in range(size):
+  d = int(img[0][i])
+  for j in range(64 / bpp):
+    c = img[2][d & m]
+    pixon(trgtG, x + dx, y + dy, c)
+    d = d >> bpp
+    x = x + 1
+    if x == w:
+      x = 0
+      y = y + 1
+  ");
+END;
+
+Blit(trgtG, xd, yd, img, sizeX, sizeY)
+BEGIN
+  trgtG := "\"" + STRING(trgtG) + "\"";
+  dx := "\"" + STRING(dx) + "\"";
+  dy := "\"" + STRING(dy) + "\"";
+  img := "\"" + STRING(img) + "\"";
+  sizeX := "\"" + STRING(sizeX) + "\"";
+  sizeY := "\"" + STRING(sizeY) + "\"";
+  
+  PYTHON("
+from hpprime import *
+
+trgtG = int(eval("+trgtG+")[1:])
+dx = int(eval("+dx+"))
+dy = int(eval("+dy+"))
+img = eval("+img+")
+sizeX = int(eval("+sizeX+"))
+sizeY = int(eval("+sizeY+"))
+
+w = int(img[1][0]); h = int(img[1][1]); bpp = int(img[1][2])
+m = 1 << bpp - 1; s = 64 / bpp
+x = 0; y = 0
+
+size = len(img[0])
+for i in range(size):
+  d = int(img[0][i])
+  for j in range(64 / bpp):
+    c = img[2][d & m]
+    rect(trgtG, x + dx, y + dy, sizeX, sizeY, c, c)
+    d = d >> bpp
+    x = x + sizeX
+    if x == w * sizeX:
+      x = 0
+      y = y + sizeY
+  ");
+END;
+
+Image(trgtG, img)
+BEGIN
+  DIMGROB_P(trgtG, img(2,1), img(2,2));
+  Blit(trgtG, 0, 0, img);
+END;
