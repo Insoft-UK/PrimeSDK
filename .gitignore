@@ -5,6 +5,10 @@ xcuserdata/
 ignore
 build
 examples
-Xprime/Tools
+Xprime/Tools/_*
+Xprime/Tools/GROB
+Xprime/Tools/PrimePlus
+Xprime/Tools/PPL-Minifier
+Xprime/Tools/PPL-Reformat
 Nightly\ Build
 Package\ Installer
