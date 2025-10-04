@@ -6,7 +6,7 @@ Graphing calculator HP Prime has a **3.5-inch full color touch screen**, that de
 
 <a href="https://www.moravia.education/en/id/72-hp-prime-g2">more...</a>
 
-<img src="https://github.com/Insoft-UK/PrimeSDK/blob/main/Xprime/Xprime/Assets.xcassets/AppIcon.appiconset/256pt.png?raw=true" width="128" />
+<img src="https://github.com/Insoft-UK/PrimeSDK/blob/main/Xprime/Xprime/Assets.xcassets/AppIcon.appiconset/256pt@2x.png?raw=true" width="128" />
 
 # Code Editor for HP Prime Programming Language
 Edit your PPL code.
@@ -15,7 +15,6 @@ Edit your PPL code.
 
 # Command-Line Tools for macOS
 The command-line tools are bundled with Xprime. While they are used internally by Xprime, they can also be accessed externally via the terminal. They are located at `/Applications/Xprime/Contents/Developer/usr/bin`.
-For those who prefer a different IDE than Xprime, the command-line tools can be downloaded separately.
 
 ### <a href="https://github.com/Insoft-UK/PrimePlus/tree/main/README.md">PPL+</a> Pre-Processor for PPL
 PPL+ is a pre-processor designed to improve code maintainability and readability in the HP Programming Language (PPL). PPL+ also allows one to define regular expressions to assist in the preprocessing workflow. The final output is a compact, optimized PPL program file tailored to the HP Prime’s limited storage capacity.
@@ -40,10 +39,3 @@ This utility tool provides the ability to extract **PPL** code from an HP Prime 
 <img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/Colors.png" /></a>
 
 **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/hpprgm/Colors.hpprgm">Colors</a>** is a simple color picker App for the HP Prime and requires the **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/hpprgm/ColorSpace.hpprgm">ColorSpace</a>** and **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/hpprgm/HP.hpprgm">HP</a>** library for HP Prime
-
-<img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/PPL+%20Nightly.png" style="width: 128px" />
-
-### Nightly Build
-
-A <b>nightly build</b> is the latest developer version of the <a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/primesdk_nightly.zip">command-line tools</a>. It’s generally usable but may contain bugs or instability as it’s still in active development.
-
