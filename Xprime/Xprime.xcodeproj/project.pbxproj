@@ -137,6 +137,7 @@
 				"# Copy contents",
 				"cp -R \"$SRC_DIR/\" \"$DST_DIR/\"",
 				"",
+				"",
 			);
 		};
 		137DC1F92E15EB5A00657C42 /* ShellScript */ = {
@@ -153,6 +154,7 @@
 				"",
 				"# Copy contents",
 				"cp -R \"$SRC_DIR/\" \"$DST_DIR/\"",
+				"",
 				"",
 			);
 		};
