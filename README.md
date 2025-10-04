@@ -17,7 +17,7 @@ Edit your PPL code.
 The command-line tools are bundled with Xprime. While they are used internally by Xprime, they can also be accessed externally via the terminal. They are located at `/Applications/Xprime/Contents/Developer/usr/bin`.
 For those who prefer a different IDE than Xprime, the <a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/primesdk.zip">command-line tools</a> can be downloaded separately.
 
-### <a href="https://github.com/Insoft-UK/PrimePlus/tree/main/PrimePlus/README.md">PPL+</a> Pre-Processor for PPL
+### <a href="https://github.com/Insoft-UK/PrimePlus/tree/main/README.md">PPL+</a> Pre-Processor for PPL
 PPL+ is a pre-processor designed to improve code maintainability and readability in the HP Programming Language (PPL). PPL+ also allows one to define regular expressions to assist in the preprocessing workflow. The final output is a compact, optimized PPL program file tailored to the HP Prime’s limited storage capacity.
 
 ### <a href="https://github.com/Insoft-UK/PPL-Minifier/tree/main/PPL-Minifier/README.md">Minifier & Compressor</a> for PPL Code
