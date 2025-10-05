@@ -21,6 +21,16 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		13873D492E92DC2900083634 /* Developer */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Developer;
+			sourceTree = "<group>";
+		};
+		13873D652E92DC5F00083634 /* Template */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Template;
+			sourceTree = "<group>";
+		};
 		13EE0F642DF9DEDE004F3D7E /* Xprime */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -43,6 +53,8 @@
 		13EE0F592DF9DEDE004F3D7E = {
 			isa = PBXGroup;
 			children = (
+				13873D652E92DC5F00083634 /* Template */,
+				13873D492E92DC2900083634 /* Developer */,
 				13EE0F642DF9DEDE004F3D7E /* Xprime */,
 				13EE0F632DF9DEDE004F3D7E /* Products */,
 			);
@@ -138,6 +150,7 @@
 				"cp -R \"$SRC_DIR/\" \"$DST_DIR/\"",
 				"",
 				"",
+				"",
 			);
 		};
 		137DC1F92E15EB5A00657C42 /* ShellScript */ = {
@@ -154,6 +167,7 @@
 				"",
 				"# Copy contents",
 				"cp -R \"$SRC_DIR/\" \"$DST_DIR/\"",
+				"",
 				"",
 				"",
 			);
@@ -304,7 +318,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 10002;
+				CURRENT_PROJECT_VERSION = 10003;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -347,7 +361,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 10002;
+				CURRENT_PROJECT_VERSION = 10003;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;

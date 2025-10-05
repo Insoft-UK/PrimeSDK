@@ -2,6 +2,8 @@
 xcuserdata/
 .DS_Store
 *.pkg
+*.zip
+*.app
 ignore
 build
 examples

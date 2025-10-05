@@ -1,6 +1,6 @@
 #pragma mode( separator(.,;) integer(h64) assignment(=) indentation(1) operators(▶,*,/,-,+) )
 
-MyApp()
+export MyApp()
 begin
 
 end;
