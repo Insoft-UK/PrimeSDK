@@ -11,7 +11,7 @@ Graphing calculator HP Prime has a **3.5-inch full color touch screen**, that de
 # Code Editor for HP Prime Programming Language
 Edit your PPL code.
 
-<img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/PrimeSDK.png" style="width: 128px" />
+<img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/silhouette-logo.png" style="width: 128px" />
 
 # Command-Line Tools for macOS
 The command-line tools are bundled with Xprime. While they are used internally by Xprime, they can also be accessed externally via the terminal. They are located at `/Applications/Xprime/Contents/Developer/usr/bin`.
