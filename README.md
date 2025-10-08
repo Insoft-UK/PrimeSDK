@@ -18,7 +18,7 @@ Edit your PPL or PPL+ code for the HP Prime.
 <img src="https://raw.githubusercontent.com/Insoft-UK/Insoft-UK/main/assets/silhouette-logo.svg" style="width: 128px" />
 
 # Command-Line Tools for macOS
-The command-line tools are bundled with Xprime. While they are used internally by Xprime, they can also be accessed externally via the terminal. They are located at `/Applications/Xprime/Contents/Developer/usr/bin`.
+The command-line tools are bundled with Xprime. While they are used internally by Xprime, they can also be accessed externally via the terminal. They are located at `/Applications/Xprime.app/Contents/Developer/usr/bin`.
 
 ### <a href="https://github.com/Insoft-UK/PrimePlus/tree/main/README.md">PPL+</a> Pre-Processor for PPL
 PPL+ is a pre-processor designed to improve code maintainability and readability in the HP Programming Language (PPL). PPL+ also allows one to define regular expressions to assist in the preprocessing workflow. The final output is a compact, optimized PPL program file tailored to the HP Prime’s limited storage capacity.
@@ -36,7 +36,7 @@ A utility that generates PPL code from image files for use with the **<a href="h
 A handy utility for converting Adafruit_GFX .h files to the .prgm format, for use with the **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/Xcode/Developer/usr/hpprgm/HP.hpprgm">HP</a>** library to render Adafruit GFX fonts.
 
 ### <a href="https://github.com/Insoft-UK/hpprgm/tree/main/README.md">HP Prime Program Tool</a>
-This utility tool provides the ability to extract **PPL** code from an HP Prime `.hpprgm` file.
+This utility tool provides the ability to extract **PPL** code from an HP Prime `.hpprgm` file.  The tool can also convert source code .prgm file/s to .hpprgm G1 format, while G1 is the old .hpprgm format it's still supported by the HP Prime Connectivity Kit and will be converted to the latest .hpprgm fornat.
 
 ## Library for HP Prime
-**<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/Xcode/Developer/usr/hpprgm/ColorSpace.hpprgm">ColorSpace</a>** and **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/Xcode/Developer/usr/hpprgm/HP.hpprgm">HP</a>**
+**<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/Xcode/Developer/usr/hpprgm/ColorSpace.hpprgm">ColorSpace</a>**, **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/Xcode/Developer/usr/hpprgm/GROB.hpprgm">GROB</a>** and **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/Xcode/Developer/usr/hpprgm/HP.hpprgm">HP</a>**
