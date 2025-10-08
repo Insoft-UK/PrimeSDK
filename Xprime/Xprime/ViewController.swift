@@ -89,7 +89,7 @@ extension ViewController: NSWindowRestoration {
     }
 }
 
-class ViewController: NSViewController, NSTextViewDelegate {
+final class ViewController: NSViewController, NSTextViewDelegate {
     let mainMenu = NSApp.mainMenu!
     var theme: Theme?
     var grammar: Grammar?
@@ -201,9 +201,9 @@ class ViewController: NSViewController, NSTextViewDelegate {
         
         applySyntaxHighlighting()
         
-        if let appDelegate = NSApp.delegate as? AppDelegate {
-            tempDirectoryURL = appDelegate.tempManager.tempDirectoryURL
-        }
+//        if let appDelegate = NSApp.delegate as? AppDelegate {
+//            tempDirectoryURL = appDelegate.tempManager.tempDirectoryURL
+//        }
         
         
         NotificationCenter.default.addObserver(self,
@@ -215,6 +215,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
     override func viewDidAppear() {
         super.viewDidAppear()
         
+       
         if let window = self.view.window {
             window.representedURL = Bundle.main.resourceURL?.appendingPathComponent("default.prgm+")
             let iconButton = window.standardWindowButton(.documentIconButton)!
@@ -490,31 +491,45 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    func loadPrgmFile(_ url: URL) -> String? {
-        guard let content = try? String(contentsOf: url, encoding: detectEncoding(of: url) ?? .utf16LittleEndian) else { return nil }
-        
-        return content
+    func loadText(_ url: URL) -> String? {
+        do {
+            // Read the raw file data
+            var data = try Data(contentsOf: url)
+            
+            // Detect and remove BOM if present
+            if data.count >= 2 {
+                let bomLE: [UInt8] = [0xFF, 0xFE]
+                let bomBE: [UInt8] = [0xFE, 0xFF]
+                let firstTwo = Array(data.prefix(2))
+                if firstTwo == bomLE {
+                    data.removeFirst(2) // UTF-16 LE BOM
+                } else if firstTwo == bomBE {
+                    data.removeFirst(2) // UTF-16 BE BOM
+                }
+            }
+            
+            // Decide encoding based on file extension
+            let isUtf8 = (url.pathExtension == "prgm+")
+            let encoding: String.Encoding = isUtf8 ? .utf8 : .utf16LittleEndian
+            
+            // Decode text using the chosen encoding
+            if let text = String(data: data, encoding: encoding) {
+                return text
+            } else {
+                throw NSError(domain: "FileLoadError", code: -1, userInfo: [
+                    NSLocalizedDescriptionKey: "Failed to decode file text."
+                ])
+            }
+            
+        } catch {
+            alert("Failed to open file: \(error)")
+            return nil
+        }
     }
     
-    func loadHpprgmFile(_ url: URL) -> String? {
-        guard let tmpURL = self.tempDirectoryURL, url.pathExtension == "hpprgm" else { return nil }
-        
-        let outURL = tmpURL.appendingPathComponent(url.deletingPathExtension().lastPathComponent + ".prgm")
-        PrimeSDK.hpprgm(i: url, o: outURL)
-        
-        guard let content = try? String(contentsOf: outURL, encoding: .utf16LittleEndian) else { return nil }
-
-        return content
-    }
-    
-    // MARK: - File Handling
-    
-    
-    
-    
-    func openFile() {
+    private func open() {
         let openPanel = NSOpenPanel()
-        let extensions = ["prgm", "prgm+", "ppl", "ppl+"]
+        let extensions = ["prgm", "prgm+"]
         let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
         
         openPanel.allowedContentTypes = contentTypes
@@ -524,7 +539,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         openPanel.begin { [weak self] result in
             guard result == .OK, let url = openPanel.url else { return }
             
-            if let contents = self?.loadPrgmFile(url) {
+            if let contents = self?.loadText(url) {
                 self?.textView.string = contents
                 self?.applySyntaxHighlighting()
                 self?.currentFileURL = url
@@ -532,18 +547,35 @@ class ViewController: NSViewController, NSTextViewDelegate {
                 self?.updateMainMenuActions()
             }
         }
-        
     }
     
-    func saveFile() {
+    private func writeText(_ text: String, to url: URL) throws {
+        let text = textView.string
+        let useUtf8 = url.pathExtension == "prgm+"
+        
+        if useUtf8 {
+            // Save as UTF-8
+            try text.write(to: url, atomically: true, encoding: .utf8)
+        } else {
+            // UTF-16 LE with BOM (0xFF 0xFE)
+            if let body = text.data(using: .utf16LittleEndian) {
+                var bom = Data([0xFF, 0xFE])
+                bom.append(body)
+                try bom.write(to: url, options: .atomic)
+            }
+        }
+    }
+    
+    private func save() {
         guard let url = currentFileURL else {
-            saveFileAs()
+            saveAs()
             return
         }
+        
         do {
-            try textView.string.write(to: url, atomically: true, encoding: .utf8)
+            try writeText(textView.string, to: url)
             
-            if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Revert to Saved") {
+            if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Revert to Saved...") {
                 item.action = nil
             }
         } catch {
@@ -551,9 +583,9 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    func saveFileAs() {
+    private func saveAs() {
         let savePanel = NSSavePanel()
-        let extensions = ["prgm", "ppl", "prgm+", "ppl+"]
+        let extensions = ["prgm", "prgm+"]
         let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
         
         savePanel.allowedContentTypes = contentTypes
@@ -563,7 +595,9 @@ class ViewController: NSViewController, NSTextViewDelegate {
             guard result == .OK, let url = savePanel.url else { return }
 
             do {
-                try self?.textView.string.write(to: url, atomically: true, encoding: .utf16LittleEndian)
+                if let text = self?.textView.string {
+                    try self?.writeText(text, to: url)
+                }
                 if self?.currentFileURL == url {
                     self?.removeRevertToSavedAction()
                 } else {
@@ -578,26 +612,34 @@ class ViewController: NSViewController, NSTextViewDelegate {
     
     @objc private func revertToSavedDocument() {
         guard let mainMenu = NSApp.mainMenu else { return }
+        guard let url = currentFileURL else {
+            return
+        }
         
-        if let url = currentFileURL {
-            if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Revert to Saved") {
-                do {
-                    let contents = try String(contentsOf: url, encoding: .utf8)
-                    textView.string = contents
-                    applySyntaxHighlighting()
-                    item.action = nil
-                } catch {
-                    return
-                }
+        if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Revert to Saved...") {
+            do {
+                let contents = try String(contentsOf: url, encoding: .utf8)
+                textView.string = contents
+                applySyntaxHighlighting()
+                item.action = nil
+            } catch {
+                return
             }
         }
     }
     
     
     
-    func insertCode() {
+    private func insertCode() {
+        guard let url = currentFileURL else {
+            return
+        }
+        
         let openPanel = NSOpenPanel()
-        let extensions = ["prgm", "prgm+", "ppl", "ppl+", "hpprgm"]
+        var extensions = ["prgm"]
+        if url.pathExtension == "prgm+" {
+            extensions.append("prgm+")
+        }
         let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
         
         openPanel.allowedContentTypes = contentTypes
@@ -607,15 +649,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         openPanel.begin { [weak self] result in
             guard result == .OK, let url = openPanel.url else { return }
             
-            var contents: String?
-            
-            if url.pathExtension == "hpprgm" {
-                contents = self?.loadHpprgmFile(url)
-            } else {
-                contents = self?.loadPrgmFile(url)
-            }
-            
-            if let contents = contents {
+            if let contents = self?.loadText(url) {
                 let output = self?.stripPragma(contents)
                 self?.registerTextViewUndo(actionName: "Insert")
                 self?.insertString(output!)
@@ -624,7 +658,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    func embedImage() {
+    private func embedImage() {
         guard let tmpURL = self.tempDirectoryURL else { return }
         
         let openPanel = NSOpenPanel()
@@ -640,7 +674,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
             
             let outURL = tmpURL.appendingPathComponent(url.deletingPathExtension().lastPathComponent + ".prgm")
             PrimeSDK.grob(i: url, o: outURL)
-            if let contents = self?.loadPrgmFile(outURL) {
+            if let contents = self?.loadText(outURL) {
                 self?.registerTextViewUndo(actionName: "Insert")
                 self?.insertString(contents)
                 self?.applySyntaxHighlighting()
@@ -648,7 +682,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    func embedFont() {
+    private func embedFont() {
         guard let tmpURL = self.tempDirectoryURL else {
             return
         }
@@ -665,7 +699,7 @@ class ViewController: NSViewController, NSTextViewDelegate {
             guard result == .OK, let url = openPanel.url else { return }
             
             PrimeSDK.pplfont(i: url, o: tmpURL.appendingPathComponent("font.prgm"))
-            if let contents = self?.loadPrgmFile(tmpURL.appendingPathComponent("font.prgm")) {
+            if let contents = self?.loadText(tmpURL.appendingPathComponent("font.prgm")) {
                 self?.registerTextViewUndo(actionName: "Embeded Adafruit GFX font")
                 self?.insertString(contents)
                 self?.applySyntaxHighlighting()
@@ -677,7 +711,6 @@ class ViewController: NSViewController, NSTextViewDelegate {
         guard let url = currentFileURL else {
             return
         }
-        saveFile()
         
         let savePanel = NSSavePanel()
         savePanel.allowedContentTypes = ["hpprgm"].compactMap { UTType(filenameExtension: $0) }
@@ -685,23 +718,23 @@ class ViewController: NSViewController, NSTextViewDelegate {
         savePanel.begin { [weak self] result in
             guard result == .OK, let outURL = savePanel.url else { return }
             
-            PrimeSDK.pplplus(i: url, o: outURL)
+            PrimeSDK.`ppl+`(i: url, o: outURL)
             if !FileManager.default.fileExists(atPath: outURL.path) {
                 self?.alert("Failed to export file: \(outURL.path)")
             }
         }
     }
     
-    @objc private func reformatAll() {
-        saveFile()
-        
+    @objc private func formatCode() {
         guard let url = currentFileURL else {
             return
         }
         
+        save()
+        
         PrimeSDK.pplref(i: url, o: url)
-        if let contents = loadPrgmFile(url) {
-            registerTextViewUndo(actionName: "Reformat")
+        if let contents = loadText(url) {
+            registerTextViewUndo(actionName: "Format")
             textView.string = contents
             applySyntaxHighlighting()
         }
@@ -709,29 +742,46 @@ class ViewController: NSViewController, NSTextViewDelegate {
     
     
     
-    @objc private func build() {
+    @objc private func build(forRunning: Bool = false) {
         guard let url = currentFileURL else {
             return
         }
-        let prgm = url.deletingPathExtension().appendingPathExtension("prgm")
         
-        if url.pathExtension == "prgm+" || url.pathExtension == "ppl+" {
-            PrimeSDK.pplplus(i: url, o: prgm)
+        save()
+        
+        if forRunning && url.pathExtension == "prgm" {
+            PrimeSDK.hpprgm(i: url)
         }
-        if minifier {
-            PrimeSDK.pplmin(i: prgm, o: prgm)
+        
+        if url.pathExtension == "prgm+" {
+            let prgm = url.deletingPathExtension().appendingPathExtension("prgm")
+            PrimeSDK.`ppl+`(i: url, o: prgm)
+
+            if let contents = loadText(prgm) {
+                textView.string = contents
+                applySyntaxHighlighting()
+                currentFileURL = prgm
+                updateDocumentIconButtonImage()
+            }
+            
+            if forRunning {
+                PrimeSDK.hpprgm(i: prgm)
+            }
         }
-        PrimeSDK.hpprgm(i: prgm)
         
         updateMainMenuActions()
     }
     
     @objc private func run() {
-        guard let _ = currentFileURL else {
-            return
-        }
-        saveFile()
-        build()
+        build(forRunning: true)
+        exportToHpPrimeEmulator()
+    }
+    
+    @objc private func running() {
+        build(forRunning: true)
+    }
+    
+    @objc private func runWithoutBuilding() {
         exportToHpPrimeEmulator()
     }
     
@@ -768,39 +818,57 @@ class ViewController: NSViewController, NSTextViewDelegate {
             }
         }
         
-        if let item = mainMenu.item(withTitle: "Project")?.submenu?.item(withTitle: "Run") {
+        guard let projectMenu = mainMenu.item(withTitle: "Project") else {
+            return
+        }
+        
+        guard let buildFor = projectMenu.submenu?.item(withTitle: "Build For") else {
+            return
+        }
+        
+        guard let performAction = projectMenu.submenu?.item(withTitle: "Perform Action") else {
+            return
+        }
+        
+        if let item = buildFor.submenu?.item(withTitle: "Running") {
             item.action = nil
-            if let url = currentFileURL,
-               url.pathExtension == "prgm+" || url.pathExtension == "ppl+" {
-                item.action = #selector(run)
+            if let url = currentFileURL, url.pathExtension == "prgm" {
+                item.action = #selector(running)
             }
         }
         
-        if let item = mainMenu.item(withTitle: "Project")?.submenu?.item(withTitle: "Build") {
+        if let item = projectMenu.submenu?.item(withTitle: "Build") {
             item.action = nil
-            if let url = currentFileURL,
-               url.pathExtension == "prgm+" || url.pathExtension == "ppl+" {
+            if let url = currentFileURL, url.pathExtension == "prgm+" {
                 item.action = #selector(build)
             }
         }
         
-        if let item = mainMenu.item(withTitle: "Project")?.submenu?.item(withTitle: "Run Without Building") {
+        if let item = projectMenu.submenu?.item(withTitle: "Format Code") {
             item.action = nil
-            if let url = currentFileURL?.deletingPathExtension().appendingPathExtension("hpprgm") {
-                if FileManager.default.fileExists(atPath: url.path) {
-                    item.action = #selector(exportToHpPrimeEmulator)
+            if let url = currentFileURL, url.pathExtension == "prgm" {
+                item.action = #selector(formatCode)
+            }
+        }
+        
+    
+        if let item = performAction.submenu?.item(withTitle: "Run Without Building") {
+            item.action = nil
+            if let url = currentFileURL {
+                let hpprgm = url.deletingPathExtension().appendingPathExtension("hpprgm")
+                if FileManager.default.fileExists(atPath: hpprgm.path) {
+                    item.action = #selector(runWithoutBuilding)
                 }
             }
         }
         
-        if let item = mainMenu.item(withTitle: "Project")?.submenu?.item(withTitle: "Reformat") {
+        if let item = projectMenu.submenu?.item(withTitle: "Run") {
             item.action = nil
-            if currentFileURL?.pathExtension == "prgm" || currentFileURL?.pathExtension == "ppl" {
-                item.action = #selector(reformatAll)
+            if let url = currentFileURL, url.pathExtension == "prgm" {
+                item.action = #selector(run)
             }
         }
     }
-    
     
     
     private func assignRevertToSavedAction() {

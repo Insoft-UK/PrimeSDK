@@ -24,7 +24,7 @@
 import Cocoa
 
 class PrimeSDK {
-    class func pplplus(i infile: URL, o outfile: URL) {
+    class func `ppl+`(i infile: URL, o outfile: URL) {
         let libPath = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/lib").path
         let includePath = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/include").path
         let toolURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/bin/ppl+")

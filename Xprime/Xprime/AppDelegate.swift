@@ -25,7 +25,9 @@ import Cocoa
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
     @IBOutlet weak var mainMenu: NSMenu!
-    let tempManager = TempFileManager()
+    @IBOutlet weak var runMenuItem: NSMenuItem!
+    
+//    let tempManager = TempFileManager()
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
@@ -42,7 +44,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationWillTerminate(_ aNotification: Notification) {
         // Insert code here to tear down your application
-        tempManager.cleanup()
+//        tempManager.cleanup()
     }
     
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
@@ -52,37 +54,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     @IBAction func openDocument(_ sender: Any) {
         if let vc = NSApp.mainWindow?.contentViewController as? ViewController {
-            vc.openFile()
+            vc.open()
         }
     }
     
     @IBAction func saveDocument(_ sender: Any) {
         if let vc = NSApp.mainWindow?.contentViewController as? ViewController {
-            vc.saveFile()
+            vc.save()
         }
     }
     
     @IBAction func saveDocumentAs(_ sender: Any) {
         if let vc = NSApp.mainWindow?.contentViewController as? ViewController {
-            vc.saveFileAs()
+            vc.saveAs()
         }
     }
     
     @IBAction func installLibraries(_ sender: Any) {
-        guard let vc = NSApp.mainWindow?.contentViewController as? ViewController else { return }
-        
-        guard let tmpURL = vc.tempDirectoryURL else { return }
         let destURL = URL(fileURLWithPath: NSString(string: "~/Documents/HP Connectivity Kit/Content").expandingTildeInPath)
-        let srcURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/prgm")
+        let srcURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/hpprgm")
         
-        let names: [String] = ["ColorSpace", "HP", "GROB"]
-        for name in names {
-            if vc.minifier == true {
-                PrimeSDK.pplmin(i: srcURL.appendingPathComponent("\(name).prgm"), o: tmpURL.appendingPathComponent("\(name).prgm"))
-                PrimeSDK.hpprgm(i: tmpURL.appendingPathComponent("\(name).prgm"), o: destURL.appendingPathComponent("\(name).hpprgm"))
-            } else {
-                PrimeSDK.hpprgm(i: srcURL.appendingPathComponent("\(name).prgm"), o: destURL.appendingPathComponent("\(name).hpprgm"))
-            }
+        for file in ["ColorSpace.hpprgm", "HP.hpprgm", "GROB.hpprgm"] {
+            try? FileManager.default.copyItem(at: srcURL.appendingPathComponent(file), to: destURL)
         }
     }
     
@@ -90,18 +83,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         guard let vc = NSApp.mainWindow?.contentViewController as? ViewController else { return }
        
         let destURL = URL(fileURLWithPath: NSString(string: "~/Documents/HP Connectivity Kit/Content").expandingTildeInPath)
-        let srcURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/prgm/fonts")
-        var contents: String = ""
-        
-        for file in ["CGA.prgm", "EGA.prgm", "VGA.prgm", "BBC.prgm", "ARCADE.prgm", "HD44780.prgm"] {
-            if let prgm = vc.loadPrgmFile(srcURL.appendingPathComponent(file)) {
-                contents.append(prgm)
-            }
+        let srcURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/hpprgm/fonts")
+      
+        for file in ["CGA.hpprgm", "EGA.hpprgm", "VGA.hpprgm", "BBC.hpprgm", "ARCADE.hpprgm", "HD44780.hpprgm"] {
+            try? FileManager.default.copyItem(at: srcURL.appendingPathComponent(file), to: destURL)
         }
-        
-        try? contents.write(to: destURL.appendingPathComponent("Fonts.prgm"), atomically: true, encoding: .utf16LittleEndian)
-        PrimeSDK.hpprgm(i: destURL.appendingPathComponent("Fonts.prgm"), o: destURL.appendingPathComponent("Fonts.hpprgm"))
-        try? FileManager.default.removeItem(at: destURL.appendingPathComponent("Fonts.prgm"))
     }
     
     @IBAction func embedImage(_ sender: Any) {
@@ -138,7 +124,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let url = Bundle.main.bundleURL.appendingPathComponent("Contents/Template/\(traceMenuItem(menuItem))/\(menuItem.title).prgm")
         
-        if let contents = vc.loadPrgmFile(url) {
+        if let contents = vc.load(url) {
             vc.registerTextViewUndo(actionName: "Template")
             vc.insertString(contents)
             vc.applySyntaxHighlighting()
