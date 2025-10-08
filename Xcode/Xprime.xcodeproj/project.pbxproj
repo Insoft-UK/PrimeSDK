@@ -10,17 +10,6 @@
 		13EE0F622DF9DEDE004F3D7E /* Xprime.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Xprime.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		13EE0F7B2DFA6795004F3D7E /* Exceptions for "Xprime" folder in "Xprime" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-				TempManager.swift,
-			);
-			target = 13EE0F612DF9DEDE004F3D7E /* Xprime */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		13873D492E92DC2900083634 /* Developer */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -34,9 +23,6 @@
 		};
 		13EE0F642DF9DEDE004F3D7E /* Xprime */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				13EE0F7B2DFA6795004F3D7E /* Exceptions for "Xprime" folder in "Xprime" target */,
-			);
 			path = Xprime;
 			sourceTree = "<group>";
 		};

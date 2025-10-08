@@ -7,6 +7,5 @@ xcuserdata/
 ignore
 build
 examples
-Xprime/Tools
-Nightly\ Build
+Xcode/Tools
 Package\ Installer
