@@ -124,7 +124,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let url = Bundle.main.bundleURL.appendingPathComponent("Contents/Template/\(traceMenuItem(menuItem))/\(menuItem.title).prgm")
         
-        if let contents = vc.load(url) {
+        if let contents = vc.loadText(url) {
             vc.registerTextViewUndo(actionName: "Template")
             vc.insertString(contents)
             vc.applySyntaxHighlighting()

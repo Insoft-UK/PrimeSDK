@@ -527,7 +527,7 @@ final class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    private func open() {
+    func open() {
         let openPanel = NSOpenPanel()
         let extensions = ["prgm", "prgm+"]
         let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
@@ -566,7 +566,7 @@ final class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    private func save() {
+    func save() {
         guard let url = currentFileURL else {
             saveAs()
             return
@@ -583,7 +583,7 @@ final class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    private func saveAs() {
+    func saveAs() {
         let savePanel = NSSavePanel()
         let extensions = ["prgm", "prgm+"]
         let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
@@ -630,7 +630,7 @@ final class ViewController: NSViewController, NSTextViewDelegate {
     
     
     
-    private func insertCode() {
+    func insertCode() {
         guard let url = currentFileURL else {
             return
         }
@@ -658,7 +658,7 @@ final class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    private func embedImage() {
+    func embedImage() {
         guard let tmpURL = self.tempDirectoryURL else { return }
         
         let openPanel = NSOpenPanel()
@@ -682,7 +682,7 @@ final class ViewController: NSViewController, NSTextViewDelegate {
         }
     }
     
-    private func embedFont() {
+    func embedFont() {
         guard let tmpURL = self.tempDirectoryURL else {
             return
         }
