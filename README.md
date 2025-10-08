@@ -36,7 +36,7 @@ A utility that generates PPL code from image files for use with the **<a href="h
 A handy utility for converting Adafruit_GFX .h files to the .prgm format, for use with the **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/Xcode/Developer/usr/hpprgm/HP.hpprgm">HP</a>** library to render Adafruit GFX fonts.
 
 ### <a href="https://github.com/Insoft-UK/hpprgm/tree/main/README.md">HP Prime Program Tool</a>
-This utility tool provides the ability to extract **PPL** code from an HP Prime `.hpprgm` file.
+This utility tool provides the ability to extract **PPL** code from an HP Prime `.hpprgm` file.  The tool can also convert source code .prgm file/s to .hpprgm G1 format, while G1 is the old .hpprgm format it's still supported by the HP Prime Connectivity Kit and will be converted to the latest .hpprgm fornat.
 
 ## Library for HP Prime
 **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/Xcode/Developer/usr/hpprgm/ColorSpace.hpprgm">ColorSpace</a>** and **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/Xcode/Developer/usr/hpprgm/HP.hpprgm">HP</a>**
