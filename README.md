@@ -6,7 +6,7 @@ Graphing calculator HP Prime has a **3.5-inch full color touch screen**, that de
 
 <a href="https://www.moravia.education/en/id/72-hp-prime-g2">more...</a>
 
-<img src="https://github.com/Insoft-UK/PrimeSDK/blob/main/Xprime/Xprime/Assets.xcassets/AppIcon.appiconset/256pt@2x.png?raw=true" width="128" />
+<img src="https://github.com/Insoft-UK/PrimeSDK/blob/main/Xcode/Xprime/Assets.xcassets/AppIcon.appiconset/256pt@2x.png?raw=true" width="128" />
 
 # Code Editor for HP Prime Programming Language
 Edit your PPL code.
@@ -30,16 +30,13 @@ Minification of your code results in it taking up less space, making it use less
 Reformating your code enforce a consistent coding style throughout your project, making it easier for multiple developers to work on the same codebase. It helps maintain a uniform look and feel, which can enhance code readability. Readability: Well-formatted code is easier to read and understand.
 
 ### <a href="https://github.com/Insoft-UK/GROB/tree/main/README.md">GROB</a> for PPL Code
-A utility that generates PPL code from image files for use with the **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/hpprgm/GROB.hpprgm">GROB</a>** library, enabling the creation of graphic objects for use with the BLIT and BLIT_P functions on the HP Prime calculator.
+A utility that generates PPL code from image files for use with the **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/Xcode/Developer/usr/hpprgm/GROB.hpprgm">GROB</a>** library, enabling the creation of graphic objects for use with the BLIT and BLIT_P functions on the HP Prime calculator.
 
 ### Adafruit GFX <a href="https://github.com/Insoft-UK/PPL-Font/tree/main/README.md">Font Converter</a>
-A handy utility for converting Adafruit_GFX .h files to the .prgm format, for use with the **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/hpprgm/HP.hpprgm">HP</a>** library to render Adafruit GFX fonts.
+A handy utility for converting Adafruit_GFX .h files to the .prgm format, for use with the **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/Xcode/Developer/usr/hpprgm/HP.hpprgm">HP</a>** library to render Adafruit GFX fonts.
 
 ### <a href="https://github.com/Insoft-UK/hpprgm/tree/main/README.md">HP Prime Program Tool</a>
 This utility tool provides the ability to extract **PPL** code from an HP Prime `.hpprgm` file.
 
-## Example
-#### Colors
-<img src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/Colors.png" /></a>
-
-**<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/hpprgm/Colors.hpprgm">Colors</a>** is a simple color picker App for the HP Prime and requires the **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/hpprgm/ColorSpace.hpprgm">ColorSpace</a>** and **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/hpprgm/HP.hpprgm">HP</a>** library for HP Prime
+## Library for HP Prime
+**<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/Xcode/Developer/usr/hpprgm/ColorSpace.hpprgm">ColorSpace</a>** and **<a href="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/Xcode/Developer/usr/hpprgm/HP.hpprgm">HP</a>**
