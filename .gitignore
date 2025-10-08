@@ -6,6 +6,5 @@ xcuserdata/
 *.app
 ignore
 build
-examples
 Xcode/Tools
 Package\ Installer
