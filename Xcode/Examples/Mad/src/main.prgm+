@@ -8,7 +8,7 @@ dict White := #FFFFFF:32h, Silver := #C0C0C0:32h, Gray := #808080:32h, Black := 
 #define SCREEN_MIDDLE       120
 #define SCREEN_CENTRE       160
 
-#include "data.prgm"
+#include "data.prgm+"
 
 LnD: line;
 Scl: scale = 1.0;
@@ -19,7 +19,7 @@ begin
     scale = 1.0;
     
     RECT(Color.White);
-    #include "mad.prgm"
+    #include "mad.prgm+"
     BLIT_P(SCREEN_CENTRE - 32, SCREEN_MIDDLE - 32, G1);
     TEXTOUT_P("PRESS ANY KEY", 108, 208);
     TEXTOUT_P(COPYRIGHT, 76, 224, 1);
