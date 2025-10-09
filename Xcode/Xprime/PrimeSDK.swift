@@ -24,14 +24,18 @@
 import Cocoa
 
 class PrimeSDK {
-    class func `ppl+`(i infile: URL, o outfile: URL) {
+    class func `ppl+`(i infile: URL, o outfile: URL? = nil) {
         let libPath = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/lib").path
         let includePath = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/include").path
         let toolURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/bin/ppl+")
         
         let process = Process()
         process.executableURL = toolURL
-        process.arguments = ["-L\(libPath)", "-I\(includePath)", infile.path, "-o", outfile.path]
+        if let _ = outfile {
+            process.arguments = ["-L\(libPath)", "-I\(includePath)", infile.path, "-o", outfile!.path]
+        } else {
+            process.arguments = ["-L\(libPath)", "-I\(includePath)", infile.path]
+        }
         
         let pipe = Pipe()
         process.standardOutput = pipe

@@ -718,7 +718,7 @@ final class ViewController: NSViewController, NSTextViewDelegate {
         savePanel.begin { [weak self] result in
             guard result == .OK, let outURL = savePanel.url else { return }
             
-            PrimeSDK.`ppl+`(i: url, o: outURL)
+            PrimeSDK.`ppl+`(i: url)
             if !FileManager.default.fileExists(atPath: outURL.path) {
                 self?.alert("Failed to export file: \(outURL.path)")
             }
@@ -749,23 +749,19 @@ final class ViewController: NSViewController, NSTextViewDelegate {
         
         save()
         
-        if forRunning && url.pathExtension == "prgm" {
-            PrimeSDK.hpprgm(i: url)
+        if forRunning && url.pathExtension == "prgm+" {
+            PrimeSDK.`ppl+`(i: url, o: url.deletingPathExtension().appendingPathExtension("hpprgm"))
         }
         
-        if url.pathExtension == "prgm+" {
+        if !forRunning && url.pathExtension == "prgm+" {
             let prgm = url.deletingPathExtension().appendingPathExtension("prgm")
-            PrimeSDK.`ppl+`(i: url, o: prgm)
+            PrimeSDK.`ppl+`(i: url)
 
             if let contents = loadText(prgm) {
                 textView.string = contents
                 applySyntaxHighlighting()
                 currentFileURL = prgm
                 updateDocumentIconButtonImage()
-            }
-            
-            if forRunning {
-                PrimeSDK.hpprgm(i: prgm)
             }
         }
         
@@ -832,7 +828,7 @@ final class ViewController: NSViewController, NSTextViewDelegate {
         
         if let item = buildFor.submenu?.item(withTitle: "Running") {
             item.action = nil
-            if let url = currentFileURL, url.pathExtension == "prgm" {
+            if let url = currentFileURL, url.pathExtension == "prgm+" {
                 item.action = #selector(running)
             }
         }
@@ -864,7 +860,7 @@ final class ViewController: NSViewController, NSTextViewDelegate {
         
         if let item = projectMenu.submenu?.item(withTitle: "Run") {
             item.action = nil
-            if let url = currentFileURL, url.pathExtension == "prgm" {
+            if let url = currentFileURL, url.pathExtension == "prgm+" {
                 item.action = #selector(run)
             }
         }
