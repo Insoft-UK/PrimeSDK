@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 //
-// Copyright (c) 2025 Insoft. All rights reserved.
+// Copyright (c) 2025 Insoft.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the Software), to deal
@@ -25,16 +25,22 @@ import Cocoa
 
 class PrimeSDK {
     class func `ppl+`(i infile: URL, o outfile: URL? = nil) {
-        let libPath = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/lib").path
-        let includePath = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/include").path
-        let toolURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/bin/ppl+")
         
         let process = Process()
-        process.executableURL = toolURL
+        process.executableURL = AppSettings.binaryURL.appendingPathComponent("ppl+")
+        process.arguments = [infile.path]
+        
+        if AppSettings.useLib {
+            process.arguments?.append("-L\(AppSettings.libPath)")
+        }
+        
+        if AppSettings.useInclude {
+            process.arguments?.append("-L\(AppSettings.includePath)")
+        }
+        
         if let _ = outfile {
-            process.arguments = ["-L\(libPath)", "-I\(includePath)", infile.path, "-o", outfile!.path]
-        } else {
-            process.arguments = ["-L\(libPath)", "-I\(includePath)", infile.path]
+            process.arguments?.append("-o")
+            process.arguments?.append(outfile!.path)
         }
         
         let pipe = Pipe()
@@ -45,10 +51,8 @@ class PrimeSDK {
     }
     
     class func pplmin(i infile: URL, o outfile: URL) {
-        let toolURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/bin/pplmin")
-        
         let process = Process()
-        process.executableURL = toolURL
+        process.executableURL = AppSettings.binaryURL.appendingPathComponent("pplmin")
         process.arguments = [infile.path, "-o", outfile.path]
         
         let pipe = Pipe()
@@ -59,10 +63,8 @@ class PrimeSDK {
     }
     
     class func hpprgm(i infile: URL, o outfile: URL? = nil) {
-        let toolURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/bin/hpprgm")
-        
         let process = Process()
-        process.executableURL = toolURL
+        process.executableURL = AppSettings.binaryURL.appendingPathComponent("hpprgm")
         if let outfile = outfile {
             process.arguments = [infile.path, "-o", outfile.path]
         } else {
@@ -77,10 +79,8 @@ class PrimeSDK {
     }
     
     class func grob(i infile: URL, o outfile: URL) {
-        let toolURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/bin/grob")
-        
         let process = Process()
-        process.executableURL = toolURL
+        process.executableURL = AppSettings.binaryURL.appendingPathComponent("grob")
         process.arguments = [infile.path, "-o", outfile.path]
         
         let pipe = Pipe()
@@ -91,10 +91,8 @@ class PrimeSDK {
     }
     
     class func pplfont(i infile: URL, o outfile: URL) {
-        let toolURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/bin/pplfont")
-        
         let process = Process()
-        process.executableURL = toolURL
+        process.executableURL = AppSettings.binaryURL.appendingPathComponent("pplfont")
         process.arguments = [infile.path, "-o", outfile.path, "--ppl"]
         
         let pipe = Pipe()
@@ -106,8 +104,7 @@ class PrimeSDK {
     
     class func pplref(i infile: URL, o outfile: URL? = nil) {
         let process = Process()
-        
-        process.executableURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/bin/pplref")
+        process.executableURL = AppSettings.binaryURL.appendingPathComponent("pplref")
         if let outfile = outfile {
             process.arguments = [infile.path, "-o", outfile.path]
         } else {
