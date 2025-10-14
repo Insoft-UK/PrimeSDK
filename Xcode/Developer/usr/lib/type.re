@@ -1,2 +1,2 @@
-`\bInt *\(` IP(
+`\bInt(?:eger)? *\(` IP(
 `\bString *\(` STRING(

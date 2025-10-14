@@ -80,8 +80,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     @IBAction func installFonts(_ sender: Any) {
-        guard let vc = NSApp.mainWindow?.contentViewController as? ViewController else { return }
-       
         let destURL = URL(fileURLWithPath: NSString(string: "~/Documents/HP Connectivity Kit/Content").expandingTildeInPath)
         let srcURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/hpprgm/fonts")
       
