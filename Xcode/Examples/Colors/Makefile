@@ -11,7 +11,7 @@ endif
 
 all:
 	mkdir -p build
-	ppl+ $(SOURCES)/main -o build/$(NAME).prgm
+	ppl+ $(SOURCES)/main -o build/$(NAME).prgm -I$(PRIMESDK)/usr/include/ -L$(PRIMESDK)/usr/lib/
 min:
 	pplmin build/$(NAME).prgm
 clean:
