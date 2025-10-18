@@ -151,6 +151,63 @@ final class CodeEditorTextView: NSTextView {
         autoIndentCurrentLine()
     }
     
+    // MARK: - Public/s
+    
+    func removePragma(_ string: String) -> String {
+        return string
+            .components(separatedBy: .newlines)
+            .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("#pragma") }
+            .joined(separator: "\n")
+    }
+    
+    func insertCode(_ string: String) {
+        if let selectedRange = selectedRanges.first as? NSRange {
+            if let textStorage = textStorage {
+                textStorage.replaceCharacters(in: selectedRange, with: string)
+                setSelectedRange(NSRange(location: selectedRange.location + string.count, length: 0))
+            }
+        }
+        applySyntaxHighlighting()
+    }
+    
+    func loadTheme(at url: URL) {
+        if let jsonString = loadJSONString(url),
+           let jsonData = jsonString.data(using: .utf8) {
+            theme = try? JSONDecoder().decode(Theme.self, from: jsonData)
+        }
+        
+        func colorWithKey(_ key: String) -> NSColor {
+            for tokenColor in theme!.tokenColors {
+                if tokenColor.scope.contains(key) {
+                    return NSColor(hex: tokenColor.settings.foreground)!
+                }
+            }
+            return editorForegroundColor
+        }
+        
+        editorForegroundColor = NSColor(hex: (theme?.colors["editor.foreground"])!)!
+        
+        backgroundColor = NSColor(hex: (theme?.colors["editor.background"])!)!
+        textColor = NSColor(hex: (theme?.colors["editor.foreground"])!)!
+        selectedTextAttributes = [
+            .backgroundColor: NSColor(hex: (theme?.colors["editor.selectionBackground"])!)!
+        ]
+        insertionPointColor = NSColor(hex: (theme?.colors["editor.cursor"])!)!
+        
+        
+        colors["Keywords"] = colorWithKey("Keywords")
+        colors["Operators"] = colorWithKey("Operators")
+        colors["Brackets"] = colorWithKey("Brackets")
+        colors["Numbers"] = colorWithKey("Numbers")
+        colors["Strings"] = colorWithKey("Strings")
+        colors["Comments"] = colorWithKey("Comments")
+        colors["Backquote"] = colorWithKey("Backquote")
+        colors["Preprocessor Statements"] = colorWithKey("Preprocessor Statements")
+        colors["Functions"] = colorWithKey("Functions")
+    }
+    
+    // MARK: - Private/s
+    
     private func autoIndentCurrentLine() {
         let text = string as NSString
         let selectedRange = selectedRange()
@@ -214,21 +271,13 @@ final class CodeEditorTextView: NSTextView {
         textStorage.endEditing()
     }
     
-    func removePragma(_ string: String) -> String {
-        return string
-            .components(separatedBy: .newlines)
-            .filter { !$0.trimmingCharacters(in: .whitespaces).hasPrefix("#pragma") }
-            .joined(separator: "\n")
-    }
-    
-    func insertCode(_ string: String) {
-        if let selectedRange = selectedRanges.first as? NSRange {
-            if let textStorage = textStorage {
-                textStorage.replaceCharacters(in: selectedRange, with: string)
-                setSelectedRange(NSRange(location: selectedRange.location + string.count, length: 0))
-            }
+    private func loadGrammar() {
+        guard let url = Bundle.main.url(forResource: "Language", withExtension: "xpgrammar") else { return }
+        
+        if let jsonString = loadJSONString(url),
+           let jsonData = jsonString.data(using: .utf8) {
+            grammar = try? JSONDecoder().decode(Grammar.self, from: jsonData)
         }
-        applySyntaxHighlighting()
     }
     
     private func loadJSONString(_ url: URL) -> String? {
@@ -240,52 +289,7 @@ final class CodeEditorTextView: NSTextView {
         }
     }
     
-    func loadTheme(at url: URL) {
-        if let jsonString = loadJSONString(url),
-           let jsonData = jsonString.data(using: .utf8) {
-            theme = try? JSONDecoder().decode(Theme.self, from: jsonData)
-        }
-        
-        func colorWithKey(_ key: String) -> NSColor {
-            for tokenColor in theme!.tokenColors {
-                if tokenColor.scope.contains(key) {
-                    return NSColor(hex: tokenColor.settings.foreground)!
-                }
-            }
-            return editorForegroundColor
-        }
-        
-        editorForegroundColor = NSColor(hex: (theme?.colors["editor.foreground"])!)!
-        
-        backgroundColor = NSColor(hex: (theme?.colors["editor.background"])!)!
-        textColor = NSColor(hex: (theme?.colors["editor.foreground"])!)!
-        selectedTextAttributes = [
-            .backgroundColor: NSColor(hex: (theme?.colors["editor.selectionBackground"])!)!
-        ]
-        insertionPointColor = NSColor(hex: (theme?.colors["editor.cursor"])!)!
-        
-        
-        colors["Keywords"] = colorWithKey("Keywords")
-        colors["Operators"] = colorWithKey("Operators")
-        colors["Brackets"] = colorWithKey("Brackets")
-        colors["Numbers"] = colorWithKey("Numbers")
-        colors["Strings"] = colorWithKey("Strings")
-        colors["Comments"] = colorWithKey("Comments")
-        colors["Backquote"] = colorWithKey("Backquote")
-        colors["Preprocessor Statements"] = colorWithKey("Preprocessor Statements")
-        colors["Functions"] = colorWithKey("Functions")
-    }
-    
-    private func loadGrammar() {
-        guard let url = Bundle.main.url(forResource: "Language", withExtension: "xpgrammar") else { return }
-        
-        if let jsonString = loadJSONString(url),
-           let jsonData = jsonString.data(using: .utf8) {
-            grammar = try? JSONDecoder().decode(Grammar.self, from: jsonData)
-        }
-    }
-    
-    // MARK: - Syntax Highlighting
+    // MARK: Syntax Highlighting
     
     private func applySyntaxHighlighting() {
         guard let textStorage = textStorage else { return }
