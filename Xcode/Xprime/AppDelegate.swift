@@ -180,10 +180,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         if let url = vc.currentURL,
            FileManager.default.fileExists(atPath: url.path)
         {
-            CommandLineTool.`ppl+`(i: url)
+            _ = CommandLineTool.`ppl+`(i: url)
             let prgm = url.deletingPathExtension().appendingPathExtension("prgm")
             if FileManager.default.fileExists(atPath: prgm.path) {
-                CommandLineTool.hpprgm(i: prgm)
+                _ = CommandLineTool.hpprgm(i: prgm)
             }
         }
     }
@@ -196,7 +196,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         if let url = vc.currentURL,
            FileManager.default.fileExists(atPath: url.path)
         {
-            CommandLineTool.`ppl+`(i: url)
+            _ = CommandLineTool.`ppl+`(i: url)
             
             let prgm = url.deletingPathExtension().appendingPathExtension("prgm")
             if let contents = loadPrgmFile(prgm) {
