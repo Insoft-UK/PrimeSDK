@@ -47,8 +47,6 @@ final class SettingsViewController: NSViewController {
         includePath.stringValue = AppSettings.includePath
     }
     
-
-    
     @IBAction func resetInclude(_ sender: Any) {
         includePath.stringValue = bundleURL.appendingPathComponent("Contents/Developer/usr/include").path
         useIncludeButton.state = .on
@@ -70,13 +68,5 @@ final class SettingsViewController: NSViewController {
     @IBAction func cancelButton(_ sender: Any) {
         self.view.window?.performClose(sender)
     }
-    
-//    func close(_ sender: Any) {
-//        if let window = self.view.window, let parent = window.sheetParent {
-//            parent.endSheet(window, returnCode: .OK) // or .cancel
-//        } else {
-//            self.view.window?.performClose(sender)
-//        }
-//    }
     
 }

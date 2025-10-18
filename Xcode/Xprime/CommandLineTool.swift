@@ -22,9 +22,27 @@
 
 
 import Cocoa
+//import UniformTypeIdentifiers
 
-class PrimeSDK {
-    class func `ppl+`(i infile: URL, o outfile: URL? = nil) {
+fileprivate func run(_ task: Process) -> String? {
+    let pipe = Pipe()
+    task.standardOutput = pipe
+    
+    do {
+        try task.run()
+    } catch {
+        return nil
+    }
+    task.waitUntilExit()
+    
+    // Read all data from the pipe and convert to String
+    let data = pipe.fileHandleForReading.readDataToEndOfFile()
+    guard !data.isEmpty else { return nil }
+    return String(data: data, encoding: .utf8)
+}
+
+class CommandLineTool {
+    class func `ppl+`(i infile: URL, o outfile: URL? = nil) -> String? {
         
         let process = Process()
         process.executableURL = AppSettings.binaryURL.appendingPathComponent("ppl+")
@@ -43,11 +61,7 @@ class PrimeSDK {
             process.arguments?.append(outfile!.path)
         }
         
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        
-        try? process.run()
-        process.waitUntilExit()
+        return run(process)
     }
     
     class func pplmin(i infile: URL, o outfile: URL) {
@@ -62,7 +76,7 @@ class PrimeSDK {
         process.waitUntilExit()
     }
     
-    class func hpprgm(i infile: URL, o outfile: URL? = nil) {
+    class func hpprgm(i infile: URL, o outfile: URL? = nil) -> String? {
         let process = Process()
         process.executableURL = AppSettings.binaryURL.appendingPathComponent("hpprgm")
         if let outfile = outfile {
@@ -71,50 +85,28 @@ class PrimeSDK {
             process.arguments = [infile.path]
         }
         
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        
-        try? process.run()
-        process.waitUntilExit()
+        return run(process)
     }
     
-    class func grob(i infile: URL, o outfile: URL) {
+    class func grob(i infile: URL) -> String? {
         let process = Process()
         process.executableURL = AppSettings.binaryURL.appendingPathComponent("grob")
-        process.arguments = [infile.path, "-o", outfile.path]
-        
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        
-        try? process.run()
-        process.waitUntilExit()
+        process.arguments = [infile.path, "-o", "/dev/stdout"]
+        return run(process)
     }
     
-    class func pplfont(i infile: URL, o outfile: URL) {
+    class func pplfont(i infile: URL) -> String? {
         let process = Process()
         process.executableURL = AppSettings.binaryURL.appendingPathComponent("pplfont")
-        process.arguments = [infile.path, "-o", outfile.path, "--ppl"]
-        
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        
-        try? process.run()
-        process.waitUntilExit()
+        process.arguments = [infile.path, "-o", "/dev/stdout"]
+        return run(process)
     }
     
-    class func pplref(i infile: URL, o outfile: URL? = nil) {
+    class func pplref(i infile: URL) -> String? {
         let process = Process()
         process.executableURL = AppSettings.binaryURL.appendingPathComponent("pplref")
-        if let outfile = outfile {
-            process.arguments = [infile.path, "-o", outfile.path]
-        } else {
-            process.arguments = [infile.path]
-        }
-        
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        
-        try? process.run()
-        process.waitUntilExit()
+        process.arguments = [infile.path, "-o", "/dev/stdout"]
+        return run(process)
     }
 }
+

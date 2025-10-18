@@ -103,8 +103,11 @@
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <menu key="submenu" title="Export" id="pia-c9-RVv">
                                                 <items>
-                                                    <menuItem title="Quick Export as HPPRGM" image="ppl" id="lEh-6x-kCK">
+                                                    <menuItem title="Quick Export as HPPRGM" image="NSIconViewTemplate" id="lEh-6x-kCK">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
+                                                        <connections>
+                                                            <action selector="exportAsHpprgm:" target="Voe-Tx-rLC" id="ij0-2o-SfY"/>
+                                                        </connections>
                                                     </menuItem>
                                                 </items>
                                             </menu>
@@ -113,7 +116,7 @@
                                         <menuItem title="Revert to Saved..." image="arrow.uturn.backward" catalog="system" keyEquivalent="r" id="KaW-ft-85H">
                                             <modifierMask key="keyEquivalentModifierMask" option="YES"/>
                                             <connections>
-                                                <action selector="revertDocumentToSaved:" target="Ady-hI-5gd" id="iJ3-Pv-kwq"/>
+                                                <action selector="revertDocumentSaved:" target="Voe-Tx-rLC" id="F0g-VO-M5W"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="PnA-gF-GyT"/>
@@ -388,17 +391,31 @@
                                     </items>
                                 </menu>
                             </menuItem>
-                            <menuItem title="Project" id="uCe-hI-i1s">
+                            <menuItem title="Product" id="uCe-hI-i1s">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="Project" id="KAd-IF-cuB">
+                                <menu key="submenu" title="Product" id="KAd-IF-cuB">
                                     <items>
-                                        <menuItem title="Run" image="NSTouchBarPlayTemplate" keyEquivalent="r" id="p6y-v1-4El"/>
+                                        <menuItem title="Run" image="NSTouchBarPlayTemplate" keyEquivalent="r" id="p6y-v1-4El">
+                                            <connections>
+                                                <action selector="run:" target="Voe-Tx-rLC" id="kAO-IL-GPa"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Archive" image="cube.fill" catalog="system" id="n0t-oe-wmy">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="archive:" target="Voe-Tx-rLC" id="5Wz-wh-UeQ"/>
+                                            </connections>
+                                        </menuItem>
                                         <menuItem isSeparatorItem="YES" id="XAL-zZ-CE3"/>
                                         <menuItem title="Build For" image="hammer.fill" catalog="system" id="TfT-dR-9tD">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <menu key="submenu" title="Build For" id="Zuv-gx-gnd">
                                                 <items>
-                                                    <menuItem title="Running" image="play.fill" catalog="system" keyEquivalent="R" id="RMz-vh-Kx1"/>
+                                                    <menuItem title="Running" image="play.fill" catalog="system" keyEquivalent="R" id="RMz-vh-Kx1">
+                                                        <connections>
+                                                            <action selector="buildForRunning:" target="Voe-Tx-rLC" id="iew-Lm-Veh"/>
+                                                        </connections>
+                                                    </menuItem>
                                                 </items>
                                             </menu>
                                         </menuItem>
@@ -413,7 +430,11 @@
                                             </menu>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="ZP6-yo-rNE"/>
-                                        <menuItem title="Build" image="hammer.fill" catalog="system" keyEquivalent="b" id="Ust-Jd-TDZ"/>
+                                        <menuItem title="Build" image="hammer.fill" catalog="system" keyEquivalent="b" id="Ust-Jd-TDZ">
+                                            <connections>
+                                                <action selector="build:" target="Voe-Tx-rLC" id="uvB-09-zEC"/>
+                                            </connections>
+                                        </menuItem>
                                         <menuItem isSeparatorItem="YES" id="uSe-yx-JCn"/>
                                         <menuItem title="Template" image="ppl" id="dAk-Ox-0tv">
                                             <modifierMask key="keyEquivalentModifierMask"/>
@@ -596,8 +617,11 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="h12-3c-Pgi"/>
-                                        <menuItem title="Format Code" image="text.document" catalog="system" id="Bpw-YD-8pa">
+                                        <menuItem title="Reformat Code" image="text.document" catalog="system" id="Bpw-YD-8pa">
                                             <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="reformatCode:" target="Voe-Tx-rLC" id="Ci0-5t-Lba"/>
+                                            </connections>
                                         </menuItem>
                                     </items>
                                 </menu>
@@ -642,7 +666,6 @@
                 <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="Xprime" customModuleProvider="target">
                     <connections>
                         <outlet property="mainMenu" destination="AYu-sK-qS6" id="QmV-MP-D9f"/>
-                        <outlet property="runMenuItem" destination="p6y-v1-4El" id="IXE-M4-q8Q"/>
                     </connections>
                 </customObject>
                 <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
@@ -847,7 +870,7 @@ Gw
                                     <rect key="frame" x="0.0" y="0.0" width="800" height="500"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
-                                        <textView wantsLayer="YES" importsGraphics="NO" richText="NO" verticallyResizable="YES" baseWritingDirection="leftToRight" allowsUndo="YES" id="09p-Rf-tgR">
+                                        <textView wantsLayer="YES" importsGraphics="NO" richText="NO" verticallyResizable="YES" baseWritingDirection="leftToRight" allowsUndo="YES" id="09p-Rf-tgR" customClass="CodeEditorTextView" customModule="Xprime" customModuleProvider="target">
                                             <rect key="frame" x="0.0" y="0.0" width="800" height="500"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <color key="textColor" red="0.99131000000000002" green="0.56076000000000004" blue="0.24611" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
@@ -875,7 +898,7 @@ Gw
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="textView" destination="09p-Rf-tgR" id="JNJ-nh-eyu"/>
+                        <outlet property="codeEditorTextView" destination="09p-Rf-tgR" id="YQS-0U-lVp"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
@@ -884,10 +907,12 @@ Gw
         </scene>
     </scenes>
     <resources>
+        <image name="NSIconViewTemplate" width="19" height="18"/>
         <image name="NSTouchBarPlayTemplate" width="15" height="17"/>
         <image name="arrow.uturn.backward" catalog="system" width="15" height="14"/>
         <image name="building.columns.circle" catalog="system" width="15" height="15"/>
         <image name="character.book.closed" catalog="system" width="14" height="16"/>
+        <image name="cube.fill" catalog="system" width="16" height="17"/>
         <image name="hammer" catalog="system" width="20" height="18"/>
         <image name="hammer.fill" catalog="system" width="19" height="17"/>
         <image name="long.text.page.and.pencil" catalog="system" width="17" height="19"/>
