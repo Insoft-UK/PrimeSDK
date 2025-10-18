@@ -87,7 +87,7 @@ class LineNumberRulerView: NSRulerView {
             paragraphStyle.alignment = .right
 
             let attrs: [NSAttributedString.Key: Any] = [
-                .font: NSFont.monospacedDigitSystemFont(ofSize: 11, weight: .regular),
+                .font: NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .regular),
                 .foregroundColor: NSColor.gray,
                 .paragraphStyle: paragraphStyle
             ]

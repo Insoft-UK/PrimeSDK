@@ -62,12 +62,11 @@ extension ViewController: NSWindowRestoration {
 }
 
 final class ViewController: NSViewController, NSTextViewDelegate {
-    let mainMenu = NSApp.mainMenu!
-    var tempDirectoryURL: URL?
-    var minifier = false
     var currentURL: URL?
     
     @IBOutlet var codeEditorTextView: CodeEditorTextView!
+    @IBOutlet var outputTextView: NSTextView!
+    @IBOutlet var statusTextLabel: NSTextField!
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
@@ -94,6 +93,35 @@ final class ViewController: NSViewController, NSTextViewDelegate {
             codeEditorTextView.string = loadPrgmFile(url) ?? ""
         }
         
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateStatus),
+            name: NSTextView.didChangeSelectionNotification,
+            object: codeEditorTextView
+        )
+    }
+    
+    @objc private func updateStatus() {
+        if let editor = codeEditorTextView {
+            let text = editor.string as NSString
+            let selectedRange = editor.selectedRange
+            let cursorLocation = selectedRange.location
+            
+            // Find line number
+            var lineNumber = 1
+            var columnNumber = 1
+            
+            // Count newlines up to the cursor
+            for i in 0..<cursorLocation {
+                if text.character(at: i) == 10 { // '\n'
+                    lineNumber += 1
+                    columnNumber = 1
+                } else {
+                    columnNumber += 1
+                }
+            }
+            statusTextLabel.stringValue = "Line: \(lineNumber) Col: \(columnNumber)"
+        }
     }
     
     override func viewDidAppear() {
@@ -104,6 +132,8 @@ final class ViewController: NSViewController, NSTextViewDelegate {
             window.representedURL = Bundle.main.resourceURL?.appendingPathComponent("default.prgm+")
             let iconButton = window.standardWindowButton(.documentIconButton)!
             iconButton.image = NSImage(named: "pplplus")
+            
+            window.title = "Untiled (UNSAVED)"
         }
     }
     
@@ -140,46 +170,22 @@ final class ViewController: NSViewController, NSTextViewDelegate {
     }
     
     func updateDocumentIconButtonImage() {
-        guard let url = self.currentURL else { return }
+        guard let url = self.currentURL else {
+            return
+        }
         if let window = self.view.window {
             window.title = url.lastPathComponent
+            
             window.representedURL = URL(fileURLWithPath: url.path)
             if let iconButton = window.standardWindowButton(.documentIconButton) {
                 if url.pathExtension == "prgm+" {
                     iconButton.image = NSImage(named: "pplplus")
                 } else {
                     iconButton.image = NSImage(named: "ppl")
-                    
-                    if let item = mainMenu.item(withTitle: "File")?.submenu?.item(withTitle: "Export")?.submenu?.item(withTitle: "Export As...") {
-                        item.action = nil
-                    }
                 }
                 iconButton.isHidden = false
             }
         }
     }
-    
-    func exportToHpPrimeEmulator() {
-        func HPPrimeEmulatorDirectoryPath() -> URL? {
-            let url = URL(fileURLWithPath: NSString(string: "~/Documents/HP Prime/Calculators/Prime").expandingTildeInPath)
-            return url.hasDirectoryPath ? url : nil
-        }
-        
-        func lauchHPPrimeEmulator() {
-            let task = Process()
-            task.launchPath = "/Applications/HP Prime.app/Contents/MacOS/HP Prime"
-            task.launch()
-        }
-        
-        guard let url = currentURL?.deletingPathExtension().appendingPathExtension("hpprgm") else {
-            return
-        }
-      
-        if let destURL = HPPrimeEmulatorDirectoryPath() {
-            try? FileManager.default.copyItem(atPath: url.path, toPath: destURL.path)
-            lauchHPPrimeEmulator()
-        }
-    }
-    
 }
 

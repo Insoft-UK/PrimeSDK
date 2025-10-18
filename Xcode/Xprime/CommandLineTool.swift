@@ -22,7 +22,6 @@
 
 
 import Cocoa
-//import UniformTypeIdentifiers
 
 fileprivate func run(_ task: Process) -> String? {
     let pipe = Pipe()
@@ -42,6 +41,15 @@ fileprivate func run(_ task: Process) -> String? {
 }
 
 class CommandLineTool {
+    class func execute(_ command: String, arguments: [String]) -> String? {
+        let task = Process()
+        
+        task.executableURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/bin").appendingPathComponent(command)
+        task.arguments = arguments
+        
+        return run(task)
+    }
+    
     class func `ppl+`(i infile: URL, o outfile: URL? = nil) -> String? {
         
         let process = Process()

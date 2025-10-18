@@ -102,6 +102,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         
         do {
             try savePrgmFile(url, vc.codeEditorTextView.string)
+            vc.currentURL = url
         } catch {
             let alert = NSAlert()
             alert.messageText = "Error"
@@ -125,7 +126,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
 
             do {
                 try savePrgmFile(url, vc.codeEditorTextView.string)
-                vc.updateDocumentIconButtonImage()
+                vc.currentURL = url
             } catch {
                 let alert = NSAlert()
                 alert.messageText = "Error"
@@ -146,12 +147,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         savePanel.begin { result in
             guard result == .OK, let outURL = savePanel.url else { return }
             
-            _ = CommandLineTool.hpprgm(i: url, o: outURL)
-            if !FileManager.default.fileExists(atPath: outURL.path) {
-                let alert = NSAlert()
-                alert.messageText = "Error"
-                alert.informativeText = "Failed to export file: \(outURL.path)"
-                alert.runModal()
+            if let content = CommandLineTool.execute("hpprgm", arguments: [url.path, "-o", outURL.path]) {
+                vc.outputTextView.string = content
             }
         }
     }
@@ -169,7 +166,28 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         guard let vc = NSApp.mainWindow?.contentViewController as? ViewController else { return }
 
         build(sender)
-        vc.exportToHpPrimeEmulator()
+        guard let url = vc.currentURL,
+           FileManager.default.fileExists(atPath: url.path) else
+        {
+            return
+        }
+        let prgm = url.deletingPathExtension().appendingPathExtension("prgm")
+        if FileManager.default.fileExists(atPath: prgm.path) {
+            if let content = CommandLineTool.execute("hpprgm", arguments: [prgm.path]) {
+                vc.outputTextView.string = content
+                let destURL = URL(fileURLWithPath: NSString(string: "~/Documents/HP Prime/Calculators/Prime").expandingTildeInPath)
+                if !destURL.hasDirectoryPath {
+                    return
+                }
+                let srcURL = prgm.deletingLastPathComponent().appendingPathComponent("hpprgm")
+                try? FileManager.default.copyItem(atPath: srcURL.path, toPath: destURL.path)
+                
+                let task = Process()
+                task.launchPath = "/Applications/HP Prime.app/Contents/MacOS/HP Prime"
+                task.launch()
+            }
+        }
+        
     }
     
     @IBAction func buildForRunning(_ sender: Any) {
@@ -180,10 +198,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         if let url = vc.currentURL,
            FileManager.default.fileExists(atPath: url.path)
         {
-            _ = CommandLineTool.`ppl+`(i: url)
+            if let content = CommandLineTool.`ppl+`(i: url) {
+                vc.outputTextView.string = content
+            }
             let prgm = url.deletingPathExtension().appendingPathExtension("prgm")
             if FileManager.default.fileExists(atPath: prgm.path) {
-                _ = CommandLineTool.hpprgm(i: prgm)
+                _ = CommandLineTool.execute("hpprgm", arguments: [prgm.path])
             }
         }
     }
@@ -196,13 +216,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         if let url = vc.currentURL,
            FileManager.default.fileExists(atPath: url.path)
         {
-            _ = CommandLineTool.`ppl+`(i: url)
-            
-            let prgm = url.deletingPathExtension().appendingPathExtension("prgm")
-            if let contents = loadPrgmFile(prgm) {
-                vc.codeEditorTextView.string = contents
-                vc.currentURL = prgm
-                vc.updateDocumentIconButtonImage()
+            if let content = CommandLineTool.`ppl+`(i: url) {
+                vc.outputTextView.string = content
             }
         }
     }
@@ -240,7 +255,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         openPanel.begin { result in
             guard result == .OK, let url = openPanel.url else { return }
             
-            if let contents = CommandLineTool.grob(i: url) {
+            if let contents = CommandLineTool.execute("grob", arguments: [url.path, "-o", "/dev/stdout"]) {
                 vc.registerTextViewUndo(actionName: "Insert Code")
                 vc.codeEditorTextView.insertCode(contents)
             }
@@ -261,7 +276,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         openPanel.begin { result in
             guard result == .OK, let url = openPanel.url else { return }
             
-            if let contents = CommandLineTool.grob(i: url) {
+            if let contents = CommandLineTool.execute("pplfont", arguments: [url.path, "-o", "/dev/stdout"]) {
                 vc.registerTextViewUndo(actionName: "Embeded Adafruit GFX font")
                 vc.codeEditorTextView.insertCode(contents)
             }

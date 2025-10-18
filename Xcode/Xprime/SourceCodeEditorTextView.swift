@@ -109,7 +109,7 @@ final class CodeEditorTextView: NSTextView {
         isAutomaticTextReplacementEnabled = false
         isContinuousSpellCheckingEnabled = false
         
-        textContainerInset = NSSize(width: 8, height: 8)
+        textContainerInset = NSSize(width: 0, height: 0)
         backgroundColor = NSColor.textBackgroundColor
         
         smartInsertDeleteEnabled = false
