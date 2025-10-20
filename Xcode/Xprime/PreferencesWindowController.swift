@@ -22,7 +22,7 @@
 
 import Cocoa
 
-final class SettingsWindowController: NSWindowController {
+final class PreferencesWindowController: NSWindowController {
     
     
     override func windowDidLoad() {

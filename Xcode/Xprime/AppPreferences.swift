@@ -23,14 +23,15 @@
 import Foundation
 import AppKit
 
-struct AppSettings {
+struct AppPreferences {
+    
     private static let defaults = UserDefaults.standard
     private static let bundleURL = Bundle.main.bundleURL
 
     private enum Key: String {
         case libPath
         case includePath
-        case binaryURL
+        case binURL
         case useLib
         case useInclude
     }
@@ -46,9 +47,9 @@ struct AppSettings {
         set { defaults.set(newValue, forKey: Key.includePath.rawValue) }
     }
     
-    static var binaryURL: URL {
-        get { defaults.object(forKey: Key.binaryURL.rawValue) as? URL ?? bundleURL.appendingPathComponent("Contents/Developer/usr/bin") }
-        set { defaults.set(newValue, forKey: Key.binaryURL.rawValue) }
+    static var binURL: URL {
+        get { defaults.object(forKey: Key.binURL.rawValue) as? URL ?? bundleURL.appendingPathComponent("Contents/Developer/usr/bin") }
+        set { defaults.set(newValue, forKey: Key.binURL.rawValue) }
     }
     
     static var useLib: Bool {
@@ -72,31 +73,3 @@ struct AppSettings {
     }
 }
 
-extension NSColor {
-    static func fromHex(_ hex: String) -> NSColor {
-        var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-        if hexSanitized.hasPrefix("#") { hexSanitized.removeFirst() }
-
-        var rgb: UInt64 = 0
-        Scanner(string: hexSanitized).scanHexInt64(&rgb)
-
-        let r, g, b: CGFloat
-        switch hexSanitized.count {
-        case 6:
-            r = CGFloat((rgb & 0xFF0000) >> 16) / 255.0
-            g = CGFloat((rgb & 0x00FF00) >> 8) / 255.0
-            b = CGFloat(rgb & 0x0000FF) / 255.0
-            return NSColor(calibratedRed: r, green: g, blue: b, alpha: 1.0)
-        default:
-            return NSColor(calibratedWhite: 0.125, alpha: 1.0)
-        }
-    }
-
-    var hexString: String {
-        guard let rgb = usingColorSpace(.deviceRGB) else { return "#202020" }
-        let r = Int(rgb.redComponent * 255.0)
-        let g = Int(rgb.greenComponent * 255.0)
-        let b = Int(rgb.blueComponent * 255.0)
-        return String(format: "#%02X%02X%02X", r, g, b)
-    }
-}

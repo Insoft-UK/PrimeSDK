@@ -65,18 +65,18 @@
                                     <items>
                                         <menuItem title="Open…" keyEquivalent="o" id="IAo-SY-fd9">
                                             <connections>
-                                                <action selector="openDocument:" target="Voe-Tx-rLC" id="h9t-xP-4dG"/>
+                                                <action selector="openDocument:" target="Ady-hI-5gd" id="bfI-qU-Mow"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="m54-Is-iLE"/>
                                         <menuItem title="Save…" keyEquivalent="s" id="pxx-59-PXV">
                                             <connections>
-                                                <action selector="saveDocument:" target="Voe-Tx-rLC" id="rVR-vD-Oca"/>
+                                                <action selector="saveDocument:" target="Ady-hI-5gd" id="6y1-Lw-kQR"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem title="Save As…" keyEquivalent="S" id="Bw7-FT-i3A">
                                             <connections>
-                                                <action selector="saveDocumentAs:" target="Voe-Tx-rLC" id="vwh-LY-EiI"/>
+                                                <action selector="saveDocumentAs:" target="Ady-hI-5gd" id="NiY-yk-tWd"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="XfC-ik-oAT"/>
@@ -106,7 +106,7 @@
                                                     <menuItem title="Quick Export as HPPRGM" image="NSIconViewTemplate" id="lEh-6x-kCK">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <connections>
-                                                            <action selector="exportAsHpprgm:" target="Voe-Tx-rLC" id="ij0-2o-SfY"/>
+                                                            <action selector="exportAsHpprgm:" target="Ady-hI-5gd" id="EQU-Nk-usa"/>
                                                         </connections>
                                                     </menuItem>
                                                 </items>
@@ -116,20 +116,20 @@
                                         <menuItem title="Revert to Saved..." image="arrow.uturn.backward" catalog="system" keyEquivalent="r" id="KaW-ft-85H">
                                             <modifierMask key="keyEquivalentModifierMask" option="YES"/>
                                             <connections>
-                                                <action selector="revertDocumentSaved:" target="Voe-Tx-rLC" id="F0g-VO-M5W"/>
+                                                <action selector="revertDocumentToSaved:" target="Ady-hI-5gd" id="sC7-GS-wBe"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="PnA-gF-GyT"/>
                                         <menuItem title="Install Libraries into HP Connectivity Kit" image="building.columns.circle" catalog="system" id="8sY-jt-YL6">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
-                                                <action selector="installLibraries:" target="Voe-Tx-rLC" id="XAJ-Ks-g7I"/>
+                                                <action selector="installLibraries:" target="Ady-hI-5gd" id="HgM-cl-5ER"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem title="Install Fonts into HP Connectivity Kit" image="building.columns.circle" catalog="system" id="AzW-qF-sV7">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
-                                                <action selector="installFonts:" target="Voe-Tx-rLC" id="Dqp-gR-flx"/>
+                                                <action selector="installFonts:" target="Ady-hI-5gd" id="z7r-ta-AaL"/>
                                             </connections>
                                         </menuItem>
                                     </items>
@@ -397,13 +397,13 @@
                                     <items>
                                         <menuItem title="Run" image="NSTouchBarPlayTemplate" keyEquivalent="r" id="p6y-v1-4El">
                                             <connections>
-                                                <action selector="run:" target="Voe-Tx-rLC" id="kAO-IL-GPa"/>
+                                                <action selector="run:" target="Ady-hI-5gd" id="S3B-qu-8QR"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem title="Archive" image="cube.fill" catalog="system" id="n0t-oe-wmy">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
-                                                <action selector="archive:" target="Voe-Tx-rLC" id="5Wz-wh-UeQ"/>
+                                                <action selector="archive:" target="Ady-hI-5gd" id="WQR-gu-FYO"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="XAL-zZ-CE3"/>
@@ -413,7 +413,7 @@
                                                 <items>
                                                     <menuItem title="Running" image="play.fill" catalog="system" keyEquivalent="R" id="RMz-vh-Kx1">
                                                         <connections>
-                                                            <action selector="buildForRunning:" target="Voe-Tx-rLC" id="iew-Lm-Veh"/>
+                                                            <action selector="buildForRunning:" target="Ady-hI-5gd" id="LRU-Qw-bpO"/>
                                                         </connections>
                                                     </menuItem>
                                                 </items>
@@ -432,7 +432,7 @@
                                         <menuItem isSeparatorItem="YES" id="ZP6-yo-rNE"/>
                                         <menuItem title="Build" image="hammer.fill" catalog="system" keyEquivalent="b" id="Ust-Jd-TDZ">
                                             <connections>
-                                                <action selector="build:" target="Voe-Tx-rLC" id="uvB-09-zEC"/>
+                                                <action selector="build:" target="Ady-hI-5gd" id="jgL-VQ-g2m"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="uSe-yx-JCn"/>
@@ -444,22 +444,22 @@
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <menu key="submenu" title="Block" id="XDM-c2-9YN">
                                                             <items>
-                                                                <menuItem title="BEGIN END" image="long.text.page.and.pencil" catalog="system" id="aNg-iF-5pJ">
+                                                                <menuItem title="BEGIN END" image="text.page" catalog="system" id="aNg-iF-5pJ">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="Js2-zH-GvK"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="Frj-Uj-p5g"/>
                                                                     </connections>
                                                                 </menuItem>
-                                                                <menuItem title="RETURN" image="long.text.page.and.pencil" catalog="system" id="SKP-ac-Wf4">
+                                                                <menuItem title="RETURN" image="text.page" catalog="system" id="SKP-ac-Wf4">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="COf-lh-Ij2"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="8X7-Hb-V4V"/>
                                                                     </connections>
                                                                 </menuItem>
-                                                                <menuItem title="KILL" image="long.text.page.and.pencil" catalog="system" id="Q5c-yC-JW8">
+                                                                <menuItem title="KILL" image="text.page" catalog="system" id="Q5c-yC-JW8">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="1yn-fF-mEh"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="klE-cQ-xLx"/>
                                                                     </connections>
                                                                 </menuItem>
                                                             </items>
@@ -469,34 +469,34 @@
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <menu key="submenu" title="Branch" id="yLe-R8-fcE">
                                                             <items>
-                                                                <menuItem title="IF THEN" image="long.text.page.and.pencil" catalog="system" id="yXQ-2z-JWY">
+                                                                <menuItem title="IF THEN" image="text.page" catalog="system" id="yXQ-2z-JWY">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="VXb-aY-dK3"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="Btw-0e-30O"/>
                                                                     </connections>
                                                                 </menuItem>
-                                                                <menuItem title="IF THEN ELSE" image="long.text.page.and.pencil" catalog="system" id="sAX-aQ-af3">
+                                                                <menuItem title="IF THEN ELSE" image="text.page" catalog="system" id="sAX-aQ-af3">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="5Gk-sE-G68"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="Eeg-sb-cv8"/>
                                                                     </connections>
                                                                 </menuItem>
-                                                                <menuItem title="CASE" image="long.text.page.and.pencil" catalog="system" id="gxl-vi-3B7">
+                                                                <menuItem title="CASE" image="text.page" catalog="system" id="gxl-vi-3B7">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="12P-Wg-mkR"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="lar-BZ-V5V"/>
                                                                     </connections>
                                                                 </menuItem>
-                                                                <menuItem title="IFERR" image="long.text.page.and.pencil" catalog="system" id="x0e-Hx-Kbu">
+                                                                <menuItem title="IFERR" image="text.page" catalog="system" id="x0e-Hx-Kbu">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="WMW-aE-DGT"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="2h9-uf-1ly"/>
                                                                     </connections>
                                                                 </menuItem>
-                                                                <menuItem title="IFERR ELSE" image="long.text.page.and.pencil" catalog="system" id="1Zd-pc-Dxp">
+                                                                <menuItem title="IFERR ELSE" image="text.page" catalog="system" id="1Zd-pc-Dxp">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="cxB-BW-mjD"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="MBI-L2-p8V"/>
                                                                     </connections>
                                                                 </menuItem>
                                                             </items>
@@ -506,52 +506,52 @@
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <menu key="submenu" title="Loop" id="P1f-0B-Kpa">
                                                             <items>
-                                                                <menuItem title="FOR" image="long.text.page.and.pencil" catalog="system" id="SPP-ZN-Kwb">
+                                                                <menuItem title="FOR" image="text.page" catalog="system" id="SPP-ZN-Kwb">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="xw4-lB-REs"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="Gde-Bx-SQg"/>
                                                                     </connections>
                                                                 </menuItem>
-                                                                <menuItem title="FOR STEP" image="long.text.page.and.pencil" catalog="system" id="rjd-Ad-uRf">
+                                                                <menuItem title="FOR STEP" image="text.page" catalog="system" id="rjd-Ad-uRf">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="ata-Ot-iSc"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="hp9-eE-epQ"/>
                                                                     </connections>
                                                                 </menuItem>
-                                                                <menuItem title="FOR DOWNTO" image="long.text.page.and.pencil" catalog="system" id="rVG-M9-7y8">
+                                                                <menuItem title="FOR DOWNTO" image="text.page" catalog="system" id="rVG-M9-7y8">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="578-zA-2f8"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="jvx-dW-62S"/>
                                                                     </connections>
                                                                 </menuItem>
-                                                                <menuItem title="FOR DOWNTO STEP" image="long.text.page.and.pencil" catalog="system" id="6Bm-ct-qxr">
+                                                                <menuItem title="FOR DOWNTO STEP" image="text.page" catalog="system" id="6Bm-ct-qxr">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="Tiq-Sa-Td2"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="lyQ-N3-w4o"/>
                                                                     </connections>
                                                                 </menuItem>
-                                                                <menuItem title="WHILE" image="long.text.page.and.pencil" catalog="system" id="v46-YC-vdG">
+                                                                <menuItem title="WHILE" image="text.page" catalog="system" id="v46-YC-vdG">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="TxA-iz-ltN"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="bJ0-Nu-MDG"/>
                                                                     </connections>
                                                                 </menuItem>
-                                                                <menuItem title="REPEAT" image="long.text.page.and.pencil" catalog="system" id="ygr-Ca-Oib">
+                                                                <menuItem title="REPEAT" image="text.page" catalog="system" id="ygr-Ca-Oib">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="Rgg-TP-3ef"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="PjD-ay-Hy3"/>
                                                                     </connections>
                                                                 </menuItem>
-                                                                <menuItem title="BREAK" image="long.text.page.and.pencil" catalog="system" id="AkL-zs-sTd">
+                                                                <menuItem title="BREAK" image="text.page" catalog="system" id="AkL-zs-sTd">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="uXp-8D-dMr"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="ZGy-rQ-IUJ"/>
                                                                     </connections>
                                                                 </menuItem>
-                                                                <menuItem title="CONTINUE" image="long.text.page.and.pencil" catalog="system" id="Z4Q-vv-SGl">
+                                                                <menuItem title="CONTINUE" image="text.page" catalog="system" id="Z4Q-vv-SGl">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="Au2-Mz-D6W"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="Apu-Gr-uKg"/>
                                                                     </connections>
                                                                 </menuItem>
                                                             </items>
@@ -561,22 +561,22 @@
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <menu key="submenu" title="Variable" id="Ja2-z5-wKj">
                                                             <items>
-                                                                <menuItem title="LOCAL" image="long.text.page.and.pencil" catalog="system" id="Qke-qD-0wL">
+                                                                <menuItem title="LOCAL" image="text.page" catalog="system" id="Qke-qD-0wL">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="1io-l5-niu"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="p61-ff-M2x"/>
                                                                     </connections>
                                                                 </menuItem>
-                                                                <menuItem title="EXPORT" image="long.text.page.and.pencil" catalog="system" id="efl-wx-mzN">
+                                                                <menuItem title="EXPORT" image="text.page" catalog="system" id="efl-wx-mzN">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="1Uj-tU-cIs"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="en3-8G-zND"/>
                                                                     </connections>
                                                                 </menuItem>
-                                                                <menuItem title="CONST" image="long.text.page.and.pencil" catalog="system" id="ErR-Hb-msS">
+                                                                <menuItem title="CONST" image="text.page" catalog="system" id="ErR-Hb-msS">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="xeF-rR-1jh"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="5KB-FI-az8"/>
                                                                     </connections>
                                                                 </menuItem>
                                                             </items>
@@ -586,22 +586,22 @@
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <menu key="submenu" title="Function" id="T6d-pR-Hul">
                                                             <items>
-                                                                <menuItem title="EXPORT" image="long.text.page.and.pencil" catalog="system" id="g6k-QM-evm">
+                                                                <menuItem title="EXPORT" image="text.page" catalog="system" id="g6k-QM-evm">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="yyG-Ts-6N6"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="q1n-FH-Wfx"/>
                                                                     </connections>
                                                                 </menuItem>
-                                                                <menuItem title="VIEW" image="long.text.page.and.pencil" catalog="system" id="cC0-eS-XQL">
+                                                                <menuItem title="VIEW" image="text.page" catalog="system" id="cC0-eS-XQL">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="FuT-eV-BUF"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="re9-01-VGf"/>
                                                                     </connections>
                                                                 </menuItem>
-                                                                <menuItem title="KEY" image="long.text.page.and.pencil" catalog="system" id="tVJ-w9-U2C">
+                                                                <menuItem title="KEY" image="text.page" catalog="system" id="tVJ-w9-U2C">
                                                                     <modifierMask key="keyEquivalentModifierMask"/>
                                                                     <connections>
-                                                                        <action selector="insertTemplate:" target="Voe-Tx-rLC" id="PxX-0n-b2E"/>
+                                                                        <action selector="insertTemplate:" target="Ady-hI-5gd" id="bsv-Si-6tg"/>
                                                                     </connections>
                                                                 </menuItem>
                                                             </items>
@@ -613,14 +613,14 @@
                                         <menuItem title="Insert Code" image="text.insert" catalog="system" id="1OF-xl-3eV">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
-                                                <action selector="insertCode:" target="Voe-Tx-rLC" id="js5-zO-08x"/>
+                                                <action selector="insertCode:" target="Ady-hI-5gd" id="W2n-i4-iDV"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="h12-3c-Pgi"/>
                                         <menuItem title="Reformat Code" image="text.document" catalog="system" id="Bpw-YD-8pa">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
-                                                <action selector="reformatCode:" target="Voe-Tx-rLC" id="Ci0-5t-Lba"/>
+                                                <action selector="reformatCode:" target="Ady-hI-5gd" id="NkF-Cf-Wgk"/>
                                             </connections>
                                         </menuItem>
                                     </items>
@@ -671,17 +671,20 @@
                 <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
                 <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-127" y="-77"/>
+            <point key="canvasLocation" x="-165" y="-614"/>
         </scene>
         <!--Window Controller-->
         <scene sceneID="0zq-Fv-lwY">
             <objects>
-                <windowController id="CFc-li-Drx" customClass="SettingsWindowController" customModule="Xprime" customModuleProvider="target" sceneMemberID="viewController">
-                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="SUG-Wu-9FC">
+                <windowController id="CFc-li-Drx" customClass="PreferencesWindowController" customModule="Xprime" customModuleProvider="target" sceneMemberID="viewController">
+                    <window key="window" title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="SUG-Wu-9FC">
                         <windowStyleMask key="styleMask" titled="YES"/>
-                        <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="211" y="269" width="480" height="270"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1512" height="948"/>
+                        <value key="minSize" type="size" width="480" height="270"/>
+                        <value key="maxSize" type="size" width="480" height="270"/>
+                        <value key="minFullScreenContentSize" type="size" width="480" height="270"/>
+                        <value key="maxFullScreenContentSize" type="size" width="480" height="270"/>
                         <view key="contentView" id="31E-id-5Da">
                             <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
                             <autoresizingMask key="autoresizingMask"/>
@@ -696,12 +699,12 @@
                 </windowController>
                 <customObject id="yqd-22-Lvs" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-32" y="-362"/>
+            <point key="canvasLocation" x="461" y="-182"/>
         </scene>
-        <!--Settings View Controller-->
+        <!--Preferences View Controller-->
         <scene sceneID="3zb-e1-bF9">
             <objects>
-                <viewController id="HsO-bO-Dfd" customClass="SettingsViewController" customModule="Xprime" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="HsO-bO-Dfd" customClass="PreferencesViewController" customModule="Xprime" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="1RK-mx-rDE">
                         <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -834,7 +837,7 @@ Gw
                 </viewController>
                 <customObject id="57P-ye-oRC" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="549" y="-419"/>
+            <point key="canvasLocation" x="1029" y="-193"/>
         </scene>
         <!--Window Controller-->
         <scene sceneID="R2V-B0-nI4">
@@ -842,8 +845,48 @@ Gw
                 <windowController id="B8D-0N-5wS" sceneMemberID="viewController">
                     <window key="window" title="Untitled.prgm+ (Unsaved)" separatorStyle="shadow" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
                         <windowStyleMask key="styleMask" titled="YES" miniaturizable="YES" resizable="YES"/>
-                        <rect key="contentRect" x="620" y="417" width="480" height="240"/>
+                        <rect key="contentRect" x="620" y="417" width="521" height="240"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
+                        <toolbar key="toolbar" implicitIdentifier="790E7E42-ECCB-45F7-B34A-F911CDC4EC95" autosavesConfiguration="NO" showsBaselineSeparator="NO" displayMode="iconAndLabel" sizeMode="regular" id="jmI-rT-oAa">
+                            <allowedToolbarItems>
+                                <toolbarItem implicitItemIdentifier="NSToolbarShowColorsItem" id="AGG-wp-PLn"/>
+                                <toolbarItem implicitItemIdentifier="NSToolbarShowFontsItem" id="AcP-pw-BDS"/>
+                                <toolbarItem implicitItemIdentifier="NSToolbarPrintItem" id="jVk-Oc-Dyz">
+                                    <connections>
+                                        <action selector="print:" target="Oky-zY-oP4" id="6KO-oi-aSC"/>
+                                    </connections>
+                                </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="Pr6-Kd-yB2"/>
+                                <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="vRb-OI-uPy"/>
+                                <toolbarItem implicitItemIdentifier="CEC783FB-10FB-4080-93CE-A6533968BF47" label="Save" paletteLabel="Save" tag="-1" image="square.and.arrow.down" catalog="system" id="0uA-kt-18g">
+                                    <size key="minSize" width="23" height="26"/>
+                                    <size key="maxSize" width="23" height="26"/>
+                                    <connections>
+                                        <action selector="saveDocument:" target="Oky-zY-oP4" id="zr3-he-7cV"/>
+                                    </connections>
+                                </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="0C54E2DB-EC1B-4E78-A931-72EE13420635" explicitItemIdentifier="Export" label="Export" paletteLabel="Export" tag="-1" image="square.and.arrow.up" catalog="system" id="MlY-DF-mDD">
+                                    <size key="minSize" width="23" height="27"/>
+                                    <size key="maxSize" width="23" height="27"/>
+                                    <connections>
+                                        <action selector="exportAsHpprgm:" target="Oky-zY-oP4" id="7gd-Th-FFT"/>
+                                    </connections>
+                                </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="AD3522ED-9E05-47FC-826C-82BDA25EBD85" explicitItemIdentifier="Build" label="Build" paletteLabel="Build" tag="-1" image="hammer.fill" catalog="system" id="qhn-5s-CEp">
+                                    <size key="minSize" width="29" height="27"/>
+                                    <size key="maxSize" width="29" height="27"/>
+                                    <connections>
+                                        <action selector="build:" target="Oky-zY-oP4" id="H1T-aP-bgW"/>
+                                    </connections>
+                                </toolbarItem>
+                            </allowedToolbarItems>
+                            <defaultToolbarItems>
+                                <toolbarItem reference="0uA-kt-18g"/>
+                                <toolbarItem reference="MlY-DF-mDD"/>
+                                <toolbarItem reference="vRb-OI-uPy"/>
+                                <toolbarItem reference="qhn-5s-CEp"/>
+                            </defaultToolbarItems>
+                        </toolbar>
                         <connections>
                             <outlet property="delegate" destination="B8D-0N-5wS" id="98r-iN-zZc"/>
                         </connections>
@@ -854,12 +897,12 @@ Gw
                 </windowController>
                 <customObject id="Oky-zY-oP4" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="339" y="181"/>
+            <point key="canvasLocation" x="-135" y="-274"/>
         </scene>
-        <!--View Controller-->
+        <!--Main View Controller-->
         <scene sceneID="hIz-AP-VOD">
             <objects>
-                <viewController id="XfG-lQ-9wD" customClass="ViewController" customModule="Xprime" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="XfG-lQ-9wD" customClass="MainViewController" customModule="Xprime" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" appearanceType="darkAqua" id="m2S-Jp-Qdl">
                         <rect key="frame" x="0.0" y="0.0" width="800" height="499"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -901,7 +944,7 @@ Gw
                                                 <rect key="frame" x="579" y="9" width="203" height="16"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                 <textFieldCell key="cell" lineBreakMode="clipping" allowsUndo="NO" userInterfaceLayoutDirection="rightToLeft" alignment="right" title="Line: 1 Col: 1" id="au9-yV-l0B">
-                                                    <font key="font" metaFont="system" size="11"/>
+                                                    <font key="font" metaFont="smallSystem"/>
                                                     <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                 </textFieldCell>
@@ -960,7 +1003,7 @@ Gw
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="75" y="763"/>
+            <point key="canvasLocation" x="-16" y="296"/>
         </scene>
     </scenes>
     <resources>
@@ -972,14 +1015,15 @@ Gw
         <image name="cube.fill" catalog="system" width="16" height="17"/>
         <image name="hammer" catalog="system" width="20" height="18"/>
         <image name="hammer.fill" catalog="system" width="19" height="17"/>
-        <image name="long.text.page.and.pencil" catalog="system" width="17" height="19"/>
         <image name="long.text.page.and.pencil.fill" catalog="system" width="17" height="19"/>
         <image name="paintbrush" catalog="system" width="17" height="18"/>
         <image name="photo" catalog="system" width="18" height="14"/>
         <image name="play.fill" catalog="system" width="12" height="13"/>
         <image name="ppl" width="16" height="16"/>
+        <image name="square.and.arrow.down" catalog="system" width="15" height="17"/>
         <image name="square.and.arrow.up" catalog="system" width="15" height="18"/>
         <image name="text.document" catalog="system" width="14" height="16"/>
         <image name="text.insert" catalog="system" width="16" height="13"/>
+        <image name="text.page" catalog="system" width="14" height="16"/>
     </resources>
 </document>

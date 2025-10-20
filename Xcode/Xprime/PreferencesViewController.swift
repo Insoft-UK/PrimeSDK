@@ -22,7 +22,7 @@
 
 import Cocoa
 
-final class SettingsViewController: NSViewController {
+final class PreferencesViewController: NSViewController {
     private let bundleURL = Bundle.main.bundleURL
     
     private var window: NSWindow?
@@ -31,6 +31,7 @@ final class SettingsViewController: NSViewController {
     @IBOutlet weak var includePath: NSTextField!
     @IBOutlet weak var useLibButton: NSButton!
     @IBOutlet weak var useIncludeButton: NSButton!
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,10 +42,10 @@ final class SettingsViewController: NSViewController {
             self.window = window
         }
         
-        useLibButton.state = AppSettings.useLib ? .on : .off
-        useIncludeButton.state = AppSettings.useInclude ? .on: .off
-        libPath.stringValue = AppSettings.libPath
-        includePath.stringValue = AppSettings.includePath
+        useLibButton.state = AppPreferences.useLib ? .on : .off
+        useIncludeButton.state = AppPreferences.useInclude ? .on: .off
+        libPath.stringValue = AppPreferences.libPath
+        includePath.stringValue = AppPreferences.includePath
     }
     
     @IBAction func resetInclude(_ sender: Any) {
@@ -58,10 +59,10 @@ final class SettingsViewController: NSViewController {
     }
     
     @IBAction func okButton(_ sender: Any) {
-        AppSettings.useLib = useLibButton.state == .on
-        AppSettings.useInclude = useIncludeButton.state == .on
-        AppSettings.libPath = libPath.stringValue
-        AppSettings.includePath = includePath.stringValue
+        AppPreferences.useLib = useLibButton.state == .on
+        AppPreferences.useInclude = useIncludeButton.state == .on
+        AppPreferences.libPath = libPath.stringValue
+        AppPreferences.includePath = includePath.stringValue
         self.view.window?.performClose(sender)
     }
 

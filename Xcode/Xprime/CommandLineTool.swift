@@ -53,15 +53,15 @@ class CommandLineTool {
     class func `ppl+`(i infile: URL, o outfile: URL? = nil) -> String? {
         
         let process = Process()
-        process.executableURL = AppSettings.binaryURL.appendingPathComponent("ppl+")
+        process.executableURL = AppPreferences.binURL.appendingPathComponent("ppl+")
         process.arguments = [infile.path]
         
-        if AppSettings.useLib {
-            process.arguments?.append("-L\(AppSettings.libPath)")
+        if AppPreferences.useLib {
+            process.arguments?.append("-L\(AppPreferences.libPath)")
         }
         
-        if AppSettings.useInclude {
-            process.arguments?.append("-L\(AppSettings.includePath)")
+        if AppPreferences.useInclude {
+            process.arguments?.append("-L\(AppPreferences.includePath)")
         }
         
         if let _ = outfile {
@@ -74,7 +74,7 @@ class CommandLineTool {
     
     class func pplmin(i infile: URL, o outfile: URL) {
         let process = Process()
-        process.executableURL = AppSettings.binaryURL.appendingPathComponent("pplmin")
+        process.executableURL = AppPreferences.binURL.appendingPathComponent("pplmin")
         process.arguments = [infile.path, "-o", outfile.path]
         
         let pipe = Pipe()
@@ -86,7 +86,7 @@ class CommandLineTool {
     
     class func hpprgm(i infile: URL, o outfile: URL? = nil) -> String? {
         let process = Process()
-        process.executableURL = AppSettings.binaryURL.appendingPathComponent("hpprgm")
+        process.executableURL = AppPreferences.binURL.appendingPathComponent("hpprgm")
         if let outfile = outfile {
             process.arguments = [infile.path, "-o", outfile.path]
         } else {
@@ -98,21 +98,21 @@ class CommandLineTool {
     
     class func grob(i infile: URL) -> String? {
         let process = Process()
-        process.executableURL = AppSettings.binaryURL.appendingPathComponent("grob")
+        process.executableURL = AppPreferences.binURL.appendingPathComponent("grob")
         process.arguments = [infile.path, "-o", "/dev/stdout"]
         return run(process)
     }
     
     class func pplfont(i infile: URL) -> String? {
         let process = Process()
-        process.executableURL = AppSettings.binaryURL.appendingPathComponent("pplfont")
+        process.executableURL = AppPreferences.binURL.appendingPathComponent("pplfont")
         process.arguments = [infile.path, "-o", "/dev/stdout"]
         return run(process)
     }
     
     class func pplref(i infile: URL) -> String? {
         let process = Process()
-        process.executableURL = AppSettings.binaryURL.appendingPathComponent("pplref")
+        process.executableURL = AppPreferences.binURL.appendingPathComponent("pplref")
         process.arguments = [infile.path, "-o", "/dev/stdout"]
         return run(process)
     }
