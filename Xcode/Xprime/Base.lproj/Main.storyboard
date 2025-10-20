@@ -425,6 +425,9 @@
                                                 <items>
                                                     <menuItem title="Run Without Building" image="NSTouchBarPlayTemplate" keyEquivalent="r" id="Jf6-5T-MLT">
                                                         <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                                        <connections>
+                                                            <action selector="runWithoutBuilding:" target="Ady-hI-5gd" id="9cD-9n-52M"/>
+                                                        </connections>
                                                     </menuItem>
                                                 </items>
                                             </menu>
