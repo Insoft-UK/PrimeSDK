@@ -71,50 +71,5 @@ class CommandLineTool {
         
         return run(process)
     }
-    
-    class func pplmin(i infile: URL, o outfile: URL) {
-        let process = Process()
-        process.executableURL = AppPreferences.binURL.appendingPathComponent("pplmin")
-        process.arguments = [infile.path, "-o", outfile.path]
-        
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        
-        try? process.run()
-        process.waitUntilExit()
-    }
-    
-    class func hpprgm(i infile: URL, o outfile: URL? = nil) -> String? {
-        let process = Process()
-        process.executableURL = AppPreferences.binURL.appendingPathComponent("hpprgm")
-        if let outfile = outfile {
-            process.arguments = [infile.path, "-o", outfile.path]
-        } else {
-            process.arguments = [infile.path]
-        }
-        
-        return run(process)
-    }
-    
-    class func grob(i infile: URL) -> String? {
-        let process = Process()
-        process.executableURL = AppPreferences.binURL.appendingPathComponent("grob")
-        process.arguments = [infile.path, "-o", "/dev/stdout"]
-        return run(process)
-    }
-    
-    class func pplfont(i infile: URL) -> String? {
-        let process = Process()
-        process.executableURL = AppPreferences.binURL.appendingPathComponent("pplfont")
-        process.arguments = [infile.path, "-o", "/dev/stdout"]
-        return run(process)
-    }
-    
-    class func pplref(i infile: URL) -> String? {
-        let process = Process()
-        process.executableURL = AppPreferences.binURL.appendingPathComponent("pplref")
-        process.arguments = [infile.path, "-o", "/dev/stdout"]
-        return run(process)
-    }
 }
 

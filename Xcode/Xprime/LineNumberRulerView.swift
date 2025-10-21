@@ -22,7 +22,7 @@
 
 import Cocoa
 
-class LineNumberRulerView: NSRulerView {
+final class LineNumberRulerView: NSRulerView {
 
     weak var textView: NSTextView?
 

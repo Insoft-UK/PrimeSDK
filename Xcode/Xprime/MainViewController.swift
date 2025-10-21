@@ -484,7 +484,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     }
     
     @IBAction func reformatCode(_ sender: Any) {
-        if let contents = CommandLineTool.pplref(i: currentURL!) {
+        if let contents = CommandLineTool.execute("pplref", arguments: [currentURL!.path, "-o", "/dev/stdout"]) {
             registerTextViewUndo(actionName: "Reformat Code")
             codeEditorTextView.string = contents
         }

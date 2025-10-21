@@ -167,6 +167,7 @@
 				"",
 				"",
 				"",
+				"",
 			);
 		};
 		137DC1F92E15EB5A00657C42 /* ShellScript */ = {
@@ -183,6 +184,7 @@
 				"",
 				"# Copy contents",
 				"cp -R \"$SRC_DIR/\" \"$DST_DIR/\"",
+				"",
 				"",
 				"",
 				"",
@@ -350,7 +352,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 10090;
+				CURRENT_PROJECT_VERSION = 10096;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER = readwrite;
@@ -407,7 +409,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 10090;
+				CURRENT_PROJECT_VERSION = 10096;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER = readwrite;
