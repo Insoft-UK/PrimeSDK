@@ -20,6 +20,8 @@ Edit your PPL or PPL+ code for the HP Prime.
 # Command-Line Tools for macOS
 The command-line tools are bundled with Xprime. While they are used internally by Xprime, they can also be accessed externally via the terminal. They are located at `/Applications/Xprime.app/Contents/Developer/usr/bin`.
 
+If only PrimeSDK is installed, the command-line tools are located at `/Applications/HP/PrimeSDK/bin`.
+
 ### <a href="https://github.com/Insoft-UK/PrimePlus/tree/main/README.md">PPL+</a> Pre-Processor for PPL
 PPL+ is a pre-processor designed to improve code maintainability and readability in the HP Programming Language (PPL). PPL+ also allows one to define regular expressions to assist in the preprocessing workflow. The final output is a compact, optimized PPL program file tailored to the HP Prime’s limited storage capacity.
 
