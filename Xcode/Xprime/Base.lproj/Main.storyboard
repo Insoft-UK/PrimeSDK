@@ -120,17 +120,24 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="PnA-gF-GyT"/>
-                                        <menuItem title="Install Libraries into HP Connectivity Kit" image="building.columns.circle" catalog="system" id="8sY-jt-YL6">
+                                        <menuItem title="HP Connectivity Kit" id="DZX-g5-P8g">
                                             <modifierMask key="keyEquivalentModifierMask"/>
-                                            <connections>
-                                                <action selector="installLibraries:" target="Ady-hI-5gd" id="HgM-cl-5ER"/>
-                                            </connections>
-                                        </menuItem>
-                                        <menuItem title="Install Fonts into HP Connectivity Kit" image="building.columns.circle" catalog="system" id="AzW-qF-sV7">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                            <connections>
-                                                <action selector="installFonts:" target="Ady-hI-5gd" id="z7r-ta-AaL"/>
-                                            </connections>
+                                            <menu key="submenu" title="HP Connectivity Kit" id="WIt-MJ-bzx">
+                                                <items>
+                                                    <menuItem title="Install Libraries" image="building.columns.circle" catalog="system" id="8sY-jt-YL6">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                        <connections>
+                                                            <action selector="installLibraries:" target="Ady-hI-5gd" id="HgM-cl-5ER"/>
+                                                        </connections>
+                                                    </menuItem>
+                                                    <menuItem title="Install Fonts" image="building.columns.circle" catalog="system" id="AzW-qF-sV7">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                        <connections>
+                                                            <action selector="installFonts:" target="Ady-hI-5gd" id="z7r-ta-AaL"/>
+                                                        </connections>
+                                                    </menuItem>
+                                                </items>
+                                            </menu>
                                         </menuItem>
                                     </items>
                                 </menu>
