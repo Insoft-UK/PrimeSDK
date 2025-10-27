@@ -35,9 +35,9 @@ final class PreferencesWindowController: NSWindowController {
         
         // Style mask based on persisted preference
         if true {
-            window.styleMask = .borderless
+            window.styleMask = [.borderless, .hudWindow]
         } else {
-            window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
+            window.styleMask = [.titled, .closable, .miniaturizable]
         }
         
         // Keep-on-top preference
@@ -49,6 +49,38 @@ final class PreferencesWindowController: NSWindowController {
         
         // Background color
         window.backgroundColor = NSColor(white: 0.125, alpha: 1.0)
+        
+        // Prevent user resizing by locking min/max size to current frame and content size
+        let currentSize = window.frame.size
+        window.minSize = currentSize
+        window.maxSize = currentSize
+        
+        // Disable UI affordances for resizing/zooming
+        window.standardWindowButton(.zoomButton)?.isEnabled = false
+      
+        window.collectionBehavior.remove(.fullScreenPrimary) // if you had it
+        window.tabbingMode = .disallowed
+        window.zoom(nil) // no-op if not zoomed, but keeps state sane
+        
+        // Lock content view to a fixed size to prevent Auto Layout-driven resizing
+        if let contentView = window.contentView {
+            contentView.translatesAutoresizingMaskIntoConstraints = false
+
+            // Remove any prior size constraints you may have added before (optional if not applicable)
+            NSLayoutConstraint.deactivate(contentView.constraints.filter {
+                $0.firstAttribute == .width || $0.firstAttribute == .height
+            })
+
+            let widthConstraint = contentView.widthAnchor.constraint(equalToConstant: window.contentRect(forFrameRect: window.frame).size.width)
+            let heightConstraint = contentView.heightAnchor.constraint(equalToConstant: window.contentRect(forFrameRect: window.frame).size.height)
+            widthConstraint.priority = .required
+            heightConstraint.priority = .required
+            NSLayoutConstraint.activate([widthConstraint, heightConstraint])
+        }
+        
+        let contentSize = window.contentRect(forFrameRect: window.frame).size
+        window.contentMinSize = contentSize
+        window.contentMaxSize = contentSize
     }
-    
 }
+

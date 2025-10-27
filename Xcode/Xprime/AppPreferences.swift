@@ -27,29 +27,26 @@ struct AppPreferences {
     
     private static let defaults = UserDefaults.standard
     private static let bundleURL = Bundle.main.bundleURL
+    
+    static let defaultIncludePath: String = "/Applications/HP/PrimeSDK/include"
+    static let defaultLibaryPath: String = "/Applications/HP/PrimeSDK/lib"
 
     private enum Key: String {
         case libPath
         case includePath
-        case binURL
         case useLib
         case useInclude
     }
 
 
     static var libPath: String {
-        get { defaults.object(forKey: Key.libPath.rawValue) as? String ?? bundleURL.appendingPathComponent("Contents/Developer/usr/lib").path }
+        get { defaults.object(forKey: Key.libPath.rawValue) as? String ?? defaultLibaryPath }
         set { defaults.set(newValue, forKey: Key.libPath.rawValue) }
     }
     
     static var includePath: String {
-        get { defaults.object(forKey: Key.includePath.rawValue) as? String ?? bundleURL.appendingPathComponent("Contents/Developer/usr/include").path }
+        get { defaults.object(forKey: Key.includePath.rawValue) as? String ?? defaultIncludePath }
         set { defaults.set(newValue, forKey: Key.includePath.rawValue) }
-    }
-    
-    static var binURL: URL {
-        get { defaults.object(forKey: Key.binURL.rawValue) as? URL ?? bundleURL.appendingPathComponent("Contents/Developer/usr/bin") }
-        set { defaults.set(newValue, forKey: Key.binURL.rawValue) }
     }
     
     static var useLib: Bool {
@@ -60,16 +57,6 @@ struct AppPreferences {
     static var useInclude: Bool {
         get { defaults.object(forKey: Key.useInclude.rawValue) as? Bool ?? true }
         set { defaults.set(newValue, forKey: Key.useInclude.rawValue) }
-    }
-    
-    static func resetLib() {
-        defaults.set(bundleURL.appendingPathComponent("Contents/Developer/usr/lib").path, forKey: Key.libPath.rawValue)
-        defaults.set(true, forKey: Key.useLib.rawValue)
-    }
-    
-    static func resetInclude() {
-        defaults.set(bundleURL.appendingPathComponent("Contents/Developer/usr/include").path, forKey: Key.includePath.rawValue)
-        defaults.set(true, forKey: Key.useInclude.rawValue)
     }
 }
 

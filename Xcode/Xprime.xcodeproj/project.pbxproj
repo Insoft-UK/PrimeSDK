@@ -21,11 +21,6 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		13873D492E92DC2900083634 /* Developer */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Developer;
-			sourceTree = "<group>";
-		};
 		13873D652E92DC5F00083634 /* Template */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Template;
@@ -54,7 +49,6 @@
 			isa = PBXGroup;
 			children = (
 				13873D652E92DC5F00083634 /* Template */,
-				13873D492E92DC2900083634 /* Developer */,
 				13EE0F642DF9DEDE004F3D7E /* Xprime */,
 				13EE0F632DF9DEDE004F3D7E /* Products */,
 			);
@@ -77,7 +71,6 @@
 			buildPhases = (
 				13EE0F5E2DF9DEDE004F3D7E /* Sources */,
 				13EE0F5F2DF9DEDE004F3D7E /* Frameworks */,
-				137DC1F92E15EB5A00657C42 /* ShellScript */,
 				137DBD6A2E04798800657C42 /* ShellScript */,
 				13EE0F602DF9DEDE004F3D7E /* Resources */,
 			);
@@ -150,40 +143,6 @@
 				"# Copy contents",
 				"cp -R \"$SRC_DIR/\" \"$DST_DIR/\"",
 				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-			);
-		};
-		137DC1F92E15EB5A00657C42 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			shellPath = /bin/sh;
-			shellScript = (
-				"# Define source and destination",
-				"SRC_DIR=\"${PROJECT_DIR}/Developer\"",
-				"DST_DIR=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/../Developer\"",
-				"",
-				"# Create the destination directory",
-				"mkdir -p \"$DST_DIR\"",
-				"",
-				"# Copy contents",
-				"cp -R \"$SRC_DIR/\" \"$DST_DIR/\"",
 				"",
 				"",
 				"",

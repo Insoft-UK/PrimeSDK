@@ -23,37 +23,44 @@
 
 import Cocoa
 
-fileprivate func run(_ task: Process) -> String? {
-    let pipe = Pipe()
-    task.standardOutput = pipe
+fileprivate func run(_ task: Process) -> (out: String?, err: String?) {
+    let outPipe = Pipe()
+    let errPipe = Pipe()
+    
+    task.standardOutput = outPipe
+    task.standardError = errPipe
     
     do {
         try task.run()
     } catch {
-        return nil
+        return ("Failed to run task: \(error.localizedDescription)", nil)
     }
+    
     task.waitUntilExit()
     
-    // Read all data from the pipe and convert to String
-    let data = pipe.fileHandleForReading.readDataToEndOfFile()
-    guard !data.isEmpty else { return nil }
-    return String(data: data, encoding: .utf8)
+    let outData = outPipe.fileHandleForReading.readDataToEndOfFile()
+    let errData = errPipe.fileHandleForReading.readDataToEndOfFile()
+    
+    let outStr = outData.isEmpty ? nil : String(data: outData, encoding: .utf8)
+    let errStr = errData.isEmpty ? nil : String(data: errData, encoding: .utf8)
+    
+    return (outStr, errStr)
 }
 
 class CommandLineTool {
-    class func execute(_ command: String, arguments: [String]) -> String? {
+    class func execute(_ command: String, arguments: [String]) -> (out: String?, err: String?) {
         let task = Process()
         
-        task.executableURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/bin").appendingPathComponent(command)
+        task.executableURL = URL(fileURLWithPath: command)
         task.arguments = arguments
         
         return run(task)
     }
     
-    class func `ppl+`(i infile: URL, o outfile: URL? = nil) -> String? {
+    class func `ppl+`(i infile: URL, o outfile: URL? = nil) -> (out: String?, err: String?) {
         
         let process = Process()
-        process.executableURL = AppPreferences.binURL.appendingPathComponent("ppl+")
+        process.executableURL = URL(filePath: "/Applications/HP/PrimeSDK/bin/ppl+")
         process.arguments = [infile.path]
         
         if AppPreferences.useLib {

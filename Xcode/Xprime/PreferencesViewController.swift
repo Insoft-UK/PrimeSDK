@@ -49,12 +49,12 @@ final class PreferencesViewController: NSViewController {
     }
     
     @IBAction func resetInclude(_ sender: Any) {
-        includePath.stringValue = bundleURL.appendingPathComponent("Contents/Developer/usr/include").path
+        includePath.stringValue = AppPreferences.defaultIncludePath
         useIncludeButton.state = .on
     }
     
     @IBAction func resetLib(_ sender: Any) {
-        libPath.stringValue = bundleURL.appendingPathComponent("Contents/Developer/usr/lib").path
+        libPath.stringValue = AppPreferences.defaultLibaryPath
         useLibButton.state = .on
     }
     

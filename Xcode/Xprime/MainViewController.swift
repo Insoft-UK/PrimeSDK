@@ -300,9 +300,11 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         savePanel.begin { result in
             guard result == .OK, let outURL = savePanel.url else { return }
             
-            if let content = CommandLineTool.execute("hpprgm", arguments: [url.path, "-o", outURL.path]) {
-                self.outputTextView.string = content
+            let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/hpprgm", arguments: [url.path, "-o", outURL.path])
+            if let out = contents.out, !out.isEmpty {
+                self.outputTextView.string = out
             }
+            self.outputTextView.string = contents.err ?? ""
         }
     }
     
@@ -349,9 +351,11 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         
         if let prgmURL = currentURL?.deletingPathExtension().appendingPathExtension("prgm") {
             outputTextView.string = "🧱 Building for running...\n\n"
-            if let content = CommandLineTool.execute("hpprgm", arguments: [prgmURL.path]) {
-                outputTextView.string = content
+            let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/hpprgm", arguments: [prgmURL.path])
+            if let out = contents.out, !out.isEmpty {
+                self.outputTextView.string = out
             }
+            outputTextView.string = contents.err ?? ""
         }
     }
     
@@ -385,9 +389,9 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
            FileManager.default.fileExists(atPath: url.path)
         {
             outputTextView.string = "🧱 Building...\n\n"
-            if let content = CommandLineTool.`ppl+`(i: url) {
-                outputTextView.string = content
-            }
+            let contents = CommandLineTool.`ppl+`(i: url)
+            outputTextView.string = contents.err ?? ""
+            
         }
     }
     
@@ -404,14 +408,17 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         openPanel.begin { result in
             guard result == .OK, let url = openPanel.url else { return }
             
-            if let contents = CommandLineTool.execute("grob", arguments: [url.path, "-o", "/dev/stdout"]) {
+            self.outputTextView.string = "🏞️ Embeding image...\n\n"
+            let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/grob", arguments: [url.path, "-o", "/dev/stdout"])
+            if let out = contents.out, !out.isEmpty {
                 self.registerTextViewUndo(actionName: "Insert Code")
-                self.codeEditorTextView.insertCode(contents)
+                self.codeEditorTextView.insertCode(out)
             }
+            self.outputTextView.string += contents.err ?? ""
         }
     }
     
-    @IBAction func embedFont(_ sender: Any) {
+    @IBAction func embedAdafruitGFXFont(_ sender: Any) {
         let openPanel = NSOpenPanel()
         let extensions = ["h"]
         let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
@@ -423,10 +430,12 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         openPanel.begin { result in
             guard result == .OK, let url = openPanel.url else { return }
             
-            if let contents = CommandLineTool.execute("pplfont", arguments: [url.path, "-o", "/dev/stdout"]) {
+            let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/pplfont", arguments: [url.path, "-o", "/dev/stdout", "--ppl"])
+            if let out = contents.out, !out.isEmpty {
                 self.registerTextViewUndo(actionName: "Embeded Adafruit GFX font")
-                self.codeEditorTextView.insertCode(contents)
+                self.codeEditorTextView.insertCode(contents.out ?? "")
             }
+            self.outputTextView.string += contents.err ?? ""
         }
     }
     
@@ -484,10 +493,12 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     }
     
     @IBAction func reformatCode(_ sender: Any) {
-        if let contents = CommandLineTool.execute("pplref", arguments: [currentURL!.path, "-o", "/dev/stdout"]) {
+        let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/pplref", arguments: [currentURL!.path, "-o", "/dev/stdout"])
+        if let out = contents.out, !out.isEmpty {
             registerTextViewUndo(actionName: "Reformat Code")
-            codeEditorTextView.string = contents
+            codeEditorTextView.string = out
         }
+        self.outputTextView.string += contents.err ?? ""
     }
     
     // MARK: - Validation for Toolbar Items
@@ -525,12 +536,6 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             
         case #selector(reformatCode(_:)), #selector(exportAsHpprgm(_:)):
             if let url = currentURL, url.pathExtension == "prgm" {
-                return true
-            }
-            return false
-            
-        case #selector(embedImage(_:)), #selector(embedFont(_:)):
-            if let _ = currentURL {
                 return true
             }
             return false
