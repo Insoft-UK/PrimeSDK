@@ -80,20 +80,26 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="XfC-ik-oAT"/>
-                                        <menuItem title="Embed" id="nDy-gR-fEe">
+                                        <menuItem title="Import" image="square.and.arrow.down" catalog="system" id="nDy-gR-fEe">
                                             <modifierMask key="keyEquivalentModifierMask"/>
-                                            <menu key="submenu" title="Embed" id="KSp-ZZ-Eb4">
+                                            <menu key="submenu" title="Import" id="KSp-ZZ-Eb4">
                                                 <items>
-                                                    <menuItem title="Embed Image" image="photo" catalog="system" id="Rjl-Nh-Ew5">
+                                                    <menuItem title="Import Code" image="text.insert" catalog="system" id="1OF-xl-3eV">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <connections>
-                                                            <action selector="embedImage:" target="Ady-hI-5gd" id="tza-nq-hWo"/>
+                                                            <action selector="importCode:" target="Ady-hI-5gd" id="AEV-qb-WiM"/>
                                                         </connections>
                                                     </menuItem>
-                                                    <menuItem title="Embed Adafruit GFX Font" image="character.book.closed" catalog="system" id="Lc7-JR-4Uo">
+                                                    <menuItem title="Import Image" image="photo" catalog="system" id="Rjl-Nh-Ew5">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <connections>
-                                                            <action selector="embedAdafruitGFXFont:" target="Ady-hI-5gd" id="Uy7-Gl-2kY"/>
+                                                            <action selector="importImage:" target="Ady-hI-5gd" id="Yug-aV-ZOI"/>
+                                                        </connections>
+                                                    </menuItem>
+                                                    <menuItem title="Import Adafruit GFX Font" image="character.book.closed" catalog="system" id="Lc7-JR-4Uo">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                        <connections>
+                                                            <action selector="importAdafruitGFXFont:" target="Ady-hI-5gd" id="hff-yu-WML"/>
                                                         </connections>
                                                     </menuItem>
                                                 </items>
@@ -352,100 +358,7 @@
                                                 </items>
                                             </menu>
                                         </menuItem>
-                                    </items>
-                                </menu>
-                            </menuItem>
-                            <menuItem title="View" id="H8h-7b-M4v">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="View" id="HyV-fh-RgO">
-                                    <items>
-                                        <menuItem title="Show Toolbar" keyEquivalent="t" id="snW-S8-Cw5">
-                                            <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
-                                            <connections>
-                                                <action selector="toggleToolbarShown:" target="Ady-hI-5gd" id="BXY-wc-z0C"/>
-                                            </connections>
-                                        </menuItem>
-                                        <menuItem title="Customize Toolbar…" id="1UK-8n-QPP">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                            <connections>
-                                                <action selector="runToolbarCustomizationPalette:" target="Ady-hI-5gd" id="pQI-g3-MTW"/>
-                                            </connections>
-                                        </menuItem>
-                                        <menuItem isSeparatorItem="YES" id="hB3-LF-h0Y"/>
-                                        <menuItem title="Show Sidebar" keyEquivalent="s" id="kIP-vf-haE">
-                                            <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
-                                            <connections>
-                                                <action selector="toggleSidebar:" target="Ady-hI-5gd" id="iwa-gc-5KM"/>
-                                            </connections>
-                                        </menuItem>
-                                        <menuItem title="Enter Full Screen" keyEquivalent="f" id="4J7-dP-txa">
-                                            <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
-                                            <connections>
-                                                <action selector="toggleFullScreen:" target="Ady-hI-5gd" id="dU3-MA-1Rq"/>
-                                            </connections>
-                                        </menuItem>
-                                    </items>
-                                </menu>
-                            </menuItem>
-                            <menuItem title="Editor" id="xAN-Fh-vWV">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="Editor" id="m5a-7F-s3q">
-                                    <items>
-                                        <menuItem title="Theme" image="paintbrush" catalog="system" id="Rsb-79-C1N">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                            <menu key="submenu" title="Theme" id="8Uw-Ch-uj5"/>
-                                        </menuItem>
-                                    </items>
-                                </menu>
-                            </menuItem>
-                            <menuItem title="Product" id="uCe-hI-i1s">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="Product" id="KAd-IF-cuB">
-                                    <items>
-                                        <menuItem title="Run" image="NSTouchBarPlayTemplate" keyEquivalent="r" id="p6y-v1-4El">
-                                            <connections>
-                                                <action selector="run:" target="Ady-hI-5gd" id="S3B-qu-8QR"/>
-                                            </connections>
-                                        </menuItem>
-                                        <menuItem title="Archive" image="cube.fill" catalog="system" id="n0t-oe-wmy">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                            <connections>
-                                                <action selector="archive:" target="Ady-hI-5gd" id="WQR-gu-FYO"/>
-                                            </connections>
-                                        </menuItem>
-                                        <menuItem isSeparatorItem="YES" id="XAL-zZ-CE3"/>
-                                        <menuItem title="Build For" image="hammer.fill" catalog="system" id="TfT-dR-9tD">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                            <menu key="submenu" title="Build For" id="Zuv-gx-gnd">
-                                                <items>
-                                                    <menuItem title="Running" image="play.fill" catalog="system" keyEquivalent="R" id="RMz-vh-Kx1">
-                                                        <connections>
-                                                            <action selector="buildForRunning:" target="Ady-hI-5gd" id="LRU-Qw-bpO"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                </items>
-                                            </menu>
-                                        </menuItem>
-                                        <menuItem title="Perform Action" image="hammer" catalog="system" id="hqk-0B-G2W">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                            <menu key="submenu" title="Perform Action" id="rtp-Qk-vwa">
-                                                <items>
-                                                    <menuItem title="Run Without Building" image="NSTouchBarPlayTemplate" keyEquivalent="r" id="Jf6-5T-MLT">
-                                                        <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
-                                                        <connections>
-                                                            <action selector="runWithoutBuilding:" target="Ady-hI-5gd" id="9cD-9n-52M"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                </items>
-                                            </menu>
-                                        </menuItem>
-                                        <menuItem isSeparatorItem="YES" id="ZP6-yo-rNE"/>
-                                        <menuItem title="Build" image="hammer.fill" catalog="system" keyEquivalent="b" id="Ust-Jd-TDZ">
-                                            <connections>
-                                                <action selector="build:" target="Ady-hI-5gd" id="jgL-VQ-g2m"/>
-                                            </connections>
-                                        </menuItem>
-                                        <menuItem isSeparatorItem="YES" id="uSe-yx-JCn"/>
+                                        <menuItem isSeparatorItem="YES" id="h12-3c-Pgi"/>
                                         <menuItem title="Template" image="ppl" id="dAk-Ox-0tv">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <menu key="submenu" title="Template" id="0gA-KS-KB6">
@@ -620,17 +533,103 @@
                                                 </items>
                                             </menu>
                                         </menuItem>
-                                        <menuItem title="Insert Code" image="text.insert" catalog="system" id="1OF-xl-3eV">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                            <connections>
-                                                <action selector="insertCode:" target="Ady-hI-5gd" id="W2n-i4-iDV"/>
-                                            </connections>
-                                        </menuItem>
-                                        <menuItem isSeparatorItem="YES" id="h12-3c-Pgi"/>
                                         <menuItem title="Reformat Code" image="text.document" catalog="system" id="Bpw-YD-8pa">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
                                                 <action selector="reformatCode:" target="Ady-hI-5gd" id="NkF-Cf-Wgk"/>
+                                            </connections>
+                                        </menuItem>
+                                    </items>
+                                </menu>
+                            </menuItem>
+                            <menuItem title="View" id="H8h-7b-M4v">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="View" id="HyV-fh-RgO">
+                                    <items>
+                                        <menuItem title="Show Toolbar" keyEquivalent="t" id="snW-S8-Cw5">
+                                            <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
+                                            <connections>
+                                                <action selector="toggleToolbarShown:" target="Ady-hI-5gd" id="BXY-wc-z0C"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Customize Toolbar…" id="1UK-8n-QPP">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="runToolbarCustomizationPalette:" target="Ady-hI-5gd" id="pQI-g3-MTW"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="hB3-LF-h0Y"/>
+                                        <menuItem title="Show Sidebar" keyEquivalent="s" id="kIP-vf-haE">
+                                            <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                            <connections>
+                                                <action selector="toggleSidebar:" target="Ady-hI-5gd" id="iwa-gc-5KM"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Enter Full Screen" keyEquivalent="f" id="4J7-dP-txa">
+                                            <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                            <connections>
+                                                <action selector="toggleFullScreen:" target="Ady-hI-5gd" id="dU3-MA-1Rq"/>
+                                            </connections>
+                                        </menuItem>
+                                    </items>
+                                </menu>
+                            </menuItem>
+                            <menuItem title="Editor" id="xAN-Fh-vWV">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Editor" id="m5a-7F-s3q">
+                                    <items>
+                                        <menuItem title="Theme" image="paintbrush" catalog="system" id="Rsb-79-C1N">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <menu key="submenu" title="Theme" id="8Uw-Ch-uj5"/>
+                                        </menuItem>
+                                    </items>
+                                </menu>
+                            </menuItem>
+                            <menuItem title="Product" id="uCe-hI-i1s">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Product" id="KAd-IF-cuB">
+                                    <items>
+                                        <menuItem title="Run" image="NSTouchBarPlayTemplate" keyEquivalent="r" id="p6y-v1-4El">
+                                            <connections>
+                                                <action selector="run:" target="Ady-hI-5gd" id="S3B-qu-8QR"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Archive" image="cube.fill" catalog="system" id="n0t-oe-wmy">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="archive:" target="Ady-hI-5gd" id="WQR-gu-FYO"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="XAL-zZ-CE3"/>
+                                        <menuItem title="Build For" image="hammer.fill" catalog="system" id="TfT-dR-9tD">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <menu key="submenu" title="Build For" id="Zuv-gx-gnd">
+                                                <items>
+                                                    <menuItem title="Running" image="play.fill" catalog="system" keyEquivalent="R" id="RMz-vh-Kx1">
+                                                        <connections>
+                                                            <action selector="buildForRunning:" target="Ady-hI-5gd" id="LRU-Qw-bpO"/>
+                                                        </connections>
+                                                    </menuItem>
+                                                </items>
+                                            </menu>
+                                        </menuItem>
+                                        <menuItem title="Perform Action" image="hammer" catalog="system" id="hqk-0B-G2W">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <menu key="submenu" title="Perform Action" id="rtp-Qk-vwa">
+                                                <items>
+                                                    <menuItem title="Run Without Building" image="NSTouchBarPlayTemplate" keyEquivalent="r" id="Jf6-5T-MLT">
+                                                        <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                                        <connections>
+                                                            <action selector="runWithoutBuilding:" target="Ady-hI-5gd" id="9cD-9n-52M"/>
+                                                        </connections>
+                                                    </menuItem>
+                                                </items>
+                                            </menu>
+                                        </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="ZP6-yo-rNE"/>
+                                        <menuItem title="Build" image="hammer.fill" catalog="system" keyEquivalent="b" id="Ust-Jd-TDZ">
+                                            <connections>
+                                                <action selector="build:" target="Ady-hI-5gd" id="jgL-VQ-g2m"/>
                                             </connections>
                                         </menuItem>
                                     </items>

@@ -396,7 +396,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     }
     
     
-    @IBAction func embedImage(_ sender: Any) {
+    @IBAction func importImage(_ sender: Any) {
         let openPanel = NSOpenPanel()
         let extensions = ["bmp", "png"]
         let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
@@ -408,7 +408,6 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         openPanel.begin { result in
             guard result == .OK, let url = openPanel.url else { return }
             
-            self.outputTextView.string = "🏞️ Embeding image...\n\n"
             let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/grob", arguments: [url.path, "-o", "/dev/stdout"])
             if let out = contents.out, !out.isEmpty {
                 self.registerTextViewUndo(actionName: "Insert Code")
@@ -418,7 +417,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         }
     }
     
-    @IBAction func embedAdafruitGFXFont(_ sender: Any) {
+    @IBAction func importAdafruitGFXFont(_ sender: Any) {
         let openPanel = NSOpenPanel()
         let extensions = ["h"]
         let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
@@ -439,7 +438,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         }
     }
     
-    @IBAction func insertCode(_ sender: Any) {
+    @IBAction func importCode(_ sender: Any) {
         guard let url = currentURL else { return }
         
         let openPanel = NSOpenPanel()
@@ -457,7 +456,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             guard result == .OK, let url = openPanel.url else { return }
             
             if let contents = loadPrgmFile(url) {
-                self.registerTextViewUndo(actionName: "Insert")
+                self.registerTextViewUndo(actionName: "Imported Code")
                 self.codeEditorTextView.insertCode(self.codeEditorTextView.removePragma(contents))
             }
         }
