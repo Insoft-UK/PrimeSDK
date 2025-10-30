@@ -1,4 +1,4 @@
-#pragma mode( separator(.,;) integer(h64) assignment(=) indentation(1) operators(▶,*,/,-,+) )
+#pragma mode( separator(.,;) integer(h64) assignment(:=) indentation(2) operators(▶,*,/,-,+) )
 
 export MyApp()
 begin

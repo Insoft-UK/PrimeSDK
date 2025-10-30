@@ -68,6 +68,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     @IBOutlet var codeEditorTextView: CodeEditorTextView!
     @IBOutlet var outputTextView: NSTextView!
     @IBOutlet var statusTextLabel: NSTextField!
+    @IBOutlet var outputScrollView: NSScrollView!
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
@@ -219,6 +220,10 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     }
     
     // MARK: - Interface Builder Action Handlers
+    
+    @IBAction func discloseOutputTextView(_ sender: Any) {
+        outputScrollView.isHidden.toggle()
+    }
     
     @IBAction func openDocument(_ sender: Any) {
         let openPanel = NSOpenPanel()
@@ -488,7 +493,31 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     }
     
     @IBAction func archive(_ sender: Any) {
+        guard let url = currentURL else { return }
         
+        buildForRunning(sender)
+        
+        let appName = url.deletingPathExtension().lastPathComponent
+        let hpappdirURL = url.deletingPathExtension().appendingPathExtension("hpappdir")
+        
+        do {
+            try FileManager.default.createDirectory(atPath: hpappdirURL.path, withIntermediateDirectories: true)
+        } catch {
+            outputTextView.string += "❌ Failed to create directory \(appName).hpappdir\n"
+            return
+        }
+        
+        outputTextView.string += "🗯️ Created \(appName).hpappdir\n"
+        
+        try? FileManager.default.copyItem(at: url.deletingPathExtension().appendingPathExtension("hpprgm"), to: hpappdirURL.appendingPathComponent("\(appName).hpappprgm"))
+        try? FileManager.default.copyItem(at: Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/template.hpapp"), to: hpappdirURL.appendingPathComponent("\(appName).hpapp"))
+        try? FileManager.default.copyItem(at: Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/icon.png"), to: hpappdirURL.appendingPathComponent("icon.hpapp"))
+        
+        let zipResult = CommandLineTool.execute("/usr/bin/zip", arguments: ["-j", "-r", "\(hpappdirURL.path).zip", hpappdirURL.path, "-x", "*.DS_Store"])
+        if let out = zipResult.out, !out.isEmpty {
+            self.outputTextView.string += out
+        }
+        self.outputTextView.string += zipResult.err ?? ""
     }
     
     @IBAction func reformatCode(_ sender: Any) {

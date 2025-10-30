@@ -81,6 +81,8 @@ final class PreferencesWindowController: NSWindowController {
         let contentSize = window.contentRect(forFrameRect: window.frame).size
         window.contentMinSize = contentSize
         window.contentMaxSize = contentSize
+        
+        window.title = "Preferences"
     }
 }
 

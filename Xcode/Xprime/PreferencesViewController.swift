@@ -23,44 +23,28 @@
 import Cocoa
 
 final class PreferencesViewController: NSViewController {
-    private let bundleURL = Bundle.main.bundleURL
-    
-    private var window: NSWindow?
-    
+
     @IBOutlet weak var libPath: NSTextField!
     @IBOutlet weak var includePath: NSTextField!
-    @IBOutlet weak var useLibButton: NSButton!
-    @IBOutlet weak var useIncludeButton: NSButton!
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.window?.styleMask.remove([.resizable, .miniaturizable, .fullScreen])
         
-        if let window = NSApplication.shared.windows.first {
-            self.window = window
-        }
-        
-        useLibButton.state = AppPreferences.useLib ? .on : .off
-        useIncludeButton.state = AppPreferences.useInclude ? .on: .off
         libPath.stringValue = AppPreferences.libPath
         includePath.stringValue = AppPreferences.includePath
     }
     
     @IBAction func resetInclude(_ sender: Any) {
         includePath.stringValue = AppPreferences.defaultIncludePath
-        useIncludeButton.state = .on
     }
     
     @IBAction func resetLib(_ sender: Any) {
         libPath.stringValue = AppPreferences.defaultLibaryPath
-        useLibButton.state = .on
     }
     
     @IBAction func okButton(_ sender: Any) {
-        AppPreferences.useLib = useLibButton.state == .on
-        AppPreferences.useInclude = useIncludeButton.state == .on
         AppPreferences.libPath = libPath.stringValue
         AppPreferences.includePath = includePath.stringValue
         self.view.window?.performClose(sender)
@@ -69,5 +53,7 @@ final class PreferencesViewController: NSViewController {
     @IBAction func cancelButton(_ sender: Any) {
         self.view.window?.performClose(sender)
     }
+    
+   
     
 }

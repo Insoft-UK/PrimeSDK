@@ -63,11 +63,11 @@ class CommandLineTool {
         process.executableURL = URL(filePath: "/Applications/HP/PrimeSDK/bin/ppl+")
         process.arguments = [infile.path]
         
-        if AppPreferences.useLib {
+        if AppPreferences.libPath.isEmpty == false {
             process.arguments?.append("-L\(AppPreferences.libPath)")
         }
         
-        if AppPreferences.useInclude {
+        if AppPreferences.includePath.isEmpty == false {
             process.arguments?.append("-L\(AppPreferences.includePath)")
         }
         
