@@ -61,7 +61,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let menuItem = NSMenuItem(title: filename, action: #selector(handleThemeSelection(_:)), keyEquivalent: "")
             menuItem.representedObject = fileURL
             menuItem.target = self  // or another target if needed
-            if filename == "Default (Dark)" {
+            if filename == AppPreferences.selectedTheme {
                 menuItem.state = .on
             }
 

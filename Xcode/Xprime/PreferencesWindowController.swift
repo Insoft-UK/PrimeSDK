@@ -23,44 +23,32 @@
 import Cocoa
 
 final class PreferencesWindowController: NSWindowController {
+    // Customize this to any color you like; supports alpha as well
+    var preferredBackgroundColor: NSColor = .init(white: 0.1, alpha: 1.0)
     
     
     override func windowDidLoad() {
         super.windowDidLoad()
+        
+        window?.styleMask = [.titled, .closable, .miniaturizable]
+        window?.titleVisibility = .hidden
+        window?.titlebarAppearsTransparent = true
+        window?.level = .floating // Keeps the window above other windows if needed
+        window?.isOpaque = false // allow alpha in background color
+        window?.hasShadow = true
+        window?.backgroundColor = preferredBackgroundColor.withAlphaComponent(1.0)
         applyPersistedWindowPreferences()
+
+        
+        if let contentView = window?.contentView {
+            contentView.wantsLayer = true
+            contentView.layer?.backgroundColor = preferredBackgroundColor.cgColor
+        }
     }
     
     private func applyPersistedWindowPreferences() {
         guard let window = window else { return }
         
-        // Style mask based on persisted preference
-        if true {
-            window.styleMask = [.borderless, .hudWindow]
-        } else {
-            window.styleMask = [.titled, .closable, .miniaturizable]
-        }
-        
-        // Keep-on-top preference
-        window.level = .floating // Keeps the window above other windows if needed
-        
-        // Other window flags
-        window.isOpaque = true
-        window.hasShadow = true
-        
-        // Background color
-        window.backgroundColor = NSColor(white: 0.125, alpha: 1.0)
-        
-        // Prevent user resizing by locking min/max size to current frame and content size
-        let currentSize = window.frame.size
-        window.minSize = currentSize
-        window.maxSize = currentSize
-        
-        // Disable UI affordances for resizing/zooming
-        window.standardWindowButton(.zoomButton)?.isEnabled = false
-      
-        window.collectionBehavior.remove(.fullScreenPrimary) // if you had it
-        window.tabbingMode = .disallowed
-        window.zoom(nil) // no-op if not zoomed, but keeps state sane
         
         // Lock content view to a fixed size to prevent Auto Layout-driven resizing
         if let contentView = window.contentView {
@@ -78,11 +66,9 @@ final class PreferencesWindowController: NSWindowController {
             NSLayoutConstraint.activate([widthConstraint, heightConstraint])
         }
         
-        let contentSize = window.contentRect(forFrameRect: window.frame).size
-        window.contentMinSize = contentSize
-        window.contentMaxSize = contentSize
+       
         
-        window.title = "Preferences"
+        window.title = "Preferences..."
     }
 }
 

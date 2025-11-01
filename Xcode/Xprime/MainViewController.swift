@@ -221,9 +221,6 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     
     // MARK: - Interface Builder Action Handlers
     
-    @IBAction func discloseOutputTextView(_ sender: Any) {
-        outputScrollView.isHidden.toggle()
-    }
     
     @IBAction func openDocument(_ sender: Any) {
         let openPanel = NSOpenPanel()
@@ -367,17 +364,21 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     @IBAction func runWithoutBuilding(_ sender: Any) {
         guard let url = currentURL else { return }
             
-        outputTextView.string = "🧱 Running without building...\n\n"
+        outputTextView.string = "🏃 Running without building...\n\n"
+    
+        let homeDir = FileManager.default.homeDirectoryForCurrentUser
+        let relativePath = "Documents/HP Prime/Calculators/Prime"
+        let destURL = homeDir.appendingPathComponent(relativePath)
         
-        let destURL = URL(fileURLWithPath: NSString(string: "~/Documents/HP Prime/Calculators/Prime").expandingTildeInPath)
         if !destURL.hasDirectoryPath {
             return
         }
+        
         let srcURL = url.deletingPathExtension().appendingPathExtension("hpprgm")
         try? FileManager.default.copyItem(atPath: srcURL.path, toPath: destURL.path)
         
         let task = Process()
-        task.launchPath = "/Applications/HP Prime.app/Contents/MacOS/HP Prime"
+        task.launchPath = AppPreferences.defaultHPPrime
         task.launch()
     }
     
@@ -511,7 +512,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         
         try? FileManager.default.copyItem(at: url.deletingPathExtension().appendingPathExtension("hpprgm"), to: hpappdirURL.appendingPathComponent("\(appName).hpappprgm"))
         try? FileManager.default.copyItem(at: Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/template.hpapp"), to: hpappdirURL.appendingPathComponent("\(appName).hpapp"))
-        try? FileManager.default.copyItem(at: Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/icon.png"), to: hpappdirURL.appendingPathComponent("icon.hpapp"))
+        try? FileManager.default.copyItem(at: Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/icon.png"), to: hpappdirURL.appendingPathComponent("icon.png"))
         
         let zipResult = CommandLineTool.execute("/usr/bin/zip", arguments: ["-j", "-r", "\(hpappdirURL.path).zip", hpappdirURL.path, "-x", "*.DS_Store"])
         if let out = zipResult.out, !out.isEmpty {

@@ -24,29 +24,29 @@ import Cocoa
 
 final class PreferencesViewController: NSViewController {
 
-    @IBOutlet weak var libPath: NSTextField!
-    @IBOutlet weak var includePath: NSTextField!
+    @IBOutlet weak var librarySearchPath: NSTextField!
+    @IBOutlet weak var headerSearchPath: NSTextField!
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         
-        libPath.stringValue = AppPreferences.libPath
-        includePath.stringValue = AppPreferences.includePath
+        librarySearchPath.stringValue = AppPreferences.librarySearchPath
+        headerSearchPath.stringValue = AppPreferences.headerSearchPath
     }
     
-    @IBAction func resetInclude(_ sender: Any) {
-        includePath.stringValue = AppPreferences.defaultIncludePath
+    @IBAction func defaultHeaderSearchPath(_ sender: Any) {
+        headerSearchPath.stringValue = AppPreferences.defaultHeaderSearchPath
     }
     
-    @IBAction func resetLib(_ sender: Any) {
-        libPath.stringValue = AppPreferences.defaultLibaryPath
+    @IBAction func defaultLibarySearchPath(_ sender: Any) {
+        librarySearchPath.stringValue = AppPreferences.defaultLibarySearchPath
     }
     
     @IBAction func okButton(_ sender: Any) {
-        AppPreferences.libPath = libPath.stringValue
-        AppPreferences.includePath = includePath.stringValue
+        AppPreferences.librarySearchPath = librarySearchPath.stringValue
+        AppPreferences.headerSearchPath = headerSearchPath.stringValue
         self.view.window?.performClose(sender)
     }
 

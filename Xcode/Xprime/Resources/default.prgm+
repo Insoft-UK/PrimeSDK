@@ -1,6 +1,26 @@
 #pragma mode( separator(.,;) integer(h64) assignment(:=) indentation(2) operators(▶,*,/,-,+) )
 
-export MyApp()
+alias app::start := START;
+alias app::setup := SETUP;
+alias app::loop := LOOP;
+alias app::reset := RESET;
+
+app::start()
+begin
+    app::setup();
+    app::loop();
+    app::reset();
+end;
+
+app::setup()
+begin
+end;
+
+app::loop()
+begin
+end;
+
+app::reset()
 begin
 
 end;

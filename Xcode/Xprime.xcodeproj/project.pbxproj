@@ -69,9 +69,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13EE0F712DF9DEDF004F3D7E /* Build configuration list for PBXNativeTarget "Xprime" */;
 			buildPhases = (
+				137DBD6A2E04798800657C42 /* ShellScript */,
 				13EE0F5E2DF9DEDE004F3D7E /* Sources */,
 				13EE0F5F2DF9DEDE004F3D7E /* Frameworks */,
-				137DBD6A2E04798800657C42 /* ShellScript */,
 				13EE0F602DF9DEDE004F3D7E /* Resources */,
 			);
 			buildRules = (
@@ -143,25 +143,14 @@
 				"# Copy contents",
 				"cp -R \"$SRC_DIR/\" \"$DST_DIR/\"",
 				"",
+				"if [ \"$ACTION\" = \"install\" ] && [ \"$CONFIGURATION\" = \"Release\" ]; then",
+				"    echo \"Skipping agvtool update during Archive\"",
+				"    exit 0",
+				"fi",
 				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
-				"",
+				"# Get current date in YYYYMMDD format",
+				"BUILD_DATE=$(date +\"%Y%m%d\")",
+				"agvtool new-version -all $BUILD_DATE",
 				"",
 				"",
 			);
@@ -313,7 +302,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 10099;
+				CURRENT_PROJECT_VERSION = 20251101;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER = readwrite;
@@ -341,7 +330,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				MTL_HEADER_SEARCH_PATHS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.insoft.Xprime;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -370,7 +359,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 10099;
+				CURRENT_PROJECT_VERSION = 20251101;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER = readwrite;
@@ -398,7 +387,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				MTL_HEADER_SEARCH_PATHS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = uk.insoft.Xprime;
 				PRODUCT_NAME = "$(TARGET_NAME)";

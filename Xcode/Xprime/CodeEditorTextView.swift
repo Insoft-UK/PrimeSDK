@@ -93,7 +93,7 @@ final class CodeEditorTextView: NSTextView {
         super.init(coder: coder)
         setupEditor()
         
-        let url = Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/Default (Dark).xpcolortheme")
+        let url = Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/\(AppPreferences.selectedTheme).xpcolortheme")
         loadTheme(at: url)
         loadGrammar()
     }
@@ -204,6 +204,10 @@ final class CodeEditorTextView: NSTextView {
         colors["Backquote"] = colorWithKey("Backquote")
         colors["Preprocessor Statements"] = colorWithKey("Preprocessor Statements")
         colors["Functions"] = colorWithKey("Functions")
+        
+        let filename = url.deletingPathExtension().lastPathComponent
+        AppPreferences.selectedTheme = filename
+        applySyntaxHighlighting()
     }
     
     // MARK: - Private/s
@@ -293,6 +297,7 @@ final class CodeEditorTextView: NSTextView {
     
     private func applySyntaxHighlighting() {
         guard let textStorage = textStorage else { return }
+        guard let grammar = grammar else { return }
         
         let text = string as NSString
         let fullRange = NSRange(location: 0, length: text.length)
@@ -302,7 +307,7 @@ final class CodeEditorTextView: NSTextView {
         textStorage.setAttributes(baseAttributes, range: fullRange)
         textStorage.foregroundColor = editorForegroundColor
         
-        for pattern in grammar!.patterns {
+        for pattern in grammar.patterns {
             if pattern.match.isEmpty {
                 continue
             }

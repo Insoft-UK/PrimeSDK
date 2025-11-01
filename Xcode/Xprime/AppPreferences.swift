@@ -28,35 +28,30 @@ struct AppPreferences {
     private static let defaults = UserDefaults.standard
     private static let bundleURL = Bundle.main.bundleURL
     
-    static let defaultIncludePath: String = "/Applications/HP/PrimeSDK/include"
-    static let defaultLibaryPath: String = "/Applications/HP/PrimeSDK/lib"
+    static let defaultHeaderSearchPath: String = "/Applications/HP/PrimeSDK/include"
+    static let defaultLibarySearchPath: String = "/Applications/HP/PrimeSDK/lib"
+    static let defaultSDKPath: String = "/Applications/HP/PrimeSDK"
+    static let defaultHPPrime = "/Applications/HP Prime.app/Contents/MacOS/HP Prime"
 
     private enum Key: String {
-        case libPath
-        case includePath
-        case useLib
-        case useInclude
+        case librarySearchPath
+        case headerSearchPath
+        case selectedTheme
     }
 
-
-    static var libPath: String {
-        get { defaults.object(forKey: Key.libPath.rawValue) as? String ?? defaultLibaryPath }
-        set { defaults.set(newValue, forKey: Key.libPath.rawValue) }
+    static var librarySearchPath: String {
+        get { defaults.object(forKey: Key.librarySearchPath.rawValue) as? String ?? defaultHeaderSearchPath }
+        set { defaults.set(newValue, forKey: Key.librarySearchPath.rawValue) }
     }
     
-    static var includePath: String {
-        get { defaults.object(forKey: Key.includePath.rawValue) as? String ?? defaultIncludePath }
-        set { defaults.set(newValue, forKey: Key.includePath.rawValue) }
+    static var headerSearchPath: String {
+        get { defaults.object(forKey: Key.headerSearchPath.rawValue) as? String ?? defaultLibarySearchPath }
+        set { defaults.set(newValue, forKey: Key.headerSearchPath.rawValue) }
     }
     
-    static var useLib: Bool {
-        get { defaults.object(forKey: Key.useLib.rawValue) as? Bool ?? true }
-        set { defaults.set(newValue, forKey: Key.useLib.rawValue) }
-    }
-    
-    static var useInclude: Bool {
-        get { defaults.object(forKey: Key.useInclude.rawValue) as? Bool ?? true }
-        set { defaults.set(newValue, forKey: Key.useInclude.rawValue) }
+    static var selectedTheme: String {
+        get { defaults.object(forKey: Key.selectedTheme.rawValue) as? String ?? "Default (Dark)" }
+        set { defaults.set(newValue, forKey: Key.selectedTheme.rawValue) }
     }
 }
 
