@@ -87,22 +87,27 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @IBAction func installLibraries(_ sender: Any) {
         guard isHPConnectivityKitInstalled() else { return }
         
-        let destURL = URL(fileURLWithPath: NSString(string: "~/Documents/HP Connectivity Kit/Content").expandingTildeInPath)
-        let srcURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/hpprgm")
+        let homeDir = FileManager.default.homeDirectoryForCurrentUser
+        
+        let destURL = homeDir.appendingPathComponent("Documents/HP Connectivity Kit/Content")
+        let srcURL = URL(fileURLWithPath: "/Applications/HP/PrimeSDK/hpprgm")
         
         for file in ["ColorSpace.hpprgm", "HP.hpprgm", "GROB.hpprgm"] {
-            try? FileManager.default.copyItem(at: srcURL.appendingPathComponent(file), to: destURL)
+            try? FileManager.default.copyItem(at: srcURL.appendingPathComponent(file), to: destURL.appendingPathComponent(file))
         }
     }
     
     @IBAction func installFonts(_ sender: Any) {
         guard isHPConnectivityKitInstalled() else { return }
         
-        let destURL = URL(fileURLWithPath: NSString(string: "~/Documents/HP Connectivity Kit/Content").expandingTildeInPath)
-        let srcURL = Bundle.main.bundleURL.appendingPathComponent("Contents/Developer/usr/hpprgm/fonts")
+        let homeDir = FileManager.default.homeDirectoryForCurrentUser
+        
+        let destURL = homeDir.appendingPathComponent("Documents/HP Connectivity Kit/Content")
+        let srcURL = URL(fileURLWithPath: "/Applications/HP/PrimeSDK/hpprgm/fonts")
+        
       
         for file in ["CGA.hpprgm", "EGA.hpprgm", "VGA.hpprgm", "BBC.hpprgm", "ARCADE.hpprgm", "HD44780.hpprgm"] {
-            try? FileManager.default.copyItem(at: srcURL.appendingPathComponent(file), to: destURL)
+            try? FileManager.default.copyItem(at: srcURL.appendingPathComponent(file), to: destURL.appendingPathComponent(file))
         }
     }
 

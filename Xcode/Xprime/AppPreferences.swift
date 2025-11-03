@@ -31,12 +31,13 @@ struct AppPreferences {
     static let defaultHeaderSearchPath: String = "/Applications/HP/PrimeSDK/include"
     static let defaultLibarySearchPath: String = "/Applications/HP/PrimeSDK/lib"
     static let defaultSDKPath: String = "/Applications/HP/PrimeSDK"
-    static let defaultHPPrime = "/Applications/HP Prime.app/Contents/MacOS/HP Prime"
+    
 
     private enum Key: String {
         case librarySearchPath
         case headerSearchPath
         case selectedTheme
+        case HPPrime
     }
 
     static var librarySearchPath: String {
@@ -52,6 +53,11 @@ struct AppPreferences {
     static var selectedTheme: String {
         get { defaults.object(forKey: Key.selectedTheme.rawValue) as? String ?? "Default (Dark)" }
         set { defaults.set(newValue, forKey: Key.selectedTheme.rawValue) }
+    }
+    
+    static var HPPrime: String {
+        get { defaults.object(forKey: Key.HPPrime.rawValue) as? String ?? "macOS" }
+        set { defaults.set(newValue, forKey: Key.HPPrime.rawValue) }
     }
 }
 

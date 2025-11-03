@@ -26,7 +26,8 @@ final class PreferencesViewController: NSViewController {
 
     @IBOutlet weak var librarySearchPath: NSTextField!
     @IBOutlet weak var headerSearchPath: NSTextField!
-    
+    @IBOutlet weak var macOS: NSButton!
+    @IBOutlet weak var Wine: NSButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,6 +35,14 @@ final class PreferencesViewController: NSViewController {
         
         librarySearchPath.stringValue = AppPreferences.librarySearchPath
         headerSearchPath.stringValue = AppPreferences.headerSearchPath
+        
+        if AppPreferences.HPPrime == "macOS" {
+            macOS.state = .on
+            Wine.state = .off
+        } else {
+            macOS.state = .off
+            Wine.state = .on
+        }
     }
     
     @IBAction func defaultHeaderSearchPath(_ sender: Any) {
@@ -47,6 +56,7 @@ final class PreferencesViewController: NSViewController {
     @IBAction func okButton(_ sender: Any) {
         AppPreferences.librarySearchPath = librarySearchPath.stringValue
         AppPreferences.headerSearchPath = headerSearchPath.stringValue
+        
         self.view.window?.performClose(sender)
     }
 
@@ -54,6 +64,8 @@ final class PreferencesViewController: NSViewController {
         self.view.window?.performClose(sender)
     }
     
-   
+    @IBAction func HPPrime(_ sender: NSButton) {
+        AppPreferences.HPPrime = sender.title
+    }
     
 }

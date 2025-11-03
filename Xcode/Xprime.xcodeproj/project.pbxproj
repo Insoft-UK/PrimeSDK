@@ -145,9 +145,11 @@
 				"",
 				"if [ ![\"$ACTION\" = \"install\" ] && [ \"$CONFIGURATION\" = \"Release\"] ]; then",
 				"    # Get current date in YYYYMMDD format",
-				"    BUILD_DATE=$(date +\"%Y%m%d\")",
-				"    agvtool new-version -all $BUILD_DATE",
+				"    BUILD=$(date +\"%Y%m%d\")",
+				"    agvtool new-version -all $BUILD",
 				"fi",
+				"",
+				"",
 				"",
 				"",
 				"",
@@ -304,7 +306,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 20251102;
+				CURRENT_PROJECT_VERSION = 20251103;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER = readwrite;
@@ -361,7 +363,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 20251102;
+				CURRENT_PROJECT_VERSION = 20251103;
 				DEAD_CODE_STRIPPING = YES;
 				ENABLE_APP_SANDBOX = NO;
 				ENABLE_FILE_ACCESS_DOWNLOADS_FOLDER = readwrite;

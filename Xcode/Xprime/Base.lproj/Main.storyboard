@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="24128" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
+        <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24128"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -797,24 +798,30 @@ Gw
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mZp-Ud-tzI">
                                 <rect key="frame" x="193" y="147" width="130" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <buttonCell key="cell" type="radio" title="macOS" bezelStyle="regularSquare" imagePosition="left" enabled="NO" state="on" inset="2" id="GFp-qx-Xxo">
+                                <buttonCell key="cell" type="radio" title="macOS" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="GFp-qx-Xxo">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
                                     <string key="keyEquivalent" base64-UTF8="YES">
 Gw
 </string>
                                 </buttonCell>
+                                <connections>
+                                    <action selector="HPPrime:" target="HsO-bO-Dfd" id="hvh-2k-KBs"/>
+                                </connections>
                             </button>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HYO-d6-pxV">
                                 <rect key="frame" x="323" y="147" width="130" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <buttonCell key="cell" type="radio" title="Wine" bezelStyle="regularSquare" imagePosition="left" enabled="NO" inset="2" id="Qck-Hd-rPw">
+                                <buttonCell key="cell" type="radio" title="Wine" bezelStyle="regularSquare" imagePosition="left" inset="2" id="Qck-Hd-rPw">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
                                     <string key="keyEquivalent" base64-UTF8="YES">
 Gw
 </string>
                                 </buttonCell>
+                                <connections>
+                                    <action selector="HPPrime:" target="HsO-bO-Dfd" id="awH-Zf-rbs"/>
+                                </connections>
                             </button>
                             <button focusRingType="none" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Gmv-sP-8tc" customClass="CustomButton" customModule="Xprime" customModuleProvider="target">
                                 <rect key="frame" x="464" y="184" width="96" height="30"/>
@@ -830,8 +837,10 @@ Gw
                         </subviews>
                     </view>
                     <connections>
+                        <outlet property="Wine" destination="HYO-d6-pxV" id="KaY-zt-n4W"/>
                         <outlet property="headerSearchPath" destination="DNH-Ob-HLu" id="QEq-Ni-dgO"/>
                         <outlet property="librarySearchPath" destination="cz6-Uo-L19" id="xhy-9E-eDk"/>
+                        <outlet property="macOS" destination="mZp-Ud-tzI" id="wCC-Qf-9yg"/>
                     </connections>
                 </viewController>
                 <customObject id="57P-ye-oRC" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
@@ -976,11 +985,11 @@ Gw
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
                                                 <textView wantsLayer="YES" editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" spellingCorrection="YES" smartInsertDelete="YES" id="d5b-pO-KOi" customClass="OutputTextView" customModule="Xprime" customModuleProvider="target">
-                                                    <rect key="frame" x="0.0" y="0.0" width="800" height="100"/>
+                                                    <rect key="frame" x="0.0" y="0.0" width="800" height="16"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                                    <size key="minSize" width="800" height="100"/>
+                                                    <size key="minSize" width="800" height="16"/>
                                                     <size key="maxSize" width="10000" height="10000"/>
                                                 </textView>
                                             </subviews>

@@ -366,20 +366,41 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             
         outputTextView.string = "🏃 Running without building...\n\n"
     
-        let homeDir = FileManager.default.homeDirectoryForCurrentUser
-        let relativePath = "Documents/HP Prime/Calculators/Prime"
-        let destURL = homeDir.appendingPathComponent(relativePath)
+        let fileManager = FileManager.default
+        let homeDir = fileManager.homeDirectoryForCurrentUser
         
-        if !destURL.hasDirectoryPath {
-            return
+        
+        let sourceURL = url.deletingPathExtension().appendingPathExtension("hpprgm")
+        let destinationPath = homeDir.appendingPathComponent("Documents/HP Prime/Calculators/Prime").appendingPathComponent(sourceURL.lastPathComponent).path
+        
+        do {
+            // Remove existing file if it exists
+            if fileManager.fileExists(atPath: destinationPath) {
+                try fileManager.removeItem(atPath: destinationPath)
+            }
+
+            // Now copy the new one
+            try fileManager.copyItem(atPath: sourceURL.path, toPath: destinationPath)
+
+        } catch {
+            print("Error copying file: \(error)")
         }
-        
-        let srcURL = url.deletingPathExtension().appendingPathExtension("hpprgm")
-        try? FileManager.default.copyItem(atPath: srcURL.path, toPath: destURL.path)
-        
+
+      
         let task = Process()
-        task.launchPath = AppPreferences.defaultHPPrime
-        task.launch()
+        
+        
+        if AppPreferences.HPPrime == "macOS" {
+            task.executableURL = URL(fileURLWithPath: "/Applications/HP Prime.app/Contents/MacOS/HP Prime")
+        } else {
+            task.executableURL = URL(fileURLWithPath: "/Applications/Wine.app/Contents/MacOS/wine")
+            task.arguments = [homeDir.appendingPathComponent(".wine/drive_c/Program Files/HP/HP Prime Virtual Calculator/HPPrime.exe").path]
+        }
+        do {
+            try task.run()
+        } catch {
+            print("Failed to launch: \(error)")
+        }
     }
     
     /*
