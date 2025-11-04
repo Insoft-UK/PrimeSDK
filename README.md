@@ -38,5 +38,5 @@ A handy utility for converting Adafruit_GFX .h files to the .prgm format, for us
 This utility tool provides the ability to extract **PPL** code from an HP Prime `.hpprgm` file.  The tool can also convert source code .prgm file/s to .hpprgm G1 format, while G1 is the old .hpprgm format it's still supported by the HP Prime Connectivity Kit and will be converted to the latest .hpprgm fornat.
 
 ## Library for HP Prime
-**<a href="https://www.github.com/Insoft-UK/hpprgm/tree/main/examples/ColorSpace.hpprgm">ColorSpace</a>**, **<a href="https://www.github.com/Insoft-UK/hpprgm/tree/main/examples/GROB.hpprgm">GROB</a>** and **<a href="https://www.github.com/Insoft-UK/hpprgm/tree/main/examples/HP.hpprgm">HP</a>**
+**<a href="https://www.github.com/Insoft-UK/hpprgm/tree/main/examples/ColorSpace.hpprgm">ColorSpace</a>**, **<a href="https://www.github.com/Insoft-UK/hpprgm/tree/main/examples/GROB.hpprgm">GROB</a>** and **<a href="https://www.github.com/Insoft-UK/PPL-Reformat/tree/main/examples/HP.hpprgm">HP</a>**
 
