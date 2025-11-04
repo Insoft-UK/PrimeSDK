@@ -583,6 +583,10 @@
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <menu key="submenu" title="Theme" id="8Uw-Ch-uj5"/>
                                         </menuItem>
+                                        <menuItem title="Grammar" image="NSTouchBarTextLeftAlignTemplate" id="1Xa-8Q-SAE">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <menu key="submenu" title="Grammar" id="NIO-ET-XoS"/>
+                                        </menuItem>
                                     </items>
                                 </menu>
                             </menuItem>
@@ -652,6 +656,18 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="eu3-7i-yIM"/>
+                                        <menuItem title="HP Connectivity Kit" id="NML-t0-KrD">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="launchHPConnectiveKit:" target="Voe-Tx-rLC" id="H8O-Yl-B9Z"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="HP Prime Virtual Calculator" id="jts-K7-y4X">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="launchHPPrimeVirtualCalculator:" target="Voe-Tx-rLC" id="fxO-qb-QQq"/>
+                                            </connections>
+                                        </menuItem>
                                     </items>
                                 </menu>
                             </menuItem>
@@ -688,7 +704,7 @@
             <objects>
                 <customObject id="yqd-22-Lvs" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
                 <windowController id="CFc-li-Drx" customClass="PreferencesWindowController" customModule="Xprime" customModuleProvider="target" sceneMemberID="viewController">
-                    <window key="window" title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="SUG-Wu-9FC">
+                    <window key="window" title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" titleVisibility="hidden" id="SUG-Wu-9FC">
                         <rect key="contentRect" x="211" y="269" width="480" height="270"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1512" height="948"/>
                         <view key="contentView" id="31E-id-5Da">
@@ -778,7 +794,7 @@ Gw
                             <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="qfD-iU-v0W">
                                 <rect key="frame" x="19" y="154" width="168" height="16"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" lineBreakMode="clipping" alignment="right" title="HP Prime" id="1Yk-68-aer">
+                                <textFieldCell key="cell" lineBreakMode="clipping" alignment="right" title="HP Prime Virtual Calculator" id="1Yk-68-aer">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -796,7 +812,7 @@ Gw
                                 </connections>
                             </button>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mZp-Ud-tzI">
-                                <rect key="frame" x="193" y="147" width="130" height="30"/>
+                                <rect key="frame" x="196" y="147" width="130" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="radio" title="macOS" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="GFp-qx-Xxo">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -806,11 +822,11 @@ Gw
 </string>
                                 </buttonCell>
                                 <connections>
-                                    <action selector="HPPrime:" target="HsO-bO-Dfd" id="hvh-2k-KBs"/>
+                                    <action selector="HPPrime:" target="HsO-bO-Dfd" id="fex-N0-YwL"/>
                                 </connections>
                             </button>
                             <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HYO-d6-pxV">
-                                <rect key="frame" x="323" y="147" width="130" height="30"/>
+                                <rect key="frame" x="326" y="147" width="130" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <buttonCell key="cell" type="radio" title="Wine" bezelStyle="regularSquare" imagePosition="left" inset="2" id="Qck-Hd-rPw">
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -820,7 +836,7 @@ Gw
 </string>
                                 </buttonCell>
                                 <connections>
-                                    <action selector="HPPrime:" target="HsO-bO-Dfd" id="awH-Zf-rbs"/>
+                                    <action selector="HPPrime:" target="HsO-bO-Dfd" id="ekf-ik-Pmf"/>
                                 </connections>
                             </button>
                             <button focusRingType="none" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Gmv-sP-8tc" customClass="CustomButton" customModule="Xprime" customModuleProvider="target">
@@ -1035,6 +1051,7 @@ Gw
         <image name="NSMenuOnStateTemplate" width="18" height="17"/>
         <image name="NSStopProgressTemplate" width="17" height="16"/>
         <image name="NSTouchBarPlayTemplate" width="15" height="17"/>
+        <image name="NSTouchBarTextLeftAlignTemplate" width="21" height="17"/>
         <image name="arrow.uturn.backward" catalog="system" width="15" height="14"/>
         <image name="building.columns.circle" catalog="system" width="15" height="15"/>
         <image name="character.book.closed" catalog="system" width="14" height="16"/>

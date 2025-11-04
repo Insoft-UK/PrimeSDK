@@ -55,17 +55,17 @@ final class CodeEditorTextView: NSTextView {
     var grammar: Grammar?
     
     var colors: [String: NSColor] = [
-        "Keywords": .white,
-        "Operators": .white,
-        "Brackets": .white,
-        "Numbers": .white,
-        "Strings": .white,
-        "Comments": .white,
-        "Backquotes": .white,
-        "Preprocessor Statements": .white,
-        "Functions": .white
+        "Keywords": .black,
+        "Operators": .black,
+        "Brackets": .black,
+        "Numbers": .black,
+        "Strings": .black,
+        "Comments": .black,
+        "Backquotes": .black,
+        "Preprocessor Statements": .black,
+        "Functions": .black
     ]
-    var editorForegroundColor = NSColor(.black)
+    var editorForegroundColor = NSColor(.white)
     
     lazy var baseAttributes: [NSAttributedString.Key: Any] = {
         let font = NSFont.monospacedSystemFont(ofSize: 12, weight: .medium)
@@ -93,9 +93,23 @@ final class CodeEditorTextView: NSTextView {
         super.init(coder: coder)
         setupEditor()
         
-        let url = Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/\(AppPreferences.selectedTheme).xpcolortheme")
-        loadTheme(at: url)
-        loadGrammar()
+        let fileManager = FileManager.default
+        
+        if let url = Bundle.main.url(forResource: AppPreferences.selectedTheme, withExtension: "xpcolortheme") {
+            if fileManager.fileExists(atPath: url.path) {
+                loadTheme(at: url)
+            } else {
+                loadTheme(at: Bundle.main.url(forResource: "Default (Dark)", withExtension: "xpcolortheme")!)
+            }
+        }
+        
+        if let url = Bundle.main.url(forResource: AppPreferences.selectedGrammar, withExtension: "xpgrammar") {
+            if fileManager.fileExists(atPath: url.path) {
+                loadGrammar(at: url)
+            } else {
+                loadGrammar(at: Bundle.main.url(forResource: "Prime Plus Programming Language", withExtension: "xpgrammar")!)
+            }
+        }
     }
     
     // MARK: - Setup
@@ -210,6 +224,17 @@ final class CodeEditorTextView: NSTextView {
         applySyntaxHighlighting()
     }
     
+    func loadGrammar(at url: URL) {
+        if let jsonString = loadJSONString(url),
+           let jsonData = jsonString.data(using: .utf8) {
+            grammar = try? JSONDecoder().decode(Grammar.self, from: jsonData)
+        }
+        
+        let filename = url.deletingPathExtension().lastPathComponent
+        AppPreferences.selectedGrammar = filename
+        applySyntaxHighlighting()
+    }
+    
     // MARK: - Private/s
     
     private func autoIndentCurrentLine() {
@@ -275,14 +300,6 @@ final class CodeEditorTextView: NSTextView {
         textStorage.endEditing()
     }
     
-    private func loadGrammar() {
-        guard let url = Bundle.main.url(forResource: "Language", withExtension: "xpgrammar") else { return }
-        
-        if let jsonString = loadJSONString(url),
-           let jsonData = jsonString.data(using: .utf8) {
-            grammar = try? JSONDecoder().decode(Grammar.self, from: jsonData)
-        }
-    }
     
     private func loadJSONString(_ url: URL) -> String? {
         do {

@@ -235,9 +235,16 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             guard result == .OK, let url = openPanel.url else { return }
             
             if let contents = loadPrgmFile(url) {
+                if url.pathExtension == "prgm+" {
+                    self.codeEditorTextView.loadGrammar(at: Bundle.main.url(forResource: "Prime Plus Programming Language", withExtension: "xpgrammar")!)
+                } else {
+                    self.codeEditorTextView.loadGrammar(at: Bundle.main.url(forResource: "HP Prime Programming Language", withExtension: "xpgrammar")!)
+                }
+                
                 self.codeEditorTextView.string = contents
                 self.currentURL = url
                 self.updateDocumentIconButtonImage()
+                
             }
         }
     }

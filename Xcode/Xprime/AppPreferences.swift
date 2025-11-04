@@ -37,6 +37,7 @@ struct AppPreferences {
         case librarySearchPath
         case headerSearchPath
         case selectedTheme
+        case selectedGrammar
         case HPPrime
     }
 
@@ -53,6 +54,11 @@ struct AppPreferences {
     static var selectedTheme: String {
         get { defaults.object(forKey: Key.selectedTheme.rawValue) as? String ?? "Default (Dark)" }
         set { defaults.set(newValue, forKey: Key.selectedTheme.rawValue) }
+    }
+    
+    static var selectedGrammar: String {
+        get { defaults.object(forKey: Key.selectedGrammar.rawValue) as? String ?? "Language" }
+        set { defaults.set(newValue, forKey: Key.selectedGrammar.rawValue) }
     }
     
     static var HPPrime: String {

@@ -49,6 +49,12 @@
             "settings": {
                 "foreground": "#603bb3"
             }
+        },
+        {
+            "scope": ["Namespace"],
+            "settings": {
+                "foreground": "#be3536"
+            }
         }
     ]
 }

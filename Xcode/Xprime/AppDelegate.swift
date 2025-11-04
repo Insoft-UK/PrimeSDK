@@ -24,7 +24,7 @@ import Cocoa
 import UniformTypeIdentifiers
 
 @main
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     @IBOutlet weak var mainMenu: NSMenu!
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
@@ -37,7 +37,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         UserDefaults.standard.set(false, forKey: "NSAutomaticDashSubstitutionEnabled")
         UserDefaults.standard.synchronize()
         
+        
         populateThemesMenu(menu: mainMenu)
+        populateGrammarMenu(menu: mainMenu)
     }
     
     func applicationWillTerminate(_ aNotification: Notification) {
@@ -69,20 +71,73 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
     
+    private func populateGrammarMenu(menu: NSMenu) {
+        guard let resourceURLs = Bundle.main.urls(forResourcesWithExtension: "xpgrammar", subdirectory: nil) else {
+            print("⚠️ No .xpgrammar files found.")
+            return
+        }
+        
+
+
+        
+        
+        for fileURL in resourceURLs {
+            let name = fileURL.deletingPathExtension().lastPathComponent
+            
+            let menuItem = NSMenuItem(title: name, action: #selector(handleGrammarSelection(_:)), keyEquivalent: "")
+            menuItem.representedObject = fileURL
+            menuItem.target = self  // or another target if needed
+            if name == AppPreferences.selectedGrammar {
+                menuItem.state = .on
+            }
+
+            menu.item(withTitle: "Editor")?.submenu?.item(withTitle: "Grammar")?.submenu?.addItem(menuItem)
+        }
+    }
+    
     // MARK: - Interface Builder Action Handlers
     
     private func isHPConnectivityKitInstalled() -> Bool {
-        let url = URL(fileURLWithPath: NSString(string: "~/Documents/HP Connectivity Kit/").expandingTildeInPath)
-        var isDir: ObjCBool = false
-        let exists = FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir)
-        return exists && isDir.boolValue
+        let fileManager = FileManager.default
+        return fileManager.fileExists(atPath: "/Applications/HP Connectivity Kit.app/Contents/MacOS/HP Connectivity Kit")
     }
     
-    private func HPConnectivityKitURL() -> URL? {
-        guard isHPConnectivityKitInstalled() else { return nil }
-        return URL(fileURLWithPath: NSString(string: "~/Documents/HP Connectivity Kit/").expandingTildeInPath)
+    private func isHPPrimeVirtualCalculatorInstalled() -> Bool {
+        let fileManager = FileManager.default
+        return fileManager.fileExists(atPath: "/Applications/HP Prime.app/Contents/MacOS/HP Prime")
     }
     
+    
+    @IBAction func launchHPConnectiveKit(_ sender: Any) {
+        let task = Process()
+        
+        task.executableURL = URL(fileURLWithPath: "/Applications/HP Connectivity Kit.app/Contents/MacOS/HP Connectivity Kit")
+        
+        do {
+            try task.run()
+        } catch {
+            print("Failed to launch: \(error)")
+        }
+    }
+    
+    @IBAction func launchHPPrimeVirtualCalculator(_ sender: Any) {
+        let fileManager = FileManager.default
+        let homeDir = fileManager.homeDirectoryForCurrentUser
+        let task = Process()
+        
+        if AppPreferences.HPPrime == "macOS" {
+            task.executableURL = URL(fileURLWithPath: "/Applications/HP Prime.app/Contents/MacOS/HP Prime")
+        } else {
+            task.executableURL = URL(fileURLWithPath: "/Applications/Wine.app/Contents/MacOS/wine")
+            task.arguments = [homeDir.appendingPathComponent(".wine/drive_c/Program Files/HP/HP Prime Virtual Calculator/HPPrime.exe").path]
+        }
+        
+        do {
+            try task.run()
+        } catch {
+            print("Failed to launch: \(error)")
+        }
+    }
     
     @IBAction func installLibraries(_ sender: Any) {
         guard isHPConnectivityKitInstalled() else { return }
@@ -126,4 +181,34 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         sender.state = .on
     }
     
+    @objc func handleGrammarSelection(_ sender: NSMenuItem) {
+        guard let vc = NSApp.mainWindow?.contentViewController as? MainViewController else { return }
+        
+        guard let fileURL = sender.representedObject as? URL else { return }
+        vc.codeEditorTextView.loadGrammar(at: fileURL)
+        
+        for menuItem in mainMenu.item(withTitle: "Editor")?.submenu?.item(withTitle: "Grammar")!.submenu!.items ?? [] {
+            menuItem.state = .off
+        }
+        sender.state = .on
+    }
+    
+    
+    internal func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        switch menuItem.action {
+        case #selector(launchHPConnectiveKit(_:)):
+            return isHPConnectivityKitInstalled()
+            
+        case #selector(launchHPPrimeVirtualCalculator(_:)):
+            return isHPPrimeVirtualCalculatorInstalled()
+            
+        case #selector(handleGrammarSelection(_:)):
+            menuItem.state = menuItem.title == AppPreferences.selectedGrammar ? .on : .off
+            break
+            
+        default:
+            break
+        }
+        return true
+    }
 }

@@ -22,8 +22,10 @@
 
 import Cocoa
 
-final class PreferencesViewController: NSViewController {
 
+final class PreferencesViewController: NSViewController {
+    
+    
     @IBOutlet weak var librarySearchPath: NSTextField!
     @IBOutlet weak var headerSearchPath: NSTextField!
     @IBOutlet weak var macOS: NSButton!
@@ -36,6 +38,8 @@ final class PreferencesViewController: NSViewController {
         librarySearchPath.stringValue = AppPreferences.librarySearchPath
         headerSearchPath.stringValue = AppPreferences.headerSearchPath
         
+        validateUserInterfaceItems()
+            
         if AppPreferences.HPPrime == "macOS" {
             macOS.state = .on
             Wine.state = .off
@@ -68,4 +72,11 @@ final class PreferencesViewController: NSViewController {
         AppPreferences.HPPrime = sender.title
     }
     
+    private func validateUserInterfaceItems() {
+        let fileManager = FileManager.default
+        if !fileManager.fileExists(atPath: "/Applications/Wine.app/Contents/MacOS/wine") {
+            macOS.isEnabled = false
+            Wine.isEnabled = false
+        }
+    }
 }
