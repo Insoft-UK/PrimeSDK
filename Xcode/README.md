@@ -32,4 +32,4 @@ This section provides template snippets for common programming constructs (e.g.,
 <img width="50%" src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/screenshots/Templates.png" />
 
 > [!NOTE]
-> The command-line tools currently bundled with Xprime may be removed in future releases. Instead, Xprime may rely on externally supplied command-line tools. This change would allow these tools to be updated independently, without requiring a new Xprime release each time.
+> The command-line utilities utilized by Xprime are sourced from the PrimeSDK installation.
