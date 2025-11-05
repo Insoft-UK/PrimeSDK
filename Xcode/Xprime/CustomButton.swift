@@ -42,7 +42,7 @@ open class CustomButton: NSButton {
 		layer?.cornerRadius = 15
 		layer?.borderWidth = 1
         layer?.borderColor = .init(gray: 0.25, alpha: 1.0)
-        layer?.backgroundColor = .init(gray: 0, alpha: 0.5)
+        layer?.backgroundColor = .init(gray: 0, alpha: 1.0)
 		needsDisplay = true
 	}
 }

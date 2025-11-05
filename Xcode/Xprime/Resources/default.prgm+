@@ -5,6 +5,10 @@ alias app::setup := SETUP;
 alias app::loop := LOOP;
 alias app::reset := RESET;
 
+app::setup();
+app::loop();
+app::reset();
+
 app::start()
 begin
     app::setup();

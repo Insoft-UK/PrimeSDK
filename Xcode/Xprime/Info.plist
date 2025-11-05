@@ -16,6 +16,18 @@
 				<string>prgm+</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>PPL</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>prgm</string>
+			</array>
+		</dict>
 	</array>
 </dict>
 </plist>
