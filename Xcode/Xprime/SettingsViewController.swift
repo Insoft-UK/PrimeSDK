@@ -23,53 +23,60 @@
 import Cocoa
 
 
-final class PreferencesViewController: NSViewController {
+final class SettingsViewController: NSViewController {
     
     
     @IBOutlet weak var librarySearchPath: NSTextField!
     @IBOutlet weak var headerSearchPath: NSTextField!
     @IBOutlet weak var macOS: NSButton!
     @IBOutlet weak var Wine: NSButton!
+    @IBOutlet weak var compressHPPRGM: NSButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
-        librarySearchPath.stringValue = AppPreferences.librarySearchPath
-        headerSearchPath.stringValue = AppPreferences.headerSearchPath
+    
+        librarySearchPath.stringValue = AppSettings.librarySearchPath
+        headerSearchPath.stringValue = AppSettings.headerSearchPath
         
         validateUserInterfaceItems()
             
-        if AppPreferences.HPPrime == "macOS" {
+        if AppSettings.HPPrime == "macOS" {
             macOS.state = .on
             Wine.state = .off
         } else {
             macOS.state = .off
             Wine.state = .on
         }
+        
+        compressHPPRGM.state = AppSettings.compressHPPRGM ? .on : .off
     }
     
     @IBAction func defaultHeaderSearchPath(_ sender: Any) {
-        headerSearchPath.stringValue = AppPreferences.defaultHeaderSearchPath
+        headerSearchPath.stringValue = AppSettings.defaultHeaderSearchPath
     }
     
     @IBAction func defaultLibarySearchPath(_ sender: Any) {
-        librarySearchPath.stringValue = AppPreferences.defaultLibarySearchPath
+        librarySearchPath.stringValue = AppSettings.defaultLibarySearchPath
     }
     
-    @IBAction func okButton(_ sender: Any) {
-        AppPreferences.librarySearchPath = librarySearchPath.stringValue
-        AppPreferences.headerSearchPath = headerSearchPath.stringValue
-        
-        self.view.window?.performClose(sender)
+    @IBAction func close(_ sender: Any) {
+        AppSettings.librarySearchPath = librarySearchPath.stringValue
+        AppSettings.headerSearchPath = headerSearchPath.stringValue
+        self.view.window?.close()
     }
 
-    @IBAction func cancelButton(_ sender: Any) {
-        self.view.window?.performClose(sender)
+    @IBAction func cancel(_ sender: Any) {
+        self.view.window?.close()
     }
     
+    
     @IBAction func HPPrime(_ sender: NSButton) {
-        AppPreferences.HPPrime = sender.title
+        AppSettings.HPPrime = sender.title
+    }
+    
+    @IBAction func compressHPPRGM(_ sender: NSButton) {
+        AppSettings.compressHPPRGM = sender.state == .on
     }
     
     private func validateUserInterfaceItems() {

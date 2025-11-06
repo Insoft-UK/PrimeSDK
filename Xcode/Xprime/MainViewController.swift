@@ -92,7 +92,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         
         
         if let url = Bundle.main.resourceURL?.appendingPathComponent("default.prgm+") {
-            codeEditorTextView.string = loadPrgmFile(url) ?? ""
+            codeEditorTextView.string = PrgmFileManager.load(url) ?? ""
         }
         
         NotificationCenter.default.addObserver(
@@ -170,35 +170,6 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     
     
     // MARK: - Helper Functions
-    private func registerUndo<T: AnyObject>(
-        target: T,
-        oldValue: @autoclosure @escaping () -> String,
-        keyPath: ReferenceWritableKeyPath<T, String>,
-        undoManager: UndoManager?,
-        actionName: String = "Edit"
-    ) {
-        guard let undoManager = undoManager else { return }
-        let previousValue = oldValue()
-        
-        undoManager.registerUndo(withTarget: target) { target in
-            let currentValue = target[keyPath: keyPath]
-            self.registerUndo(target: target,
-                         oldValue: currentValue,
-                         keyPath: keyPath,
-                         undoManager: undoManager,
-                         actionName: actionName)
-            target[keyPath: keyPath] = previousValue
-        }
-        undoManager.setActionName(actionName)
-    }
-    
-    private func registerTextViewUndo(actionName: String = "") {
-        registerUndo(target: codeEditorTextView,
-                     oldValue: self.codeEditorTextView.string,
-                     keyPath: \NSTextView.string,
-                     undoManager: codeEditorTextView.undoManager,
-                     actionName: actionName)
-    }
     
     private func updateDocumentIconButtonImage() {
         guard let url = self.currentURL else {
@@ -234,7 +205,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         openPanel.begin { result in
             guard result == .OK, let url = openPanel.url else { return }
             
-            if let contents = loadPrgmFile(url) {
+            if let contents = PrgmFileManager.load(url) {
                 if url.pathExtension == "prgm+" {
                     self.codeEditorTextView.loadGrammar(at: Bundle.main.url(forResource: "Prime Plus Programming Language", withExtension: "xpgrammar")!)
                 } else {
@@ -256,7 +227,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         }
         
         do {
-            try savePrgmFile(url, codeEditorTextView.string)
+            try PrgmFileManager.save(url, codeEditorTextView.string)
             currentURL = url
             self.documentIsModified = false
         } catch {
@@ -279,7 +250,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             guard result == .OK, let url = savePanel.url else { return }
 
             do {
-                try savePrgmFile(url, self.codeEditorTextView.string)
+                try PrgmFileManager.save(url, self.codeEditorTextView.string)
                 self.currentURL = url
                 self.documentIsModified = false
             } catch {
@@ -299,9 +270,13 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
        generated .prgm file to a given destination.
      */
     @IBAction func exportAsHpprgm(_ sender: Any) {
-        guard let url = currentURL else { return }
-        
         saveDocument(sender)
+        
+        guard let url = currentURL,
+           FileManager.default.fileExists(atPath: url.path) else
+        {
+            return
+        }
         
         let savePanel = NSSavePanel()
         savePanel.allowedContentTypes = ["hpprgm"].compactMap { UTType(filenameExtension: $0) }
@@ -309,16 +284,32 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         savePanel.begin { result in
             guard result == .OK, let outURL = savePanel.url else { return }
             
-            let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/hpprgm", arguments: [url.path, "-o", outURL.path])
-            if let out = contents.out, !out.isEmpty {
-                self.outputTextView.string = out
+            if AppSettings.compressHPPRGM {
+                let destPath = outURL.deletingLastPathComponent().path
+                let name = outURL.deletingPathExtension().lastPathComponent
+                
+                let _ = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/pplmin", arguments: [url.path, "-o", "\(destPath)/~\(name).prgm"])
+                if FileManager.default.fileExists(atPath: "\(destPath)/~\(name).prgm") {
+                    let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/hpprgm", arguments: ["\(destPath)/~\(name).prgm", "-o", outURL.path])
+                    if let out = contents.out, !out.isEmpty {
+                        self.outputTextView.string = out
+                    }
+                    self.outputTextView.string = contents.err ?? ""
+                    try? FileManager.default.removeItem(at: URL(fileURLWithPath: "\(destPath)/~\(name).prgm"))
+                    return
+                }
+            } else {
+                let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/hpprgm", arguments: [url.path, "-o", outURL.path])
+                if let out = contents.out, !out.isEmpty {
+                    self.outputTextView.string = out
+                }
+                self.outputTextView.string = contents.err ?? ""
             }
-            self.outputTextView.string = contents.err ?? ""
         }
     }
     
     @IBAction func revertDocumentToSaved(_ sender: Any) {
-        if let contents = loadPrgmFile(currentURL!) {
+        if let contents = PrgmFileManager.load(currentURL!) {
             codeEditorTextView.string = contents
             self.documentIsModified = false
             updateDocumentIconButtonImage()
@@ -347,7 +338,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     }
     
     /*
-     • Saves the current PPL+ source file.
+     • Saves the current PPL/PPL+ source file.
      
      • Preprocesses the PPL+ (.prgm+) source into
        standard PPL (.prgm) format.
@@ -356,10 +347,36 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
        generated .prgm file.
      */
     @IBAction func buildForRunning(_ sender: Any) {
+        guard let url = currentURL,
+           FileManager.default.fileExists(atPath: url.path) else
+        {
+            return
+        }
+        
         build(sender)
         
-        if let prgmURL = currentURL?.deletingPathExtension().appendingPathExtension("prgm") {
-            outputTextView.string = "🧱 Building for running...\n\n"
+        let prgmURL = url.deletingPathExtension().appendingPathExtension("prgm")
+
+        if !FileManager.default.fileExists(atPath: prgmURL.path) {
+            outputTextView.string = "File not found: \(prgmURL.lastPathComponent)\n\n"
+            return
+        }
+        
+        if AppSettings.compressHPPRGM {
+            let destPath = url.deletingLastPathComponent().path
+            let name = url.deletingPathExtension().lastPathComponent
+            
+            let _ = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/pplmin", arguments: [url.path, "-o", "\(destPath)/~\(name).prgm"])
+            if FileManager.default.fileExists(atPath: "\(destPath)/~\(name).prgm") {
+                let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/hpprgm", arguments: ["\(destPath)/~\(name).prgm", "-o", "\(destPath)/\(name).hpprgm"])
+                if let out = contents.out, !out.isEmpty {
+                    self.outputTextView.string = out
+                }
+                self.outputTextView.string = contents.err ?? ""
+                try? FileManager.default.removeItem(at: URL(fileURLWithPath: "\(destPath)/~\(name).prgm"))
+                return
+            }
+        } else {
             let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/hpprgm", arguments: [prgmURL.path])
             if let out = contents.out, !out.isEmpty {
                 self.outputTextView.string = out
@@ -397,7 +414,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         let task = Process()
         
         
-        if AppPreferences.HPPrime == "macOS" {
+        if AppSettings.HPPrime == "macOS" {
             task.executableURL = URL(fileURLWithPath: "/Applications/HP Prime.app/Contents/MacOS/HP Prime")
         } else {
             task.executableURL = URL(fileURLWithPath: "/Applications/Wine.app/Contents/MacOS/wine")
@@ -420,9 +437,8 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         saveDocument(sender)
         
         if let url = currentURL,
-           FileManager.default.fileExists(atPath: url.path)
+           FileManager.default.fileExists(atPath: url.path) && url.pathExtension == "prgm+"
         {
-            outputTextView.string = "🧱 Building...\n\n"
             let contents = CommandLineTool.`ppl+`(i: url)
             outputTextView.string = contents.err ?? ""
             
@@ -444,7 +460,6 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             
             let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/grob", arguments: [url.path, "-o", "/dev/stdout"])
             if let out = contents.out, !out.isEmpty {
-                self.registerTextViewUndo(actionName: "Insert Code")
                 self.codeEditorTextView.insertCode(out)
             }
             self.outputTextView.string += contents.err ?? ""
@@ -465,7 +480,6 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             
             let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/pplfont", arguments: [url.path, "-o", "/dev/stdout", "--ppl"])
             if let out = contents.out, !out.isEmpty {
-                self.registerTextViewUndo(actionName: "Embeded Adafruit GFX font")
                 self.codeEditorTextView.insertCode(contents.out ?? "")
             }
             self.outputTextView.string += contents.err ?? ""
@@ -489,8 +503,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         openPanel.begin { result in
             guard result == .OK, let url = openPanel.url else { return }
             
-            if let contents = loadPrgmFile(url) {
-                self.registerTextViewUndo(actionName: "Imported Code")
+            if let contents = PrgmFileManager.load(url) {
                 self.codeEditorTextView.insertCode(self.codeEditorTextView.removePragma(contents))
             }
         }
@@ -515,14 +528,17 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         
         let url = Bundle.main.bundleURL.appendingPathComponent("Contents/Template/\(traceMenuItem(menuItem))/\(menuItem.title).prgm")
         
-        if let contents = loadPrgmFile(url) {
-            registerTextViewUndo(actionName: "Template")
+        if let contents = PrgmFileManager.load(url) {
             codeEditorTextView.insertCode(contents)
         }
     }
     
     @IBAction func archive(_ sender: Any) {
-        guard let url = currentURL else { return }
+        guard let url = currentURL,
+           FileManager.default.fileExists(atPath: url.path) else
+        {
+            return
+        }
         
         buildForRunning(sender)
         
@@ -550,27 +566,36 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     }
     
     @IBAction func reformatCode(_ sender: Any) {
-        let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/pplref", arguments: [currentURL!.path, "-o", "/dev/stdout"])
+        guard let url = currentURL,
+           FileManager.default.fileExists(atPath: url.path) else
+        {
+            return
+        }
+        
+        saveDocument(sender)
+        
+        let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/pplref", arguments: [url.path, "-o", "/dev/stdout"])
         if let out = contents.out, !out.isEmpty {
-            registerTextViewUndo(actionName: "Reformat Code")
             codeEditorTextView.string = out
         }
         self.outputTextView.string += contents.err ?? ""
     }
+    
+    
     
     // MARK: - Validation for Toolbar Items
     
     internal func validateToolbarItem(_ item: NSToolbarItem) -> Bool {
         // Enable or disable toolbar items as needed. For now, always enable.
         switch item.action {
-        case #selector(build(_:)):
-            if let url = currentURL, url.pathExtension == "prgm+" {
+        case #selector(exportAsHpprgm(_:)):
+            if let url = currentURL, url.pathExtension == "prgm" {
                 return true
             }
             return false
             
-        case #selector(exportAsHpprgm(_:)):
-            if let url = currentURL, url.pathExtension == "prgm" {
+        case #selector(run(_:)), #selector(build(_:)):
+            if let url = currentURL, FileManager.default.fileExists(atPath: url.path) {
                 return true
             }
             return false
@@ -585,7 +610,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     
     internal func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         switch menuItem.action {
-        case #selector(run(_:)), #selector(build(_:)), #selector(buildForRunning(_:)), #selector(archive(_:)):
+        case #selector(build(_:)):
             if let url = currentURL, url.pathExtension == "prgm+" {
                 return true
             }
@@ -599,6 +624,12 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             
         case #selector(runWithoutBuilding(_:)):
             if let url = currentURL, FileManager.default.fileExists(atPath: url.deletingPathExtension().appendingPathExtension("hpprgm").path) {
+                return true
+            }
+            return false
+            
+        case #selector(run(_:)), #selector(buildForRunning(_:)), #selector(archive(_:)):
+            if let url = currentURL, FileManager.default.fileExists(atPath: url.path) {
                 return true
             }
             return false

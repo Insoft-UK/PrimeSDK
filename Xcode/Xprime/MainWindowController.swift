@@ -28,11 +28,10 @@ class MainWindowController: NSWindowController {
     override func windowDidLoad() {
         super.windowDidLoad()
 
-//        window?.titleVisibility = .hidden
         window?.titlebarAppearsTransparent = true
         window?.styleMask = [.resizable, .miniaturizable, .titled]
         window?.isOpaque = true
         window?.hasShadow = true
-        window?.backgroundColor = NSColor(white: 0.125, alpha: 1.0)
+//        window?.backgroundColor = NSColor(white: 0.125, alpha: 1.0)
     }
 }

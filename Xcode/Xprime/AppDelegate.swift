@@ -63,7 +63,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
             let menuItem = NSMenuItem(title: filename, action: #selector(handleThemeSelection(_:)), keyEquivalent: "")
             menuItem.representedObject = fileURL
             menuItem.target = self  // or another target if needed
-            if filename == AppPreferences.selectedTheme {
+            if filename == AppSettings.selectedTheme {
                 menuItem.state = .on
             }
 
@@ -87,7 +87,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
             let menuItem = NSMenuItem(title: name, action: #selector(handleGrammarSelection(_:)), keyEquivalent: "")
             menuItem.representedObject = fileURL
             menuItem.target = self  // or another target if needed
-            if name == AppPreferences.selectedGrammar {
+            if name == AppSettings.selectedGrammar {
                 menuItem.state = .on
             }
 
@@ -125,7 +125,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         let homeDir = fileManager.homeDirectoryForCurrentUser
         let task = Process()
         
-        if AppPreferences.HPPrime == "macOS" {
+        if AppSettings.HPPrime == "macOS" {
             task.executableURL = URL(fileURLWithPath: "/Applications/HP Prime.app/Contents/MacOS/HP Prime")
         } else {
             task.executableURL = URL(fileURLWithPath: "/Applications/Wine.app/Contents/MacOS/wine")
@@ -168,12 +168,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
 
     // MARK: - Action Handlers
     
-    
     @objc func handleThemeSelection(_ sender: NSMenuItem) {
         guard let vc = NSApp.mainWindow?.contentViewController as? MainViewController else { return }
         
         guard let fileURL = sender.representedObject as? URL else { return }
         vc.codeEditorTextView.loadTheme(at: fileURL)
+        AppSettings.selectedTheme = sender.title
         
         for menuItem in mainMenu.item(withTitle: "Editor")?.submenu?.item(withTitle: "Theme")!.submenu!.items ?? [] {
             menuItem.state = .off
@@ -186,6 +186,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         
         guard let fileURL = sender.representedObject as? URL else { return }
         vc.codeEditorTextView.loadGrammar(at: fileURL)
+        AppSettings.selectedGrammar = sender.title
         
         for menuItem in mainMenu.item(withTitle: "Editor")?.submenu?.item(withTitle: "Grammar")!.submenu!.items ?? [] {
             menuItem.state = .off
@@ -201,10 +202,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
             
         case #selector(launchHPPrimeVirtualCalculator(_:)):
             return isHPPrimeVirtualCalculatorInstalled()
-            
-        case #selector(handleGrammarSelection(_:)):
-            menuItem.state = menuItem.title == AppPreferences.selectedGrammar ? .on : .off
-            break
             
         default:
             break

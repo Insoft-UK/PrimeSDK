@@ -95,7 +95,7 @@ final class CodeEditorTextView: NSTextView {
         
         let fileManager = FileManager.default
         
-        if let url = Bundle.main.url(forResource: AppPreferences.selectedTheme, withExtension: "xpcolortheme") {
+        if let url = Bundle.main.url(forResource: AppSettings.selectedTheme, withExtension: "xpcolortheme") {
             if fileManager.fileExists(atPath: url.path) {
                 loadTheme(at: url)
             } else {
@@ -103,7 +103,7 @@ final class CodeEditorTextView: NSTextView {
             }
         }
         
-        if let url = Bundle.main.url(forResource: AppPreferences.selectedGrammar, withExtension: "xpgrammar") {
+        if let url = Bundle.main.url(forResource: AppSettings.selectedGrammar, withExtension: "xpgrammar") {
             if fileManager.fileExists(atPath: url.path) {
                 loadGrammar(at: url)
             } else {
@@ -147,6 +147,30 @@ final class CodeEditorTextView: NSTextView {
         usesFindPanel = true
     }
     
+    // MARK: - Helper Functions
+    private func registerUndo<T: AnyObject>(
+        target: T,
+        oldValue: @autoclosure @escaping () -> String,
+        keyPath: ReferenceWritableKeyPath<T, String>,
+        undoManager: UndoManager?,
+        actionName: String = "Edit"
+    ) {
+        guard let undoManager = undoManager else { return }
+        let previousValue = oldValue()
+        
+        undoManager.registerUndo(withTarget: target) { target in
+            let currentValue = target[keyPath: keyPath]
+            self.registerUndo(target: target,
+                         oldValue: currentValue,
+                         keyPath: keyPath,
+                         undoManager: undoManager,
+                         actionName: actionName)
+            target[keyPath: keyPath] = previousValue
+        }
+        undoManager.setActionName(actionName)
+    }
+
+    
     // MARK: - Override
     
     override func replaceCharacters(in range: NSRange, with string: String) {
@@ -156,6 +180,11 @@ final class CodeEditorTextView: NSTextView {
     
     override func didChangeText() {
         super.didChangeText()
+        registerUndo(target: self,
+                     oldValue: self.string,
+                     keyPath: \NSTextView.string,
+                     undoManager: undoManager,
+                     actionName: "Text Changed")
         replaceLastTypedOperator()
         applySyntaxHighlighting()
     }
@@ -219,8 +248,10 @@ final class CodeEditorTextView: NSTextView {
         colors["Preprocessor Statements"] = colorWithKey("Preprocessor Statements")
         colors["Functions"] = colorWithKey("Functions")
         
-        let filename = url.deletingPathExtension().lastPathComponent
-        AppPreferences.selectedTheme = filename
+        
+        
+        AppSettings.selectedTheme = url.deletingPathExtension().lastPathComponent
+        
         applySyntaxHighlighting()
     }
     
@@ -230,8 +261,12 @@ final class CodeEditorTextView: NSTextView {
             grammar = try? JSONDecoder().decode(Grammar.self, from: jsonData)
         }
         
-        let filename = url.deletingPathExtension().lastPathComponent
-        AppPreferences.selectedGrammar = filename
+        let delegate = NSApplication.shared.delegate as! AppDelegate
+      
+        for menuItem in delegate.mainMenu.item(withTitle: "Editor")?.submenu?.item(withTitle: "Grammar")!.submenu!.items ?? [] {
+            menuItem.state = menuItem.title == url.deletingPathExtension().lastPathComponent ? .on : .off
+        }
+        
         applySyntaxHighlighting()
     }
     

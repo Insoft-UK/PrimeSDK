@@ -63,12 +63,12 @@ class CommandLineTool {
         process.executableURL = URL(filePath: "/Applications/HP/PrimeSDK/bin/ppl+")
         process.arguments = [infile.path]
         
-        if AppPreferences.librarySearchPath.isEmpty == false {
-            process.arguments?.append("-L\(AppPreferences.librarySearchPath)")
+        if AppSettings.librarySearchPath.isEmpty == false {
+            process.arguments?.append("-L\(AppSettings.librarySearchPath)")
         }
         
-        if AppPreferences.headerSearchPath.isEmpty == false {
-            process.arguments?.append("-I\(AppPreferences.headerSearchPath)")
+        if AppSettings.headerSearchPath.isEmpty == false {
+            process.arguments?.append("-I\(AppSettings.headerSearchPath)")
         }
         
         if let _ = outfile {

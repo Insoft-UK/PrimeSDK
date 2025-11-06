@@ -22,7 +22,7 @@
 
 import Cocoa
 
-final class PreferencesWindowController: NSWindowController {
+final class SettingsWindowController: NSWindowController {
     // Customize this to any color you like; supports alpha as well
     var preferredBackgroundColor: NSColor = .init(white: 0.1, alpha: 1.0)
     
@@ -30,23 +30,26 @@ final class PreferencesWindowController: NSWindowController {
     override func windowDidLoad() {
         super.windowDidLoad()
         
-        window?.styleMask = [.titled, .closable, .miniaturizable]
+//        window?.styleMask = [.titled, .closable, .miniaturizable]
+//        window?.title = "Settings"
         window?.titleVisibility = .hidden
-        window?.titlebarAppearsTransparent = true
+        window?.titlebarAppearsTransparent = false
         window?.level = .floating // Keeps the window above other windows if needed
         window?.isOpaque = false // allow alpha in background color
         window?.hasShadow = true
         window?.backgroundColor = preferredBackgroundColor.withAlphaComponent(1.0)
-        applyPersistedWindowPreferences()
+        applyPersistedWindowSettings()
 
         
         if let contentView = window?.contentView {
             contentView.wantsLayer = true
             contentView.layer?.backgroundColor = preferredBackgroundColor.cgColor
         }
+        
+        
     }
     
-    private func applyPersistedWindowPreferences() {
+    private func applyPersistedWindowSettings() {
         guard let window = window else { return }
         
         
@@ -65,10 +68,6 @@ final class PreferencesWindowController: NSWindowController {
             heightConstraint.priority = .required
             NSLayoutConstraint.activate([widthConstraint, heightConstraint])
         }
-        
-       
-        
-        window.title = "Preferences..."
     }
 }
 

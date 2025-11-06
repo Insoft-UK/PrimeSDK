@@ -38,46 +38,50 @@ fileprivate func encodingType(_ data: inout Data, _ encoding: inout String.Encod
     }
 }
 
-func loadPrgmFile(_ url: URL) -> String? {
-    var encoding: String.Encoding = .utf8
-
-    do {
-        // Read the raw file data
-        var data = try Data(contentsOf: url)
-        
-        encodingType(&data, &encoding)
-        
-        // Decode text using the chosen encoding
-        if let text = String(data: data, encoding: encoding) {
-            return text
-        } else {
-            throw NSError(domain: "FileLoadError", code: -1, userInfo: [
-                NSLocalizedDescriptionKey: "Failed to decode file text."
-            ])
-        }
-        
-    } catch {
-        let alert = NSAlert()
-        alert.messageText = "Error"
-        alert.informativeText = "Failed to open file: \(error)"
-        alert.runModal()
-        return nil
-    }
-}
-
-func savePrgmFile(_ url: URL, _ prgm: String) throws {
-    let encoding: String.Encoding = url.pathExtension == "prgm+" ? .utf8 : .utf16BigEndian
+final class PrgmFileManager {
     
-    if encoding == .utf8 {
-        try prgm.write(to: url, atomically: true, encoding: encoding)
-    } else {
-        // UTF-16 LE with BOM (0xFF 0xFE)
-        if let body = prgm.data(using: encoding) {
-            var bom = Data([0xFF, 0xFE])
-            bom.append(body)
-            try bom.write(to: url, options: .atomic)
+    
+    static func load(_ url: URL) -> String? {
+        var encoding: String.Encoding = .utf8
+        
+        do {
+            // Read the raw file data
+            var data = try Data(contentsOf: url)
+            
+            encodingType(&data, &encoding)
+            
+            // Decode text using the chosen encoding
+            if let text = String(data: data, encoding: encoding) {
+                return text
+            } else {
+                throw NSError(domain: "FileLoadError", code: -1, userInfo: [
+                    NSLocalizedDescriptionKey: "Failed to decode file text."
+                ])
+            }
+            
+        } catch {
+            let alert = NSAlert()
+            alert.messageText = "Error"
+            alert.informativeText = "Failed to open file: \(error)"
+            alert.runModal()
+            return nil
         }
     }
+    
+    static func save(_ url: URL, _ prgm: String) throws {
+        let encoding: String.Encoding = url.pathExtension == "prgm+" ? .utf8 : .utf16LittleEndian
+        
+        if encoding == .utf8 {
+            try prgm.write(to: url, atomically: true, encoding: encoding)
+        } else {
+            // UTF-16 LE with BOM (0xFF 0xFE)
+            if let body = prgm.data(using: encoding) {
+                var bom = Data([0xFF, 0xFE])
+                bom.append(body)
+                try bom.write(to: url, options: .atomic)
+            }
+        }
+    }
+    
+    
 }
-
-

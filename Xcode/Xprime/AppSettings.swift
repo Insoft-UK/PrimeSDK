@@ -23,7 +23,7 @@
 import Foundation
 import AppKit
 
-struct AppPreferences {
+struct AppSettings {
     
     private static let defaults = UserDefaults.standard
     private static let bundleURL = Bundle.main.bundleURL
@@ -39,6 +39,12 @@ struct AppPreferences {
         case selectedTheme
         case selectedGrammar
         case HPPrime
+        case compressHPPRGM
+    }
+    
+    static var compressHPPRGM: Bool {
+        get { defaults.object(forKey: Key.compressHPPRGM.rawValue) as? Bool ?? false }
+        set { defaults.set(newValue, forKey: Key.compressHPPRGM.rawValue) }
     }
 
     static var librarySearchPath: String {
