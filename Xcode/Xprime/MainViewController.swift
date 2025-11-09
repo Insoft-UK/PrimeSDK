@@ -441,7 +441,6 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         {
             let contents = CommandLineTool.`ppl+`(i: url)
             outputTextView.string = contents.err ?? ""
-            
         }
     }
     
