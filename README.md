@@ -16,7 +16,7 @@ Edit your PPL or PPL+ code for the HP Prime.
 
 <img src="https://raw.githubusercontent.com/Insoft-UK/Insoft-UK/main/assets/silhouette-logo.svg" style="width: 128px" />
 
-# Command-Line Tools for macOS
+# Command-Line Tools for PPL
 The command-line tools are are installed at `/Applications/HP/PrimeSDK/bin`.
 
 ### <a href="https://github.com/Insoft-UK/PrimePlus/tree/main/README.md">PPL+</a> Pre-Processor for PPL
