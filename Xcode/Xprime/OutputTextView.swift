@@ -27,21 +27,7 @@ final class OutputTextView: NSTextView {
     
     var editorForegroundColor = NSColor(.black)
     
-    lazy var baseAttributes: [NSAttributedString.Key: Any] = {
-        let font = NSFont.monospacedSystemFont(ofSize: 12, weight: .medium)
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineSpacing = 0
-        paragraphStyle.paragraphSpacing = 0
-        paragraphStyle.alignment = .left
-        
-        return [
-            .font: font,
-            .foregroundColor: NSColor.textColor,
-            .kern: 0,
-            .ligature: 0,
-            .paragraphStyle: paragraphStyle
-        ]
-    }()
+    
     
     // MARK: - Initializers
     override init(frame frameRect: NSRect, textContainer container: NSTextContainer?) {
@@ -88,4 +74,6 @@ final class OutputTextView: NSTextView {
         isRichText = false
         usesFindPanel = true
     }
+    
+    
 }

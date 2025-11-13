@@ -141,9 +141,9 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
        
         if let window = self.view.window {
             window.representedURL = Bundle.main.resourceURL?.appendingPathComponent("default.prgm+")
-            let iconButton = window.standardWindowButton(.documentIconButton)!
-            iconButton.image = NSImage(named: "pplplus")
-            
+            if let iconButton = window.standardWindowButton(.documentIconButton) {
+                iconButton.image = NSImage(named: "pplplus")
+            }
             window.title = "Untitled (UNSAVED)"
         }
     }
@@ -533,29 +533,58 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     }
     
     @IBAction func archive(_ sender: Any) {
+        let fm = FileManager.default
+        var isDir: ObjCBool = false
+        
         guard let url = currentURL,
            FileManager.default.fileExists(atPath: url.path) else
         {
             return
         }
         
+        let appName = url.deletingPathExtension().lastPathComponent
+        
         buildForRunning(sender)
         
-        let appName = url.deletingPathExtension().lastPathComponent
         let hpappdirURL = url.deletingPathExtension().appendingPathExtension("hpappdir")
+        let hpprgmURL = url.deletingPathExtension().appendingPathExtension("hpprgm")
+        let iconURL = url.deletingLastPathComponent().appendingPathComponent("icon.png")
         
-        do {
-            try FileManager.default.createDirectory(atPath: hpappdirURL.path, withIntermediateDirectories: true)
-        } catch {
-            outputTextView.string += "❌ Failed to create directory \(appName).hpappdir\n"
+        if !fm.fileExists(atPath: hpprgmURL.path) {
+            outputTextView.string += ("❌ Failed to create hppgrm: \(appName).hpprgm")
             return
         }
         
-        outputTextView.string += "🗯️ Created \(appName).hpappdir\n"
+        if !fm.fileExists(atPath: hpappdirURL.path, isDirectory: &isDir) {
+            do {
+                try fm.createDirectory(atPath: hpappdirURL.path, withIntermediateDirectories: true)
+                outputTextView.string += ("✅ Directory created: \(appName).hpappdir\n")
+            } catch {
+                outputTextView.string += ("❌ Failed to create directory: \(error)\n")
+                return
+            }
+        } else if isDir.boolValue {
+            outputTextView.string += ("⚠️ Directory already exists: \(appName).hpappdir\n")
+        } else {
+            outputTextView.string += ("🛑 A file exists at that path, not a directory.\n")
+            return
+        }
+        try? fm.copyItem(at: hpprgmURL, to: hpappdirURL.appendingPathComponent("\(appName).hpappprgm"))
         
-        try? FileManager.default.copyItem(at: url.deletingPathExtension().appendingPathExtension("hpprgm"), to: hpappdirURL.appendingPathComponent("\(appName).hpappprgm"))
-        try? FileManager.default.copyItem(at: Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/template.hpapp"), to: hpappdirURL.appendingPathComponent("\(appName).hpapp"))
-        try? FileManager.default.copyItem(at: Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/icon.png"), to: hpappdirURL.appendingPathComponent("icon.png"))
+        if !fm.fileExists(atPath: hpappdirURL.appendingPathComponent("\(appName).hpapp").path) {
+            try? fm.copyItem(at: Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/template.hpapp"), to: hpappdirURL.appendingPathComponent("\(appName).hpapp"))
+        }
+        
+        
+        // Icon
+        if !fm.fileExists(atPath: hpappdirURL.appendingPathComponent("icon.png").path) {
+            if fm.fileExists(atPath: iconURL.path) {
+                try? fm.copyItem(at: iconURL, to: hpappdirURL.appendingPathComponent("icon.png"))
+            } else {
+                try? fm.copyItem(at: Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/icon.png"), to: hpappdirURL.appendingPathComponent("icon.png"))
+                outputTextView.string += ("⚠️ Application icon.png not found, using default.\n")
+            }
+        }
         
         let zipResult = CommandLineTool.execute("/usr/bin/zip", arguments: ["-j", "-r", "\(hpappdirURL.path).zip", hpappdirURL.path, "-x", "*.DS_Store"])
         if let out = zipResult.out, !out.isEmpty {

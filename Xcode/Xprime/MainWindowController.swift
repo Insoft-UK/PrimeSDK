@@ -32,6 +32,8 @@ class MainWindowController: NSWindowController {
         window?.styleMask = [.resizable, .miniaturizable, .titled]
         window?.isOpaque = true
         window?.hasShadow = true
+//        window?.titleVisibility = .hidden
+//        window?.styleMask.insert(.fullSizeContentView)
 //        window?.backgroundColor = NSColor(white: 0.125, alpha: 1.0)
     }
 }
