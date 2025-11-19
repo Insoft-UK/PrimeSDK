@@ -54,6 +54,12 @@ final class CodeEditorTextView: NSTextView {
     var theme: Theme?
     var grammar: Grammar?
     
+    private var _smartSubtitution: Bool = false
+    var smartSubtitution: Bool {
+        get { _smartSubtitution }
+        set { _smartSubtitution = newValue }
+    }
+    
     var colors: [String: NSColor] = [
         "Keywords": .black,
         "Operators": .black,
@@ -107,7 +113,7 @@ final class CodeEditorTextView: NSTextView {
             if fileManager.fileExists(atPath: url.path) {
                 loadGrammar(at: url)
             } else {
-                loadGrammar(at: Bundle.main.url(forResource: "Prime Plus Programming Language", withExtension: "xpgrammar")!)
+                loadGrammar(at: Bundle.main.url(forResource: "Prime Plus", withExtension: "xpgrammar")!)
             }
         }
     }
@@ -185,7 +191,9 @@ final class CodeEditorTextView: NSTextView {
                      keyPath: \NSTextView.string,
                      undoManager: undoManager,
                      actionName: "Text Changed")
-        replaceLastTypedOperator()
+        if _smartSubtitution {
+            replaceLastTypedOperator()
+        }
         applySyntaxHighlighting()
     }
     
@@ -327,6 +335,9 @@ final class CodeEditorTextView: NSTextView {
                 
                 // Move cursor after replacement
                 let newCursor = replaceRange.location + replace.count
+                if newCursor >= textStorage.length {
+                    break
+                }
                 setSelectedRange(NSRange(location: newCursor, length: 0))
                 break
             }

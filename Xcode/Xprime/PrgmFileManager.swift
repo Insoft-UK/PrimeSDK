@@ -69,7 +69,7 @@ final class PrgmFileManager {
     }
     
     static func save(_ url: URL, _ prgm: String) throws {
-        let encoding: String.Encoding = url.pathExtension == "prgm+" ? .utf8 : .utf16LittleEndian
+        let encoding: String.Encoding = url.pathExtension == "prgm" ? .utf16LittleEndian : .utf8
         
         if encoding == .utf8 {
             try prgm.write(to: url, atomically: true, encoding: encoding)

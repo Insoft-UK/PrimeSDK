@@ -77,10 +77,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
             return
         }
         
-
-
-        
-        
         for fileURL in resourceURLs {
             let name = fileURL.deletingPathExtension().lastPathComponent
             

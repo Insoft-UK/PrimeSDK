@@ -85,7 +85,7 @@
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <menu key="submenu" title="Import" id="KSp-ZZ-Eb4">
                                                 <items>
-                                                    <menuItem title="Import Code" image="text.insert" catalog="system" id="1OF-xl-3eV">
+                                                    <menuItem title="Import PPL Code" image="text.insert" catalog="system" id="1OF-xl-3eV">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <connections>
                                                             <action selector="importCode:" target="Ady-hI-5gd" id="AEV-qb-WiM"/>
@@ -106,11 +106,11 @@
                                                 </items>
                                             </menu>
                                         </menuItem>
-                                        <menuItem title="Export" image="square.and.arrow.up" catalog="system" id="r6P-WS-c2L">
+                                        <menuItem title="Export" image="square.and.arrow.up.on.square" catalog="system" id="r6P-WS-c2L">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <menu key="submenu" title="Export" id="pia-c9-RVv">
                                                 <items>
-                                                    <menuItem title="Quick Export as HPPRGM" image="NSIconViewTemplate" id="lEh-6x-kCK">
+                                                    <menuItem title="Quick Export as HPPRGM" image="square.and.arrow.up" catalog="system" id="lEh-6x-kCK">
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <connections>
                                                             <action selector="exportAsHpprgm:" target="Ady-hI-5gd" id="EQU-Nk-usa"/>
@@ -587,6 +587,13 @@
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <menu key="submenu" title="Grammar" id="NIO-ET-XoS"/>
                                         </menuItem>
+                                        <menuItem isSeparatorItem="YES" id="zrF-gh-UvB"/>
+                                        <menuItem title="Smart Substitution" image="text.page" catalog="system" id="b18-me-Fjm">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="toggleSmartSubtitution:" target="Ady-hI-5gd" id="aan-SD-E7w"/>
+                                            </connections>
+                                        </menuItem>
                                     </items>
                                 </menu>
                             </menuItem>
@@ -959,7 +966,7 @@ Gw
                                         <rect key="frame" x="0.0" y="0.0" width="800" height="483"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <subviews>
-                                            <scrollView ambiguous="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" id="Ec1-A6-M9f">
+                                            <scrollView borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" id="Ec1-A6-M9f">
                                                 <rect key="frame" x="0.0" y="318" width="800" height="164"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                                 <clipView key="contentView" drawsBackground="NO" id="jPC-kg-cD0">
@@ -971,7 +978,7 @@ Gw
                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                             <color key="textColor" red="0.99131000000000002" green="0.56076000000000004" blue="0.24611" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
                                                             <color key="backgroundColor" red="0.16078431372549018" green="0.16470588235294117" blue="0.18431372549019609" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                            <size key="minSize" width="0.0" height="164"/>
+                                                            <size key="minSize" width="800" height="164"/>
                                                             <size key="maxSize" width="10000" height="10000"/>
                                                         </textView>
                                                     </subviews>
@@ -986,7 +993,7 @@ Gw
                                                     <autoresizingMask key="autoresizingMask"/>
                                                 </scroller>
                                             </scrollView>
-                                            <customView ambiguous="YES" id="JSg-5W-Jz5">
+                                            <customView id="JSg-5W-Jz5">
                                                 <rect key="frame" x="0.0" y="277" width="800" height="42"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                 <subviews>
@@ -999,8 +1006,18 @@ Gw
                                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
                                                     </textField>
+                                                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="tyO-qu-7vx">
+                                                        <rect key="frame" x="46" y="6" width="38" height="38"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" constant="38" id="TUz-bu-I76"/>
+                                                            <constraint firstAttribute="height" constant="38" id="dV5-0g-yD5"/>
+                                                        </constraints>
+                                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="icon" id="3v8-6I-Ist"/>
+                                                    </imageView>
                                                 </subviews>
                                                 <constraints>
+                                                    <constraint firstItem="tyO-qu-7vx" firstAttribute="leading" secondItem="JSg-5W-Jz5" secondAttribute="leading" constant="46" id="di8-kW-lRD"/>
+                                                    <constraint firstItem="tyO-qu-7vx" firstAttribute="top" secondItem="JSg-5W-Jz5" secondAttribute="top" constant="-2" id="owX-Fq-WOJ"/>
                                                     <constraint firstAttribute="height" constant="42" id="xFQ-Fb-nO1"/>
                                                 </constraints>
                                             </customView>
@@ -1017,11 +1034,11 @@ Gw
                                     <scrollView fixedFrame="YES" borderType="none" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1cy-3f-AfV">
                                         <rect key="frame" x="0.0" y="484" width="800" height="16"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
-                                        <clipView key="contentView" ambiguous="YES" drawsBackground="NO" id="aWt-Hd-0t0">
+                                        <clipView key="contentView" drawsBackground="NO" id="aWt-Hd-0t0">
                                             <rect key="frame" x="0.0" y="0.0" width="800" height="16"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
-                                                <textView wantsLayer="YES" ambiguous="YES" editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" spellingCorrection="YES" smartInsertDelete="YES" id="d5b-pO-KOi" customClass="OutputTextView" customModule="Xprime" customModuleProvider="target">
+                                                <textView wantsLayer="YES" editable="NO" importsGraphics="NO" richText="NO" verticallyResizable="YES" spellingCorrection="YES" smartInsertDelete="YES" id="d5b-pO-KOi" customClass="OutputTextView" customModule="Xprime" customModuleProvider="target">
                                                     <rect key="frame" x="0.0" y="0.0" width="800" height="16"/>
                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1057,6 +1074,7 @@ Gw
                     </view>
                     <connections>
                         <outlet property="codeEditorTextView" destination="09p-Rf-tgR" id="YQS-0U-lVp"/>
+                        <outlet property="icon" destination="tyO-qu-7vx" id="2tP-4F-uXu"/>
                         <outlet property="outputScrollView" destination="1cy-3f-AfV" id="NZm-7D-y91"/>
                         <outlet property="outputTextView" destination="d5b-pO-KOi" id="7M6-Zd-l9k"/>
                         <outlet property="statusTextLabel" destination="WwT-Xi-9rw" id="jgi-Qn-vui"/>
@@ -1068,7 +1086,6 @@ Gw
         </scene>
     </scenes>
     <resources>
-        <image name="NSIconViewTemplate" width="19" height="18"/>
         <image name="NSMenuOnStateTemplate" width="18" height="17"/>
         <image name="NSStopProgressTemplate" width="17" height="16"/>
         <image name="NSTouchBarPlayTemplate" width="15" height="17"/>
@@ -1080,6 +1097,7 @@ Gw
         <image name="gear" catalog="system" width="17" height="16"/>
         <image name="hammer" catalog="system" width="20" height="18"/>
         <image name="hammer.fill" catalog="system" width="19" height="17"/>
+        <image name="icon" width="38" height="38"/>
         <image name="long.text.page.and.pencil.fill" catalog="system" width="17" height="19"/>
         <image name="paintbrush" catalog="system" width="17" height="18"/>
         <image name="photo" catalog="system" width="18" height="14"/>
@@ -1087,6 +1105,7 @@ Gw
         <image name="ppl" width="16" height="16"/>
         <image name="square.and.arrow.down" catalog="system" width="15" height="17"/>
         <image name="square.and.arrow.up" catalog="system" width="15" height="18"/>
+        <image name="square.and.arrow.up.on.square" catalog="system" width="18" height="21"/>
         <image name="text.document" catalog="system" width="14" height="16"/>
         <image name="text.insert" catalog="system" width="16" height="13"/>
         <image name="text.page" catalog="system" width="14" height="16"/>

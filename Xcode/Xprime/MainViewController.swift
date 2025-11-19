@@ -63,6 +63,8 @@ extension MainViewController: NSWindowRestoration {
 
 final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarItemValidation, NSMenuItemValidation {
     @IBOutlet weak var toolbar: NSToolbar!
+    @IBOutlet weak var icon: NSImageView!
+    
     var currentURL: URL?
     
     @IBOutlet var codeEditorTextView: CodeEditorTextView!
@@ -141,10 +143,12 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
        
         if let window = self.view.window {
             window.representedURL = Bundle.main.resourceURL?.appendingPathComponent("default.prgm+")
-            if let iconButton = window.standardWindowButton(.documentIconButton) {
-                iconButton.image = NSImage(named: "pplplus")
-            }
+//            if let iconButton = window.standardWindowButton(.documentIconButton) {
+//                iconButton.image = NSImage(named: "pplplus")
+//            }
             window.title = "Untitled (UNSAVED)"
+            openDocument(withContentsOf: window.representedURL!)
+            currentURL = nil
         }
     }
     
@@ -190,12 +194,47 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         }
     }
     
+    private func openDocument(withContentsOf url: URL) {
+        guard let contents = PrgmFileManager.load(url) else { return }
+        
+        if isPrgmPlusFile(url) {
+            self.codeEditorTextView.loadGrammar(at: Bundle.main.url(forResource: "Prime Plus", withExtension: "xpgrammar")!)
+        }
+        
+        if isPrgmFile(url) {
+            self.codeEditorTextView.loadGrammar(at: Bundle.main.url(forResource: "Prime", withExtension: "xpgrammar")!)
+        }
+        
+        if url.pathExtension == "py" {
+            self.codeEditorTextView.loadGrammar(at: Bundle.main.url(forResource: "Python", withExtension: "xpgrammar")!)
+        }
+        
+        codeEditorTextView.string = contents
+        currentURL = url
+        updateDocumentIconButtonImage()
+        
+        let hpappdirURL = url.deletingPathExtension().appendingPathExtension("hpappdir")
+        if FileManager.default.fileExists(atPath: hpappdirURL.appendingPathComponent("icon.png").path) {
+            icon.image = NSImage(contentsOf: hpappdirURL.appendingPathComponent("icon.png"))
+        } else {
+            icon.image = NSImage(contentsOf: url.deletingLastPathComponent().appendingPathComponent("icon.png"))
+        }
+    }
+    
+    private func isPrgmFile(_ url: URL) -> Bool {
+        return url.pathExtension == "prgm" || url.pathExtension == "ppl"
+    }
+    
+    private func isPrgmPlusFile(_ url: URL) -> Bool {
+        return url.pathExtension == "prgm+" || url.pathExtension == "ppl+"
+    }
+    
     // MARK: - Interface Builder Action Handlers
     
     
     @IBAction func openDocument(_ sender: Any) {
         let openPanel = NSOpenPanel()
-        let extensions = ["prgm", "prgm+"]
+        let extensions = ["py", "prgm", "prgm+"]
         let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
         
         openPanel.allowedContentTypes = contentTypes
@@ -204,19 +243,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         
         openPanel.begin { result in
             guard result == .OK, let url = openPanel.url else { return }
-            
-            if let contents = PrgmFileManager.load(url) {
-                if url.pathExtension == "prgm+" {
-                    self.codeEditorTextView.loadGrammar(at: Bundle.main.url(forResource: "Prime Plus Programming Language", withExtension: "xpgrammar")!)
-                } else {
-                    self.codeEditorTextView.loadGrammar(at: Bundle.main.url(forResource: "HP Prime Programming Language", withExtension: "xpgrammar")!)
-                }
-                
-                self.codeEditorTextView.string = contents
-                self.currentURL = url
-                self.updateDocumentIconButtonImage()
-                
-            }
+            self.openDocument(withContentsOf: url)
         }
     }
     
@@ -240,7 +267,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     
     @IBAction func saveDocumentAs(_ sender: Any) {
         let savePanel = NSSavePanel()
-        let extensions = ["prgm", "prgm+"]
+        let extensions = ["py", "prgm", "prgm+"]
         let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
         
         savePanel.allowedContentTypes = contentTypes
@@ -532,9 +559,24 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         }
     }
     
-    @IBAction func archive(_ sender: Any) {
+    private func doseHPAppDirExist(at url: URL) -> Bool {
         let fm = FileManager.default
         var isDir: ObjCBool = false
+        
+        return fm.fileExists(atPath: url.path, isDirectory: &isDir) && isDir.boolValue
+    }
+    
+    private func createHPAppDir(at url: URL) throws {
+        let fm = FileManager.default
+        
+        try fm.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
+    }
+    
+ 
+    
+    @IBAction func archive(_ sender: Any) {
+        let fm = FileManager.default
+//        var isDir: ObjCBool = false
         
         guard let url = currentURL,
            FileManager.default.fileExists(atPath: url.path) else
@@ -555,20 +597,18 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             return
         }
         
-        if !fm.fileExists(atPath: hpappdirURL.path, isDirectory: &isDir) {
+        if doseHPAppDirExist(at: hpappdirURL) {
+            outputTextView.string += ("⚠️ Directory already exists: \(appName).hpappdir\n")
+        } else {
             do {
-                try fm.createDirectory(atPath: hpappdirURL.path, withIntermediateDirectories: true)
+                try createHPAppDir(at: hpappdirURL)
                 outputTextView.string += ("✅ Directory created: \(appName).hpappdir\n")
             } catch {
                 outputTextView.string += ("❌ Failed to create directory: \(error)\n")
                 return
             }
-        } else if isDir.boolValue {
-            outputTextView.string += ("⚠️ Directory already exists: \(appName).hpappdir\n")
-        } else {
-            outputTextView.string += ("🛑 A file exists at that path, not a directory.\n")
-            return
         }
+
         try? fm.copyItem(at: hpprgmURL, to: hpappdirURL.appendingPathComponent("\(appName).hpappprgm"))
         
         if !fm.fileExists(atPath: hpappdirURL.appendingPathComponent("\(appName).hpapp").path) {
@@ -609,6 +649,10 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         self.outputTextView.string += contents.err ?? ""
     }
     
+    @IBAction func toggleSmartSubtitution(_ sender: NSMenuItem) {
+        codeEditorTextView.smartSubtitution = !codeEditorTextView.smartSubtitution
+        sender.state = codeEditorTextView.smartSubtitution ? .on : .off
+    }
     
     
     // MARK: - Validation for Toolbar Items
@@ -617,7 +661,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         // Enable or disable toolbar items as needed. For now, always enable.
         switch item.action {
         case #selector(exportAsHpprgm(_:)):
-            if let url = currentURL, url.pathExtension == "prgm" {
+            if let url = currentURL, isPrgmFile(url) {
                 return true
             }
             return false
@@ -637,33 +681,43 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     // MARK: - Validation for Menu Items
     
     internal func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        
+        let fm = FileManager.default
+        
         switch menuItem.action {
         case #selector(build(_:)):
-            if let url = currentURL, url.pathExtension == "prgm+" {
+            if let url = currentURL, isPrgmPlusFile(url) {
                 return true
             }
             return false
             
         case #selector(reformatCode(_:)), #selector(exportAsHpprgm(_:)):
-            if let url = currentURL, url.pathExtension == "prgm" {
+            if let url = currentURL, isPrgmFile(url) {
                 return true
             }
             return false
             
         case #selector(runWithoutBuilding(_:)):
-            if let url = currentURL, FileManager.default.fileExists(atPath: url.deletingPathExtension().appendingPathExtension("hpprgm").path) {
+            if let url = currentURL, fm.fileExists(atPath: url.deletingPathExtension().appendingPathExtension("hpprgm").path) {
                 return true
             }
             return false
             
         case #selector(run(_:)), #selector(buildForRunning(_:)), #selector(archive(_:)):
-            if let url = currentURL, FileManager.default.fileExists(atPath: url.path) {
+            if let url = currentURL, fm.fileExists(atPath: url.path), url.pathExtension != "py" {
                 return true
             }
             return false
             
+        case #selector(insertTemplate(_:)), #selector(importCode(_:)), #selector(importImage(_:)), #selector(importAdafruitGFXFont(_:)):
+            if let url = currentURL, url.pathExtension == "py" {
+                return false
+            }
+            return true
+            
         case #selector(revertDocumentToSaved(_:)):
             return documentIsModified
+            
         
         default:
             break

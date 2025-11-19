@@ -1,10 +1,15 @@
-#pragma mode( separator(.,;) integer(h64) assignment(:=) indentation(2) operators(▶,*,/,-,+) )
+#pragma mode( separator(.,;) integer(h64) assignment(=) indentation(2) operators(▶,*,/,-,+) )
 
-SETUP: app::setup();
-LOOP: app::loop();
-RESET: app::reset();
+alias app::start = START;
+alias app::setup = SETUP;
+alias app::loop = LOOP;
+alias app::reset = RESET;
 
-START: app::start()
+app::setup();
+app::loop();
+app::reset();
+
+app::start()
 begin
     app::setup();
     app::loop();
