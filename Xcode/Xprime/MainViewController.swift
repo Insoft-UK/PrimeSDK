@@ -222,7 +222,8 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     }
     
     private func isPrgmFile(_ url: URL) -> Bool {
-        return url.pathExtension == "prgm" || url.pathExtension == "ppl"
+        let ext = url.pathExtension
+        return ext == "prgm" || ext == "ppl" || ext == "hpprgm" || ext == "hpappprgm"
     }
     
     private func isPrgmPlusFile(_ url: URL) -> Bool {
@@ -234,7 +235,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     
     @IBAction func openDocument(_ sender: Any) {
         let openPanel = NSOpenPanel()
-        let extensions = ["py", "prgm", "prgm+"]
+        let extensions = ["py", "prgm", "prgm+", "hpprgm", "hpappprgm", "ppl"]
         let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
         
         openPanel.allowedContentTypes = contentTypes
@@ -249,6 +250,11 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     
     @IBAction func saveDocument(_ sender: Any) {
         guard let url = currentURL else {
+            saveDocumentAs(sender)
+            return
+        }
+        
+        if url.pathExtension == "hpprgm" || url.pathExtension == "hpappprgm" {
             saveDocumentAs(sender)
             return
         }
@@ -394,13 +400,13 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             let name = url.deletingPathExtension().lastPathComponent
             
             let _ = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/pplmin", arguments: [url.path, "-o", "\(destPath)/~\(name).prgm"])
-            if FileManager.default.fileExists(atPath: "\(destPath)/~\(name).prgm") {
-                let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/hpprgm", arguments: ["\(destPath)/~\(name).prgm", "-o", "\(destPath)/\(name).hpprgm"])
+            if FileManager.default.fileExists(atPath: "\(destPath)/\(name).prgm") {
+                let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/hpprgm", arguments: ["\(destPath)/\(name).prgm", "-o", "\(destPath)/\(name).hpprgm"])
                 if let out = contents.out, !out.isEmpty {
                     self.outputTextView.string = out
                 }
                 self.outputTextView.string = contents.err ?? ""
-                try? FileManager.default.removeItem(at: URL(fileURLWithPath: "\(destPath)/~\(name).prgm"))
+                try? FileManager.default.removeItem(at: URL(fileURLWithPath: "\(destPath)/\(name).prgm"))
                 return
             }
         } else {
@@ -576,7 +582,6 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     
     @IBAction func archive(_ sender: Any) {
         let fm = FileManager.default
-//        var isDir: ObjCBool = false
         
         guard let url = currentURL,
            FileManager.default.fileExists(atPath: url.path) else
@@ -631,6 +636,36 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             self.outputTextView.string += out
         }
         self.outputTextView.string += zipResult.err ?? ""
+    }
+    
+    @IBAction func cleanBuildFolder(_ sender: Any) {
+        let fm = FileManager.default
+        
+        guard let url = currentURL,
+           FileManager.default.fileExists(atPath: url.path) else
+        {
+            return
+        }
+        
+        let appName = url.deletingPathExtension().lastPathComponent
+        let hpappdirURL = url.deletingPathExtension().appendingPathExtension("hpappdir")
+        let hpprgmURL = url.deletingPathExtension().appendingPathExtension("hpprgm")
+        
+        if doseHPAppDirExist(at: hpappdirURL) {
+            _ = try? fm.removeItem(at: hpappdirURL)
+            outputTextView.string += ("⚠️ Directory removed: \(appName).hpappdir\n")
+        }
+        
+        if fm.fileExists(atPath: hpprgmURL.path) {
+            _ = try? fm.removeItem(at: hpprgmURL)
+            outputTextView.string += ("⚠️ File removed: \(appName).hpprgm\n")
+        }
+        
+        if fm.fileExists(atPath: "\(hpappdirURL.path).zip") {
+            let zipURL = url.deletingPathExtension().appendingPathExtension("hpappdir.zip")
+            _ = try? fm.removeItem(at: zipURL)
+            outputTextView.string += ("⚠️ File removed: \(appName).hpappdir.zip\n")
+        }
     }
     
     @IBAction func reformatCode(_ sender: Any) {

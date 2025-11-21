@@ -644,6 +644,12 @@
                                                 <action selector="build:" target="Ady-hI-5gd" id="jgL-VQ-g2m"/>
                                             </connections>
                                         </menuItem>
+                                        <menuItem title="Clean Build Folder..." image="bubbles.and.sparkles" catalog="system" id="Up0-W5-9DQ">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="cleanBuildFolder:" target="Ady-hI-5gd" id="q0Y-mJ-rjI"/>
+                                            </connections>
+                                        </menuItem>
                                     </items>
                                 </menu>
                             </menuItem>
@@ -1091,6 +1097,7 @@ Gw
         <image name="NSTouchBarPlayTemplate" width="15" height="17"/>
         <image name="NSTouchBarTextLeftAlignTemplate" width="21" height="17"/>
         <image name="arrow.uturn.backward" catalog="system" width="15" height="14"/>
+        <image name="bubbles.and.sparkles" catalog="system" width="17" height="15"/>
         <image name="building.columns" catalog="system" width="18" height="16"/>
         <image name="character.book.closed" catalog="system" width="14" height="16"/>
         <image name="cube.fill" catalog="system" width="16" height="17"/>

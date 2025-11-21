@@ -38,10 +38,23 @@ fileprivate func encodingType(_ data: inout Data, _ encoding: inout String.Encod
     }
 }
 
+fileprivate func loadHpprgm(_ url: URL) -> String? {
+    let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/hpprgm", arguments: [url.path, "-o", "/dev/stdout"])
+    if let out = contents.out, !out.isEmpty {
+        return contents.out
+    }
+    return nil
+}
+
 final class PrgmFileManager {
     
     
     static func load(_ url: URL) -> String? {
+        
+        if url.pathExtension.lowercased() == "hpprgm" || url.pathExtension.lowercased() == "hpappprgm" {
+            return loadHpprgm(url)
+        }
+        
         var encoding: String.Encoding = .utf8
         
         do {
