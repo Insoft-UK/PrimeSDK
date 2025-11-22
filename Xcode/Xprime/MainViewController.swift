@@ -65,7 +65,23 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     @IBOutlet weak var toolbar: NSToolbar!
     @IBOutlet weak var icon: NSImageView!
     
-    var currentURL: URL?
+    private var currentURL: URL?
+    private var parentURL: URL? {
+        guard let url = currentURL else { return nil }
+        var isDir: ObjCBool = false
+        if FileManager.default.fileExists(atPath: url.deletingLastPathComponent().path, isDirectory: &isDir) && isDir.boolValue {
+            return url.deletingLastPathComponent()
+        }
+        return nil
+    }
+    private var applicationName: String? {
+        guard let url = currentURL else { return nil }
+        var isDir: ObjCBool = false
+        if FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir) && isDir.boolValue {
+            return nil
+        }
+        return url.deletingPathExtension().lastPathComponent
+    }
     
     @IBOutlet var codeEditorTextView: CodeEditorTextView!
     @IBOutlet var outputTextView: NSTextView!
@@ -94,7 +110,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         
         
         if let url = Bundle.main.resourceURL?.appendingPathComponent("default.prgm+") {
-            codeEditorTextView.string = PrgmFileManager.load(url) ?? ""
+            codeEditorTextView.string = HP.loadFile(at: url) ?? ""
         }
         
         NotificationCenter.default.addObserver(
@@ -143,9 +159,6 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
        
         if let window = self.view.window {
             window.representedURL = Bundle.main.resourceURL?.appendingPathComponent("default.prgm+")
-//            if let iconButton = window.standardWindowButton(.documentIconButton) {
-//                iconButton.image = NSImage(named: "pplplus")
-//            }
             window.title = "Untitled (UNSAVED)"
             openDocument(withContentsOf: window.representedURL!)
             currentURL = nil
@@ -195,43 +208,48 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     }
     
     private func openDocument(withContentsOf url: URL) {
-        guard let contents = PrgmFileManager.load(url) else { return }
+        guard let contents = HP.loadFile(at: url) else { return }
         
-        if isPrgmPlusFile(url) {
+        currentURL = url
+        codeEditorTextView.string = contents
+        
+        guard let name = applicationName else { return }
+        guard let parentURL = parentURL else { return }
+        let folderURL = parentURL.appendingPathComponent("\(name).hpappdir")
+        
+        
+        if HP.isProgramPlusFile(url) {
             self.codeEditorTextView.loadGrammar(at: Bundle.main.url(forResource: "Prime Plus", withExtension: "xpgrammar")!)
         }
         
-        if isPrgmFile(url) {
+        if HP.isProgramFile(url) {
             self.codeEditorTextView.loadGrammar(at: Bundle.main.url(forResource: "Prime", withExtension: "xpgrammar")!)
         }
         
-        if url.pathExtension == "py" {
+        if url.pathExtension.lowercased() == "py" {
             self.codeEditorTextView.loadGrammar(at: Bundle.main.url(forResource: "Python", withExtension: "xpgrammar")!)
         }
         
-        codeEditorTextView.string = contents
-        currentURL = url
+        
+        
         updateDocumentIconButtonImage()
         
-        let hpappdirURL = url.deletingPathExtension().appendingPathExtension("hpappdir")
-        if FileManager.default.fileExists(atPath: hpappdirURL.appendingPathComponent("icon.png").path) {
-            icon.image = NSImage(contentsOf: hpappdirURL.appendingPathComponent("icon.png"))
-        } else {
-            icon.image = NSImage(contentsOf: url.deletingLastPathComponent().appendingPathComponent("icon.png"))
+        let fm = FileManager.default
+        
+        if fm.fileExists(atPath: folderURL.appendingPathComponent("icon.png").path) {
+            icon.image = NSImage(contentsOf: folderURL.appendingPathComponent("icon.png"))
+            return
         }
-    }
-    
-    private func isPrgmFile(_ url: URL) -> Bool {
-        let ext = url.pathExtension
-        return ext == "prgm" || ext == "ppl" || ext == "hpprgm" || ext == "hpappprgm"
-    }
-    
-    private func isPrgmPlusFile(_ url: URL) -> Bool {
-        return url.pathExtension == "prgm+" || url.pathExtension == "ppl+"
+        
+        if fm.fileExists(atPath: parentURL.appendingPathComponent("icon.png").path) {
+            icon.image = NSImage(contentsOf: parentURL.appendingPathComponent("icon.png"))
+            return
+        }
+        
+        icon.image = NSImage(contentsOf: Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/icon.png"))
     }
     
     // MARK: - Interface Builder Action Handlers
-    
     
     @IBAction func openDocument(_ sender: Any) {
         let openPanel = NSOpenPanel()
@@ -254,13 +272,13 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             return
         }
         
-        if url.pathExtension == "hpprgm" || url.pathExtension == "hpappprgm" {
+        if url.pathExtension.lowercased() == "hpprgm" || url.pathExtension.lowercased()  == "hpappprgm" {
             saveDocumentAs(sender)
             return
         }
         
         do {
-            try PrgmFileManager.save(url, codeEditorTextView.string)
+            try HP.saveFile(at: url, codeEditorTextView.string)
             currentURL = url
             self.documentIsModified = false
         } catch {
@@ -283,7 +301,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             guard result == .OK, let url = savePanel.url else { return }
 
             do {
-                try PrgmFileManager.save(url, self.codeEditorTextView.string)
+                try HP.saveFile(at: url, self.codeEditorTextView.string)
                 self.currentURL = url
                 self.documentIsModified = false
             } catch {
@@ -342,7 +360,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     }
     
     @IBAction func revertDocumentToSaved(_ sender: Any) {
-        if let contents = PrgmFileManager.load(currentURL!) {
+        if let contents = HP.loadFile(at: currentURL!) {
             codeEditorTextView.string = contents
             self.documentIsModified = false
             updateDocumentIconButtonImage()
@@ -386,78 +404,52 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             return
         }
         
+        guard let name = applicationName else { return }
+        guard let parentURL = parentURL else { return }
+        
         build(sender)
         
-        let prgmURL = url.deletingPathExtension().appendingPathExtension("prgm")
-
-        if !FileManager.default.fileExists(atPath: prgmURL.path) {
-            outputTextView.string = "File not found: \(prgmURL.lastPathComponent)\n\n"
+        if !FileManager.default.fileExists(atPath: parentURL.appendingPathComponent("\(name).prgm").path) {
+            let alert = NSAlert()
+            alert.messageText = "BUILD Error"
+            alert.informativeText = "File not found: \(name).prgm"
+            alert.runModal()
             return
         }
         
         if AppSettings.compressHPPRGM {
-            let destPath = url.deletingLastPathComponent().path
-            let name = url.deletingPathExtension().lastPathComponent
-            
-            let _ = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/pplmin", arguments: [url.path, "-o", "\(destPath)/~\(name).prgm"])
-            if FileManager.default.fileExists(atPath: "\(destPath)/\(name).prgm") {
-                let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/hpprgm", arguments: ["\(destPath)/\(name).prgm", "-o", "\(destPath)/\(name).hpprgm"])
-                if let out = contents.out, !out.isEmpty {
-                    self.outputTextView.string = out
-                }
-                self.outputTextView.string = contents.err ?? ""
-                try? FileManager.default.removeItem(at: URL(fileURLWithPath: "\(destPath)/\(name).prgm"))
-                return
-            }
-        } else {
-            let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/hpprgm", arguments: [prgmURL.path])
+            let contents = HP.compressProgramFile(at: parentURL.appendingPathComponent("\(name).prgm"))
             if let out = contents.out, !out.isEmpty {
                 self.outputTextView.string = out
             }
-            outputTextView.string = contents.err ?? ""
+            self.outputTextView.string = contents.err ?? ""
+            return
         }
+        
+        let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/hpprgm", arguments: [parentURL.appendingPathComponent("\(name).prgm").path])
+        if let out = contents.out, !out.isEmpty {
+            self.outputTextView.string = out
+        }
+        outputTextView.string = contents.err ?? ""
     }
     
     @IBAction func runWithoutBuilding(_ sender: Any) {
         guard let url = currentURL else { return }
-            
-        outputTextView.string = "🏃 Running without building...\n\n"
-    
-        let fileManager = FileManager.default
-        let homeDir = fileManager.homeDirectoryForCurrentUser
-        
-        
+          
         let sourceURL = url.deletingPathExtension().appendingPathExtension("hpprgm")
-        let destinationPath = homeDir.appendingPathComponent("Documents/HP Prime/Calculators/Prime").appendingPathComponent(sourceURL.lastPathComponent).path
-        
+
+
         do {
-            // Remove existing file if it exists
-            if fileManager.fileExists(atPath: destinationPath) {
-                try fileManager.removeItem(atPath: destinationPath)
-            }
-
-            // Now copy the new one
-            try fileManager.copyItem(atPath: sourceURL.path, toPath: destinationPath)
-
+            try HP.installProgramFile(at: url.deletingPathExtension().appendingPathExtension("hpprgm"))
         } catch {
-            print("Error copying file: \(error)")
+            let alert = NSAlert()
+            alert.messageText = "Error"
+            alert.informativeText = "Installing file: \(error)"
+            alert.runModal()
+            return
         }
-
       
-        let task = Process()
-        
-        
-        if AppSettings.HPPrime == "macOS" {
-            task.executableURL = URL(fileURLWithPath: "/Applications/HP Prime.app/Contents/MacOS/HP Prime")
-        } else {
-            task.executableURL = URL(fileURLWithPath: "/Applications/Wine.app/Contents/MacOS/wine")
-            task.arguments = [homeDir.appendingPathComponent(".wine/drive_c/Program Files/HP/HP Prime Virtual Calculator/HPPrime.exe").path]
-        }
-        do {
-            try task.run()
-        } catch {
-            print("Failed to launch: \(error)")
-        }
+        HP.launchVirtualCalculator()
     }
     
     /*
@@ -468,9 +460,10 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
      */
     @IBAction func build(_ sender: Any) {
         saveDocument(sender)
+        let fm = FileManager.default
         
         if let url = currentURL,
-           FileManager.default.fileExists(atPath: url.path) && url.pathExtension == "prgm+"
+           fm.fileExists(atPath: url.path) && HP.isProgramPlusFile(url)
         {
             let contents = CommandLineTool.`ppl+`(i: url)
             outputTextView.string = contents.err ?? ""
@@ -535,7 +528,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         openPanel.begin { result in
             guard result == .OK, let url = openPanel.url else { return }
             
-            if let contents = PrgmFileManager.load(url) {
+            if let contents = HP.loadFile(at: url) {
                 self.codeEditorTextView.insertCode(self.codeEditorTextView.removePragma(contents))
             }
         }
@@ -560,111 +553,80 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         
         let url = Bundle.main.bundleURL.appendingPathComponent("Contents/Template/\(traceMenuItem(menuItem))/\(menuItem.title).prgm")
         
-        if let contents = PrgmFileManager.load(url) {
+        if let contents = HP.loadFile(at: url) {
             codeEditorTextView.insertCode(contents)
         }
     }
     
-    private func doseHPAppDirExist(at url: URL) -> Bool {
-        let fm = FileManager.default
-        var isDir: ObjCBool = false
-        
-        return fm.fileExists(atPath: url.path, isDirectory: &isDir) && isDir.boolValue
-    }
-    
-    private func createHPAppDir(at url: URL) throws {
-        let fm = FileManager.default
-        
-        try fm.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
-    }
-    
- 
     
     @IBAction func archive(_ sender: Any) {
-        let fm = FileManager.default
-        
         guard let url = currentURL,
            FileManager.default.fileExists(atPath: url.path) else
         {
             return
         }
         
-        let appName = url.deletingPathExtension().lastPathComponent
-        
+        guard let name = applicationName else { return }
+        guard let parentURL = parentURL else { return }
+       
         buildForRunning(sender)
         
-        let hpappdirURL = url.deletingPathExtension().appendingPathExtension("hpappdir")
-        let hpprgmURL = url.deletingPathExtension().appendingPathExtension("hpprgm")
-        let iconURL = url.deletingLastPathComponent().appendingPathComponent("icon.png")
-        
-        if !fm.fileExists(atPath: hpprgmURL.path) {
-            outputTextView.string += ("❌ Failed to create hppgrm: \(appName).hpprgm")
-            return
-        }
-        
-        if doseHPAppDirExist(at: hpappdirURL) {
-            outputTextView.string += ("⚠️ Directory already exists: \(appName).hpappdir\n")
-        } else {
+        if !HP.applicationDirectoryExists(atPath: parentURL.path, named: name) {
             do {
-                try createHPAppDir(at: hpappdirURL)
-                outputTextView.string += ("✅ Directory created: \(appName).hpappdir\n")
+                try HP.createApplicationDirectory(at: parentURL, named: name)
+                outputTextView.string += ("✅ Application directory created: \(name).hpappdir\n")
             } catch {
                 outputTextView.string += ("❌ Failed to create directory: \(error)\n")
                 return
             }
-        }
-
-        try? fm.copyItem(at: hpprgmURL, to: hpappdirURL.appendingPathComponent("\(appName).hpappprgm"))
-        
-        if !fm.fileExists(atPath: hpappdirURL.appendingPathComponent("\(appName).hpapp").path) {
-            try? fm.copyItem(at: Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/template.hpapp"), to: hpappdirURL.appendingPathComponent("\(appName).hpapp"))
-        }
-        
-        
-        // Icon
-        if !fm.fileExists(atPath: hpappdirURL.appendingPathComponent("icon.png").path) {
-            if fm.fileExists(atPath: iconURL.path) {
-                try? fm.copyItem(at: iconURL, to: hpappdirURL.appendingPathComponent("icon.png"))
-            } else {
-                try? fm.copyItem(at: Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/icon.png"), to: hpappdirURL.appendingPathComponent("icon.png"))
-                outputTextView.string += ("⚠️ Application icon.png not found, using default.\n")
+        } else {
+            let folderURL = parentURL.appendingPathComponent("\(name).hpappdir")
+            do {
+                _ = try FileManager.default.replaceItemAt(
+                    folderURL.appendingPathComponent("\(name).hpappprgm"),
+                    withItemAt: parentURL.appendingPathComponent("\(name).hpprgm"),
+                    backupItemName: nil,
+                    options: []
+                )
+            } catch {
+                outputTextView.string += ("❌ Failed to update application program file: \(error)\n")
+                return
             }
         }
         
-        let zipResult = CommandLineTool.execute("/usr/bin/zip", arguments: ["-j", "-r", "\(hpappdirURL.path).zip", hpappdirURL.path, "-x", "*.DS_Store"])
-        if let out = zipResult.out, !out.isEmpty {
+       
+        let result = HP.archiveApplicationDirectory(at: parentURL, named: name)
+        
+        if let out = result.out, !out.isEmpty {
             self.outputTextView.string += out
         }
-        self.outputTextView.string += zipResult.err ?? ""
+        self.outputTextView.string += result.err ?? ""
     }
     
     @IBAction func cleanBuildFolder(_ sender: Any) {
-        let fm = FileManager.default
-        
-        guard let url = currentURL,
-           FileManager.default.fileExists(atPath: url.path) else
-        {
+        guard let name = applicationName, let parentURL = parentURL else {
             return
         }
         
-        let appName = url.deletingPathExtension().lastPathComponent
-        let hpappdirURL = url.deletingPathExtension().appendingPathExtension("hpappdir")
-        let hpprgmURL = url.deletingPathExtension().appendingPathExtension("hpprgm")
-        
-        if doseHPAppDirExist(at: hpappdirURL) {
-            _ = try? fm.removeItem(at: hpappdirURL)
-            outputTextView.string += ("⚠️ Directory removed: \(appName).hpappdir\n")
+        do {
+            try FileManager.default.removeItem(at: parentURL.appendingPathComponent("\(name).hpprgm"))
+            outputTextView.string += ("✅ Program file removed: \(name).hpprgm\n")
+        } catch {
+            outputTextView.string += ("🛑 Program file not found: \(name).hpprgm\n")
         }
         
-        if fm.fileExists(atPath: hpprgmURL.path) {
-            _ = try? fm.removeItem(at: hpprgmURL)
-            outputTextView.string += ("⚠️ File removed: \(appName).hpprgm\n")
+        do {
+            try HP.removeApplicationDirectory(at: parentURL, named: name)
+            outputTextView.string += ("✅ Application directory removed: \(name).hpappdir\n")
+        } catch {
+            outputTextView.string += ("🛑 Application directory not found: \(name).hpappdir\n")
         }
         
-        if fm.fileExists(atPath: "\(hpappdirURL.path).zip") {
-            let zipURL = url.deletingPathExtension().appendingPathExtension("hpappdir.zip")
-            _ = try? fm.removeItem(at: zipURL)
-            outputTextView.string += ("⚠️ File removed: \(appName).hpappdir.zip\n")
+        do {
+            try HP.removeArchive(at: parentURL, named: name)
+            outputTextView.string += ("✅ Archive removed: \(name).hpappdir.zip\n")
+        } catch {
+            outputTextView.string += ("🛑 Archive not found: \(name).hpappdir.zip\n")
         }
     }
     
@@ -696,7 +658,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         // Enable or disable toolbar items as needed. For now, always enable.
         switch item.action {
         case #selector(exportAsHpprgm(_:)):
-            if let url = currentURL, isPrgmFile(url) {
+            if let url = currentURL, HP.isProgramFile(url) {
                 return true
             }
             return false
@@ -721,13 +683,13 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         
         switch menuItem.action {
         case #selector(build(_:)):
-            if let url = currentURL, isPrgmPlusFile(url) {
+            if let url = currentURL, HP.isProgramPlusFile(url) {
                 return true
             }
             return false
             
         case #selector(reformatCode(_:)), #selector(exportAsHpprgm(_:)):
-            if let url = currentURL, isPrgmFile(url) {
+            if let url = currentURL, HP.isProgramFile(url) {
                 return true
             }
             return false
@@ -739,13 +701,13 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             return false
             
         case #selector(run(_:)), #selector(buildForRunning(_:)), #selector(archive(_:)):
-            if let url = currentURL, fm.fileExists(atPath: url.path), url.pathExtension != "py" {
+            if let url = currentURL, fm.fileExists(atPath: url.path), url.pathExtension.lowercased() != "py" {
                 return true
             }
             return false
             
         case #selector(insertTemplate(_:)), #selector(importCode(_:)), #selector(importImage(_:)), #selector(importAdafruitGFXFont(_:)):
-            if let url = currentURL, url.pathExtension == "py" {
+            if let url = currentURL, url.pathExtension.lowercased() == "py" {
                 return false
             }
             return true
@@ -753,6 +715,11 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         case #selector(revertDocumentToSaved(_:)):
             return documentIsModified
             
+        case #selector(cleanBuildFolder(_:)):
+            if let url = currentURL, let name = applicationName {
+                return HP.applicationDirectoryExists(atPath: url.deletingLastPathComponent().path, named: name)
+            }
+            return false
         
         default:
             break

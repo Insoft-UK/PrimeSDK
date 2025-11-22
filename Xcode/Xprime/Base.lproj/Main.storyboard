@@ -985,7 +985,7 @@ Gw
                                                             <color key="textColor" red="0.99131000000000002" green="0.56076000000000004" blue="0.24611" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
                                                             <color key="backgroundColor" red="0.16078431372549018" green="0.16470588235294117" blue="0.18431372549019609" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                             <size key="minSize" width="800" height="164"/>
-                                                            <size key="maxSize" width="10000" height="10000"/>
+                                                            <size key="maxSize" width="10000" height="200000"/>
                                                         </textView>
                                                     </subviews>
                                                     <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

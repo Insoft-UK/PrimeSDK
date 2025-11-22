@@ -978,6 +978,9 @@ export START()
 begin
   local I, N, Color, Pt1, Pt2;
   
+  alias point::first = Pt1;
+  alias point::last = Pt2;
+  
   Color := RGB(0, 0, 0);
   RECT_P(Color);
   
@@ -994,15 +997,15 @@ begin
     end;
     
     if N > 0 then
-      Pt1 := Shuttle::GetPoint(I);
+      point::first := Shuttle::GetPoint(I);
       I := I+2;
       N := N-1;
       while N > 0 do
-        Pt2 := Shuttle::GetPoint(I);
+        point::last := Shuttle::GetPoint(I);
         I := I+2;
         N := N-1;
-        LINE_P(Pt1(1), Pt1(2), Pt2(1), Pt2(2), Color);
-        Pt1 := Pt2;
+        LINE_P(point::first(1), point::first(2), point::last(1), point::last(2), Color);
+        point::first := point::last;
       end;
     end;
     
@@ -1012,4 +1015,3 @@ begin
   repeat until ISKEYDOWN(4);
   return 0;
 end;
-

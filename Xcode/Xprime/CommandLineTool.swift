@@ -48,11 +48,14 @@ fileprivate func run(_ task: Process) -> (out: String?, err: String?) {
 }
 
 class CommandLineTool {
-    class func execute(_ command: String, arguments: [String]) -> (out: String?, err: String?) {
+    class func execute(_ command: String, arguments: [String], currentDirectory: URL? = nil) -> (out: String?, err: String?) {
         let task = Process()
         
         task.executableURL = URL(fileURLWithPath: command)
         task.arguments = arguments
+        if let url = currentDirectory {
+            task.currentDirectoryURL = url
+        }
         
         return run(task)
     }
