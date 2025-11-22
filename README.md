@@ -8,15 +8,17 @@ Graphing calculator HP Prime has a **3.5-inch full color touch screen**, that de
 
 <img src="https://github.com/Insoft-UK/PrimeSDK/blob/main/Xcode/Xprime/Assets.xcassets/AppIcon.appiconset/256pt@2x.png?raw=true" width="128" />
 
-# Code Editor for HP Prime Programming Language
+## Xprime Code Editor for macOS
 
-### <a href="https://github.com/Insoft-UK/PrimeSDK/blob/main/Xcode/README.md">Xprime</a> Code Editor for PPL
-Edit your PPL or PPL+ code for the HP Prime.
+### <a href="https://github.com/Insoft-UK/PrimeSDK/blob/main/Xcode/README.md">Xprime</a> Code Editor
+- Edit your PPL or PPL+ code for the HP Prime.
+- Package your application for deployment on a physical HP Prime or the virtual emulator.
+- Export a G1 .hpprgm file for use on a real HP Prime or the Virtual Calculator.
 
 
 <img src="https://raw.githubusercontent.com/Insoft-UK/Insoft-UK/main/assets/silhouette-logo.svg" style="width: 128px" />
 
-# Command-Line Tools for PPL
+# Command-Line Tools
 The command-line tools are are installed at `/Applications/HP/PrimeSDK/bin`.
 
 ### <a href="https://github.com/Insoft-UK/PrimePlus/tree/main/README.md">PPL+</a> Pre-Processor for PPL
