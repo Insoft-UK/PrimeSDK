@@ -50,7 +50,7 @@ final class HP {
     static func isProgramFile(_ url: URL?) -> Bool {
         guard let url else { return false }
         let ext = url.pathExtension.lowercased()
-        return ext == "prgm" || ext == "ppl" || ext == "hpprgm" || ext == "hpappprgm"
+        return ext == "prgm" || ext == "ppl"
     }
     
     static func isProgramPlusFile(_ url: URL?) -> Bool {
@@ -201,12 +201,11 @@ final class HP {
         let destination = homeDirectory.appendingPathComponent("Documents/HP Prime/Calculators/Prime").appendingPathComponent(source.lastPathComponent)
         
         do {
-            _ = try FileManager.default.replaceItemAt(
-                destination,
-                withItemAt: source,
-                backupItemName: nil,
-                options: []
-            )
+            if FileManager.default.fileExists(atPath: destination.path) {
+                try FileManager.default.removeItem(at: destination)
+            }
+
+            try FileManager.default.copyItem(at: source, to: destination)
         }
     }
     

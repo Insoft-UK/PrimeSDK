@@ -971,7 +971,7 @@ end;
 
 local gpt: Shuttle::GetPoint(I)
 begin
-  return { Shuttle::Data(I) / 9.375, Data(I+1) / 9.375 };
+  return { Shuttle::Data(I) / 9.375, Shuttle::Data(I+1) / 9.375 };
 end;
 
 export START()
@@ -992,7 +992,7 @@ begin
     
     if N < 0 then
       N := -N;
-      Color := Shuttle::GetPenColor(Data(I));
+      Color := Shuttle::GetPenColor(Shuttle::Data(I));
       I := I+1;
     end;
     

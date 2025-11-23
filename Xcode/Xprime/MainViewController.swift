@@ -217,16 +217,17 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         guard let parentURL = parentURL else { return }
         let folderURL = parentURL.appendingPathComponent("\(name).hpappdir")
         
+        let ext = url.pathExtension.lowercased()
         
-        if HP.isProgramPlusFile(url) {
+        if ext == "prgm+" || ext == "ppl+" {
             self.codeEditorTextView.loadGrammar(at: Bundle.main.url(forResource: "Prime Plus", withExtension: "xpgrammar")!)
         }
         
-        if HP.isProgramFile(url) {
+        if ext == "prgm" || ext == "ppl" || ext == "hpprgm" || ext == "hpappprgm" {
             self.codeEditorTextView.loadGrammar(at: Bundle.main.url(forResource: "Prime", withExtension: "xpgrammar")!)
         }
         
-        if url.pathExtension.lowercased() == "py" {
+        if ext == "py" {
             self.codeEditorTextView.loadGrammar(at: Bundle.main.url(forResource: "Python", withExtension: "xpgrammar")!)
         }
         
@@ -433,11 +434,39 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         outputTextView.string = contents.err ?? ""
     }
     
+    @IBAction func buildForArchiving(_ sender: Any) {
+        guard let url = currentURL, let name = applicationName , let parentURL = parentURL else { return }
+       
+        buildForRunning(sender)
+        
+        if !HP.applicationDirectoryExists(atPath: parentURL.path, named: name) {
+            do {
+                try HP.createApplicationDirectory(at: parentURL, named: name)
+                outputTextView.string += ("✅ Application directory created: \(name).hpappdir\n")
+            } catch {
+                outputTextView.string += ("❌ Failed to create directory: \(error)\n")
+                return
+            }
+        } else {
+            let folderURL = parentURL.appendingPathComponent("\(name).hpappdir")
+            do {
+                let destination = folderURL.appendingPathComponent("\(name).hpappprgm")
+                let source = parentURL.appendingPathComponent("\(name).hpprgm")
+                
+                if FileManager.default.fileExists(atPath: destination.path) {
+                    try FileManager.default.removeItem(at: destination)
+                }
+
+                try FileManager.default.copyItem(at: source, to: destination)
+            } catch {
+                outputTextView.string += ("❌ Failed to update application program file: \(error)\n")
+                return
+            }
+        }
+    }
+    
     @IBAction func runWithoutBuilding(_ sender: Any) {
         guard let url = currentURL else { return }
-          
-        let sourceURL = url.deletingPathExtension().appendingPathExtension("hpprgm")
-
 
         do {
             try HP.installProgramFile(at: url.deletingPathExtension().appendingPathExtension("hpprgm"))
@@ -450,6 +479,17 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         }
       
         HP.launchVirtualCalculator()
+    }
+    
+    @IBAction func archiveWithoutBuilding(_ sender: Any) {
+        guard let name = applicationName , let parentURL = parentURL else { return }
+       
+        let result = HP.archiveApplicationDirectory(at: parentURL, named: name)
+        
+        if let out = result.out, !out.isEmpty {
+            self.outputTextView.string += out
+        }
+        self.outputTextView.string += result.err ?? ""
     }
     
     /*
@@ -560,47 +600,8 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     
     
     @IBAction func archive(_ sender: Any) {
-        guard let url = currentURL,
-           FileManager.default.fileExists(atPath: url.path) else
-        {
-            return
-        }
-        
-        guard let name = applicationName else { return }
-        guard let parentURL = parentURL else { return }
-       
-        buildForRunning(sender)
-        
-        if !HP.applicationDirectoryExists(atPath: parentURL.path, named: name) {
-            do {
-                try HP.createApplicationDirectory(at: parentURL, named: name)
-                outputTextView.string += ("✅ Application directory created: \(name).hpappdir\n")
-            } catch {
-                outputTextView.string += ("❌ Failed to create directory: \(error)\n")
-                return
-            }
-        } else {
-            let folderURL = parentURL.appendingPathComponent("\(name).hpappdir")
-            do {
-                _ = try FileManager.default.replaceItemAt(
-                    folderURL.appendingPathComponent("\(name).hpappprgm"),
-                    withItemAt: parentURL.appendingPathComponent("\(name).hpprgm"),
-                    backupItemName: nil,
-                    options: []
-                )
-            } catch {
-                outputTextView.string += ("❌ Failed to update application program file: \(error)\n")
-                return
-            }
-        }
-        
-       
-        let result = HP.archiveApplicationDirectory(at: parentURL, named: name)
-        
-        if let out = result.out, !out.isEmpty {
-            self.outputTextView.string += out
-        }
-        self.outputTextView.string += result.err ?? ""
+        buildForArchiving(sender)
+        archiveWithoutBuilding(sender)
     }
     
     @IBAction func cleanBuildFolder(_ sender: Any) {
@@ -678,52 +679,53 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     // MARK: - Validation for Menu Items
     
     internal func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
-        
-        let fm = FileManager.default
-        
+        let ext = (currentURL != nil) ? currentURL!.pathExtension.lowercased() : ""
+    
         switch menuItem.action {
         case #selector(build(_:)):
-            if let url = currentURL, HP.isProgramPlusFile(url) {
-                return true
-            }
+            if let url = currentURL, HP.isProgramPlusFile(url) { return true }
             return false
             
         case #selector(reformatCode(_:)), #selector(exportAsHpprgm(_:)):
-            if let url = currentURL, HP.isProgramFile(url) {
-                return true
-            }
+            if let url = currentURL, HP.isProgramFile(url) { return true }
             return false
             
         case #selector(runWithoutBuilding(_:)):
-            if let url = currentURL, fm.fileExists(atPath: url.deletingPathExtension().appendingPathExtension("hpprgm").path) {
+            if let url = currentURL, FileManager.default.fileExists(atPath: url.deletingPathExtension().appendingPathExtension("hpprgm").path) {
                 return true
             }
             return false
             
-        case #selector(run(_:)), #selector(buildForRunning(_:)), #selector(archive(_:)):
-            if let url = currentURL, fm.fileExists(atPath: url.path), url.pathExtension.lowercased() != "py" {
+        case #selector(run(_:)), #selector(buildForRunning(_:)):
+            if let url = currentURL, FileManager.default.fileExists(atPath: url.path), ext == "prgm" || ext == "prgm+" {
+                return true
+            }
+            return false
+            
+        case #selector(archive(_:)), #selector(buildForArchiving(_:)):
+            if ext == "prgm" || ext == "prgm+" {
                 return true
             }
             return false
             
         case #selector(insertTemplate(_:)), #selector(importCode(_:)), #selector(importImage(_:)), #selector(importAdafruitGFXFont(_:)):
-            if let url = currentURL, url.pathExtension.lowercased() == "py" {
-                return false
+            if ext == "prgm" || ext == "prgm+" || ext == "hpprgm" || ext == "hpappprgm" || ext.isEmpty {
+                return true
             }
-            return true
+            return false
             
         case #selector(revertDocumentToSaved(_:)):
             return documentIsModified
             
-        case #selector(cleanBuildFolder(_:)):
-            if let url = currentURL, let name = applicationName {
-                return HP.applicationDirectoryExists(atPath: url.deletingLastPathComponent().path, named: name)
+        case #selector(cleanBuildFolder(_:)), #selector(archiveWithoutBuilding(_:)):
+            if let name = applicationName, let parentURL = parentURL {
+                return HP.applicationDirectoryExists(atPath: parentURL.path, named: name)
             }
-            return false
         
         default:
             break
         }
+        
         return true
     }
 }
