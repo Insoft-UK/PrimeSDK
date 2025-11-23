@@ -478,7 +478,7 @@ begin
     end;
 end;
 
-export Colors()
+export START()
 begin
     Colors::Setup;
     Colors::Loop;

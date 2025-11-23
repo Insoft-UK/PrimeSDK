@@ -478,6 +478,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             return
         }
       
+
         HP.launchVirtualCalculator()
     }
     

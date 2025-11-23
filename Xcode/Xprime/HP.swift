@@ -209,7 +209,20 @@ final class HP {
         }
     }
     
+    static func isVirtualCalculatorRunning() -> Bool {
+        if AppSettings.HPPrime != "macOS" {
+            let wineApps = NSRunningApplication.runningApplications(withBundleIdentifier: "org.winehq.wine")
+            return !wineApps.isEmpty
+        }
+        let running = NSRunningApplication.runningApplications(withBundleIdentifier: "HP Prime")
+        return !running.isEmpty
+    }
+    
     static func launchVirtualCalculator() {
+        if HP.isVirtualCalculatorRunning() {
+            return
+        }
+        
         let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
         let process = Process()
         
