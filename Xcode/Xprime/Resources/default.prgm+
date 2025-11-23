@@ -1,30 +1,11 @@
 #pragma mode( separator(.,;) integer(h64) assignment(=) indentation(2) operators(▶,*,/,-,+) )
 
-alias app::start = START;
-alias app::setup = SETUP;
-alias app::loop = LOOP;
-alias app::reset = RESET;
-
-app::setup();
-app::loop();
-app::reset();
-
-app::start()
+export START()
 begin
-    app::setup();
-    app::loop();
-    app::reset();
+    return 0;
 end;
 
-app::setup()
+export RESET()
 begin
-end;
-
-app::loop()
-begin
-end;
-
-app::reset()
-begin
-
+    return 0;
 end;
