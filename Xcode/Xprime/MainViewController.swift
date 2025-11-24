@@ -414,6 +414,9 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         buildForRunning(sender)
         if HP.programFileExists(atPath: parent.path, named: name) {
             installProgramFileToVirtualCalculator(sender)
+            if AppSettings.HPPrime == "macOS" {
+                HP.launchVirtualCalculator()
+            }
         }
     }
     

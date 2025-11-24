@@ -22,6 +22,28 @@
 
 import Cocoa
 
+// getBundleIdentifier by Jozef Dekoninck
+func getBundleIdentifier(forApp appName: String) -> String? {
+    let runningApps = NSWorkspace.shared.runningApplications
+    for app in runningApps {
+        if app.localizedName == appName {
+            return app.bundleIdentifier
+        }
+    }
+    return nil
+}
+
+func terminateApp(withBundleIdentifier bundleIdentifier: String) {
+    // Code by Jozef Dekoninck
+    let runningApps = NSWorkspace.shared.runningApplications
+    if let running = runningApps.first(where: { $0.bundleIdentifier == bundleIdentifier }) {
+        kill(running.processIdentifier, SIGTERM)
+        RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.5))
+    }
+}
+
+
+
 fileprivate func encodingType(_ data: inout Data, _ encoding: inout String.Encoding) {
     // Detect and remove BOM if present
     if data.count >= 2 {
@@ -265,6 +287,10 @@ final class HP {
         let process = Process()
         
         if AppSettings.HPPrime == "macOS" {
+            if let targetBundleIdentifier = getBundleIdentifier(forApp: "HP Prime") {
+                terminateApp(withBundleIdentifier: targetBundleIdentifier)
+            }
+            
             process.executableURL = URL(fileURLWithPath: HPVirtualCalculatorPath)
         } else {
             process.executableURL = URL(fileURLWithPath: "/Applications/Wine.app/Contents/MacOS/wine")
@@ -287,6 +313,10 @@ final class HP {
         let process = Process()
         
         if AppSettings.HPPrime == "macOS" {
+            if let targetBundleIdentifier = getBundleIdentifier(forApp: "HP Connectivity Kit") {
+                return
+            }
+            
             process.executableURL = URL(fileURLWithPath: HPConnectivityKitPath)
         } else {
             process.executableURL = URL(fileURLWithPath: "/Applications/Wine.app/Contents/MacOS/wine")
@@ -303,5 +333,7 @@ final class HP {
             return
         }
     }
+    
+    
 
 }
