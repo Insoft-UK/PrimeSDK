@@ -24,7 +24,7 @@ import Cocoa
 import UniformTypeIdentifiers
 
 @main
-class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
+class AppDelegate: NSObject, NSApplicationDelegate, NSToolbarItemValidation, NSMenuItemValidation {
     @IBOutlet weak var mainMenu: NSMenu!
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
@@ -93,50 +93,21 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     
     // MARK: - Interface Builder Action Handlers
     
-    private func isHPConnectivityKitInstalled() -> Bool {
-        let fileManager = FileManager.default
-        return fileManager.fileExists(atPath: "/Applications/HP Connectivity Kit.app/Contents/MacOS/HP Connectivity Kit")
-    }
     
-    private func isHPPrimeVirtualCalculatorInstalled() -> Bool {
-        let fileManager = FileManager.default
-        return fileManager.fileExists(atPath: "/Applications/HP Prime.app/Contents/MacOS/HP Prime")
-    }
+    
+   
     
     
     @IBAction func launchHPConnectiveKit(_ sender: Any) {
-        let task = Process()
-        
-        task.executableURL = URL(fileURLWithPath: "/Applications/HP Connectivity Kit.app/Contents/MacOS/HP Connectivity Kit")
-        
-        do {
-            try task.run()
-        } catch {
-            print("Failed to launch: \(error)")
-        }
+        HP.launchConnectivityKit()
     }
     
     @IBAction func launchHPPrimeVirtualCalculator(_ sender: Any) {
-        let fileManager = FileManager.default
-        let homeDir = fileManager.homeDirectoryForCurrentUser
-        let task = Process()
-        
-        if AppSettings.HPPrime == "macOS" {
-            task.executableURL = URL(fileURLWithPath: "/Applications/HP Prime.app/Contents/MacOS/HP Prime")
-        } else {
-            task.executableURL = URL(fileURLWithPath: "/Applications/Wine.app/Contents/MacOS/wine")
-            task.arguments = [homeDir.appendingPathComponent(".wine/drive_c/Program Files/HP/HP Prime Virtual Calculator/HPPrime.exe").path]
-        }
-        
-        do {
-            try task.run()
-        } catch {
-            print("Failed to launch: \(error)")
-        }
+        HP.launchVirtualCalculator()
     }
     
     @IBAction func installLibraries(_ sender: Any) {
-        guard isHPConnectivityKitInstalled() else { return }
+        guard HP.isConnectivityKitInstalled else { return }
         
         let homeDir = FileManager.default.homeDirectoryForCurrentUser
         
@@ -149,7 +120,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
     }
     
     @IBAction func installFonts(_ sender: Any) {
-        guard isHPConnectivityKitInstalled() else { return }
+        guard HP.isConnectivityKitInstalled else { return }
         
         let homeDir = FileManager.default.homeDirectoryForCurrentUser
         
@@ -190,14 +161,27 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation {
         sender.state = .on
     }
     
+    internal func validateToolbarItem(_ item: NSToolbarItem) -> Bool {
+        switch item.action {
+        case #selector(launchHPPrimeVirtualCalculator(_:)):
+            return HP.isVirtualCalculatorInstalled
+            
+        case #selector(launchHPConnectiveKit(_:)):
+            return HP.isConnectivityKitInstalled
+            
+        default:
+            break
+        }
+        return true
+    }
     
     internal func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         switch menuItem.action {
         case #selector(launchHPConnectiveKit(_:)):
-            return isHPConnectivityKitInstalled()
+            return HP.isConnectivityKitInstalled
             
         case #selector(launchHPPrimeVirtualCalculator(_:)):
-            return isHPPrimeVirtualCalculatorInstalled()
+            return HP.isVirtualCalculatorInstalled
             
         default:
             break

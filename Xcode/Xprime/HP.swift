@@ -46,17 +46,43 @@ fileprivate func loadHPProgramFile(_ url: URL) -> String? {
     return nil
 }
 
+let HPVirtualCalculatorPath = "/Applications/HP Prime.app/Contents/MacOS/HP Prime"
+let HPConnectivityKitPath = "/Applications/HP Connectivity Kit.app/Contents/MacOS/HP Connectivity Kit"
+
 final class HP {
-    static func isProgramFile(_ url: URL?) -> Bool {
-        guard let url else { return false }
-        let ext = url.pathExtension.lowercased()
-        return ext == "prgm" || ext == "ppl"
+    static var isVirtualCalculatorInstalled: Bool {
+        if AppSettings.HPPrime == "macOS" {
+            return FileManager.default.fileExists(atPath: HPVirtualCalculatorPath)
+        }
+        
+        let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
+        return FileManager.default.fileExists(atPath: homeDirectory.appendingPathComponent(".wine/drive_c/Program Files/HP/HP Prime Virtual Calculator/HPPrime.exe").path)
     }
     
-    static func isProgramPlusFile(_ url: URL?) -> Bool {
-        guard let url else { return false }
-        let ext = url.pathExtension.lowercased()
-        return ext == "prgm+" || ext == "ppl+"
+    static var isConnectivityKitInstalled: Bool {
+        if AppSettings.HPPrime == "macOS" {
+            return FileManager.default.fileExists(atPath: HPConnectivityKitPath)
+        }
+        let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
+        return FileManager.default.fileExists(atPath: homeDirectory.appendingPathComponent(".wine/drive_c/Program Files/HP/HP Connectivity Kit/ConnectivityKit.exe").path)
+    }
+    
+    static func isProgramFileInstalled(named name: String) -> Bool {
+        let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
+        let path = homeDirectory.appendingPathComponent("Documents/HP Prime/Calculators/Prime").path
+        
+        return programFileExists(atPath: path, named: name)
+    }
+    
+    static func isApplicationDirectoryInstalled(named name: String) -> Bool {
+        let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
+        let path = homeDirectory.appendingPathComponent("Documents/HP Prime/Calculators/Prime").path
+        
+        return applicationDirectoryExists(atPath: path, named: name)
+    }
+    
+    static func programFileExists(atPath path: String, named name: String) -> Bool {
+        return FileManager.default.fileExists(atPath: "\(path)/\(name).hpprgm")
     }
     
     static func applicationDirectoryExists(atPath path: String, named name: String) -> Bool {
@@ -106,14 +132,21 @@ final class HP {
         try FileManager.default.removeItem(at: url.appendingPathComponent("\(name).hpappdir.zip"))
     }
     
-    static func archiveApplicationDirectory(at url: URL, named name: String) -> (out: String?, err: String?)  {
-        try? removeArchive(at: url, named: name)
+    static func archiveApplicationDirectory(at url: URL, named name: String, to desctination: URL? = nil) -> (out: String?, err: String?)  {
+        var destinationPath = "\(name).hpappdir.zip"
+        
+        if let desctination = desctination {
+            try? FileManager.default.removeItem(at: desctination)
+            destinationPath = desctination.path
+        } else {
+            try? removeArchive(at: url, named: name)
+        }
         
         return CommandLineTool.execute(
             "/usr/bin/zip",
             arguments: [
                 "-r",
-                "\(name).hpappdir.zip",
+                destinationPath,
                 "\(name).hpappdir",
                 "-x", "*.DS_Store"
             ],
@@ -194,10 +227,10 @@ final class HP {
         }
     }
     
-    static func installProgramFile(at url: URL) throws {
+    static func installProgramFile(atPath path: String, named name: String) throws {
         let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
         
-        let source = url.deletingPathExtension().appendingPathExtension("hpprgm")
+        let source = URL(fileURLWithPath: path.appending("/\(name).hpprgm"))
         let destination = homeDirectory.appendingPathComponent("Documents/HP Prime/Calculators/Prime").appendingPathComponent(source.lastPathComponent)
         
         do {
@@ -209,28 +242,55 @@ final class HP {
         }
     }
     
-    static func isVirtualCalculatorRunning() -> Bool {
-        if AppSettings.HPPrime != "macOS" {
-            let wineApps = NSRunningApplication.runningApplications(withBundleIdentifier: "org.winehq.wine")
-            return !wineApps.isEmpty
-        }
-        let running = NSRunningApplication.runningApplications(withBundleIdentifier: "HP Prime")
-        return !running.isEmpty
-    }
-    
-    static func launchVirtualCalculator() {
-        if HP.isVirtualCalculatorRunning() {
-            return
+    static func installApplicationDirectory(atPath path: String, named name: String) throws {
+        let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
+        let source = URL(fileURLWithPath: path.appending("/\(name).hpappdir"))
+        let destination = homeDirectory.appendingPathComponent("Documents/HP Prime/Calculators/Prime").appendingPathComponent(source.lastPathComponent)
+        
+        do {
+            if FileManager.default.fileExists(atPath: destination.path) {
+                try FileManager.default.removeItem(at: destination)
+            }
+
+            try FileManager.default.copyItem(at: source, to: destination)
         }
         
+        return
+    }
+    
+    
+    
+    static func launchVirtualCalculator() {
         let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
         let process = Process()
         
-        process.executableURL = URL(fileURLWithPath: "/Applications/HP Prime.app/Contents/MacOS/HP Prime")
-        
-        if AppSettings.HPPrime != "macOS" {
+        if AppSettings.HPPrime == "macOS" {
+            process.executableURL = URL(fileURLWithPath: HPVirtualCalculatorPath)
+        } else {
             process.executableURL = URL(fileURLWithPath: "/Applications/Wine.app/Contents/MacOS/wine")
             process.arguments = [homeDirectory.appendingPathComponent(".wine/drive_c/Program Files/HP/HP Prime Virtual Calculator/HPPrime.exe").path]
+        }
+        
+        do {
+            try process.run()
+        } catch {
+            let alert = NSAlert()
+            alert.messageText = "Failed"
+            alert.informativeText = "Failed to launch: \(error)"
+            alert.runModal()
+            return
+        }
+    }
+    
+    static func launchConnectivityKit() {
+        let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
+        let process = Process()
+        
+        if AppSettings.HPPrime == "macOS" {
+            process.executableURL = URL(fileURLWithPath: HPConnectivityKitPath)
+        } else {
+            process.executableURL = URL(fileURLWithPath: "/Applications/Wine.app/Contents/MacOS/wine")
+            process.arguments = [homeDirectory.appendingPathComponent(".wine/drive_c/Program Files/HP/HP Connectivity Kit/ConnectivityKit.exe").path]
         }
         
         do {

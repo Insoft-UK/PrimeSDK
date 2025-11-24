@@ -312,7 +312,6 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
                 alert.runModal()
             }
         }
-    
     }
     
     /*
@@ -355,8 +354,41 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
                 if let out = contents.out, !out.isEmpty {
                     self.outputTextView.string = out
                 }
-                self.outputTextView.string = contents.err ?? ""
+                self.outputTextView.string += contents.err ?? ""
             }
+        }
+    }
+    
+    @IBAction func exportAsArchive(_ sender: Any) {
+        guard let parentURL = parentURL, let name = applicationName else { return }
+        
+        
+        let savePanel = NSSavePanel()
+        let extensions = ["hpappdir.zip"]
+        let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
+        
+        savePanel.allowedContentTypes = contentTypes
+        savePanel.nameFieldStringValue = "Untitled"
+        
+        savePanel.begin { result in
+            guard result == .OK, let url = savePanel.url else { return }
+
+            var destination = url
+            while !destination.pathExtension.isEmpty {
+                destination.deletePathExtension()
+            }
+            destination = destination.appendingPathExtension("hpappdir.zip")
+            
+            let contents = HP.archiveApplicationDirectory(at: parentURL, named: name, to: destination)
+                if let out = contents.out, !out.isEmpty {
+                    self.outputTextView.string = out
+                    return
+                }
+                let alert = NSAlert()
+                alert.messageText = "Error"
+                alert.informativeText = "Failed to save file: \(url.lastPathComponent)"
+                alert.runModal()
+            
         }
     }
     
@@ -370,23 +402,19 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     
     /*
      • Saves the current PPL+ source file.
-     
-     • Preprocesses the PPL+ (.prgm+) source into
-       standard PPL (.prgm) format.
-       NOTE: Only if PPL+
-     
-     • Builds an .hpprgm executable package from the
-       generated .prgm file.
+     • If .prgm+, Preprocesses the source into a standard .prgm format.
+     • Builds an .hpprgm executable from the .prgm file.
+     • Copies the .hpprgm file to HP Prime Virtual Calculator.
      */
     @IBAction func run(_ sender: Any) {
-        guard let url = currentURL,
-           FileManager.default.fileExists(atPath: url.path) else
-        {
+        guard let parent = parentURL, let name = applicationName else {
             return
         }
         
         buildForRunning(sender)
-        runWithoutBuilding(sender)
+        if HP.programFileExists(atPath: parent.path, named: name) {
+            installProgramFileToVirtualCalculator(sender)
+        }
     }
     
     /*
@@ -423,7 +451,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             if let out = contents.out, !out.isEmpty {
                 self.outputTextView.string = out
             }
-            self.outputTextView.string = contents.err ?? ""
+            self.outputTextView.string += contents.err ?? ""
             return
         }
         
@@ -431,11 +459,11 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         if let out = contents.out, !out.isEmpty {
             self.outputTextView.string = out
         }
-        outputTextView.string = contents.err ?? ""
+        outputTextView.string += contents.err ?? ""
     }
     
     @IBAction func buildForArchiving(_ sender: Any) {
-        guard let url = currentURL, let name = applicationName , let parentURL = parentURL else { return }
+        guard let name = applicationName , let parentURL = parentURL else { return }
        
         buildForRunning(sender)
         
@@ -465,11 +493,12 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         }
     }
     
-    @IBAction func runWithoutBuilding(_ sender: Any) {
-        guard let url = currentURL else { return }
+    
+    @IBAction func installProgramFileToVirtualCalculator(_ sender: Any) {
+        guard let name = applicationName, let parentURL = parentURL else { return }
 
         do {
-            try HP.installProgramFile(at: url.deletingPathExtension().appendingPathExtension("hpprgm"))
+            try HP.installProgramFile(atPath: parentURL.path, named: name)
         } catch {
             let alert = NSAlert()
             alert.messageText = "Error"
@@ -477,9 +506,20 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             alert.runModal()
             return
         }
-      
+    }
+    
+    @IBAction func installApplicationToVirtualCalculator(_ sender: Any) {
+        guard let name = applicationName, let parentURL = parentURL else { return }
 
-        HP.launchVirtualCalculator()
+        do {
+            try HP.installApplicationDirectory(atPath: parentURL.path, named: name)
+        } catch {
+            let alert = NSAlert()
+            alert.messageText = "Error"
+            alert.informativeText = "Installing file: \(error)"
+            alert.runModal()
+            return
+        }
     }
     
     @IBAction func archiveWithoutBuilding(_ sender: Any) {
@@ -488,7 +528,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         let result = HP.archiveApplicationDirectory(at: parentURL, named: name)
         
         if let out = result.out, !out.isEmpty {
-            self.outputTextView.string += out
+            self.outputTextView.string = out
         }
         self.outputTextView.string += result.err ?? ""
     }
@@ -503,8 +543,8 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         saveDocument(sender)
         let fm = FileManager.default
         
-        if let url = currentURL,
-           fm.fileExists(atPath: url.path) && HP.isProgramPlusFile(url)
+        if let url = currentURL, let ext = url.pathExtension.lowercased() as String?,
+           fm.fileExists(atPath: url.path) && (ext == "prgm+" || ext == "ppl+")
         {
             let contents = CommandLineTool.`ppl+`(i: url)
             outputTextView.string = contents.err ?? ""
@@ -528,7 +568,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             if let out = contents.out, !out.isEmpty {
                 self.codeEditorTextView.insertCode(out)
             }
-            self.outputTextView.string += contents.err ?? ""
+            self.outputTextView.string = contents.err ?? ""
         }
     }
     
@@ -548,7 +588,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             if let out = contents.out, !out.isEmpty {
                 self.codeEditorTextView.insertCode(contents.out ?? "")
             }
-            self.outputTextView.string += contents.err ?? ""
+            self.outputTextView.string = contents.err ?? ""
         }
     }
     
@@ -660,7 +700,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         // Enable or disable toolbar items as needed. For now, always enable.
         switch item.action {
         case #selector(exportAsHpprgm(_:)):
-            if let url = currentURL, HP.isProgramFile(url) {
+            if let url = currentURL, let ext = url.pathExtension.lowercased() as String?, ext == "prgm" {
                 return true
             }
             return false
@@ -684,30 +724,47 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     
         switch menuItem.action {
         case #selector(build(_:)):
-            if let url = currentURL, HP.isProgramPlusFile(url) { return true }
+            if let _ = currentURL, ext == "prgm+" || ext == "ppl+" {
+                return true
+            }
             return false
             
         case #selector(reformatCode(_:)), #selector(exportAsHpprgm(_:)):
-            if let url = currentURL, HP.isProgramFile(url) { return true }
-            return false
-            
-        case #selector(runWithoutBuilding(_:)):
-            if let url = currentURL, FileManager.default.fileExists(atPath: url.deletingPathExtension().appendingPathExtension("hpprgm").path) {
+            if let _ = currentURL, ext == "prgm" || ext == "ppl" {
                 return true
             }
             return false
             
-        case #selector(run(_:)), #selector(buildForRunning(_:)):
-            if let url = currentURL, FileManager.default.fileExists(atPath: url.path), ext == "prgm" || ext == "prgm+" {
+        case #selector(installProgramFileToVirtualCalculator(_:)):
+            menuItem.title = "Install Program"
+            if let name = applicationName {
+                if HP.isProgramFileInstalled(named: name) {
+                    menuItem.title = "Update Program"
+                }
+            }
+            if let parentURL = parentURL, let name = applicationName {
+                return HP.programFileExists(atPath: parentURL.path, named: name)
+            }
+            return false
+            
+        case #selector(installApplicationToVirtualCalculator(_:)):
+            menuItem.title = "Install Application"
+            if let name = applicationName {
+                if HP.isApplicationDirectoryInstalled(named: name) {
+                    menuItem.title = "Update Application"
+                }
+            }
+            if let parentURL = parentURL, let name = applicationName {
+                return HP.applicationDirectoryExists(atPath: parentURL.path, named: name)
+            }
+            return false
+            
+        case #selector(run(_:)), #selector(buildForRunning(_:)), #selector(archive(_:)), #selector(buildForArchiving(_:)):
+            if let _ = currentURL, ext == "prgm" || ext == "prgm+" {
                 return true
             }
             return false
             
-        case #selector(archive(_:)), #selector(buildForArchiving(_:)):
-            if ext == "prgm" || ext == "prgm+" {
-                return true
-            }
-            return false
             
         case #selector(insertTemplate(_:)), #selector(importCode(_:)), #selector(importImage(_:)), #selector(importAdafruitGFXFont(_:)):
             if ext == "prgm" || ext == "prgm+" || ext == "hpprgm" || ext == "hpappprgm" || ext.isEmpty {
@@ -718,10 +775,11 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         case #selector(revertDocumentToSaved(_:)):
             return documentIsModified
             
-        case #selector(cleanBuildFolder(_:)), #selector(archiveWithoutBuilding(_:)):
-            if let name = applicationName, let parentURL = parentURL {
+        case #selector(cleanBuildFolder(_:)), #selector(archiveWithoutBuilding(_:)), #selector(exportAsArchive(_:)):
+            if let _ = currentURL, let name = applicationName, let parentURL = parentURL {
                 return HP.applicationDirectoryExists(atPath: parentURL.path, named: name)
             }
+            return false
         
         default:
             break

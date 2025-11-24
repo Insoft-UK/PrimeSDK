@@ -116,6 +116,12 @@
                                                             <action selector="exportAsHpprgm:" target="Ady-hI-5gd" id="EQU-Nk-usa"/>
                                                         </connections>
                                                     </menuItem>
+                                                    <menuItem title="Quick Export as Archive" image="square.and.arrow.up" catalog="system" id="F6J-Tn-Rha">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                        <connections>
+                                                            <action selector="exportAsArchive:" target="Ady-hI-5gd" id="vES-Ml-i34"/>
+                                                        </connections>
+                                                    </menuItem>
                                                 </items>
                                             </menu>
                                         </menuItem>
@@ -606,8 +612,8 @@
                                                 <action selector="run:" target="Ady-hI-5gd" id="S3B-qu-8QR"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Archive" image="cube.fill" catalog="system" id="n0t-oe-wmy">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                        <menuItem title="Archive" image="cube.fill" catalog="system" keyEquivalent="a" id="n0t-oe-wmy">
+                                            <modifierMask key="keyEquivalentModifierMask" option="YES"/>
                                             <connections>
                                                 <action selector="archive:" target="Ady-hI-5gd" id="WQR-gu-FYO"/>
                                             </connections>
@@ -622,8 +628,8 @@
                                                             <action selector="buildForRunning:" target="Ady-hI-5gd" id="LRU-Qw-bpO"/>
                                                         </connections>
                                                     </menuItem>
-                                                    <menuItem title="Archiving" image="cube.fill" catalog="system" id="6iN-LO-z15">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                    <menuItem title="Archiving" image="cube.fill" catalog="system" keyEquivalent="A" id="6iN-LO-z15">
+                                                        <modifierMask key="keyEquivalentModifierMask" option="YES"/>
                                                         <connections>
                                                             <action selector="buildForArchiving:" target="Ady-hI-5gd" id="MI1-gq-5aA"/>
                                                         </connections>
@@ -635,14 +641,27 @@
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <menu key="submenu" title="Perform Action" id="rtp-Qk-vwa">
                                                 <items>
-                                                    <menuItem title="Run Without Building" image="NSTouchBarPlayTemplate" keyEquivalent="r" id="Jf6-5T-MLT">
-                                                        <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
-                                                        <connections>
-                                                            <action selector="runWithoutBuilding:" target="Ady-hI-5gd" id="9cD-9n-52M"/>
-                                                        </connections>
+                                                    <menuItem title="HP Prime Virtual Calculator" image="internaldrive" catalog="system" id="y5F-Vo-32S">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                        <menu key="submenu" title="HP Prime Virtual Calculator" id="tMG-MR-5ZU">
+                                                            <items>
+                                                                <menuItem title="Install Program" image="NSTouchBarNewFolderTemplate" keyEquivalent="p" id="JoM-hk-tbM">
+                                                                    <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                                                    <connections>
+                                                                        <action selector="installProgramFileToVirtualCalculator:" target="Ady-hI-5gd" id="cr7-OS-Lt4"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                                <menuItem title="Install Application" image="NSIconViewTemplate" keyEquivalent="a" id="0WP-EP-bAC">
+                                                                    <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                                                    <connections>
+                                                                        <action selector="installApplicationToVirtualCalculator:" target="Ady-hI-5gd" id="iXI-hf-aC2"/>
+                                                                    </connections>
+                                                                </menuItem>
+                                                            </items>
+                                                        </menu>
                                                     </menuItem>
-                                                    <menuItem title="Archieve Without Building" image="cube.box" catalog="system" keyEquivalent="r" id="csI-Pr-hfC">
-                                                        <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                                    <menuItem title="Archieve Without Building" image="cube.box" catalog="system" id="csI-Pr-hfC">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
                                                         <connections>
                                                             <action selector="archiveWithoutBuilding:" target="Ady-hI-5gd" id="6FG-tx-MXM"/>
                                                         </connections>
@@ -910,7 +929,7 @@ Gw
                 <windowController id="B8D-0N-5wS" customClass="MainWindowController" customModule="Xprime" customModuleProvider="target" sceneMemberID="viewController">
                     <window key="window" title="Untitled.prgm+ (UNSAVED)" separatorStyle="shadow" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" titlebarAppearsTransparent="YES" toolbarStyle="unified" id="IQv-IB-iLA">
                         <windowStyleMask key="styleMask" titled="YES" miniaturizable="YES" resizable="YES" fullSizeContentView="YES"/>
-                        <rect key="contentRect" x="620" y="417" width="521" height="240"/>
+                        <rect key="contentRect" x="620" y="417" width="912" height="240"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
                         <toolbar key="toolbar" implicitIdentifier="790E7E42-ECCB-45F7-B34A-F911CDC4EC95" autosavesConfiguration="NO" showsBaselineSeparator="NO" displayMode="iconAndLabel" sizeMode="regular" id="jmI-rT-oAa">
                             <allowedToolbarItems>
@@ -951,11 +970,29 @@ Gw
                                         <action selector="run:" target="Oky-zY-oP4" id="z6U-b4-VxR"/>
                                     </connections>
                                 </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="092F4BF4-A863-44CF-ACD0-27D47716BBB2" label="Virtual Calculator" paletteLabel="Virtual Calculator" tag="-1" image="VirtualCalculator" id="zjl-IR-WX7">
+                                    <size key="minSize" width="12" height="24"/>
+                                    <size key="maxSize" width="24" height="48"/>
+                                    <connections>
+                                        <action selector="launchHPPrimeVirtualCalculator:" target="Oky-zY-oP4" id="GLe-HM-HOX"/>
+                                    </connections>
+                                </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="5359FD12-5E3B-4C94-B795-DB82537D05C7" label="Connectivity Kit" paletteLabel="Connectivity Kit" tag="-1" image="ConnectivityKit" id="8eg-3b-usX">
+                                    <size key="minSize" width="24" height="24"/>
+                                    <size key="maxSize" width="64" height="64"/>
+                                    <connections>
+                                        <action selector="launchHPConnectiveKit:" target="Oky-zY-oP4" id="uC0-1P-340"/>
+                                    </connections>
+                                </toolbarItem>
                             </allowedToolbarItems>
                             <defaultToolbarItems>
+                                <toolbarItem reference="vRb-OI-uPy"/>
+                                <toolbarItem reference="8eg-3b-usX"/>
+                                <toolbarItem reference="zjl-IR-WX7"/>
+                                <toolbarItem reference="Pr6-Kd-yB2"/>
                                 <toolbarItem reference="0uA-kt-18g"/>
                                 <toolbarItem reference="MlY-DF-mDD"/>
-                                <toolbarItem reference="vRb-OI-uPy"/>
+                                <toolbarItem reference="Pr6-Kd-yB2"/>
                                 <toolbarItem reference="LmB-mZ-kcz"/>
                                 <toolbarItem reference="qhn-5s-CEp"/>
                             </defaultToolbarItems>
@@ -967,7 +1004,7 @@ Gw
                 </windowController>
                 <customObject id="Oky-zY-oP4" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-130" y="-607"/>
+            <point key="canvasLocation" x="65" y="-607"/>
         </scene>
         <!--Main View Controller-->
         <scene sceneID="hIz-AP-VOD">
@@ -1104,10 +1141,14 @@ Gw
         </scene>
     </scenes>
     <resources>
+        <image name="ConnectivityKit" width="32" height="32"/>
+        <image name="NSIconViewTemplate" width="19" height="18"/>
         <image name="NSMenuOnStateTemplate" width="18" height="17"/>
         <image name="NSStopProgressTemplate" width="17" height="16"/>
+        <image name="NSTouchBarNewFolderTemplate" width="25" height="20"/>
         <image name="NSTouchBarPlayTemplate" width="15" height="17"/>
         <image name="NSTouchBarTextLeftAlignTemplate" width="21" height="17"/>
+        <image name="VirtualCalculator" width="24" height="48"/>
         <image name="arrow.uturn.backward" catalog="system" width="15" height="14"/>
         <image name="bubbles.and.sparkles" catalog="system" width="17" height="15"/>
         <image name="building.columns" catalog="system" width="18" height="16"/>
@@ -1118,6 +1159,7 @@ Gw
         <image name="hammer" catalog="system" width="20" height="18"/>
         <image name="hammer.fill" catalog="system" width="19" height="17"/>
         <image name="icon" width="38" height="38"/>
+        <image name="internaldrive" catalog="system" width="18" height="13"/>
         <image name="long.text.page.and.pencil.fill" catalog="system" width="17" height="19"/>
         <image name="paintbrush" catalog="system" width="17" height="18"/>
         <image name="photo" catalog="system" width="18" height="14"/>
