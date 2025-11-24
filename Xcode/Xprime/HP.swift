@@ -22,26 +22,6 @@
 
 import Cocoa
 
-// getBundleIdentifier by Jozef Dekoninck
-func getBundleIdentifier(forApp appName: String) -> String? {
-    let runningApps = NSWorkspace.shared.runningApplications
-    for app in runningApps {
-        if app.localizedName == appName {
-            return app.bundleIdentifier
-        }
-    }
-    return nil
-}
-
-func terminateApp(withBundleIdentifier bundleIdentifier: String) {
-    // Code by Jozef Dekoninck
-    let runningApps = NSWorkspace.shared.runningApplications
-    if let running = runningApps.first(where: { $0.bundleIdentifier == bundleIdentifier }) {
-        kill(running.processIdentifier, SIGTERM)
-        RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: 0.5))
-    }
-}
-
 
 
 fileprivate func encodingType(_ data: inout Data, _ encoding: inout String.Encoding) {
@@ -70,6 +50,28 @@ fileprivate func loadHPProgramFile(_ url: URL) -> String? {
 
 let HPVirtualCalculatorPath = "/Applications/HP Prime.app/Contents/MacOS/HP Prime"
 let HPConnectivityKitPath = "/Applications/HP Connectivity Kit.app/Contents/MacOS/HP Connectivity Kit"
+
+fileprivate func launchApplication(named appName: String, arguments: [String] = []) {
+    switch launchApp(named: appName, arguments: arguments) {
+    case .success:
+        return
+    case .failure(let error):
+        let alert = NSAlert()
+        alert.messageText = "Launch Failed"
+        
+        switch error {
+        case .notFound:
+            alert.informativeText = "The app was not found: \(appName)"
+        case .invalidPath:
+            alert.informativeText = "Invalid app path: \(appName)"
+        case .launchFailed(let err):
+            alert.informativeText = "Failed to launch: \(err.localizedDescription)"
+        }
+        
+        alert.runModal()
+        return
+    }
+}
 
 final class HP {
     static var isVirtualCalculatorInstalled: Bool {
@@ -283,57 +285,44 @@ final class HP {
     
     
     static func launchVirtualCalculator() {
-        let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
-        let process = Process()
+        let appName = "HP Prime"
         
         if AppSettings.HPPrime == "macOS" {
-            if let targetBundleIdentifier = getBundleIdentifier(forApp: "HP Prime") {
+            if let targetBundleIdentifier = getBundleIdentifier(forApp: appName) {
                 terminateApp(withBundleIdentifier: targetBundleIdentifier)
             }
             
-            process.executableURL = URL(fileURLWithPath: HPVirtualCalculatorPath)
-        } else {
-            process.executableURL = URL(fileURLWithPath: "/Applications/Wine.app/Contents/MacOS/wine")
-            process.arguments = [homeDirectory.appendingPathComponent(".wine/drive_c/Program Files/HP/HP Prime Virtual Calculator/HPPrime.exe").path]
-        }
-        
-        do {
-            try process.run()
-        } catch {
-            let alert = NSAlert()
-            alert.messageText = "Failed"
-            alert.informativeText = "Failed to launch: \(error)"
-            alert.runModal()
+            launchApplication(named: appName + ".app")
             return
         }
+        
+        launchApplication(
+            named: "/Applications/Wine.app/Contents/MacOS/wine",
+            arguments: [
+                FileManager
+                    .default
+                    .homeDirectoryForCurrentUser
+                    .appendingPathComponent(".wine/drive_c/Program Files/HP/HP Prime Virtual Calculator/HPPrime.exe")
+                    .path
+            ])
     }
     
     static func launchConnectivityKit() {
-        let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
-        let process = Process()
+        let appName = "HP Connectivity Kit"
         
         if AppSettings.HPPrime == "macOS" {
-            if let targetBundleIdentifier = getBundleIdentifier(forApp: "HP Connectivity Kit") {
-                return
-            }
-            
-            process.executableURL = URL(fileURLWithPath: HPConnectivityKitPath)
-        } else {
-            process.executableURL = URL(fileURLWithPath: "/Applications/Wine.app/Contents/MacOS/wine")
-            process.arguments = [homeDirectory.appendingPathComponent(".wine/drive_c/Program Files/HP/HP Connectivity Kit/ConnectivityKit.exe").path]
-        }
-        
-        do {
-            try process.run()
-        } catch {
-            let alert = NSAlert()
-            alert.messageText = "Failed"
-            alert.informativeText = "Failed to launch: \(error)"
-            alert.runModal()
+            launchApplication(named: appName + ".app")
             return
         }
+        
+        launchApplication(
+            named: "/Applications/Wine.app/Contents/MacOS/wine",
+            arguments: [
+                FileManager
+                    .default
+                    .homeDirectoryForCurrentUser
+                    .appendingPathComponent(".wine/drive_c/Program Files/HP/HP Connectivity Kit/ConnectivityKit.exe")
+                    .path
+            ])
     }
-    
-    
-
 }
