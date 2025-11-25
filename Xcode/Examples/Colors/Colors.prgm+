@@ -24,6 +24,9 @@
 
 #pragma mode( separator(.,;) integer(h64) indentation(2) operators(▶) )
 
+#require "ColorSpace"
+#require "HP"
+
 #define HUE G2
 #define BLACK_TO_TRANSPARENT_OVERLAY G3
 #define TRANSPARENT_TO_WHITE_OVERLAY G4

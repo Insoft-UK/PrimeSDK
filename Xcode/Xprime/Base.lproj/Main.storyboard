@@ -132,26 +132,6 @@
                                                 <action selector="revertDocumentToSaved:" target="Ady-hI-5gd" id="sC7-GS-wBe"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem isSeparatorItem="YES" id="PnA-gF-GyT"/>
-                                        <menuItem title="HP Connectivity Kit" id="DZX-g5-P8g">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                            <menu key="submenu" title="HP Connectivity Kit" id="WIt-MJ-bzx">
-                                                <items>
-                                                    <menuItem title="Install Libraries" image="building.columns" catalog="system" id="8sY-jt-YL6">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="installLibraries:" target="Ady-hI-5gd" id="5LV-D6-Ima"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                    <menuItem title="Install Fonts" image="building.columns" catalog="system" id="AzW-qF-sV7">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <connections>
-                                                            <action selector="installFonts:" target="Ady-hI-5gd" id="GVA-Q9-P28"/>
-                                                        </connections>
-                                                    </menuItem>
-                                                </items>
-                                            </menu>
-                                        </menuItem>
                                     </items>
                                 </menu>
                             </menuItem>
@@ -1151,7 +1131,6 @@ Gw
         <image name="VirtualCalculator" width="24" height="48"/>
         <image name="arrow.uturn.backward" catalog="system" width="15" height="14"/>
         <image name="bubbles.and.sparkles" catalog="system" width="17" height="15"/>
-        <image name="building.columns" catalog="system" width="18" height="16"/>
         <image name="character.book.closed" catalog="system" width="14" height="16"/>
         <image name="cube.box" catalog="system" width="16" height="17"/>
         <image name="cube.fill" catalog="system" width="16" height="17"/>

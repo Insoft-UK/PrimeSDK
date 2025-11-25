@@ -250,6 +250,32 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         icon.image = NSImage(contentsOf: Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/icon.png"))
     }
     
+    @discardableResult
+    private func processRequires(in text: String) -> (cleaned: String, requiredFiles: [String]) {
+        let pattern = #"#require\s*"([^"]+)""#
+        let regex = try! NSRegularExpression(pattern: pattern)
+
+        var requiredFiles: [String] = []
+        var cleanedText = text
+
+        // Find matches
+        let matches = regex.matches(in: text, range: NSRange(text.startIndex..., in: text))
+
+        for match in matches.reversed() {
+            // Extract filename
+            if let range = Range(match.range(at: 1), in: text) {
+                requiredFiles.append(String(text[range]))
+            }
+
+            // Remove entire #require line from the output
+            if let fullRange = Range(match.range, in: cleanedText) {
+                cleanedText.removeSubrange(fullRange)
+            }
+        }
+
+        return (cleanedText, requiredFiles)
+    }
+    
     // MARK: - Interface Builder Action Handlers
     
     @IBAction func openDocument(_ sender: Any) {
@@ -411,12 +437,21 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             return
         }
         
+        let result = processRequires(in: codeEditorTextView.string)
+
+        for file in result.requiredFiles {
+            do {
+                try HP.installProgramFile(atPath: "/Applications/HP/PrimeSDK/hpprgm", named: file)
+                outputTextView.string += "Installed: \(file)\n"
+            } catch {
+                outputTextView.string += "Error installing \(file).hpprgm: \(error)"
+            }
+        }
+        
         buildForRunning(sender)
         if HP.programFileExists(atPath: parent.path, named: name) {
             installProgramFileToVirtualCalculator(sender)
-            if AppSettings.HPPrime == "macOS" {
-                HP.launchVirtualCalculator()
-            }
+            HP.launchVirtualCalculator()
         }
     }
     
@@ -546,11 +581,19 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         saveDocument(sender)
         let fm = FileManager.default
         
+        outputTextView.string = ""
+        
+        let result = processRequires(in: codeEditorTextView.string)
+
+        for file in result.requiredFiles {
+            outputTextView.string += "Installing: \(file)\n"
+        }
+        
         if let url = currentURL, let ext = url.pathExtension.lowercased() as String?,
            fm.fileExists(atPath: url.path) && (ext == "prgm+" || ext == "ppl+")
         {
             let contents = CommandLineTool.`ppl+`(i: url)
-            outputTextView.string = contents.err ?? ""
+            outputTextView.string += contents.err ?? ""
         }
     }
     

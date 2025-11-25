@@ -42,6 +42,30 @@ func terminateApp(withBundleIdentifier bundleIdentifier: String) {
     }
 }
 
+func isProcessRunning(_ name: String) -> Bool {
+    let process = Process()
+    let pipe = Pipe()
+
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/pgrep")
+    process.arguments = ["-f", name]     // -f = match full command line
+    process.standardOutput = pipe
+    process.standardError = Pipe()
+
+    do { try process.run() } catch { return false }
+    process.waitUntilExit()
+
+    return process.terminationStatus == 0
+}
+
+func killProcess(named name: String) {
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/pkill")
+    process.arguments = ["-f", name]   // -f matches full command line
+
+    do { try process.run() }
+    catch { print("Failed to kill: \(error)") }
+}
+
 enum AppLaunchError: Error {
     case notFound
     case invalidPath

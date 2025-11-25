@@ -106,32 +106,38 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSToolbarItemValidation, NSM
         HP.launchVirtualCalculator()
     }
     
-    @IBAction func installLibraries(_ sender: Any) {
-        guard HP.isConnectivityKitInstalled else { return }
-        
-        let homeDir = FileManager.default.homeDirectoryForCurrentUser
-        
-        let destURL = homeDir.appendingPathComponent("Documents/HP Connectivity Kit/Content")
-        let srcURL = URL(fileURLWithPath: "/Applications/HP/PrimeSDK/hpprgm")
-        
-        for file in ["ColorSpace.hpprgm", "HP.hpprgm", "GROB.hpprgm"] {
-            try? FileManager.default.copyItem(at: srcURL.appendingPathComponent(file), to: destURL.appendingPathComponent(file))
-        }
-    }
-    
-    @IBAction func installFonts(_ sender: Any) {
-        guard HP.isConnectivityKitInstalled else { return }
-        
-        let homeDir = FileManager.default.homeDirectoryForCurrentUser
-        
-        let destURL = homeDir.appendingPathComponent("Documents/HP Connectivity Kit/Content")
-        let srcURL = URL(fileURLWithPath: "/Applications/HP/PrimeSDK/hpprgm/fonts")
-        
-      
-        for file in ["CGA.hpprgm", "EGA.hpprgm", "VGA.hpprgm", "BBC.hpprgm", "ARCADE.hpprgm", "HD44780.hpprgm"] {
-            try? FileManager.default.copyItem(at: srcURL.appendingPathComponent(file), to: destURL.appendingPathComponent(file))
-        }
-    }
+//    @IBAction func installLibraries(_ sender: Any) {
+//        guard HP.isConnectivityKitInstalled else { return }
+//        
+//        let homeDir = FileManager.default.homeDirectoryForCurrentUser
+//        
+//        let destURL = homeDir.appendingPathComponent("Documents/HP Connectivity Kit/Content")
+//        let srcURL = URL(fileURLWithPath: "/Applications/HP/PrimeSDK/hpprgm")
+//        
+//        for file in ["ColorSpace.hpprgm", "HP.hpprgm", "GROB.hpprgm"] {
+//            if FileManager.default.fileExists(atPath: destURL.appendingPathComponent(file).path) {
+//                try? FileManager.default.removeItem(at: destURL.appendingPathComponent(file))
+//            }
+//            try? FileManager.default.copyItem(at: srcURL.appendingPathComponent(file), to: destURL.appendingPathComponent(file))
+//        }
+//    }
+//    
+//    @IBAction func installFonts(_ sender: Any) {
+//        guard HP.isConnectivityKitInstalled else { return }
+//        
+//        let homeDir = FileManager.default.homeDirectoryForCurrentUser
+//        
+//        let destURL = homeDir.appendingPathComponent("Documents/HP Connectivity Kit/Content")
+//        let srcURL = URL(fileURLWithPath: "/Applications/HP/PrimeSDK/hpprgm/fonts")
+//        
+//      
+//        for file in ["CGA.hpprgm", "EGA.hpprgm", "VGA.hpprgm", "BBC.hpprgm", "ARCADE.hpprgm", "HD44780.hpprgm"] {
+//            if FileManager.default.fileExists(atPath: destURL.appendingPathComponent(file).path) {
+//                try? FileManager.default.removeItem(at: destURL.appendingPathComponent(file))
+//            }
+//            try? FileManager.default.copyItem(at: srcURL.appendingPathComponent(file), to: destURL.appendingPathComponent(file))
+//        }
+//    }
 
     // MARK: - Action Handlers
     

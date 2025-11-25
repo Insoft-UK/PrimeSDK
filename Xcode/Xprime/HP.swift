@@ -296,6 +296,10 @@ final class HP {
             return
         }
         
+        if isProcessRunning("HP Prime Virtual Calculator") {
+            killProcess(named: "HP Prime Virtual Calculator")
+        }
+        
         launchApplication(
             named: "/Applications/Wine.app/Contents/MacOS/wine",
             arguments: [
