@@ -32,7 +32,7 @@ final class SettingsViewController: NSViewController, NSTextFieldDelegate {
     @IBOutlet weak var Wine: NSButton!
     @IBOutlet weak var compressHPPRGM: NSButton!
     @IBOutlet weak var calculatorName: NSTextField!
-    @IBOutlet weak var calculator: NSTextField!
+    @IBOutlet weak var calculator: NSImageView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,10 +46,10 @@ final class SettingsViewController: NSViewController, NSTextFieldDelegate {
         switch textField.tag {
         case 3:
             if HP.hpPrimeExists(named: textField.stringValue) {
-                calculator.stringValue = "HP Prime"
+                calculator.image = NSImage(named: "ConnectivityKit")
                 return
             }
-            calculator.stringValue = "HP Prime Virual Calculator"
+            calculator.image = NSImage(named: "VirtualCalculator")
         default:
             break
         }
@@ -75,6 +75,8 @@ final class SettingsViewController: NSViewController, NSTextFieldDelegate {
         
         if HP.hpPrimeExists(named: calculatorName.stringValue) {
             AppSettings.calculatorName = calculatorName.stringValue
+        } else {
+            AppSettings.calculatorName = "Prime"
         }
         
         self.view.window?.close()
@@ -103,6 +105,11 @@ final class SettingsViewController: NSViewController, NSTextFieldDelegate {
         
         compressHPPRGM.state = AppSettings.compressHPPRGM ? .on : .off
         calculatorName.stringValue = AppSettings.calculatorName
-        calculator.stringValue = AppSettings.calculatorName == "Prime" ? "Virual Calculator" : "HP Prime Calculator"
+        
+        if HP.hpPrimeExists(named: AppSettings.calculatorName) {
+            calculator.image = NSImage(named: "ConnectivityKit")
+        } else {
+            calculator.image = NSImage(named: "VirtualCalculator")
+        }
     }
 }

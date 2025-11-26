@@ -4,7 +4,6 @@
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24412"/>
         <capability name="Image references" minToolsVersion="12.0"/>
-        <capability name="System colors introduced in macOS 10.14" minToolsVersion="10.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -890,15 +889,6 @@ Gw
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="VirtualCalculator" id="Glp-ul-HCF"/>
                             </imageView>
-                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fxc-LG-v68">
-                                <rect key="frame" x="194" y="37" width="134" height="19"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="HP Prime Virtual Calculator" id="Mwx-TW-chL">
-                                    <font key="font" metaFont="system" size="9"/>
-                                    <color key="textColor" name="selectedContentBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sbg-M2-TtD">
                                 <rect key="frame" x="196" y="142" width="130" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -925,7 +915,7 @@ Gw
                     </view>
                     <connections>
                         <outlet property="Wine" destination="8jj-eN-5T8" id="yPH-Rb-VSU"/>
-                        <outlet property="calculator" destination="fxc-LG-v68" id="jd3-QP-b3V"/>
+                        <outlet property="calculator" destination="xvT-fO-El7" id="VWa-CH-xtl"/>
                         <outlet property="calculatorName" destination="e9H-1G-DL2" id="XcD-Uj-pU2"/>
                         <outlet property="compressHPPRGM" destination="BJV-3l-cR8" id="4es-dz-MBp"/>
                         <outlet property="headerSearchPath" destination="DNH-Ob-HLu" id="QEq-Ni-dgO"/>

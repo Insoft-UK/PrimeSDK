@@ -55,6 +55,8 @@ fileprivate func launchApplication(named appName: String, arguments: [String] = 
 
 final class HP {
     static func hpPrimeExists(named name: String) -> Bool {
+        guard !name.isEmpty else { return false }
+        
         let calculatorURL = FileManager.default
             .homeDirectoryForCurrentUser
             .appendingPathComponent("Documents/HP Connectivity Kit/Calculators")
