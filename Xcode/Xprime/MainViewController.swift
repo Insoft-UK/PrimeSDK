@@ -543,7 +543,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             .appendingPathExtension("hpprgm")
         
         do {
-            try HP.installHPPrgm(at: programURL)
+            try HP.installHPPrgm(at: programURL, forUser: AppSettings.calculatorName)
         } catch {
             let alert = NSAlert()
             alert.messageText = "Error"
@@ -556,11 +556,11 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     @IBAction func installAppDirectoryToCalculator(_ sender: Any) {
         guard let name = applicationName, let parentURL = parentURL else { return }
 
+        let appDirURL = parentURL
+            .appendingPathComponent(name)
+            .appendingPathExtension("hpappdir")
         do {
-            try HP.installAppDirectory(at: parentURL
-                .appendingPathComponent(name)
-                .appendingPathExtension("hpappdir")
-            )
+            try HP.installAppDirectory(at: appDirURL, forUser: AppSettings.calculatorName)
         } catch {
             let alert = NSAlert()
             alert.messageText = "Error"

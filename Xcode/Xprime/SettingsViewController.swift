@@ -23,7 +23,7 @@
 import Cocoa
 
 
-final class SettingsViewController: NSViewController {
+final class SettingsViewController: NSViewController, NSTextFieldDelegate {
     
     
     @IBOutlet weak var librarySearchPath: NSTextField!
@@ -31,25 +31,31 @@ final class SettingsViewController: NSViewController {
     @IBOutlet weak var macOS: NSButton!
     @IBOutlet weak var Wine: NSButton!
     @IBOutlet weak var compressHPPRGM: NSButton!
+    @IBOutlet weak var calculatorName: NSTextField!
+    @IBOutlet weak var calculator: NSTextField!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-    
-        librarySearchPath.stringValue = AppSettings.librarySearchPath
-        headerSearchPath.stringValue = AppSettings.headerSearchPath
-        
-        validateUserInterfaceItems()
-            
-        if AppSettings.HPPrime == "macOS" {
-            macOS.state = .on
-            Wine.state = .off
-        } else {
-            macOS.state = .off
-            Wine.state = .on
+        updateUIFromSettings()
+        calculatorName.delegate = self
+    }
+  
+    func controlTextDidChange(_ obj: Notification) {
+        guard let textField = obj.object as? NSTextField else { return }
+
+        switch textField.tag {
+        case 3:
+            if HP.hpPrimeExists(named: textField.stringValue) {
+                calculator.stringValue = "HP Prime"
+                return
+            }
+            calculator.stringValue = "HP Prime Virual Calculator"
+        default:
+            break
         }
-        
-        compressHPPRGM.state = AppSettings.compressHPPRGM ? .on : .off
+    }
+    
+    @IBAction func platform(_ sender: Any) {
     }
     
     @IBAction func defaultHeaderSearchPath(_ sender: Any) {
@@ -63,6 +69,14 @@ final class SettingsViewController: NSViewController {
     @IBAction func close(_ sender: Any) {
         AppSettings.librarySearchPath = librarySearchPath.stringValue
         AppSettings.headerSearchPath = headerSearchPath.stringValue
+        
+        AppSettings.HPPrime = macOS.state == .on ? "macOS" : "Wine"
+        AppSettings.compressHPPRGM = compressHPPRGM.state == .on
+        
+        if HP.hpPrimeExists(named: calculatorName.stringValue) {
+            AppSettings.calculatorName = calculatorName.stringValue
+        }
+        
         self.view.window?.close()
     }
 
@@ -70,20 +84,25 @@ final class SettingsViewController: NSViewController {
         self.view.window?.close()
     }
     
-    
-    @IBAction func HPPrime(_ sender: NSButton) {
-        AppSettings.HPPrime = sender.title
-    }
-    
-    @IBAction func compressHPPRGM(_ sender: NSButton) {
-        AppSettings.compressHPPRGM = sender.state == .on
-    }
-    
-    private func validateUserInterfaceItems() {
-        let fileManager = FileManager.default
-        if !fileManager.fileExists(atPath: "/Applications/Wine.app/Contents/MacOS/wine") {
+    private func updateUIFromSettings() {
+        librarySearchPath.stringValue = AppSettings.librarySearchPath
+        headerSearchPath.stringValue = AppSettings.headerSearchPath
+        
+        if !FileManager.default.fileExists(atPath: "/Applications/Wine.app/Contents/MacOS/wine") {
             macOS.isEnabled = false
             Wine.isEnabled = false
         }
+        
+        if AppSettings.HPPrime == "macOS" {
+            macOS.state = .on
+            Wine.state = .off
+        } else {
+            macOS.state = .off
+            Wine.state = .on
+        }
+        
+        compressHPPRGM.state = AppSettings.compressHPPRGM ? .on : .off
+        calculatorName.stringValue = AppSettings.calculatorName
+        calculator.stringValue = AppSettings.calculatorName == "Prime" ? "Virual Calculator" : "HP Prime Calculator"
     }
 }

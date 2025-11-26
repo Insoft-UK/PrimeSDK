@@ -30,8 +30,6 @@ final class SettingsWindowController: NSWindowController {
     override func windowDidLoad() {
         super.windowDidLoad()
         
-//        window?.styleMask = [.titled, .closable, .miniaturizable]
-//        window?.title = "Settings"
         window?.titleVisibility = .hidden
         window?.titlebarAppearsTransparent = false
         window?.level = .floating // Keeps the window above other windows if needed

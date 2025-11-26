@@ -40,6 +40,7 @@ struct AppSettings {
         case selectedGrammar
         case HPPrime
         case compressHPPRGM
+        case calculatorName
     }
     
     static var compressHPPRGM: Bool {
@@ -70,6 +71,11 @@ struct AppSettings {
     static var HPPrime: String {
         get { defaults.object(forKey: Key.HPPrime.rawValue) as? String ?? "macOS" }
         set { defaults.set(newValue, forKey: Key.HPPrime.rawValue) }
+    }
+    
+    static var calculatorName: String {
+        get { defaults.object(forKey: Key.calculatorName.rawValue) as? String ?? "Prime" }
+        set { defaults.set(newValue, forKey: Key.calculatorName.rawValue) }
     }
 }
 

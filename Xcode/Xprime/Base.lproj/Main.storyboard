@@ -3,6 +3,8 @@
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="24412"/>
+        <capability name="Image references" minToolsVersion="12.0"/>
+        <capability name="System colors introduced in macOS 10.14" minToolsVersion="10.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -621,9 +623,10 @@
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <menu key="submenu" title="Perform Action" id="rtp-Qk-vwa">
                                                 <items>
-                                                    <menuItem title="HP Prime Virtual Calculator" image="internaldrive" catalog="system" id="y5F-Vo-32S">
+                                                    <menuItem title="HP Prime Calculator" id="y5F-Vo-32S">
+                                                        <imageReference key="image" image="VirtualCalculator" symbolScale="small"/>
                                                         <modifierMask key="keyEquivalentModifierMask"/>
-                                                        <menu key="submenu" title="HP Prime Virtual Calculator" id="tMG-MR-5ZU">
+                                                        <menu key="submenu" title="HP Prime Calculator" id="tMG-MR-5ZU">
                                                             <items>
                                                                 <menuItem title="Install Program" image="NSTouchBarNewFolderTemplate" keyEquivalent="p" id="JoM-hk-tbM">
                                                                     <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
@@ -764,7 +767,7 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" contentType="url" translatesAutoresizingMaskIntoConstraints="NO" id="cz6-Uo-L19" customClass="CustomTextField" customModule="Xprime" customModuleProvider="target">
+                            <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" tag="2" textCompletion="NO" contentType="url" translatesAutoresizingMaskIntoConstraints="NO" id="cz6-Uo-L19" customClass="CustomTextField" customModule="Xprime" customModuleProvider="target">
                                 <rect key="frame" x="196" y="184" width="260" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="border" usesSingleLineMode="YES" id="4ax-mM-IWZ">
@@ -773,7 +776,16 @@
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" contentType="url" translatesAutoresizingMaskIntoConstraints="NO" id="DNH-Ob-HLu" customClass="CustomTextField" customModule="Xprime" customModuleProvider="target">
+                            <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" tag="3" textCompletion="NO" contentType="username" translatesAutoresizingMaskIntoConstraints="NO" id="e9H-1G-DL2" customClass="CustomTextField" customModule="Xprime" customModuleProvider="target">
+                                <rect key="frame" x="196" y="58" width="130" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" enabled="NO" sendsActionOnEndEditing="YES" borderStyle="border" title="Prime" usesSingleLineMode="YES" id="0P3-m7-5nQ">
+                                    <font key="font" metaFont="cellTitle"/>
+                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" tag="1" textCompletion="NO" contentType="url" translatesAutoresizingMaskIntoConstraints="NO" id="DNH-Ob-HLu" customClass="CustomTextField" customModule="Xprime" customModuleProvider="target">
                                 <rect key="frame" x="196" y="226" width="260" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="border" usesSingleLineMode="YES" id="Mt1-UK-btJ">
@@ -847,28 +859,6 @@ Gw
                                     <action selector="defaultLibarySearchPath:" target="HsO-bO-Dfd" id="Smu-ut-cUa"/>
                                 </connections>
                             </button>
-                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sbg-M2-TtD">
-                                <rect key="frame" x="196" y="142" width="130" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <buttonCell key="cell" type="radio" title="macOS" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="iMM-UH-cRP">
-                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                                <connections>
-                                    <action selector="HPPrime:" target="HsO-bO-Dfd" id="PC9-UN-0bO"/>
-                                </connections>
-                            </button>
-                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8jj-eN-5T8">
-                                <rect key="frame" x="326" y="142" width="130" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <buttonCell key="cell" type="radio" title="Wine" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="vqI-t6-XaB">
-                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                    <font key="font" metaFont="system"/>
-                                </buttonCell>
-                                <connections>
-                                    <action selector="HPPrime:" target="HsO-bO-Dfd" id="Rt0-3w-kEl"/>
-                                </connections>
-                            </button>
                             <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="auw-BU-g1Y">
                                 <rect key="frame" x="19" y="107" width="168" height="16"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -885,14 +875,58 @@ Gw
                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                     <font key="font" metaFont="system"/>
                                 </buttonCell>
+                            </button>
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dAf-rj-l5P">
+                                <rect key="frame" x="19" y="65" width="168" height="16"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" alignment="right" title="Calculator Name" id="aRm-Ky-IbX">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xvT-fO-El7">
+                                <rect key="frame" x="21" y="49" width="48" height="48"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="VirtualCalculator" id="Glp-ul-HCF"/>
+                            </imageView>
+                            <textField focusRingType="none" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fxc-LG-v68">
+                                <rect key="frame" x="194" y="37" width="134" height="19"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="HP Prime Virtual Calculator" id="Mwx-TW-chL">
+                                    <font key="font" metaFont="system" size="9"/>
+                                    <color key="textColor" name="selectedContentBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sbg-M2-TtD">
+                                <rect key="frame" x="196" y="142" width="130" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="radio" title="macOS" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="iMM-UH-cRP">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
                                 <connections>
-                                    <action selector="compressHPPRGM:" target="HsO-bO-Dfd" id="5mx-lG-p48"/>
+                                    <action selector="platform:" target="HsO-bO-Dfd" id="hth-3T-Yo1"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8jj-eN-5T8">
+                                <rect key="frame" x="326" y="142" width="130" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="radio" title="Wine" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="vqI-t6-XaB">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="platform:" target="HsO-bO-Dfd" id="7Sw-Rt-960"/>
                                 </connections>
                             </button>
                         </subviews>
                     </view>
                     <connections>
                         <outlet property="Wine" destination="8jj-eN-5T8" id="yPH-Rb-VSU"/>
+                        <outlet property="calculator" destination="fxc-LG-v68" id="jd3-QP-b3V"/>
+                        <outlet property="calculatorName" destination="e9H-1G-DL2" id="XcD-Uj-pU2"/>
                         <outlet property="compressHPPRGM" destination="BJV-3l-cR8" id="4es-dz-MBp"/>
                         <outlet property="headerSearchPath" destination="DNH-Ob-HLu" id="QEq-Ni-dgO"/>
                         <outlet property="librarySearchPath" destination="cz6-Uo-L19" id="xhy-9E-eDk"/>
@@ -1138,7 +1172,6 @@ Gw
         <image name="hammer" catalog="system" width="20" height="18"/>
         <image name="hammer.fill" catalog="system" width="19" height="17"/>
         <image name="icon" width="38" height="38"/>
-        <image name="internaldrive" catalog="system" width="18" height="13"/>
         <image name="long.text.page.and.pencil.fill" catalog="system" width="17" height="19"/>
         <image name="paintbrush" catalog="system" width="17" height="18"/>
         <image name="photo" catalog="system" width="18" height="14"/>

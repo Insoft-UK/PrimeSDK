@@ -54,6 +54,16 @@ fileprivate func launchApplication(named appName: String, arguments: [String] = 
 //        }
 
 final class HP {
+    static func hpPrimeExists(named name: String) -> Bool {
+        let calculatorURL = FileManager.default
+            .homeDirectoryForCurrentUser
+            .appendingPathComponent("Documents/HP Connectivity Kit/Calculators")
+            .appendingPathComponent(name)
+        
+        print(calculatorURL.isDirectory)
+        return calculatorURL.isDirectory
+    }
+    
     static var isVirtualCalculatorInstalled: Bool {
         if AppSettings.HPPrime == "macOS" {
             return FileManager.default.fileExists(atPath: "/Applications/HP Prime.app/Contents/MacOS/HP Prime")
@@ -76,7 +86,7 @@ final class HP {
 
         // Determine base folder
         let baseURL: URL
-        if let user = user {
+        if let user = user, hpPrimeExists(named: user) {
             baseURL = homeURL
                 .appendingPathComponent("Documents/HP Connectivity Kit/Calculators")
                 .appendingPathComponent(user)
@@ -84,15 +94,13 @@ final class HP {
             baseURL = homeURL
                 .appendingPathComponent("Documents/HP Prime/Calculators/Prime")
         }
-
-        // Construct program file URL
-        let programURL = baseURL.appendingPathComponent(name).appendingPathExtension("hpprgm")
-        return FileManager.default.fileExists(atPath: programURL.path)
+        
+        return hpPrgmExists(atPath: baseURL.path, named: name)
     }
     
     static func hpAppDirectoryIsInstalled(named name: String, forUser user: String? = nil) -> Bool {
         let baseURL: URL
-        if let user = user {
+        if let user = user, hpPrimeExists(named: user) {
             baseURL = FileManager.default.homeDirectoryForCurrentUser
                 .appendingPathComponent("Documents/HP Connectivity Kit/Calculators")
                 .appendingPathComponent(user)
@@ -141,7 +149,7 @@ final class HP {
             .appendingPathComponent(name)
             .appendingPathExtension("hpappdir")
         
-        var files: [URL] = [
+        let files: [URL] = [
             appDirURL.appendingPathComponent("\(name).hpapp"),
             appDirURL.appendingPathComponent("\(name).hpappprgm")
         ]
@@ -303,10 +311,11 @@ final class HP {
         // Determine destination folder
         let destinationURL: URL
         
-        if let user = user {
+        if let user = user, hpPrimeExists(named: user) {
             destinationURL = homeURL
                 .appendingPathComponent("Documents/HP Connectivity Kit/Calculators")
                 .appendingPathComponent(user)
+                .appendingPathComponent(programURL.lastPathComponent)
         } else {
             destinationURL = homeURL
                 .appendingPathComponent("Documents/HP Prime/Calculators/Prime")
@@ -322,7 +331,7 @@ final class HP {
         }
     }
     
-    static func installAppDirectory(at appURL: URL) throws {
+    static func installAppDirectory(at appURL: URL, forUser user: String? = nil) throws {
         guard appURL.isDirectory else {
             return
         }
@@ -331,9 +340,16 @@ final class HP {
         // Determine destination folder
         let destinationURL: URL
         
-        destinationURL = homeURL
-            .appendingPathComponent("Documents/HP Prime/Calculators/Prime")
-            .appendingPathComponent(appURL.lastPathComponent)
+        if let user = user, hpPrimeExists(named: user) {
+            destinationURL = homeURL
+                .appendingPathComponent("Documents/HP Connectivity Kit/Calculators")
+                .appendingPathComponent(user)
+                .appendingPathComponent(appURL.lastPathComponent)
+        } else {
+            destinationURL = homeURL
+                .appendingPathComponent("Documents/HP Prime/Calculators/Prime")
+                .appendingPathComponent(appURL.lastPathComponent)
+        }
         
 
         do {
