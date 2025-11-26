@@ -22,35 +22,6 @@
 
 import Cocoa
 
-
-
-fileprivate func encodingType(_ data: inout Data, _ encoding: inout String.Encoding) {
-    // Detect and remove BOM if present
-    if data.count >= 2 {
-        let bomLE: [UInt8] = [0xFF, 0xFE]
-        let bomBE: [UInt8] = [0xFE, 0xFF]
-        let firstTwo = Array(data.prefix(2))
-        if firstTwo == bomLE {
-            data.removeFirst(2) // UTF-16 LE BOM
-            encoding = .utf16LittleEndian
-        } else if firstTwo == bomBE {
-            data.removeFirst(2) // UTF-16 BE BOM
-            encoding = .utf16BigEndian
-        }
-    }
-}
-
-fileprivate func loadHPProgramFile(_ url: URL) -> String? {
-    let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/hpprgm", arguments: [url.path, "-o", "/dev/stdout"])
-    if let out = contents.out, !out.isEmpty {
-        return contents.out
-    }
-    return nil
-}
-
-let HPVirtualCalculatorPath = "/Applications/HP Prime.app/Contents/MacOS/HP Prime"
-let HPConnectivityKitPath = "/Applications/HP Connectivity Kit.app/Contents/MacOS/HP Connectivity Kit"
-
 fileprivate func launchApplication(named appName: String, arguments: [String] = []) {
     switch launchApp(named: appName, arguments: arguments) {
     case .success:
@@ -76,7 +47,7 @@ fileprivate func launchApplication(named appName: String, arguments: [String] = 
 final class HP {
     static var isVirtualCalculatorInstalled: Bool {
         if AppSettings.HPPrime == "macOS" {
-            return FileManager.default.fileExists(atPath: HPVirtualCalculatorPath)
+            return FileManager.default.fileExists(atPath: "/Applications/HP Prime.app/Contents/MacOS/HP Prime")
         }
         
         let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
@@ -85,85 +56,119 @@ final class HP {
     
     static var isConnectivityKitInstalled: Bool {
         if AppSettings.HPPrime == "macOS" {
-            return FileManager.default.fileExists(atPath: HPConnectivityKitPath)
+            return FileManager.default.fileExists(atPath: "/Applications/HP Connectivity Kit.app/Contents/MacOS/HP Connectivity Kit")
         }
         let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
         return FileManager.default.fileExists(atPath: homeDirectory.appendingPathComponent(".wine/drive_c/Program Files/HP/HP Connectivity Kit/ConnectivityKit.exe").path)
     }
     
-    static func isProgramFileInstalled(named name: String) -> Bool {
-        let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
-        let path = homeDirectory.appendingPathComponent("Documents/HP Prime/Calculators/Prime").path
-        
-        return programFileExists(atPath: path, named: name)
+    static func hpPrgmIsInstalled(named name: String, forUser user: String? = nil) -> Bool {
+        let homeURL = FileManager.default.homeDirectoryForCurrentUser
+
+        // Determine base folder
+        let baseURL: URL
+        if let user = user {
+            baseURL = homeURL
+                .appendingPathComponent("Documents/HP Connectivity Kit/Calculators")
+                .appendingPathComponent(user)
+        } else {
+            baseURL = homeURL
+                .appendingPathComponent("Documents/HP Prime/Calculators/Prime")
+        }
+
+        // Construct program file URL
+        let programURL = baseURL.appendingPathComponent(name).appendingPathExtension("hpprgm")
+        return FileManager.default.fileExists(atPath: programURL.path)
     }
     
-    static func isApplicationDirectoryInstalled(named name: String) -> Bool {
-        let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
-        let path = homeDirectory.appendingPathComponent("Documents/HP Prime/Calculators/Prime").path
-        
-        return applicationDirectoryExists(atPath: path, named: name)
+    static func hpAppDirectoryIsInstalled(named name: String, forUser user: String? = nil) -> Bool {
+        let baseURL: URL
+        if let user = user {
+            baseURL = FileManager.default.homeDirectoryForCurrentUser
+                .appendingPathComponent("Documents/HP Connectivity Kit/Calculators")
+                .appendingPathComponent(user)
+        } else {
+            baseURL = FileManager.default.homeDirectoryForCurrentUser
+                .appendingPathComponent("Documents/HP Prime/Calculators/Prime")
+        }
+
+        let appDirURL = baseURL.appendingPathComponent(name)
+        return appDirURL.isDirectory
     }
     
-    static func programFileExists(atPath path: String, named name: String) -> Bool {
-        return FileManager.default.fileExists(atPath: "\(path)/\(name).hpprgm")
+    static func prgmExists(atPath path: String, named name: String) -> Bool {
+        let programURL = URL(fileURLWithPath: path)
+            .appendingPathComponent(name)
+            .appendingPathExtension("prgm")
+        return FileManager.default.fileExists(atPath: programURL.path)
     }
     
-    static func applicationDirectoryExists(atPath path: String, named name: String) -> Bool {
+    static func prgmPlusExists(atPath path: String, named name: String) -> Bool {
+        let programURL = URL(fileURLWithPath: path)
+            .appendingPathComponent(name)
+            .appendingPathExtension("prgm+")
+        return FileManager.default.fileExists(atPath: programURL.path)
+    }
+    
+    static func hpPrgmExists(atPath path: String, named name: String) -> Bool {
+        let programURL = URL(fileURLWithPath: path)
+            .appendingPathComponent(name)
+            .appendingPathExtension("hpprgm")
+        return FileManager.default.fileExists(atPath: programURL.path)
+    }
+    
+    static func hpAppDirExists(atPath path: String, named name: String) -> Bool {
+        let dirURL = URL(fileURLWithPath: path).appendingPathComponent("\(name).hpappdir")
         var isDir: ObjCBool = false
-        return FileManager.default.fileExists(atPath: "\(path)/\(name).hpappdir", isDirectory: &isDir) && isDir.boolValue
+        return FileManager.default.fileExists(atPath: dirURL.path, isDirectory: &isDir) && isDir.boolValue
     }
     
-    static func createApplicationDirectory(at url: URL, named name: String) throws {
-        if applicationDirectoryExists(atPath: url.path, named: name) { return }
+    static func createHPAppDirectory(at url: URL, named name: String) throws {
+        let directoryURL = url
+            .appendingPathComponent(name)
+            .appendingPathExtension("hpappdir")
+        
+        if directoryURL.isDirectory {
+            return
+        }
         
         try FileManager.default.createDirectory(
-            at: url.appendingPathComponent(name).appendingPathExtension("hpappdir"),
+            at: directoryURL,
             withIntermediateDirectories: true,
             attributes: nil
         )
         
-        let folderURL = url.appendingPathComponent(name).appendingPathExtension("hpappdir")
-        
         try FileManager.default.copyItem(
             at: Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/template.hpapp"),
-            to: folderURL.appendingPathComponent("\(name).hpapp")
+            to: directoryURL.appendingPathComponent("\(name).hpapp")
         )
         
         try FileManager.default.copyItem(
             at: url.appendingPathComponent("\(name).hpprgm"),
-            to: folderURL.appendingPathComponent("\(name).hpappprgm")
+            to: directoryURL.appendingPathComponent("\(name).hpappprgm")
         )
         
-        if FileManager.default.fileExists(atPath: url.appendingPathComponent("icon.png").path) {
-            try FileManager.default.copyItem(
+        do {
+            try FileManager.default.moveItem(
                 at: url.appendingPathComponent("icon.png"),
-                to: folderURL.appendingPathComponent("icon.png")
+                to: directoryURL.appendingPathComponent("icon.png")
             )
-        } else {
+        } catch {
             try FileManager.default.copyItem(
                 at: Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/icon.png"),
-                to: folderURL.appendingPathComponent("icon.png")
+                to: directoryURL.appendingPathComponent("icon.png")
             )
         }
     }
     
-    static func removeApplicationDirectory(at url: URL, named name: String) throws {
-        try FileManager.default.removeItem(at: url.appendingPathComponent("\(name).hpappdir"))
-    }
-    
-    static func removeArchive(at url: URL, named name: String) throws {
-        try FileManager.default.removeItem(at: url.appendingPathComponent("\(name).hpappdir.zip"))
-    }
-    
-    static func archiveApplicationDirectory(at url: URL, named name: String, to desctination: URL? = nil) -> (out: String?, err: String?)  {
+    static func archiveHPAppDirectory(at url: URL, named name: String, to desctinationURL: URL? = nil) -> (out: String?, err: String?)  {
         var destinationPath = "\(name).hpappdir.zip"
         
-        if let desctination = desctination {
-            try? FileManager.default.removeItem(at: desctination)
-            destinationPath = desctination.path
+        if let desctinationURL = desctinationURL {
+            try? FileManager.default.removeItem(at: desctinationURL)
+            destinationPath = desctinationURL.path
         } else {
-            try? removeArchive(at: url, named: name)
+            try? FileManager.default.removeItem(at: url.appendingPathComponent("\(name).hpappdir.zip"))
         }
         
         return CommandLineTool.execute(
@@ -178,108 +183,135 @@ final class HP {
         )
     }
     
-    static func compressProgramFile(at url: URL) -> (out: String?, err: String?) {
-        let tempURL = url.deletingLastPathComponent()
-                         .appending(component: "~" + url.lastPathComponent)
+    static func createCompressedHPPrgm(at url: URL) -> (out: String?, err: String?) {
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            return (nil, "")
+        }
        
-        let _ = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/pplmin", arguments: [url.path, "-o", tempURL.path])
+        // Create temp file next to the original
+        let tempURL = url.deletingLastPathComponent()
+            .appending(component: "~" + url.lastPathComponent)
         
-        if FileManager.default.fileExists(
-            atPath: tempURL.path
-        ) {
-            let contents = CommandLineTool.execute(
-                "/Applications/HP/PrimeSDK/bin/hpprgm",
-                arguments: [
-                    tempURL.path, "-o",
-                    url.deletingPathExtension().appendingPathExtension("hpprgm").path
-                ]
-            )
-            
-            try? FileManager.default.removeItem(
-                at: tempURL
-            )
-            return contents
+        // Step 1: Minify PPL
+        _ = CommandLineTool.execute(
+            "/Applications/HP/PrimeSDK/bin/pplmin",
+            arguments: [url.path, "-o", tempURL.path]
+        )
+        
+        // Ensure temp file exists
+        guard FileManager.default.fileExists(atPath: tempURL.path) else {
+            return (nil, "Failed to create intermediate minified program.")
         }
         
-        return (nil, "Failed to find compressed program file.")
+        // Step 2: Compile .hpprgm
+        let programURL: URL
+        programURL = url
+            .deletingPathExtension()
+            .appendingPathExtension("hpprgm")
+        let result = CommandLineTool.execute(
+            "/Applications/HP/PrimeSDK/bin/hpprgm",
+            arguments: [tempURL.path, "-o", programURL.path]
+        )
+        
+        // Clean up temp file
+        try? FileManager.default.removeItem(at: tempURL)
+        
+        return result
     }
     
-    static func loadFile(at url: URL) -> String? {
+    static func createHPPrgm(at url: URL) -> (out: String?, err: String?) {
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            return (nil, "")
+        }
+        
+        let programURL: URL
+        programURL = url
+            .deletingPathExtension()
+            .appendingPathExtension("hpprgm")
+    
+        let result = CommandLineTool.execute(
+            "/Applications/HP/PrimeSDK/bin/hpprgm",
+            arguments: [url.path, "-o", programURL.path]
+        )
+        
+        return result
+    }
+    
+    static func loadHPPrgm(at url: URL) -> String? {
         
         if url.pathExtension.lowercased() == "hpprgm" || url.pathExtension.lowercased() == "hpappprgm" {
-            return loadHPProgramFile(url)
-        }
-        
-        var encoding: String.Encoding = .utf8
-        
-        do {
-            // Read the raw file data
-            var data = try Data(contentsOf: url)
-            
-            encodingType(&data, &encoding)
-            
-            // Decode text using the chosen encoding
-            if let text = String(data: data, encoding: encoding) {
-                return text
-            } else {
-                throw NSError(domain: "FileLoadError", code: -1, userInfo: [
-                    NSLocalizedDescriptionKey: "Failed to decode file text."
-                ])
+            let contents = CommandLineTool.execute("/Applications/HP/PrimeSDK/bin/hpprgm", arguments: [url.path, "-o", "/dev/stdout"])
+            if let out = contents.out, !out.isEmpty {
+                return contents.out
             }
-            
-        } catch {
-            let alert = NSAlert()
-            alert.messageText = "Error"
-            alert.informativeText = "Failed to open file: \(error)"
-            alert.runModal()
             return nil
         }
+        
+        return loadTextFile(at: url)
     }
     
-    static func saveFile(at url: URL, _ prgm: String) throws {
-        let encoding: String.Encoding = url.pathExtension == "prgm" ? .utf16LittleEndian : .utf8
+    static func saveFile(at url: URL, content prgm: String) throws {
+        let encoding: String.Encoding = url.pathExtension.lowercased() == "prgm" ? .utf16LittleEndian : .utf8
         
         if encoding == .utf8 {
-            try prgm.write(to: url, atomically: true, encoding: encoding)
+            try prgm.write(to: url, atomically: true, encoding: .utf8)
         } else {
-            // UTF-16 LE with BOM (0xFF 0xFE)
-            if let body = prgm.data(using: encoding) {
-                var bom = Data([0xFF, 0xFE])
-                bom.append(body)
-                try bom.write(to: url, options: .atomic)
+            // UTF-16 LE with BOM
+            guard let body = prgm.data(using: .utf16LittleEndian) else {
+                throw NSError(domain: "HPFileSaveError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unable to encode string as UTF-16LE"])
             }
+            var data = Data([0xFF, 0xFE]) // BOM
+            data.append(body)
+            try data.write(to: url, options: .atomic)
         }
     }
     
-    static func installProgramFile(atPath path: String, named name: String) throws {
-        let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
+    static func installHPPrgm(at programURL: URL, forUser user: String? = nil) throws {
+        let homeURL = FileManager.default.homeDirectoryForCurrentUser
         
-        let source = URL(fileURLWithPath: path.appending("/\(name).hpprgm"))
-        let destination = homeDirectory.appendingPathComponent("Documents/HP Prime/Calculators/Prime").appendingPathComponent(source.lastPathComponent)
+        // Determine destination folder
+        let destinationURL: URL
         
+        if let user = user {
+            destinationURL = homeURL
+                .appendingPathComponent("Documents/HP Connectivity Kit/Calculators")
+                .appendingPathComponent(user)
+        } else {
+            destinationURL = homeURL
+                .appendingPathComponent("Documents/HP Prime/Calculators/Prime")
+                .appendingPathComponent(programURL.lastPathComponent)
+        }
+
         do {
-            if FileManager.default.fileExists(atPath: destination.path) {
-                try FileManager.default.removeItem(at: destination)
+            if FileManager.default.fileExists(atPath: destinationURL.path) {
+                try FileManager.default.removeItem(at: destinationURL)
             }
 
-            try FileManager.default.copyItem(at: source, to: destination)
+            try FileManager.default.copyItem(at: programURL, to: destinationURL)
         }
     }
     
-    static func installApplicationDirectory(atPath path: String, named name: String) throws {
-        let homeDirectory = FileManager.default.homeDirectoryForCurrentUser
-        let source = URL(fileURLWithPath: path.appending("/\(name).hpappdir"))
-        let destination = homeDirectory.appendingPathComponent("Documents/HP Prime/Calculators/Prime").appendingPathComponent(source.lastPathComponent)
+    static func installAppDirectory(at appURL: URL) throws {
+        guard appURL.isDirectory else {
+            return
+        }
+        let homeURL = FileManager.default.homeDirectoryForCurrentUser
         
+        // Determine destination folder
+        let destinationURL: URL
+        
+        destinationURL = homeURL
+            .appendingPathComponent("Documents/HP Prime/Calculators/Prime")
+            .appendingPathComponent(appURL.lastPathComponent)
+        
+
         do {
-            if FileManager.default.fileExists(atPath: destination.path) {
-                try FileManager.default.removeItem(at: destination)
+            if FileManager.default.fileExists(atPath: destinationURL.path) {
+                try FileManager.default.removeItem(at: destinationURL)
             }
 
-            try FileManager.default.copyItem(at: source, to: destination)
+            try FileManager.default.copyItem(at: appURL, to: destinationURL)
         }
-        
-        return
     }
     
     
