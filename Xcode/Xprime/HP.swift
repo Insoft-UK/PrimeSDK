@@ -44,6 +44,15 @@ fileprivate func launchApplication(named appName: String, arguments: [String] = 
     }
 }
 
+//        guard let enumerator = FileManager.default.enumerator(atPath: parentURL.path) else { return }
+//        for case let fileURL as URL in enumerator where fileURL.pathExtension == "hpprgm" {
+//            let fileName = fileURL.deletingPathExtension().lastPathComponent
+//            if fileName == name {
+//                continue
+//            }
+//
+//        }
+
 final class HP {
     static var isVirtualCalculatorInstalled: Bool {
         if AppSettings.HPPrime == "macOS" {
@@ -121,6 +130,28 @@ final class HP {
         let dirURL = URL(fileURLWithPath: path).appendingPathComponent("\(name).hpappdir")
         var isDir: ObjCBool = false
         return FileManager.default.fileExists(atPath: dirURL.path, isDirectory: &isDir) && isDir.boolValue
+    }
+    
+    static func hpAppDirIsComplete(atPath path: String, named name: String) -> Bool {
+        guard hpAppDirExists(atPath: path, named: name) else {
+            return false
+        }
+        
+        let appDirURL = URL(fileURLWithPath: path)
+            .appendingPathComponent(name)
+            .appendingPathExtension("hpappdir")
+        
+        var files: [URL] = [
+            appDirURL.appendingPathComponent("\(name).hpapp"),
+            appDirURL.appendingPathComponent("\(name).hpappprgm")
+        ]
+        for file in files {
+            if !FileManager.default.fileExists(atPath: file.path) {
+                return false
+            }
+        }
+        
+        return true
     }
     
     static func createHPAppDirectory(at url: URL, named name: String) throws {

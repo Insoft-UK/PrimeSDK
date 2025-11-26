@@ -532,17 +532,6 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
                 return
             }
         }
-        
-//        guard let enumerator = FileManager.default.enumerator(atPath: parentURL.path) else { return }
-//        for case let fileURL as URL in enumerator where fileURL.pathExtension == "hpprgm" {
-//            let fileName = fileURL.deletingPathExtension().lastPathComponent
-//            if fileName == name {
-//                continue
-//            }
-//            
-//        }
-        
-        
     }
     
     
@@ -834,9 +823,15 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         case #selector(revertDocumentToSaved(_:)):
             return documentIsModified
             
-        case #selector(cleanBuildFolder(_:)), #selector(archiveWithoutBuilding(_:)), #selector(exportAsArchive(_:)):
+        case #selector(cleanBuildFolder(_:)):
             if let _ = currentURL, let name = applicationName, let parentURL = parentURL {
                 return HP.hpAppDirExists(atPath: parentURL.path, named: name)
+            }
+            return false
+            
+        case #selector(exportAsArchive(_:)), #selector(archiveWithoutBuilding(_:)):
+            if let _ = currentURL, let name = applicationName, let parentURL = parentURL {
+                return HP.hpAppDirIsComplete(atPath: parentURL.path, named: name)
             }
             return false
         
