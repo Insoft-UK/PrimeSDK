@@ -45,7 +45,7 @@ final class SettingsViewController: NSViewController, NSTextFieldDelegate {
 
         switch textField.tag {
         case 3:
-            if HP.hpPrimeExists(named: textField.stringValue) {
+            if HP.hpPrimeCalculatorExists(named: textField.stringValue) {
                 calculator.image = NSImage(named: "ConnectivityKit")
                 return
             }
