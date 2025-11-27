@@ -40,6 +40,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSToolbarItemValidation, NSM
         
         populateThemesMenu(menu: mainMenu)
         populateGrammarMenu(menu: mainMenu)
+        
+        
+        
+        
     }
     
     func applicationWillTerminate(_ aNotification: Notification) {

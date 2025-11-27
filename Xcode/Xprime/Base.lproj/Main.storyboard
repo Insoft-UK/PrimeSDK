@@ -623,7 +623,7 @@
                                             <menu key="submenu" title="Perform Action" id="rtp-Qk-vwa">
                                                 <items>
                                                     <menuItem title="HP Prime Calculator" id="y5F-Vo-32S">
-                                                        <imageReference key="image" image="VirtualCalculator" symbolScale="small"/>
+                                                        <imageReference key="image" image="ppl" symbolScale="small"/>
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <menu key="submenu" title="HP Prime Calculator" id="tMG-MR-5ZU">
                                                             <items>
