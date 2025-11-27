@@ -630,13 +630,13 @@
                                                                 <menuItem title="Install Program" image="NSTouchBarNewFolderTemplate" keyEquivalent="p" id="JoM-hk-tbM">
                                                                     <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
                                                                     <connections>
-                                                                        <action selector="installPrgmFileToCalculator:" target="Ady-hI-5gd" id="kTb-Vx-EdC"/>
+                                                                        <action selector="installHPPrgmFileToCalculator:" target="Ady-hI-5gd" id="AA4-nk-Kwb"/>
                                                                     </connections>
                                                                 </menuItem>
                                                                 <menuItem title="Install Application" image="NSIconViewTemplate" keyEquivalent="a" id="0WP-EP-bAC">
                                                                     <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
                                                                     <connections>
-                                                                        <action selector="installAppDirectoryToCalculator:" target="Ady-hI-5gd" id="hBa-cp-ROL"/>
+                                                                        <action selector="installHPAppDirectoryToCalculator:" target="Ady-hI-5gd" id="Oq4-sD-2hT"/>
                                                                     </connections>
                                                                 </menuItem>
                                                             </items>

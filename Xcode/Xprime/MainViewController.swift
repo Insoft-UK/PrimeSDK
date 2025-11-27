@@ -454,7 +454,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         buildForRunning(sender)
         
         if HP.hpPrgmExists(atPath: parentURL.path, named: name) {
-            installPrgmFileToCalculator(sender)
+            installHPPrgmFileToCalculator(sender)
             HP.launchVirtualCalculator()
         }
     }
@@ -535,7 +535,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     }
     
     
-    @IBAction func installPrgmFileToCalculator(_ sender: Any) {
+    @IBAction func installHPPrgmFileToCalculator(_ sender: Any) {
         guard let name = applicationName, let parentURL = parentURL else { return }
         
         let programURL = parentURL
@@ -553,14 +553,14 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         }
     }
     
-    @IBAction func installAppDirectoryToCalculator(_ sender: Any) {
+    @IBAction func installHPAppDirectoryToCalculator(_ sender: Any) {
         guard let name = applicationName, let parentURL = parentURL else { return }
 
         let appDirURL = parentURL
             .appendingPathComponent(name)
             .appendingPathExtension("hpappdir")
         do {
-            try HP.installAppDirectory(at: appDirURL, forUser: AppSettings.calculatorName)
+            try HP.installHPAppDirectory(at: appDirURL, forUser: AppSettings.calculatorName)
         } catch {
             let alert = NSAlert()
             alert.messageText = "Error"
@@ -783,7 +783,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             }
             return false
             
-        case #selector(installPrgmFileToCalculator(_:)):
+        case #selector(installHPPrgmFileToCalculator(_:)):
             menuItem.title = "Install Program"
             if let name = applicationName {
                 if HP.hpPrgmIsInstalled(named: name) {
@@ -795,7 +795,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             }
             return false
             
-        case #selector(installAppDirectoryToCalculator(_:)):
+        case #selector(installHPAppDirectoryToCalculator(_:)):
             menuItem.title = "Install Application"
             if let name = applicationName {
                 if HP.hpAppDirectoryIsInstalled(named: name) {

@@ -54,7 +54,7 @@ fileprivate func launchApplication(named appName: String, arguments: [String] = 
 //        }
 
 final class HP {
-    static func hpPrimeExists(named name: String) -> Bool {
+    static func hpPrimeCalculatorExists(named name: String) -> Bool {
         guard !name.isEmpty else { return false }
         
         let calculatorURL = FileManager.default
@@ -88,7 +88,7 @@ final class HP {
 
         // Determine base folder
         let baseURL: URL
-        if let user = user, hpPrimeExists(named: user) {
+        if let user = user, hpPrimeCalculatorExists(named: user) {
             baseURL = homeURL
                 .appendingPathComponent("Documents/HP Connectivity Kit/Calculators")
                 .appendingPathComponent(user)
@@ -102,7 +102,7 @@ final class HP {
     
     static func hpAppDirectoryIsInstalled(named name: String, forUser user: String? = nil) -> Bool {
         let baseURL: URL
-        if let user = user, hpPrimeExists(named: user) {
+        if let user = user, hpPrimeCalculatorExists(named: user) {
             baseURL = FileManager.default.homeDirectoryForCurrentUser
                 .appendingPathComponent("Documents/HP Connectivity Kit/Calculators")
                 .appendingPathComponent(user)
@@ -313,7 +313,7 @@ final class HP {
         // Determine destination folder
         let destinationURL: URL
         
-        if let user = user, hpPrimeExists(named: user) {
+        if let user = user, hpPrimeCalculatorExists(named: user) {
             destinationURL = homeURL
                 .appendingPathComponent("Documents/HP Connectivity Kit/Calculators")
                 .appendingPathComponent(user)
@@ -333,7 +333,7 @@ final class HP {
         }
     }
     
-    static func installAppDirectory(at appURL: URL, forUser user: String? = nil) throws {
+    static func installHPAppDirectory(at appURL: URL, forUser user: String? = nil) throws {
         guard appURL.isDirectory else {
             return
         }
@@ -342,7 +342,7 @@ final class HP {
         // Determine destination folder
         let destinationURL: URL
         
-        if let user = user, hpPrimeExists(named: user) {
+        if let user = user, hpPrimeCalculatorExists(named: user) {
             destinationURL = homeURL
                 .appendingPathComponent("Documents/HP Connectivity Kit/Calculators")
                 .appendingPathComponent(user)
