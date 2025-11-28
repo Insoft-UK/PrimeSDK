@@ -73,7 +73,7 @@ final class SettingsViewController: NSViewController, NSTextFieldDelegate {
         AppSettings.HPPrime = macOS.state == .on ? "macOS" : "Wine"
         AppSettings.compressHPPRGM = compressHPPRGM.state == .on
         
-        if HP.hpPrimeExists(named: calculatorName.stringValue) {
+        if HP.hpPrimeCalculatorExists(named: calculatorName.stringValue) {
             AppSettings.calculatorName = calculatorName.stringValue
         } else {
             AppSettings.calculatorName = "Prime"
@@ -106,7 +106,7 @@ final class SettingsViewController: NSViewController, NSTextFieldDelegate {
         compressHPPRGM.state = AppSettings.compressHPPRGM ? .on : .off
         calculatorName.stringValue = AppSettings.calculatorName
         
-        if HP.hpPrimeExists(named: AppSettings.calculatorName) {
+        if HP.hpPrimeCalculatorExists(named: AppSettings.calculatorName) {
             calculator.image = NSImage(named: "ConnectivityKit")
         } else {
             calculator.image = NSImage(named: "VirtualCalculator")

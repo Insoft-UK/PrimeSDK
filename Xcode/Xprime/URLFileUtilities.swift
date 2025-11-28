@@ -28,4 +28,12 @@ extension URL {
         FileManager.default.fileExists(atPath: path, isDirectory: &isDir)
         return isDir.boolValue
     }
+    
+    func revealInFinder() {
+        NSWorkspace.shared.selectFile(self.path, inFileViewerRootedAtPath: "")
+    }
+    
+    func openInFinder() {
+        NSWorkspace.shared.open(self)
+    }
 }

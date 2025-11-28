@@ -109,7 +109,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         }
         
         
-        if let url = Bundle.main.resourceURL?.appendingPathComponent("default.prgm+") {
+        if let url = Bundle.main.resourceURL?.appendingPathComponent("Untitled.prgm+") {
             codeEditorTextView.string = HP.loadHPPrgm(at: url) ?? ""
         }
         
@@ -158,7 +158,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         
        
         if let window = self.view.window {
-            window.representedURL = Bundle.main.resourceURL?.appendingPathComponent("default.prgm+")
+            window.representedURL = Bundle.main.resourceURL?.appendingPathComponent("Untitled.prgm+")
             window.title = "Untitled (UNSAVED)"
             openDocument(withContentsOf: window.representedURL!)
             currentURL = nil
@@ -570,6 +570,8 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         }
     }
     
+    
+    
     @IBAction func archiveWithoutBuilding(_ sender: Any) {
         guard let name = applicationName , let parentURL = parentURL else { return }
        
@@ -639,11 +641,9 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     }
     
     @IBAction func importCode(_ sender: Any) {
-        guard let url = currentURL else { return }
-        
         let openPanel = NSOpenPanel()
         var extensions = ["prgm"]
-        if url.pathExtension == "prgm+" {
+        if let currentURL = currentURL, currentURL.pathExtension.lowercased() == "prgm+" {
             extensions.append("prgm+")
         }
         let contentTypes = extensions.compactMap { UTType(filenameExtension: $0) }
@@ -720,6 +720,26 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         }
     }
     
+    @IBAction func stop(_ sender: Any) {
+        if isProcessRunning("HP Prime Virtual Calculator") {
+            killProcess(named: "HP Prime Virtual Calculator")
+        }
+    }
+    
+    @IBAction func showBuildFolderInFinder(_ sender: Any) {
+        guard let currentURL = currentURL else {
+            return
+        }
+        currentURL.revealInFinder()
+    }
+    
+    @IBAction func showCalculatorFolderInFinder(_ sender: Any) {
+        guard let url = HP.hpPrimeDirectory(forUser: AppSettings.calculatorName) else {
+            return
+        }
+        url.revealInFinder()
+    }
+    
     @IBAction func reformatCode(_ sender: Any) {
         guard let url = currentURL,
            FileManager.default.fileExists(atPath: url.path) else
@@ -755,6 +775,12 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             
         case #selector(run(_:)), #selector(build(_:)):
             if let url = currentURL, FileManager.default.fileExists(atPath: url.path) {
+                return true
+            }
+            return false
+            
+        case #selector(stop(_:)):
+            if isProcessRunning("HP Prime Virtual Calculator") {
                 return true
             }
             return false
@@ -834,7 +860,19 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
                 return HP.hpAppDirIsComplete(atPath: parentURL.path, named: name)
             }
             return false
-        
+            
+        case #selector(stop(_:)):
+            if isProcessRunning("HP Prime Virtual Calculator") {
+                return true
+            }
+            return false
+            
+        case #selector(showBuildFolderInFinder(_:)):
+            if let _ = currentURL, ext == "prgm" || ext == "prgm+" {
+                return true
+            }
+            return false
+            
         default:
             break
         }

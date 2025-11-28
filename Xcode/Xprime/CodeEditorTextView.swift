@@ -186,14 +186,7 @@ final class CodeEditorTextView: NSTextView {
     
     override func didChangeText() {
         super.didChangeText()
-        registerUndo(target: self,
-                     oldValue: self.string,
-                     keyPath: \NSTextView.string,
-                     undoManager: undoManager,
-                     actionName: "Text Changed")
-        if _smartSubtitution {
-            replaceLastTypedOperator()
-        }
+        registerUndo()
         applySyntaxHighlighting()
     }
     
@@ -218,6 +211,7 @@ final class CodeEditorTextView: NSTextView {
                 setSelectedRange(NSRange(location: selectedRange.location + string.count, length: 0))
             }
         }
+        registerUndo()
         applySyntaxHighlighting()
     }
     
@@ -279,6 +273,17 @@ final class CodeEditorTextView: NSTextView {
     }
     
     // MARK: - Private/s
+    
+    private func registerUndo(actionName: String = "Text Changed") {
+        registerUndo(target: self,
+                     oldValue: self.string,
+                     keyPath: \NSTextView.string,
+                     undoManager: undoManager,
+                     actionName: actionName)
+        if _smartSubtitution {
+            replaceLastTypedOperator()
+        }
+    }
     
     private func autoIndentCurrentLine() {
         let text = string as NSString

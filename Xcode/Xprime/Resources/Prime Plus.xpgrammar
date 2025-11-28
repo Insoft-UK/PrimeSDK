@@ -24,11 +24,11 @@
     },
     {
       "name": "Strings",
-      "match": "\".*?\""
+      "match": "\".*\""
     },
     {
         "name": "Backquotes",
-        "match": "`.*?`"
+        "match": "`.*`"
     },
     {
         "name": "Preprocessor Statements",

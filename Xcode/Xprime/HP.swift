@@ -83,6 +83,34 @@ final class HP {
         return FileManager.default.fileExists(atPath: homeDirectory.appendingPathComponent(".wine/drive_c/Program Files/HP/HP Connectivity Kit/ConnectivityKit.exe").path)
     }
     
+    static func hpPrimeDirectory(forUser user: String = "Prime") -> URL? {
+        let homeURL = FileManager.default.homeDirectoryForCurrentUser
+        
+        let directoryURL: URL
+        let user = AppSettings.calculatorName
+        
+        if hpPrimeCalculatorExists(named: user) {
+            if HP.isConnectivityKitInstalled == false {
+                return nil
+            }
+            directoryURL = homeURL
+                .appendingPathComponent("Documents/HP Connectivity Kit/Calculators")
+                .appendingPathComponent(user)
+        } else {
+            if HP.isVirtualCalculatorInstalled == false {
+                return nil
+            }
+            directoryURL = homeURL
+                .appendingPathComponent("Documents/HP Prime/Calculators/Prime")
+        }
+        
+        if directoryURL.isDirectory == false {
+            return nil
+        }
+        
+        return directoryURL
+    }
+    
     static func hpPrgmIsInstalled(named name: String, forUser user: String? = nil) -> Bool {
         let homeURL = FileManager.default.homeDirectoryForCurrentUser
 
@@ -410,4 +438,6 @@ final class HP {
                     .path
             ])
     }
+    
+    
 }
