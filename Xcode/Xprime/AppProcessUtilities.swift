@@ -51,7 +51,10 @@ func isProcessRunning(_ name: String) -> Bool {
     process.standardOutput = pipe
     process.standardError = Pipe()
 
-    do { try process.run() } catch { return false }
+    do {
+        try process.run()
+    } catch { return false }
+    
     process.waitUntilExit()
 
     return process.terminationStatus == 0

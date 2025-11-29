@@ -663,11 +663,6 @@
                                                 <action selector="cleanBuildFolder:" target="Ady-hI-5gd" id="q0Y-mJ-rjI"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Stop" image="stop.fill" catalog="system" keyEquivalent="." id="ZuN-RD-KlY">
-                                            <connections>
-                                                <action selector="stop:" target="Ady-hI-5gd" id="0OP-TP-697"/>
-                                            </connections>
-                                        </menuItem>
                                         <menuItem isSeparatorItem="YES" id="7RV-lh-ZrF"/>
                                         <menuItem title="Show Build Folder in Finder" image="folder" catalog="system" id="tHu-hM-ufl">
                                             <modifierMask key="keyEquivalentModifierMask"/>
@@ -992,20 +987,6 @@ Gw
                                         <action selector="run:" target="Oky-zY-oP4" id="z6U-b4-VxR"/>
                                     </connections>
                                 </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="092F4BF4-A863-44CF-ACD0-27D47716BBB2" label="Virtual Calculator" paletteLabel="Virtual Calculator" tag="-1" image="VirtualCalculator" id="zjl-IR-WX7">
-                                    <size key="minSize" width="12" height="24"/>
-                                    <size key="maxSize" width="24" height="48"/>
-                                    <connections>
-                                        <action selector="launchHPPrimeVirtualCalculator:" target="Oky-zY-oP4" id="GLe-HM-HOX"/>
-                                    </connections>
-                                </toolbarItem>
-                                <toolbarItem implicitItemIdentifier="5359FD12-5E3B-4C94-B795-DB82537D05C7" label="Connectivity Kit" paletteLabel="Connectivity Kit" tag="-1" image="ConnectivityKit" id="8eg-3b-usX">
-                                    <size key="minSize" width="24" height="24"/>
-                                    <size key="maxSize" width="64" height="64"/>
-                                    <connections>
-                                        <action selector="launchHPConnectiveKit:" target="Oky-zY-oP4" id="uC0-1P-340"/>
-                                    </connections>
-                                </toolbarItem>
                                 <toolbarItem implicitItemIdentifier="6148F352-F458-4A6F-B8C9-DC916032C2A1" label="Stop" paletteLabel="Stop" tag="-1" image="stop.fill" catalog="system" id="gku-Qt-o5N">
                                     <size key="minSize" width="21" height="19"/>
                                     <size key="maxSize" width="21" height="19"/>
@@ -1013,17 +994,30 @@ Gw
                                         <action selector="stop:" target="Oky-zY-oP4" id="mOo-mr-lwN"/>
                                     </connections>
                                 </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="4286DD5A-11ED-45DA-8B29-BD33D900D1C0" label="Virtual Calculator" paletteLabel="Virtual Calculator" tag="-1" image="VirtualCalculator" id="8Lb-Lc-5fO">
+                                    <size key="minSize" width="32" height="32"/>
+                                    <size key="maxSize" width="32" height="32"/>
+                                    <connections>
+                                        <action selector="launchHPPrimeVirtualCalculator:" target="Oky-zY-oP4" id="fYg-Oz-xqj"/>
+                                    </connections>
+                                </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="BCCA5336-6A07-42C4-B6EB-6F603A6DC1D2" label="Connectivity Kit" paletteLabel="Connectivity Kit" tag="-1" image="ConnectivityKit" id="0ug-tp-WdJ">
+                                    <size key="minSize" width="32" height="32"/>
+                                    <size key="maxSize" width="32" height="32"/>
+                                    <connections>
+                                        <action selector="launchHPConnectiveKit:" target="Oky-zY-oP4" id="3WF-xH-T7Z"/>
+                                    </connections>
+                                </toolbarItem>
                             </allowedToolbarItems>
                             <defaultToolbarItems>
-                                <toolbarItem reference="vRb-OI-uPy"/>
-                                <toolbarItem reference="8eg-3b-usX"/>
-                                <toolbarItem reference="zjl-IR-WX7"/>
                                 <toolbarItem reference="Pr6-Kd-yB2"/>
+                                <toolbarItem reference="8Lb-Lc-5fO"/>
+                                <toolbarItem reference="0ug-tp-WdJ"/>
+                                <toolbarItem reference="vRb-OI-uPy"/>
                                 <toolbarItem reference="0uA-kt-18g"/>
                                 <toolbarItem reference="MlY-DF-mDD"/>
                                 <toolbarItem reference="Pr6-Kd-yB2"/>
                                 <toolbarItem reference="qhn-5s-CEp"/>
-                                <toolbarItem reference="gku-Qt-o5N"/>
                                 <toolbarItem reference="LmB-mZ-kcz"/>
                             </defaultToolbarItems>
                         </toolbar>

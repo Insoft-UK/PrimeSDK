@@ -424,8 +424,16 @@ final class HP {
         let appName = "HP Connectivity Kit"
         
         if AppSettings.HPPrime == "macOS" {
+            if let targetBundleIdentifier = getBundleIdentifier(forApp: appName) {
+                terminateApp(withBundleIdentifier: targetBundleIdentifier)
+            }
+            
             launchApplication(named: appName + ".app")
             return
+        }
+        
+        if isProcessRunning("HP Connectivity Kit") {
+            killProcess(named: "HP Connectivity Kit")
         }
         
         launchApplication(

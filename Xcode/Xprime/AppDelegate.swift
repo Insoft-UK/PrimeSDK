@@ -40,10 +40,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSToolbarItemValidation, NSM
         
         populateThemesMenu(menu: mainMenu)
         populateGrammarMenu(menu: mainMenu)
-        
-        
-        
-        
     }
     
     func applicationWillTerminate(_ aNotification: Notification) {
@@ -97,11 +93,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSToolbarItemValidation, NSM
     
     // MARK: - Interface Builder Action Handlers
     
-    
-    
-   
-    
-    
     @IBAction func launchHPConnectiveKit(_ sender: Any) {
         HP.launchConnectivityKit()
     }
@@ -140,12 +131,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSToolbarItemValidation, NSM
     
     internal func validateToolbarItem(_ item: NSToolbarItem) -> Bool {
         switch item.action {
-        case #selector(launchHPPrimeVirtualCalculator(_:)):
-            return HP.isVirtualCalculatorInstalled
-            
         case #selector(launchHPConnectiveKit(_:)):
             return HP.isConnectivityKitInstalled
             
+        case #selector(launchHPPrimeVirtualCalculator(_:)):
+            return HP.isVirtualCalculatorInstalled
         default:
             break
         }

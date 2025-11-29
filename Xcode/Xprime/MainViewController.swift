@@ -720,12 +720,6 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
         }
     }
     
-    @IBAction func stop(_ sender: Any) {
-        if isProcessRunning("HP Prime Virtual Calculator") {
-            killProcess(named: "HP Prime Virtual Calculator")
-        }
-    }
-    
     @IBAction func showBuildFolderInFinder(_ sender: Any) {
         guard let currentURL = currentURL else {
             return
@@ -765,22 +759,23 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
     // MARK: - Validation for Toolbar Items
     
     internal func validateToolbarItem(_ item: NSToolbarItem) -> Bool {
-        // Enable or disable toolbar items as needed. For now, always enable.
+        let ext = (currentURL != nil) ? currentURL!.pathExtension.lowercased() : ""
+    
         switch item.action {
+        case #selector(build(_:)):
+            if let _ = currentURL, ext == "prgm+" {
+                return true
+            }
+            return false
+            
+        case #selector(run(_:)):
+            if let _ = currentURL, ext == "prgm" || ext == "prgm+" {
+                return true
+            }
+            return false
+            
         case #selector(exportAsHPPrgm(_:)):
             if let url = currentURL, let ext = url.pathExtension.lowercased() as String?, ext == "prgm" {
-                return true
-            }
-            return false
-            
-        case #selector(run(_:)), #selector(build(_:)):
-            if let url = currentURL, FileManager.default.fileExists(atPath: url.path) {
-                return true
-            }
-            return false
-            
-        case #selector(stop(_:)):
-            if isProcessRunning("HP Prime Virtual Calculator") {
                 return true
             }
             return false
@@ -861,11 +856,6 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSToolbarI
             }
             return false
             
-        case #selector(stop(_:)):
-            if isProcessRunning("HP Prime Virtual Calculator") {
-                return true
-            }
-            return false
             
         case #selector(showBuildFolderInFinder(_:)):
             if let _ = currentURL, ext == "prgm" || ext == "prgm+" {
