@@ -34,5 +34,5 @@ This utility tool provides the ability to extract **PPL** code from an HP Prime 
 **<a href="https://www.github.com/Insoft-UK/PPL-Minifier/tree/main/examples/ColorSpace.prgm">ColorSpace</a>**, **<a href="https://www.github.com/Insoft-UK/PPL-Minifier/tree/main/examples/GROB.prgm">GROB</a>** and **<a href="https://www.github.com/Insoft-UK/PPL-Minifier/tree/main/examples/HP.prgm">HP</a>**
 
 >[!NOTE]
->Xprime is the successor to PrimeSDK. Going forward, Xprime will receive regular updates, while PrimeSDK will see fewer.
+><a href="https://github.com/Insoft-UK/Xprime/tree/main/README.md">Xprime</a> is the successor to PrimeSDK. Going forward, Xprime will receive regular updates, while PrimeSDK will see fewer.
 
