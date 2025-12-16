@@ -37,6 +37,6 @@
     </choice>
 
     <!-- Package references -->
-    <pkg-ref id="uk.insoft.primesdk" installKBytes="2308" version="1.5">primesdk.pkg</pkg-ref>
+    <pkg-ref id="uk.insoft.primesdk" installKBytes="2132" version="1.5">primesdk.pkg</pkg-ref>
     <pkg-ref id="uk.insoft.hp" installKBytes="20" version="1.5">hp.pkg</pkg-ref>
 </installer-gui-script>
