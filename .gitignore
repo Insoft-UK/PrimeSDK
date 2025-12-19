@@ -3,6 +3,6 @@ xcuserdata/
 .DS_Store
 *.pkg
 *.app
+*.zip
 ignore
 build
-Xcode/Tools
