@@ -15,9 +15,6 @@ The command-line tools are are installed at `/Applications/HP/PrimeSDK/bin`.
 #### <a href="https://github.com/Insoft-UK/PrimePlus/tree/main/README.md">PPL+</a> Pre-Processor for PPL
 PPL+ is a pre-processor that improves readability and maintainability of HP PPL code. It supports custom regex rules, can extract PPL source from .hpprgm and .hpappprgm files, and can also compress PPL source into a compact, optimized form for the HP Prime.
 
-#### <a href="https://github.com/Insoft-UK/PPL-Reformat/tree/main/README.md">Reformater</a> for PPL Code
-Reformating your code enforce a consistent coding style throughout your project, making it easier for multiple developers to work on the same codebase. It helps maintain a uniform look and feel, which can enhance code readability. Readability: Well-formatted code is easier to read and understand.
-
 #### <a href="https://github.com/Insoft-UK/GROB/tree/main/README.md">GROB</a> for PPL Code
 A utility that generates PPL code from image files for use with the **<a href="https://www.github.com/Insoft-UK/PPL-Minifier/tree/main/examples/GROB.prgm">GROB</a>** library, enabling the creation of graphic objects for use with the BLIT and BLIT_P functions on the HP Prime calculator.
 
