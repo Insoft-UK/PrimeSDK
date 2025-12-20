@@ -18,10 +18,6 @@ PPL+ is a pre-processor that improves readability and maintainability of HP PPL 
 #### <a href="https://github.com/Insoft-UK/GROB/tree/main/README.md">GROB</a> for PPL Code
 A utility that generates PPL code from image files for use with the **<a href="https://www.github.com/Insoft-UK/PPL-Minifier/tree/main/examples/GROB.prgm">GROB</a>** library, enabling the creation of graphic objects for use with the BLIT and BLIT_P functions on the HP Prime calculator.
 
-#### Adafruit GFX <a href="https://github.com/Insoft-UK/PPL-Font/tree/main/README.md">Font Converter</a>
-A handy utility for converting Adafruit_GFX .h files to the .prgm format, for use with the **<a href="https://www.github.com/Insoft-UK/PPL-Minifier/tree/main/examples/HP.prgm">HP</a>** library to render Adafruit GFX fonts.
-
-
 >[!NOTE]
 ><a href="https://github.com/Insoft-UK/Xprime/tree/main/README.md">**Xprime**</a> is the successor to **Prime SDK** for macOS. Going forward, Xprime will receive regular updates, while Prime SDK will see fewer.
 
