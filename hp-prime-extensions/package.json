@@ -1,0 +1,77 @@
+{
+	"name": "hp-prime-language",
+	"displayName": "HP Prime Language Support",
+	"description": "HP Prime Language Support is an extension that provides language support and tools to facilitate the development of programs and applications in the HP Prime calculator environment. This extension includes syntax highlighting, code autocompletion, and contextual help to enhance the programming experience and increase the productivity of developers working with the HP Prime calculator.",
+	"icons": "icons/hpprgm-icon.png",
+	"version": "2.0.4",
+	"publisher": "Insoft",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Insoft-UK/PrimePlus"
+    },
+    "licesce": "MIT",
+	"engines": {
+		"vscode": "^1.80.2"
+	},
+	"categories": [
+		"Programming Languages"
+	],
+	"activationEvents": [
+		"onLanguage:hp-prime"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"languages": [
+			{
+				"id": "hp-prime",
+				"aliases": [
+					"HP Prime Language",
+					"hp-prime"
+				],
+				"extensions": [
+					".hpprgm",
+                    ".pp"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "hp-prime",
+				"scopeName": "source.hp-prime",
+				"path": "./syntaxes/hp-prime.tmLanguage.json"
+			}
+		],
+		"snippets": [
+			{
+				"language": "hp-prime",
+				"path": "./snippets/hp-prime-snippets.json"
+			}
+		],
+		"hover": {
+			"enable": true
+		},
+		"completionItemProvider": {
+			"triggerCharacters": [
+				"."
+			],
+			"provideCompletionItems": true
+		},
+		"fileIcons": {
+			"icons": {
+				"hp-prime": "icons/HP.png"
+			}
+		},
+        "themes": [
+            {
+                "label": "PrimePlus",
+                "uiTheme": "vs-dark",
+                "path": "./themes/hp-prime.json"
+            }
+        ]
+	},
+	"devDependencies": {
+		"@types/node": "^20.3.1",
+		"@types/vscode": "^1.80.2"
+	}
+}
