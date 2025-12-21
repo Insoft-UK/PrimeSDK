@@ -10,7 +10,7 @@ Graphing calculator HP Prime has a **3.5-inch full color touch screen**, that de
 <img src="https://raw.githubusercontent.com/Insoft-UK/Insoft-UK/main/assets/silhouette-logo.svg" style="width: 128px" />
 
 ## Command-Line Tools
-The command-line tools are are installed at `/Applications/HP/PrimeSDK/bin`.
+The command-line tools are are installed at `/Applications/HP/PrimeSDK/bin` for **macOS**.
 
 #### <a href="https://github.com/Insoft-UK/PrimePlus/tree/main/README.md">PPL+</a> Pre-Processor for PPL
 PPL+ is a pre-processor that improves readability and maintainability of HP PPL code. It supports custom regex rules, can extract PPL source from .hpprgm and .hpappprgm files, and can also compress PPL source into a compact, optimized form for the HP Prime.
