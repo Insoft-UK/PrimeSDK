@@ -6,5 +6,5 @@ xcuserdata/
 *.pkg
 ignore
 build
-primesdk_macOS
-primesdk_x86_64
+primesdk_macOS/
+primesdk_x86_64_/
