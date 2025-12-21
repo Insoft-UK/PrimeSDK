@@ -3,6 +3,8 @@ xcuserdata/
 .DS_Store
 *.app
 *.zip
+*.pkg
 ignore
 build
-
+primesdk_macOS
+primesdk_x86_64
