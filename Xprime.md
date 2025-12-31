@@ -5,3 +5,5 @@
 - Package your application for deployment on the HP Prime or test with the Virtual Calculator.
 - Export a G1 .hpprgm file for use on a real HP Prime or the Virtual Calculator.
 - Compress code to fit more programs on your HP Prime
+
+Download the 2026 version <a href="https://insoft.uk/action/?method=downlink&path=macos&file=Xprime.pkg">**here**</a> today.
