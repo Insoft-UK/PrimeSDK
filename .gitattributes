@@ -1,29 +1,49 @@
-# Auto detect text files and perform LF normalization
+# Normalize line endings
 * text=auto
 
-# Mark custom languages
-*.pp linguist-language=PPL+
-*.hpprgm linguist-language=PPL
+# Ignore everything by default
+* linguist-ignore
 
-# Explicitly define expected languages to avoid misclassification
-*.sh linguist-language=Shell
-*.c linguist-language=C
-*.cpp linguist-language=C++
-*.h linguist-language=C
-*.hpp linguist-language=C++
-*.hh linguist-language=Objective-C++
-*.m linguist-language=Objective-C
-*.mm linguist-language=Objective-C++
-*.swift linguist-language=Swift
-*.py linguist-language=Python
+# PPL files (count & highlight)
+*.ppl        linguist-ignore=false linguist-language=PPL
+*.prgm       linguist-ignore=false linguist-language=PPL
+*.hpprgm     linguist-ignore=false linguist-language=PPL
+*.hpappprgm  linguist-ignore=false linguist-language=PPL
+*.ppl+       linguist-ignore=false linguist-language=PPL+
+*.prgm+      linguist-ignore=false linguist-language=PPL+
 
-# Treat any man pages or docs as documentation to exclude from language stats
-man/** linguist-documentation
-docs/** linguist-documentation
-*.1 linguist-documentation
-*.3 linguist-documentation
-*.ms linguist-documentation
-*.roff linguist-documentation
+# Ignore assets and scripts
+assets/** linguist-ignore
+Makefile  linguist-ignore
+*.sh      linguist-ignore
+*.txt     linguist-ignore
+*.rtf     linguist-ignore
+*.xml     linguist-ignore
+*.json    linguist-ignore
+# Normalize line endings
+* text=auto
 
-# Optional: ignore auto-generated files
-generated/** linguist-generated
+# Ignore everything by default
+* linguist-ignore
+
+# PPL files (count & highlight)
+*.ppl        linguist-ignore=false linguist-language=PPL
+*.prgm       linguist-ignore=false linguist-language=PPL
+*.hpprgm     linguist-ignore=false linguist-language=PPL
+*.hpappprgm  linguist-ignore=false linguist-language=PPL
+*.ppl+       linguist-ignore=false linguist-language=PPL+
+*.prgm+      linguist-ignore=false linguist-language=PPL+
+
+# Ignore assets and scripts
+assets/**    linguist-ignore
+Makefile     linguist-ignore
+*.sh         linguist-ignore
+*.txt        linguist-ignore
+*.rtf        linguist-ignore
+*.xml        linguist-ignore
+*.json       linguist-ignore
+*.png        linguist-ignore
+*.storyboard linguist-ignore
+*.png        linguist-ignore
+*.bmp        linguist-ignore
+
