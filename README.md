@@ -1,4 +1,4 @@
-<img width="128" src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/icon.png?" />
+<img width="128" src="https://raw.githubusercontent.com/Insoft-UK/PrimeSDK/main/assets/icon.png?refresh=true" />
 
 ### HP Prime G2
 
