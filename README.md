@@ -14,8 +14,8 @@ The command-line tools are are installed at `/Applications/HP/PrimeSDK/bin` for 
 #### <a href="https://github.com/Insoft-UK/PrimePlus/tree/main/README.md">PPL+</a> Pre-Processor for PPL
 PPL+ is a pre-processor that improves readability and maintainability of HP PPL code. It supports custom regex rules, can extract PPL source from .hpprgm and .hpappprgm files, and can also compress PPL source into a compact, optimized form for the HP Prime.
 
-Download **PrimeSDK** for macOS <a href="http://www.insoft.uk/action/?method=downlink&path=macos&file=primesdk_macOS.pkg">heare</a></br>
-Download **PrimeSDK** for Windows 11 <a href="http://www.insoft.uk/action/?method=downlink&path=pc&file=PrimePlus_x86_64.zip">heare</a></br>
+Download **PrimeSDK** for macOS <a href="http://www.insoft.uk/action/?method=downlink&path=macos&file=primesdk_macOS.pkg">here</a></br>
+Download **PrimeSDK** for Windows 11 <a href="http://www.insoft.uk/action/?method=downlink&path=pc&file=PrimePlus_x86_64.zip">here</a></br>
 Download the **library** of function for the HP Prime <a href="http://www.insoft.uk/action/?method=downlink&path=hp/hpappdir&file=HP.hpappdir.zip">here</a></br>
 Download the collection of **fonts** for the HP Prime <a href="http://www.insoft.uk/action/?method=downlink&path=hp/hpappdir&file=Fonts.hpappdir.zip">here</a> (requires the **library**)
 
