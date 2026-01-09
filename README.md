@@ -16,8 +16,8 @@ PPL+ is a pre-processor that improves readability and maintainability of HP PPL 
 
 Download **PrimeSDK** for macOS <a href="http://www.insoft.uk/action/?method=downlink&path=macos&file=primesdk_macOS.pkg">heare</a></br>
 Download **PrimeSDK** for Windows 11 <a href="http://www.insoft.uk/action/?method=downlink&path=pc&file=PrimePlus_x86_64.zip">heare</a></br>
-Download the **library** of function for the HP Prime <a href="http://www.insoft.uk/action/?method=downlink&path=hp/hpappdir&file=HP.hpappdir.zip">heare</a></br>
-Download the collection of **fonts** for the HP Prime <a href="http://www.insoft.uk/action/?method=downlink&path=hp/hpappdir&file=Fonts.hpappdir.zip">heare</a> (requires the **library**)
+Download the **library** of function for the HP Prime <a href="http://www.insoft.uk/action/?method=downlink&path=hp/hpappdir&file=HP.hpappdir.zip">here</a></br>
+Download the collection of **fonts** for the HP Prime <a href="http://www.insoft.uk/action/?method=downlink&path=hp/hpappdir&file=Fonts.hpappdir.zip">here</a> (requires the **library**)
 
 >[!NOTE]
 ><a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/Xprime.md">**Xprime**</a> is the successor to **Prime SDK** Command Line Tools only for macOS. Going forward, Xprime will receive regular updates, while Prime SDK for PC will see fewer.
