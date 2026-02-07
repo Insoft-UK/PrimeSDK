@@ -32,5 +32,5 @@ Download the **library** of function for the HP Prime <a href="http://www.insoft
 Download the collection of **fonts** for the HP Prime <a href="http://www.insoft.uk/action/?method=downlink&path=hp/hpappdir&file=Fonts.hpappdir.zip">here</a> (requires the **library**)
 
 >[!NOTE]
-><a href="https://github.com/Insoft-UK/PrimeSDK/tree/main/Xprime.md">**Xprime**</a> is the successor to **Prime SDK** Command Line Tools only for macOS. Going forward, Xprime will receive regular updates, while Prime SDK for PC will see fewer.
+><a href="https://github.com/Insoft-UK/Xprime/tree/main/README.md">**Xprime**</a> is the successor to **Prime SDK** Command Line Tools only for macOS. Going forward, Xprime will receive regular updates, while Prime SDK for Windows and Linux will see fewer.
 
