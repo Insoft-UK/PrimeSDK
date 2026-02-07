@@ -8,3 +8,4 @@ ignore
 build
 primesdk_macOS/
 primesdk_x86_64/
+ignore
