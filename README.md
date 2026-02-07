@@ -25,7 +25,7 @@ A utility for generating PPL code from an image file for use with the BLIT and B
 
 Download links: <a href="http://insoft.uk/action/?method=downlink&path=macos&file=grob_macOS.zip">macOS</a> | <a href="http://insoft.uk/action/?method=downlink&path=pc&file=grob_win_x86_64.zip">Windows</a> | <a href="http://insoft.uk/action/?method=downlink&path=linux&file=grob_linux_x86_64.zip">Linux</a>
 
-#### <a href="https://github.com/Insoft-UK/PrimePlus/tree/main/Xcode/Tools/note/README.md">Note</a> for PPL
+#### <a href="https://github.com/Insoft-UK/Xprime/tree/main/Xcode/Tools/note/README.md">Note</a> for PPL
 A command-line tool that converts .md and .ntf files into the HP Prime .hpnote format, preserving formatting such as bold and italic text, font sizes, and foreground and background colors.
 
 Download links: <a href="http://insoft.uk/action/?method=downlink&path=macos&file=note_macOS.zip">macOS</a> | <a href="http://insoft.uk/action/?method=downlink&path=pc&file=note_win_x86_64.zip">Windows</a> | <a href="http://insoft.uk/action/?method=downlink&path=linux&file=note_linux_x86_64.zip">Linux</a>
