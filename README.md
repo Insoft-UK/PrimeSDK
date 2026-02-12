@@ -10,7 +10,7 @@ Graphing calculator HP Prime has a **3.5-inch full color touch screen**, that de
 ## <a href="https://github.com/Insoft-UK/PrimePlus/tree/main/README.md">PPL+</a> Pre-Processor for PPL
 PPL+ is a pre-processor that improves readability and maintainability of HP PPL code. It supports custom regex rules, can extract PPL source from .hpprgm and .hpappprgm files, and can also compress PPL source into a compact, optimized form for the HP Prime.
 
-Download links: <a href="https://insoft.uk/action/?method=downlink&path=macos&file=PrimePlus_macOS.zip">macOS</a> | <a href="https://insoft.uk/action/?method=downlink&path=pc&file=PrimePlus_x86_64.zip">Windows</a> | <a href="https://insoft.uk/action/?method=downlink&path=linux&file=ppl+_linux_macOS.zip">Linux</a>
+Download links: <a href="https://insoft.uk/action/?method=downlink&path=macos&file=ppl+_macOS.zip">macOS</a> | <a href="https://insoft.uk/action/?method=downlink&path=pc&file=ppl+_x86_64.zip">Windows</a> | <a href="https://insoft.uk/action/?method=downlink&path=linux&file=ppl+_linux_macOS.zip">Linux</a>
 
 ## Adafruit GFX <a href="https://github.com/Insoft-UK/PrimePlus/tree/main/add-ons/font/README.md">Font Converter</a> for PPL
 This is a handy utility that goes well with the original [fontconvert](https://github.com/adafruit/Adafruit-GFX-Library/tree/master/fontconvert) tool provided by [Adafruit](https://www.adafruit.com/) for converting Adafruit_GFX `.h` to Adafruit_GFX `.hpprgm` format.
