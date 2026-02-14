@@ -10,22 +10,22 @@ Graphing calculator HP Prime has a **3.5-inch full color touch screen**, that de
 ## <a href="https://github.com/Insoft-UK/PrimePlus/tree/main/README.md">PPL+</a> Pre-Processor for PPL
 PPL+ is a pre-processor that improves readability and maintainability of HP PPL code. It supports custom regex rules, can extract PPL source from .hpprgm and .hpappprgm files, and can also compress PPL source into a compact, optimized form for the HP Prime.
 
-Download links: <a href="https://insoft.uk/action/?method=downlink&path=macos&file=ppl+_universal_mac.zip">macOS</a> | <a href="https://insoft.uk/action/?method=downlink&path=pc&file=ppl+_x86_64_win.zip">Windows</a> | <a href="https://insoft.uk/action/?method=downlink&path=linux&file=ppl+_x86_64_linux.zip">Linux</a>
+Download links: <a href="https://insoft.uk/action/?method=downlink&path=macos&file=pplplus-mac-universal.zip">macOS</a> | <a href="https://insoft.uk/action/?method=downlink&path=pc&file=pplplus-win-x86_64.zip">Windows</a> | <a href="https://insoft.uk/action/?method=downlink&path=linux&file=pplplus-linux-x86_64.zip">Linux</a>
 
 ## Adafruit GFX <a href="https://github.com/Insoft-UK/PrimePlus/tree/main/add-ons/font/README.md">Font Converter</a> for PPL
 This is a handy utility that goes well with the original [fontconvert](https://github.com/adafruit/Adafruit-GFX-Library/tree/master/fontconvert) tool provided by [Adafruit](https://www.adafruit.com/) for converting Adafruit_GFX `.h` to Adafruit_GFX `.hpprgm` format.
 
-Download links: <a href="http://insoft.uk/action/?method=downlink&path=macos&file=font_universal_mac.zip">macOS</a> | <a href="http://insoft.uk/action/?method=downlink&path=pc&file=font_x86_64_win.zip">Windows</a> | <a href="http://insoft.uk/action/?method=downlink&path=linux&file=font_x86_64_linux.zip">Linux</a>
+Download links: <a href="http://insoft.uk/action/?method=downlink&path=macos&file=font-mac-universal.zip">macOS</a> | <a href="http://insoft.uk/action/?method=downlink&path=pc&file=font-win-x86_64.zip">Windows</a> | <a href="http://insoft.uk/action/?method=downlink&path=linux&file=font-linux-x86_64.zip">Linux</a>
 
 ## <a href="https://github.com/Insoft-UK/PrimePlus/tree/main/add-ons/grob/README.md">GROB</a> for PPL
 A utility for generating PPL code from an image file for use with the BLIT and BLIT_P functions on the HP Prime.
 
-Download links: <a href="http://insoft.uk/action/?method=downlink&path=macos&file=grob_universal_mac.zip">macOS</a> | <a href="http://insoft.uk/action/?method=downlink&path=pc&file=grob_x86_64_win.zip">Windows</a> | <a href="http://insoft.uk/action/?method=downlink&path=linux&file=grob_x86_64_linux.zip">Linux</a>
+Download links: <a href="http://insoft.uk/action/?method=downlink&path=macos&file=grob-mac-universal.zip">macOS</a> | <a href="http://insoft.uk/action/?method=downlink&path=pc&file=grob-win-x86_64.zip">Windows</a> | <a href="http://insoft.uk/action/?method=downlink&path=linux&file=grob-linux-x86_64.zip">Linux</a>
 
 ## <a href="https://github.com/Insoft-UK/Xprime/tree/main/Xcode/Tools/note/README.md">Note</a> for PPL
 A command-line tool that converts .md and .ntf files into the HP Prime .hpnote format, preserving formatting such as bold and italic text, font sizes, and foreground and background colors.
 
-Download links: <a href="http://insoft.uk/action/?method=downlink&path=macos&file=note_universal_mac.zip">macOS</a> | <a href="http://insoft.uk/action/?method=downlink&path=pc&file=note_x86_64_win.zip">Windows</a> | <a href="http://insoft.uk/action/?method=downlink&path=linux&file=note_x86_64_linux.zip">Linux</a>
+Download links: <a href="http://insoft.uk/action/?method=downlink&path=macos&file=note-mac-universal.zip">macOS</a> | <a href="http://insoft.uk/action/?method=downlink&path=pc&file=note-win-x86_64.zip">Windows</a> | <a href="http://insoft.uk/action/?method=downlink&path=linux&file=note-linux-x86_64.zip">Linux</a>
 
 ## HP Prime
 Download the **library** of function for the HP Prime <a href="http://www.insoft.uk/action/?method=downlink&path=hp/hpappdir&file=HP.hpappdir.zip">here</a></br>
